@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useWallet } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { WalletActionButton } from "@tronweb3/tronwallet-adapter-react-ui";
+import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks';
 
 function Header() {
   const logoRef = useRef(null);
+  const { wallet, address, connected, select, connect, disconnect } = useWallet();
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -24,11 +25,27 @@ function Header() {
     }
   }, []);
 
-  const { address, connected } = useWallet();
-
-  const truncateAddress = (addr) => {
-    if (!addr) return "";
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  const handleWalletAction = async () => {
+    if (connected) {
+      await disconnect();
+    } else {
+      setIsConnecting(true);
+      if (wallet) {
+        try {
+          await connect();
+        } catch (error) {
+          console.error('Failed to connect:', error);
+        }
+      } else {
+        try {
+          await select('TronLink');
+          await connect();
+        } catch (error) {
+          console.error('Failed to select or connect:', error);
+        }
+      }
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -60,19 +77,15 @@ function Header() {
             <li className="flex items-center">
               <Link to="/dashboard" className="hover:text-secondary transition-colors">Dashboard</Link>
             </li>
-            {connected ? (
-              <li className="flex items-center">
-                <WalletActionButton className="flex items-center p-3 px-10 text-white font-medium bg-[#5fc71e] hover:border-white border-2 hover:bg-[#4ca613] rounded-lg cursor-pointer tron_btn">
-                  <span className="text-sm font-bold">{truncateAddress(address || "")}</span>
-                </WalletActionButton>
-              </li>
-            ) : (
-              <li className="flex items-center">
-                <WalletActionButton className="flex items-center p-3 px-10 text-white font-medium bg-[#5fc71e] hover:border-white border-2 hover:bg-[#4ca613] rounded-lg cursor-pointer tron_btn">
-                  Connect Wallet
-                </WalletActionButton>
-              </li>
-            )}
+            <li className="flex items-center">
+              <button
+                onClick={handleWalletAction}
+                disabled={isConnecting}
+                className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
+              >
+                {isConnecting ? 'Connecting...' : connected ? `Disconnect (${address.slice(0, 6)}...${address.slice(-4)})` : 'Connect Wallet'}
+              </button>
+            </li>
           </ul>
         </nav>
       </div>

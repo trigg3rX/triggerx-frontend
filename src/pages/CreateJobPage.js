@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 
 function CreateJobPage() {
   const [jobType, setJobType] = useState('');
@@ -35,14 +34,21 @@ function CreateJobPage() {
     const address = e.target.value;
     setContractAddress(address);
 
-    if (address.length === 42) {  // Ethereum address length
+    if (address.length === 34) {
       try {
-        const response = await axios.get(`https://api-holesky.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=TQZ41F9SYE4QXFAZG6K6Z2G8NYHS356FGY`);
+        const tronWeb = window.tronWeb;
+        if (!tronWeb) {
+          console.error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+          return;
+        }
+
+        const contract = await tronWeb.contract().at(address);
+        const abi = JSON.stringify(contract.abi);
         
-        if (response.data.status === '1') {
-          setContractABI(response.data.result);
+        if (abi) {
+          setContractABI(abi);
         } else {
-          console.error('Error fetching ABI:', response.data.message);
+          console.error('Error fetching ABI: ABI not found');
           setContractABI('');
         }
       } catch (error) {
