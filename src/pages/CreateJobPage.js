@@ -47,6 +47,7 @@ function CreateJobPage() {
         
         if (abi) {
           setContractABI(abi);
+          console.log('ABI fetched successfully');
         } else {
           console.error('Error fetching ABI: ABI not found');
           setContractABI('');
@@ -68,10 +69,44 @@ function CreateJobPage() {
     setTimeInterval(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
   };
 
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle job creation logic here
-    console.log({ jobType, timeframe, contractAddress, contractABI, targetFunction, timeInterval, argType, apiEndpoint });
+    try {
+      const tronWeb = window.tronWeb;
+      if (!tronWeb) {
+        throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+      }
+
+      // Replace with the actual address of your deployed JobCreator contract
+      const jobCreatorContractAddress = 'TAjmTb3v6FDEQyxktBn9heYjSt5VGeNMVr';
+      const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
+
+      // Prepare the parameters for the createJob function
+      const timeframeInSeconds = (timeframe.years * 31536000) + (timeframe.months * 2592000) + (timeframe.days * 86400);
+      const intervalInSeconds = (timeInterval.hours * 3600) + (timeInterval.minutes * 60) + timeInterval.seconds;
+
+      // Call the createJob function on the contract
+      console.log('creating job');
+      const result = await jobCreatorContract.addTaskId(1,3).send();
+      console.log('task added');
+      const result1 = await jobCreatorContract.createJob(
+        jobType,
+        timeframeInSeconds,
+        contractAddress,
+        targetFunction,
+        intervalInSeconds,
+        0,// argType,
+        [1,2],//arguments in bytes
+        apiEndpoint
+      ).send();
+
+      console.log('Job created successfully:', result1);
+      // You can add further logic here, such as showing a success message or redirecting the user
+    } catch (error) {
+      console.error('Error creating job:', error);
+      // Handle the error, e.g., show an error message to the user
+    }
   };
 
   return (
