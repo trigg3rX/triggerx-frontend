@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { toast } from 'react-toastify';
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([
@@ -21,12 +22,13 @@ function DashboardPage() {
     { id: 3, type: 'Monthly report', status: 'Active', lastRun: '2024-08-31', nextRun: '2024-09-30' },
   ]);
 
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [tokenBalance, setTokenBalance] = useState(1000);
-  const [chartData, setChartData] = useState([]);
 
+  const [selectedJob, setSelectedJob] = useState(null); 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  
   const logoRef = useRef(null);
+
+  const jobCreatorContractAddress = 'TAjmTb3v6FDEQyxktBn9heYjSt5VGeNMVr';
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -46,41 +48,31 @@ function DashboardPage() {
     }
   }, []);
 
-  useEffect(() => {
-    // Simulating fetching chart data
-    const generateChartData = () => {
-      const data = [];
-      for (let i = 30; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        data.push({
-          date: date.toISOString().split('T')[0],
-          balance: Math.floor(Math.random() * 500) + 750,
-        });
-      }
-      setChartData(data);
-    };
-
-    generateChartData();
-  }, []);
 
   const handleUpdateJob = (id) => {
     setJobs(jobs.map(job => 
       job.id === id ? { ...job, status: job.status === 'Active' ? 'Paused' : 'Active' } : job
     ));
+  }; 
+
+  const handleDeleteJob = async (jobId) => {
+    try {
+      const jobCreatorContract = await getJobCreatorContract();
+
+      // Call the deleteJob function on the contract
+      const result = await jobCreatorContract.deleteJob(jobId).send();
+
+      console.log('Job deleted successfully:', result);
+      toast.success('Job deleted successfully');
+
+      // Update the local state
+      setJobs(jobs.filter(job => job.id !== jobId));
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Error deleting job: ' + error.message);
+    }
   };
 
-  const handleDeleteJob = (id) => {
-    setJobs(jobs.filter(job => job.id !== id));
-  };
-
-  const handleClaimFaucet = () => {
-    setTokenBalance(prevBalance => {
-      const newBalance = prevBalance + 100;
-      setChartData([...chartData, { date: new Date().toISOString().split('T')[0], balance: newBalance }]);
-      return newBalance;
-    });
-  };
 
   const handleOpenModal = (job) => {
     setSelectedJob(job);
@@ -92,10 +84,47 @@ function DashboardPage() {
     setSelectedJob(null);
   };
 
-  const handleJobEdit = (e) => {
+
+  const getJobCreatorContract = async () => {
+    const tronWeb = window.tronWeb;
+    if (!tronWeb) {
+      throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+    }
+    return await tronWeb.contract().at(jobCreatorContractAddress);
+  };
+
+  const handleJobEdit = async (e) => {
     e.preventDefault();
-    setJobs(jobs.map(job => (job.id === selectedJob.id ? selectedJob : job)));
-    handleCloseModal();
+    try {
+      const jobCreatorContract = await getJobCreatorContract();
+
+      // Convert timeframe and timeInterval to seconds
+      const timeframeInSeconds = (selectedJob.timeframe.years * 31536000) + (selectedJob.timeframe.months * 2592000) + (selectedJob.timeframe.days * 86400);
+      const intervalInSeconds = (selectedJob.timeInterval.hours * 3600) + (selectedJob.timeInterval.minutes * 60) + selectedJob.timeInterval.seconds;
+
+      // Call the updateJob function on the contract
+      const result = await jobCreatorContract.updateJob(
+        selectedJob.id,
+        selectedJob.type,
+        timeframeInSeconds,
+        selectedJob.contractAddress,
+        selectedJob.targetFunction,
+        intervalInSeconds,
+        0, // argType (you might need to adjust this based on your contract)
+        [], // arguments (you might need to adjust this based on your contract)
+        selectedJob.apiEndpoint
+      ).send();
+
+      console.log('Job updated successfully:', result);
+      toast.success('Job updated successfully');
+
+      // Update the local state
+      setJobs(jobs.map(job => job.id === selectedJob.id ? selectedJob : job));
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast.error('Error updating job: ' + error.message);
+    }
   };
 
   const handleChangeJobField = (field, value) => {
@@ -146,21 +175,6 @@ function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg mb-8">
-              <h2 className="text-2xl font-bold mb-4">Token Balance History</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff33" />
-                  <XAxis dataKey="date" stroke="#fff" />
-                  <YAxis stroke="#fff" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#ffffff22', border: 'none' }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Line type="monotone" dataKey="balance" stroke="#8884d8" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
             <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Your Jobs</h2>
               <div className="overflow-x-auto">
@@ -213,16 +227,6 @@ function DashboardPage() {
             </div>
           </div>
           <div>
-            <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg mb-8">
-              <h2 className="text-2xl font-bold mb-4">Token Balance</h2>
-              <p className="text-4xl font-bold mb-4">{tokenBalance} TRX</p>
-              <button
-                onClick={handleClaimFaucet}
-                className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors w-full"
-              >
-                Claim Faucet
-              </button>
-            </div>
             <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
               <ul className="space-y-2">

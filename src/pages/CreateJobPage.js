@@ -87,7 +87,7 @@ function CreateJobPage() {
       const intervalInSeconds = (timeInterval.hours * 3600) + (timeInterval.minutes * 60) + timeInterval.seconds;
 
       // Call the createJob function on the contract
-      console.log('creating job');
+      console.log('creating job'); 
       const result = await jobCreatorContract.addTaskId(1,3).send();
       console.log('task added');
       const result1 = await jobCreatorContract.createJob(
