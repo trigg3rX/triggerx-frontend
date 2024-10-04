@@ -3,24 +3,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { toast } from 'react-toastify';
 
 function DashboardPage() {
-  const [jobs, setJobs] = useState([
-    { 
-      id: 1, 
-      type: 'Daily transfer', 
-      status: 'Active', 
-      lastRun: '2024-09-26', 
-      nextRun: '2024-09-27',
-      timeframe: { years: 0, months: 0, days: 1 },
-      contractAddress: '0x1234567890123456789012345678901234567890',
-      contractABI: '{"example": "ABI"}',
-      targetFunction: 'transfer',
-      timeInterval: { hours: 24, minutes: 0, seconds: 0 },
-      argType: 'Static',
-      apiEndpoint: ''
-    },
-    { id: 2, type: 'Weekly swap', status: 'Paused', lastRun: '2024-09-20', nextRun: 'N/A' },
-    { id: 3, type: 'Monthly report', status: 'Active', lastRun: '2024-08-31', nextRun: '2024-09-30' },
-  ]);
+  const [jobs, setJobs] = useState([]);
+
 
 
   const [selectedJob, setSelectedJob] = useState(null); 
@@ -28,9 +12,11 @@ function DashboardPage() {
   
   const logoRef = useRef(null);
 
-  const jobCreatorContractAddress = 'TAjmTb3v6FDEQyxktBn9heYjSt5VGeNMVr';
+  const jobCreatorContractAddress = 'TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P';
 
   useEffect(() => {
+    fetchJobDetails();
+
     const logo = logoRef.current;
     if (logo) {
       logo.style.transform = 'rotateY(0deg)';
@@ -47,6 +33,57 @@ function DashboardPage() {
       return () => clearInterval(interval);
     }
   }, []);
+
+  const getJobCreatorContract = async () => {
+    const tronWeb = window.tronWeb;
+    if (!tronWeb) {
+      throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+    }
+    return await tronWeb.contract().at(jobCreatorContractAddress);
+  };
+
+  const fetchJobDetails = async () => {
+    try {
+      const jobCreatorContract = await getJobCreatorContract();
+      const tronWeb = window.tronWeb;
+      
+      if (!tronWeb.defaultAddress.base58) {
+        throw new Error('No connected wallet found. Please connect your TronLink wallet.');
+      }
+
+      const userAddress = tronWeb.defaultAddress.base58;
+      console.log('get the detailssssssss');
+      const jobDetails = await jobCreatorContract.getUserJobs(userAddress).call();
+      console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+      const formattedJobs = jobDetails.map((job, index) => ({
+        id: index + 1,
+        type: job.jobType,
+        status: job.isActive ? 'Active' : 'Paused',
+        // lastRun: new Date(job.lastExecutionTime * 1000).toISOString().split('T')[0],
+        // nextRun: new Date(job.nextExecutionTime * 1000).toISOString().split('T')[0],
+        timeframe: {
+          years: 0,
+          months: 0,
+          days: Math.floor(job.timeframe / 86400)
+        },
+        contractAddress: job.contractAddress,
+        contractABI: '{"example": "ABI"}', // You might want to store this separately or fetch it
+        targetFunction: job.targetFunction,
+        timeInterval: {
+          hours: Math.floor(job.interval / 3600),
+          minutes: Math.floor((job.interval % 3600) / 60),
+          seconds: job.interval % 60
+        },
+        argType: job.argType === 0 ? 'None' : job.argType === 1 ? 'Static' : 'Dynamic',
+        apiEndpoint: job.apiEndpoint
+      }));
+      console ('where are the jobssssss');
+      setJobs(formattedJobs);
+    } catch (error) {
+      console.error('Error fetching job details:', error);
+      toast.error('Error fetching job details: ' + error.message);
+    }
+  };
 
 
   const handleUpdateJob = (id) => {
@@ -85,13 +122,13 @@ function DashboardPage() {
   };
 
 
-  const getJobCreatorContract = async () => {
-    const tronWeb = window.tronWeb;
-    if (!tronWeb) {
-      throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
-    }
-    return await tronWeb.contract().at(jobCreatorContractAddress);
-  };
+  // const getJobCreatorContract = async () => {
+  //   const tronWeb = window.tronWeb;
+  //   if (!tronWeb) {
+  //     throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+  //   }
+  //   return await tronWeb.contract().at(jobCreatorContractAddress);
+  // };
 
   const handleJobEdit = async (e) => {
     e.preventDefault();

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Modal from 'react-modal'; // Make sure to install react-modal
+import { toast } from 'react-toastify';
+
 
 function CreateJobPage() {
   const [jobType, setJobType] = useState('');
@@ -9,6 +12,10 @@ function CreateJobPage() {
   const [timeInterval, setTimeInterval] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [argType, setArgType] = useState('None');
   const [apiEndpoint, setApiEndpoint] = useState('');
+  const [estimatedFee, setEstimatedFee] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [trxAmount, setTrxAmount] = useState(0);
+  const [argumentsInBytes, setargumentsInBytes] = useState([]);
 
   const logoRef = useRef(null);
 
@@ -69,9 +76,40 @@ function CreateJobPage() {
     setTimeInterval(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
   };
 
+  const estimateFee = async () => {
+    try {
+      const tronWeb = window.tronWeb;
+      const functionSelector = targetFunction; // Use the target function from the form
+      const options = {}; // Add any necessary options here
+      const parameters = argumentsInBytes;
+      const issuerAddress = tronWeb.defaultAddress.base58; // User's address
+
+      console.log('You have to stack this amout of TRX');
+      const fee = await tronWeb.transactionBuilder.estimateEnergy(
+        contractAddress,
+        functionSelector,
+        options,
+        parameters,
+        issuerAddress
+      );
+
+      setEstimatedFee(fee);
+      setTrxAmount(fee); // Set the TRX amount to stack
+      setIsModalOpen(true); // Open the modal
+    } catch (error) {
+      console.error('Error estimating fee:', error);
+      toast.error('Error estimating fee: ' + error.message);
+    }
+  };
+
+  const handleStack = async () => {
+    await handleSubmit(trxAmount); // Call handleSubmit with the trxAmount
+    setIsModalOpen(false); // Close the modal after stacking
+  };
+
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (trxAmount) => {
+    // e.preventDefault();
     try {
       const tronWeb = window.tronWeb;
       if (!tronWeb) {
@@ -79,7 +117,7 @@ function CreateJobPage() {
       }
 
       // Replace with the actual address of your deployed JobCreator contract
-      const jobCreatorContractAddress = 'TAjmTb3v6FDEQyxktBn9heYjSt5VGeNMVr';
+      const jobCreatorContractAddress = 'TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P';
       const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
 
       // Prepare the parameters for the createJob function
@@ -88,8 +126,9 @@ function CreateJobPage() {
 
       // Call the createJob function on the contract
       console.log('creating job'); 
-      const result = await jobCreatorContract.addTaskId(1,3).send();
+      // const result = await jobCreatorContract.addTaskId(1,3).send();
       console.log('task added');
+      // const trxAmount=1000;
       const result1 = await jobCreatorContract.createJob(
         jobType,
         timeframeInSeconds,
@@ -97,15 +136,20 @@ function CreateJobPage() {
         targetFunction,
         intervalInSeconds,
         0,// argType,
-        [1,2],//arguments in bytes
-        apiEndpoint
-      ).send();
+        argumentsInBytes,//arguments in bytes
+        apiEndpoint,
+      ).send({
+        feeLimit: 100000000, // Adjust based on your gas limits
+        callValue: trxAmount // The TRX value to stake
+    });
 
       console.log('Job created successfully:', result1);
+      toast.success('Job created successfully!');
       // You can add further logic here, such as showing a success message or redirecting the user
     } catch (error) {
       console.error('Error creating job:', error);
       // Handle the error, e.g., show an error message to the user
+      toast.error('Error creating job: ' + error.message);
     }
   };
 
@@ -162,7 +206,7 @@ function CreateJobPage() {
 
           <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
             <h2 className="text-3xl font-bold mb-6">Create a New Job</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-4">
               <div>
                 <label htmlFor="jobType" className="block mb-1">Job Type</label>
                 <input
@@ -325,6 +369,17 @@ function CreateJobPage() {
           </div>
         </div>
       </div>
+       {/* Modal for Fee Estimation */}
+       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee">
+        <h2 className="text-xl font-bold">Estimated Fee</h2>
+        <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
+        <button onClick={handleStack} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
+          Stack
+        </button>
+        <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
+          Cancel
+        </button>
+      </Modal>
     </div>
   );
 }
