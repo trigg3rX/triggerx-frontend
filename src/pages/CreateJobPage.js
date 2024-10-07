@@ -16,6 +16,8 @@ function CreateJobPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [trxAmount, setTrxAmount] = useState(0);
   const [argumentsInBytes, setargumentsInBytes] = useState([]);
+  const [userarguments, setArguments] = useState(''); // New state for arguments input
+  const [argsArray, setargArray] = useState([]);
 
   const logoRef = useRef(null);
 
@@ -24,7 +26,7 @@ function CreateJobPage() {
     if (logo) {
       logo.style.transform = 'rotateY(0deg)';
       logo.style.transition = 'transform 1s ease-in-out';
-      
+
       const rotatelogo = () => {
         logo.style.transform = 'rotateY(360deg)';
         setTimeout(() => {
@@ -51,7 +53,7 @@ function CreateJobPage() {
 
         const contract = await tronWeb.contract().at(address);
         const abi = JSON.stringify(contract.abi);
-        
+
         if (abi) {
           setContractABI(abi);
           console.log('ABI fetched successfully');
@@ -76,23 +78,67 @@ function CreateJobPage() {
     setTimeInterval(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
   };
 
+  const handleArgumentsChange = (e) => {
+    const input = e.target.value;
+    const tronWeb = window.tronWeb;
+
+    setArguments(input);
+
+    // Convert the input string to an array and then to bytes
+    const argsArray = input.split(',').map(arg => arg.trim());
+
+    setargArray(argsArray);
+    const bytesArray = argsArray.map(arg => tronWeb.toHex(arg)); // Convert to bytes
+    setargumentsInBytes(bytesArray);
+  };
+
   const estimateFee = async () => {
     try {
+
       const tronWeb = window.tronWeb;
-      const functionSelector = targetFunction; // Use the target function from the form
-      const options = {}; // Add any necessary options here
-      const parameters = argumentsInBytes;
-      const issuerAddress = tronWeb.defaultAddress.base58; // User's address
+      // tronWeb.headers = {
+      //   'Authorization': 's3z8ls6j6u1cza15cpwty7cpd84tn0'
+      // }
+      //   const tronWeb = new TronWeb({
+      //     fullNode: 'https://nile.tron.tronql.com/',
+      //     solidityNode: 'https://nile.tron.tronql.com/',
+      //     eventServer: 'https://nile.tron.tronql.com/',
+      //     privateKey: "ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595" ,//owner address private key
+      //     headers: {
+      //         'Authorization': 's3z8ls6j6u1cza15cpwty7cpd84tn0'
+      //     }
+      //  });
+
+      // const tronWeb = window.tronWeb;
+      // const functionSelector = targetFunction; // Use the target function from the form
+      // const options = {}; // Add any necessary options here
+      // const parameters = argsArray;
+      // const issuerAddress = tronWeb.defaultAddress.base58; // User's address
 
       console.log('You have to stack this amout of TRX');
+      // const fee = await tronWeb.transactionBuilder.estimateEnergy(
+      //   contractAddress,
+      //   functionSelector,
+      //   options,
+      //   parameters,
+      //   issuerAddress
+      // );
+
+      let energyCostObject = {
+        feeLimit: tronWeb.toSun('400'),
+        callValue: 1250000000,
+        shouldPollResponse: false
+      };
+      let parameters = [];
       const fee = await tronWeb.transactionBuilder.estimateEnergy(
-        contractAddress,
-        functionSelector,
-        options,
+        tronWeb.address.toHex("TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P"),
+        "getJobArgumentCount",
+        energyCostObject,
         parameters,
-        issuerAddress
+        tronWeb.address.toHex("TNu3FxQxf1HQLKVyVEyyrDyUNAVQz25TM1")
       );
 
+      console.log('hurrrrrrreeeeeeeeeeeeeeeeee');
       setEstimatedFee(fee);
       setTrxAmount(fee); // Set the TRX amount to stack
       setIsModalOpen(true); // Open the modal
@@ -107,7 +153,7 @@ function CreateJobPage() {
     setIsModalOpen(false); // Close the modal after stacking
   };
 
-  
+
   const handleSubmit = async (trxAmount) => {
     // e.preventDefault();
     try {
@@ -125,7 +171,7 @@ function CreateJobPage() {
       const intervalInSeconds = (timeInterval.hours * 3600) + (timeInterval.minutes * 60) + timeInterval.seconds;
 
       // Call the createJob function on the contract
-      console.log('creating job'); 
+      console.log('creating job');
       // const result = await jobCreatorContract.addTaskId(1,3).send();
       console.log('task added');
       // const trxAmount=1000;
@@ -141,7 +187,7 @@ function CreateJobPage() {
       ).send({
         feeLimit: 100000000, // Adjust based on your gas limits
         callValue: trxAmount // The TRX value to stake
-    });
+      });
 
       console.log('Job created successfully:', result1);
       toast.success('Job created successfully!');
@@ -162,8 +208,8 @@ function CreateJobPage() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{stopColor:"#3498db", stopOpacity:1}} />
-                    <stop offset="100%" style={{stopColor:"#2980b9", stopOpacity:1}} />
+                    <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: "#2980b9", stopOpacity: 1 }} />
                   </linearGradient>
                 </defs>
                 <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
@@ -342,7 +388,13 @@ function CreateJobPage() {
                 <select
                   id="argType"
                   value={argType}
-                  onChange={(e) => setArgType(e.target.value)}
+                  onChange={(e) => {
+                    setArgType(e.target.value);
+                    if (e.target.value !== 'Dynamic') {
+                      setArguments(''); // Clear arguments if not dynamic
+                      setargumentsInBytes([]); // Clear bytes array
+                    }
+                  }}
                   className="w-full px-3 py-2 border rounded-md text-gray-800"
                 >
                   <option value="None">None</option>
@@ -350,6 +402,19 @@ function CreateJobPage() {
                   <option value="Dynamic">Dynamic</option>
                 </select>
               </div>
+              {argType === 'Static' && (
+                <div>
+                  <label htmlFor="arguments" className="block mb-1">Arguments (comma-separated)</label>
+                  <input
+                    type="text"
+                    id="arguments"
+                    value={userarguments}
+                    onChange={handleArgumentsChange}
+                    className="w-full px-3 py-2 border rounded-md text-gray-800"
+                    placeholder="Enter arguments separated by commas"
+                  />
+                </div>
+              )}
               {argType === 'Dynamic' && (
                 <div>
                   <label htmlFor="apiEndpoint" className="block mb-1">API Endpoint</label>
@@ -369,8 +434,8 @@ function CreateJobPage() {
           </div>
         </div>
       </div>
-       {/* Modal for Fee Estimation */}
-       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee">
+      {/* Modal for Fee Estimation */}
+      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee">
         <h2 className="text-xl font-bold">Estimated Fee</h2>
         <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
         <button onClick={handleStack} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
