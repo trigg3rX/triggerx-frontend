@@ -12,7 +12,7 @@ function DashboardPage() {
   
   const logoRef = useRef(null);
 
-  const jobCreatorContractAddress = 'TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P';
+  const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
 
   useEffect(() => {
     fetchJobDetails();

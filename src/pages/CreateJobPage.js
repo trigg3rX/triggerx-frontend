@@ -86,61 +86,48 @@ function CreateJobPage() {
 
     // Convert the input string to an array and then to bytes
     const argsArray = input.split(',').map(arg => arg.trim());
-
     setargArray(argsArray);
-    const bytesArray = argsArray.map(arg => tronWeb.toHex(arg)); // Convert to bytes
+
+    const bytesArray = argsArray.map(arg => {
+      const hexValue = tronWeb.toHex(arg); // Convert to hex
+      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`; // Ensure even-length
+    }); // Convert to bytes
+
+
+    // const bytesArray = argsArray.map(arg => tronWeb.toHex(arg)); // Convert to bytes
     setargumentsInBytes(bytesArray);
+    console.log(bytesArray);
   };
 
   const estimateFee = async () => {
     try {
-
       const tronWeb = window.tronWeb;
-      // tronWeb.headers = {
-      //   'Authorization': 's3z8ls6j6u1cza15cpwty7cpd84tn0'
-      // }
-      //   const tronWeb = new TronWeb({
-      //     fullNode: 'https://nile.tron.tronql.com/',
-      //     solidityNode: 'https://nile.tron.tronql.com/',
-      //     eventServer: 'https://nile.tron.tronql.com/',
-      //     privateKey: "ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595" ,//owner address private key
-      //     headers: {
-      //         'Authorization': 's3z8ls6j6u1cza15cpwty7cpd84tn0'
-      //     }
-      //  });
 
-      // const tronWeb = window.tronWeb;
-      // const functionSelector = targetFunction; // Use the target function from the form
-      // const options = {}; // Add any necessary options here
-      // const parameters = argsArray;
-      // const issuerAddress = tronWeb.defaultAddress.base58; // User's address
+      const functionSelector = targetFunction; // Use the target function from the form
+      const options = {}; // Add any necessary options here
 
-      console.log('You have to stack this amout of TRX');
-      // const fee = await tronWeb.transactionBuilder.estimateEnergy(
-      //   contractAddress,
-      //   functionSelector,
-      //   options,
-      //   parameters,
-      //   issuerAddress
-      // );
+      // Parse the target function to get argument types
+      const argTypes = functionSelector.match(/\(([^)]+)\)/)[1].split(',').map(type => type.trim());
 
-      let energyCostObject = {
-        feeLimit: tronWeb.toSun('400'),
-        callValue: 1250000000,
-        shouldPollResponse: false
-      };
-      let parameters = [];
+      // Create parameters based on argTypes and argsArray
+      const parameters = argTypes.map((type, index) => ({
+        type: type,
+        value: argsArray[index] ? parseInt(argsArray[index]) : 0 // Convert to integer or default to 0
+      }));
+      console.log('paraaaaaa', parameters);
+
+      console.log('You have to stack this amount of TRX');
       const fee = await tronWeb.transactionBuilder.estimateEnergy(
-        tronWeb.address.toHex("TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P"),
-        "getJobArgumentCount",
-        energyCostObject,
+        tronWeb.address.toHex(contractAddress),
+        functionSelector,
+        options,
         parameters,
-        tronWeb.address.toHex("TNu3FxQxf1HQLKVyVEyyrDyUNAVQz25TM1")
       );
 
-      console.log('hurrrrrrreeeeeeeeeeeeeeeeee');
-      setEstimatedFee(fee);
-      setTrxAmount(fee); // Set the TRX amount to stack
+      console.log('hureeeeeeeee', fee.energy_required);
+
+      setEstimatedFee(fee.energy_required);
+      setTrxAmount(fee.energy_required); // Set the TRX amount to stack
       setIsModalOpen(true); // Open the modal
     } catch (error) {
       console.error('Error estimating fee:', error);
@@ -153,7 +140,6 @@ function CreateJobPage() {
     setIsModalOpen(false); // Close the modal after stacking
   };
 
-
   const handleSubmit = async (trxAmount) => {
     // e.preventDefault();
     try {
@@ -163,7 +149,7 @@ function CreateJobPage() {
       }
 
       // Replace with the actual address of your deployed JobCreator contract
-      const jobCreatorContractAddress = 'TNtW74WbGz9PUEp6smiEzXxXBy7FUuYe8P';
+      const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
       const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
 
       // Prepare the parameters for the createJob function
@@ -179,9 +165,9 @@ function CreateJobPage() {
         jobType,
         timeframeInSeconds,
         contractAddress,
-        targetFunction,
+        targetFunction.match(/(\w+)\(/)[1],
         intervalInSeconds,
-        0,// argType,
+        argType === 'none' ? 0 : argType === 'static' ? 1 : argType === 'dynamic' ? 2 : 0,// argType,
         argumentsInBytes,//arguments in bytes
         apiEndpoint,
       ).send({
@@ -329,9 +315,10 @@ function CreateJobPage() {
                 />
               </div>
               <div>
-                <label htmlFor="targetFunction" className="block mb-1">Target Function</label>
+                <label htmlFor="targetFunction" className="block mb-1">Target Function signature</label>
                 <input
                   type="text"
+                  placeholder='getTask(uint256,uint256)'
                   id="targetFunction"
                   value={targetFunction}
                   onChange={(e) => setTargetFunction(e.target.value)}
