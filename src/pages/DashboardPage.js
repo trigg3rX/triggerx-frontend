@@ -297,7 +297,6 @@ function DashboardPage() {
                         <th className="px-4 py-2 text-left">Type</th>
                         <th className="px-4 py-2 text-left">Status</th>
                         <th className="px-4 py-2 text-left">Interval (sec)</th>
-                        <th className="px-4 py-2 text-left">Credit</th>
                         <th className="px-4 py-2 text-left">Actions</th>
                       </tr>
                     </thead>
@@ -313,7 +312,6 @@ function DashboardPage() {
                             </span>
                           </td>
                           <td className="px-4 py-2">{job.interval}</td>
-                          <td className="px-4 py-2">{job.credit}</td>
                           <td className="px-4 py-2">
                             <button
                               onClick={() => handleUpdateJob(job.id)}

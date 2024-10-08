@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal'; // Make sure to install react-modal
 import { toast } from 'react-toastify';
-
+import { useNavigate } from 'react-router-dom'; 
 
 function CreateJobPage() {
+  const navigate = useNavigate(); 
   const [jobType, setJobType] = useState('');
   const [timeframe, setTimeframe] = useState({ years: 0, months: 0, days: 0 });
+  const [timeframeInSeconds, settimeframeInSeconds] = useState(0);
   const [contractAddress, setContractAddress] = useState('');
   const [contractABI, setContractABI] = useState('');
   const [targetFunction, setTargetFunction] = useState('');
   const [timeInterval, setTimeInterval] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [intervalInSeconds, setintervalInSeconds] = useState(0);
   const [argType, setArgType] = useState('None');
   const [apiEndpoint, setApiEndpoint] = useState('');
   const [estimatedFee, setEstimatedFee] = useState(0);
@@ -71,11 +74,21 @@ function CreateJobPage() {
   };
 
   const handleTimeframeChange = (field, value) => {
-    setTimeframe(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
+    setTimeframe(prev => {
+      const updatedTimeframe = { ...prev, [field]: parseInt(value) || 0 };
+      const updatedTimeframeInSeconds = (updatedTimeframe.years * 31536000) + (updatedTimeframe.months * 2592000) + (updatedTimeframe.days * 86400);
+      settimeframeInSeconds(updatedTimeframeInSeconds);
+      return updatedTimeframe;
+    });
   };
 
   const handleTimeIntervalChange = (field, value) => {
-    setTimeInterval(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
+    setTimeInterval(prev => {
+      const updatedTimeInterval = { ...prev, [field]: parseInt(value) || 0 };
+      const updatedIntervalInSeconds = (updatedTimeInterval.hours * 3600) + (updatedTimeInterval.minutes * 60) + updatedTimeInterval.seconds;
+      setintervalInSeconds(updatedIntervalInSeconds);
+      return updatedTimeInterval;
+    });
   };
 
   const handleArgumentsChange = (e) => {
@@ -123,11 +136,15 @@ function CreateJobPage() {
         options,
         parameters,
       );
+      ////
+      const tempfee = parseInt(fee.energy_required, 10);
+      console.log(tempfee);
+      const overallfee = Math.ceil((tempfee*Math.floor((timeframeInSeconds / intervalInSeconds)))*0.00021);
 
-      console.log('hureeeeeeeee', fee.energy_required);
+      console.log('hureeeeeeeee', overallfee);
 
-      setEstimatedFee(fee.energy_required);
-      setTrxAmount(fee.energy_required); // Set the TRX amount to stake
+      setEstimatedFee(overallfee);
+      setTrxAmount(overallfee); // Set the TRX amount to stake
       setIsModalOpen(true); // Open the modal
     } catch (error) {
       console.error('Error estimating fee:', error);
@@ -152,10 +169,6 @@ function CreateJobPage() {
       const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
       const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
 
-      // Prepare the parameters for the createJob function
-      const timeframeInSeconds = (timeframe.years * 31536000) + (timeframe.months * 2592000) + (timeframe.days * 86400);
-      const intervalInSeconds = (timeInterval.hours * 3600) + (timeInterval.minutes * 60) + timeInterval.seconds;
-
       // Call the createJob function on the contract
       console.log('creating job');
       // const result = await jobCreatorContract.addTaskId(1,3).send();
@@ -172,11 +185,13 @@ function CreateJobPage() {
         apiEndpoint,
       ).send({
         feeLimit: 100000000, // Adjust based on your gas limits
-        callValue: trxAmount // The TRX value to stake
+        callValue: trxAmount*1000000 // The TRX value to stake
       });
 
       console.log('Job created successfully:', result1);
       toast.success('Job created successfully!');
+
+      navigate('/dashboard'); 
       // You can add further logic here, such as showing a success message or redirecting the user
     } catch (error) {
       console.error('Error creating job:', error);
@@ -422,7 +437,7 @@ function CreateJobPage() {
         </div>
       </div>
       {/* Modal for Fee Estimation */}
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee">
+      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee" appElement={document.getElementById('root')}>
         <h2 className="text-xl font-bold">Estimated Fee</h2>
         <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
         <button onClick={handlestake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
