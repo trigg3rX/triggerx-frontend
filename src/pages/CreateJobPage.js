@@ -125,7 +125,7 @@ function CreateJobPage() {
       // Create parameters based on argTypes and argsArray
       const parameters = argTypes.map((type, index) => ({
         type: type,
-        value: argsArray[index] ? parseInt(argsArray[index]) : 0 // Convert to integer or default to 0
+        value: argsArray[index] ? (argsArray[index]) : 0 // Convert to integer or default to 0
       }));
       console.log('paraaaaaa', parameters);
 
