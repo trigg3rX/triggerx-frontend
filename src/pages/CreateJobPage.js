@@ -116,7 +116,7 @@ function CreateJobPage() {
       }));
       console.log('paraaaaaa', parameters);
 
-      console.log('You have to stack this amount of TRX');
+      console.log('You have to stake this amount of TRX');
       const fee = await tronWeb.transactionBuilder.estimateEnergy(
         tronWeb.address.toHex(contractAddress),
         functionSelector,
@@ -127,7 +127,7 @@ function CreateJobPage() {
       console.log('hureeeeeeeee', fee.energy_required);
 
       setEstimatedFee(fee.energy_required);
-      setTrxAmount(fee.energy_required); // Set the TRX amount to stack
+      setTrxAmount(fee.energy_required); // Set the TRX amount to stake
       setIsModalOpen(true); // Open the modal
     } catch (error) {
       console.error('Error estimating fee:', error);
@@ -135,9 +135,9 @@ function CreateJobPage() {
     }
   };
 
-  const handleStack = async () => {
+  const handlestake = async () => {
     await handleSubmit(trxAmount); // Call handleSubmit with the trxAmount
-    setIsModalOpen(false); // Close the modal after stacking
+    setIsModalOpen(false); // Close the modal after stakeing
   };
 
   const handleSubmit = async (trxAmount) => {
@@ -425,8 +425,8 @@ function CreateJobPage() {
       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee">
         <h2 className="text-xl font-bold">Estimated Fee</h2>
         <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
-        <button onClick={handleStack} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          Stack
+        <button onClick={handlestake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
+          stake
         </button>
         <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
           Cancel

@@ -6,22 +6,24 @@ function DashboardPage() {
   const [jobs, setJobs] = useState([]);
 
 
-
-  const [selectedJob, setSelectedJob] = useState(null); 
+  // const jobs = [];
+  const [jobDetails, setJobDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  
   const logoRef = useRef(null);
 
   const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
+  const tronWeb = window.tronWeb; // Assuming tronWeb is available
 
   useEffect(() => {
-    fetchJobDetails();
+    // fetchJobDetails();
 
     const logo = logoRef.current;
     if (logo) {
       logo.style.transform = 'rotateY(0deg)';
       logo.style.transition = 'transform 1s ease-in-out';
-      
+
       const rotatelogo = () => {
         logo.style.transform = 'rotateY(360deg)';
         setTimeout(() => {
@@ -42,71 +44,136 @@ function DashboardPage() {
     return await tronWeb.contract().at(jobCreatorContractAddress);
   };
 
-  const fetchJobDetails = async () => {
-    try {
-      const jobCreatorContract = await getJobCreatorContract();
-      const tronWeb = window.tronWeb;
-      
-      if (!tronWeb.defaultAddress.base58) {
-        throw new Error('No connected wallet found. Please connect your TronLink wallet.');
-      }
 
-      const userAddress = tronWeb.defaultAddress.base58;
-      console.log('get the detailssssssss');
-      const jobDetails = await jobCreatorContract.getUserJobs(userAddress).call();
-      console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-      const formattedJobs = jobDetails.map((job, index) => ({
-        id: index + 1,
-        type: job.jobType,
-        status: job.isActive ? 'Active' : 'Paused',
-        // lastRun: new Date(job.lastExecutionTime * 1000).toISOString().split('T')[0],
-        // nextRun: new Date(job.nextExecutionTime * 1000).toISOString().split('T')[0],
-        timeframe: {
-          years: 0,
-          months: 0,
-          days: Math.floor(job.timeframe / 86400)
-        },
-        contractAddress: job.contractAddress,
-        contractABI: '{"example": "ABI"}', // You might want to store this separately or fetch it
-        targetFunction: job.targetFunction,
-        timeInterval: {
-          hours: Math.floor(job.interval / 3600),
-          minutes: Math.floor((job.interval % 3600) / 60),
-          seconds: job.interval % 60
-        },
-        argType: job.argType === 0 ? 'None' : job.argType === 1 ? 'Static' : 'Dynamic',
-        apiEndpoint: job.apiEndpoint
-      }));
-      console ('where are the jobssssss');
-      setJobs(formattedJobs);
-    } catch (error) {
-      console.error('Error fetching job details:', error);
-      toast.error('Error fetching job details: ' + error.message);
-    }
-  };
+  // useEffect(() => {
+  //   const fetchJobDetails = async () => {
+  //     try {
+  //       const tronWeb = window.tronWeb;
+  //       if (!tronWeb) {
+  //         throw new Error('TronWeb not found');
+  //       }
+
+  //       const userAddress = tronWeb.defaultAddress.base58;
+  //       const jobCreatorContract = await getJobCreatorContract();
+
+  //       const userJobsCount = await jobCreatorContract.userJobsCount(userAddress).call();
+  //       console.log('number of jobs:-', userJobsCount);
+  //       const jobsPromises = [];
+
+  //       for (let index = 0; index < userJobsCount; index++) {
+  //         jobsPromises.push(jobCreatorContract.userJobs(userAddress, index).call());
+  //       }
+
+  //       const jobIds = await Promise.all(jobsPromises);
+  //       console.log('job ids:-', jobIds);
+  //       const jobDetailsPromises = jobIds.map(jobId =>
+  //         jobCreatorContract.jobs(jobId).call()
+  //       );
+
+  //       const jobDetailsResults = await Promise.all(jobDetailsPromises);
+  //       console.log(jobDetailsResults);
+
+  //       const formattedJobs = jobDetailsResults.map((jobDetail, index) => ({
+  //         id: jobIds[index].toString(), // Convert to string to ensure unique keys
+  //         type: jobDetail[1],
+  //         status: jobDetail[2],
+  //         timeframe: jobDetail[3],
+  //         gasLimit: jobDetail[4],
+  //         contractAddress: jobDetail[5],
+  //         targetFunction: jobDetail[6],
+  //         interval: jobDetail[7],
+  //         argType: jobDetail[8],
+  //         apiEndpoint: jobDetail[9],
+  //         owner: jobDetail[10],
+  //         credit: jobDetail[11]
+  //       }));
+
+  //       setJobDetails(formattedJobs);
+  //     } catch (error) {
+  //       console.error('Error fetching job details:', error);
+  //       toast.error('Failed to fetch job details: ' + error.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchJobDetails();
+  // }, [tronWeb]); // Dependency array to run effect when tronWeb changes
+
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const tronWeb = window.tronWeb;
+        if (!tronWeb) {
+          throw new Error('TronWeb not found');
+        }
+        
+        const userAddress = tronWeb.defaultAddress.base58;
+        const jobCreatorContract = await getJobCreatorContract();
+        
+        const userJobsCount = await jobCreatorContract.userJobsCount(userAddress).call();
+        console.log('Number of jobs:', userJobsCount);
+        
+        const tempJobs = [];
+        for (let i = 0; i < userJobsCount; i++) {
+          const jobId = await jobCreatorContract.userJobs(userAddress, i).call();
+          console.log(`Job ID ${i}:`, jobId.toString());
+          
+          const jobDetail = await jobCreatorContract.jobs(jobId).call();
+          console.log(`Job Detail ${i}:`, jobDetail);
+          
+          const formattedJob = {
+            id: jobId,
+            type: jobDetail.type || jobDetail[1],
+            status: jobDetail.status || jobDetail[2],
+            timeframe: (jobDetail.timeframe || jobDetail[3]),
+            gasLimit: (jobDetail.gasLimit || jobDetail[4]).toNumber(),
+            contractAddress: jobDetail.contractAddress || jobDetail[5],
+            targetFunction: jobDetail.targetFunction || jobDetail[6],
+            interval: (jobDetail.interval || jobDetail[7]).toNumber(),
+            argType: jobDetail.argType || jobDetail[8],
+            apiEndpoint: jobDetail.apiEndpoint || jobDetail[9],
+            owner: jobDetail.owner || jobDetail[10],
+            credit: (jobDetail.credit || jobDetail[11]).toNumber()
+          };
+          
+          console.log(`Formatted Job ${i}:`, formattedJob);
+          tempJobs.push(formattedJob);
+        }
+        
+        console.log('All formatted jobs:', tempJobs);
+        setJobDetails(tempJobs);
+      } catch (error) {
+        console.error('Error fetching job details:', error);
+        toast.error('Failed to fetch job details: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [tronWeb]);
+
+
+
 
 
   const handleUpdateJob = (id) => {
-    setJobs(jobs.map(job => 
+    setJobs(jobs.map(job =>
       job.id === id ? { ...job, status: job.status === 'Active' ? 'Paused' : 'Active' } : job
     ));
-  }; 
+  };
 
   const handleDeleteJob = async (jobId) => {
     try {
       const jobCreatorContract = await getJobCreatorContract();
-
-      // Call the deleteJob function on the contract
-      const result = await jobCreatorContract.deleteJob(jobId).send();
-
-      console.log('Job deleted successfully:', result);
+      await jobCreatorContract.deleteJob(jobId).send();
       toast.success('Job deleted successfully');
-
-      // Update the local state
-      setJobs(jobs.filter(job => job.id !== jobId));
+      // Refresh job list
+      window.location.reload();
     } catch (error) {
       console.error('Error deleting job:', error);
-      toast.error('Error deleting job: ' + error.message);
+      toast.error('Failed to delete job');
     }
   };
 
@@ -132,9 +199,9 @@ function DashboardPage() {
 
   const handleJobEdit = async (e) => {
     e.preventDefault();
-    try {
-      const jobCreatorContract = await getJobCreatorContract();
+    const jobCreatorContract = await getJobCreatorContract();
 
+    try {
       // Convert timeframe and timeInterval to seconds
       const timeframeInSeconds = (selectedJob.timeframe.years * 31536000) + (selectedJob.timeframe.months * 2592000) + (selectedJob.timeframe.days * 86400);
       const intervalInSeconds = (selectedJob.timeInterval.hours * 3600) + (selectedJob.timeInterval.minutes * 60) + selectedJob.timeInterval.seconds;
@@ -182,6 +249,13 @@ function DashboardPage() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white flex justify-center items-center">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
@@ -192,8 +266,8 @@ function DashboardPage() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%">
-                    <stop offset="0%" style={{stopColor:"#3498db", stopOpacity:1}} />
-                    <stop offset="100%" style={{stopColor:"#2980b9", stopOpacity:1}} />
+                    <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: "#2980b9", stopOpacity: 1 }} />
                   </linearGradient>
                 </defs>
                 <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
@@ -214,53 +288,54 @@ function DashboardPage() {
           <div className="md:col-span-2">
             <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Your Jobs</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white border-opacity-20">
-                      <th className="px-4 py-2 text-left">Type</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Last Run</th>
-                      <th className="px-4 py-2 text-left">Next Run</th>
-                      <th className="px-4 py-2 text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {jobs.map(job => (
-                      <tr key={job.id} className="border-b border-white border-opacity-10">
-                        <td className="px-4 py-2">{job.type}</td>
-                        <td className="px-4 py-2">
-                          <span className={`px-2 py-1 rounded-full text-xs ${job.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'}`}>
-                            {job.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">{job.lastRun}</td>
-                        <td className="px-4 py-2">{job.nextRun}</td>
-                        <td className="px-4 py-2">
-                          <button
-                            onClick={() => handleUpdateJob(job.id)}
-                            className="mr-2 text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition-colors"
-                          >
-                            {job.status === 'Active' ? 'Pause' : 'Activate'}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteJob(job.id)}
-                            className="mr-2 text-sm bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition-colors"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => handleOpenModal(job)}
-                            className="text-sm bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded transition-colors"
-                          >
-                            Update
-                          </button>
-                        </td>
+              {jobDetails.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white border-opacity-20">
+                        <th className="px-4 py-2 text-left">ID</th>
+                        <th className="px-4 py-2 text-left">Type</th>
+                        <th className="px-4 py-2 text-left">Status</th>
+                        <th className="px-4 py-2 text-left">Interval (sec)</th>
+                        <th className="px-4 py-2 text-left">Credit</th>
+                        <th className="px-4 py-2 text-left">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {jobDetails.map((job, index) => (
+                        <tr key={`${job.id}-${index}`} className="border-b border-white border-opacity-10">
+                          <td className="px-4 py-2">{job.id}</td>
+                          <td className="px-4 py-2">{job.type}</td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-1 rounded-full text-xs ${job.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'
+                              }`}>
+                              {job.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2">{job.interval}</td>
+                          <td className="px-4 py-2">{job.credit}</td>
+                          <td className="px-4 py-2">
+                            <button
+                              onClick={() => handleUpdateJob(job.id)}
+                              className="mr-2 text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition-colors"
+                            >
+                              Update
+                            </button>
+                            <button
+                              onClick={() => handleDeleteJob(job.id)}
+                              className="text-sm bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>No jobs found.</p>
+              )}
             </div>
           </div>
           <div>
