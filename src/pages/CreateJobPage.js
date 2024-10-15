@@ -100,6 +100,7 @@ function CreateJobPage() {
     // Convert the input string to an array and then to bytes
     const argsArray = input.split(',').map(arg => arg.trim());
     setargArray(argsArray);
+    console.log(argsArray);
 
     const bytesArray = argsArray.map(arg => {
       const hexValue = tronWeb.toHex(arg); // Convert to hex
