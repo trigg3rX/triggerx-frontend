@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-toastify';
+import { ethers } from 'ethers';
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -13,8 +14,6 @@ function DashboardPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const logoRef = useRef(null);
 
-  const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
-  const tronWeb = window.tronWeb; // Assuming tronWeb is available
 
   useEffect(() => {
     // fetchJobDetails();
@@ -36,111 +35,56 @@ function DashboardPage() {
     }
   }, []);
 
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const getJobCreatorContract = async () => {
-    const tronWeb = window.tronWeb;
-    if (!tronWeb) {
-      throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
-    }
-    return await tronWeb.contract().at(jobCreatorContractAddress);
+    const signer = await provider.getSigner();
+
+    const jobCreatorContractAddress = '0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d'; // Update this
+    const jobCreatorABI = [{ "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "JobCreated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeRefunded", "type": "uint256" }], "name": "JobDeleted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "JobUpdated", "type": "event" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint32", "name": "taskId", "type": "uint32" }], "name": "addTaskId", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }], "name": "createJob", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "stakeConsumed", "type": "uint256" }], "name": "deleteJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "argIndex", "type": "uint256" }], "name": "getJobArgument", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "getJobArgumentCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "name": "jobs", "outputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "string", "name": "status", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "uint256", "name": "blockNumber", "type": "uint256" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "address", "name": "jobCreator", "type": "address" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "updateJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" }], "name": "userJobs", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userJobsCount", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userTotalStake", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]; // Add your contract ABI here
+    const jobCreatorContract = new ethers.Contract(jobCreatorContractAddress, jobCreatorABI, signer);
+    return jobCreatorContract;
   };
-
-
-  // useEffect(() => {
-  //   const fetchJobDetails = async () => {
-  //     try {
-  //       const tronWeb = window.tronWeb;
-  //       if (!tronWeb) {
-  //         throw new Error('TronWeb not found');
-  //       }
-
-  //       const userAddress = tronWeb.defaultAddress.base58;
-  //       const jobCreatorContract = await getJobCreatorContract();
-
-  //       const userJobsCount = await jobCreatorContract.userJobsCount(userAddress).call();
-  //       console.log('number of jobs:-', userJobsCount);
-  //       const jobsPromises = [];
-
-  //       for (let index = 0; index < userJobsCount; index++) {
-  //         jobsPromises.push(jobCreatorContract.userJobs(userAddress, index).call());
-  //       }
-
-  //       const jobIds = await Promise.all(jobsPromises);
-  //       console.log('job ids:-', jobIds);
-  //       const jobDetailsPromises = jobIds.map(jobId =>
-  //         jobCreatorContract.jobs(jobId).call()
-  //       );
-
-  //       const jobDetailsResults = await Promise.all(jobDetailsPromises);
-  //       console.log(jobDetailsResults);
-
-  //       const formattedJobs = jobDetailsResults.map((jobDetail, index) => ({
-  //         id: jobIds[index].toString(), // Convert to string to ensure unique keys
-  //         type: jobDetail[1],
-  //         status: jobDetail[2],
-  //         timeframe: jobDetail[3],
-  //         gasLimit: jobDetail[4],
-  //         contractAddress: jobDetail[5],
-  //         targetFunction: jobDetail[6],
-  //         interval: jobDetail[7],
-  //         argType: jobDetail[8],
-  //         apiEndpoint: jobDetail[9],
-  //         owner: jobDetail[10],
-  //         credit: jobDetail[11]
-  //       }));
-
-  //       setJobDetails(formattedJobs);
-  //     } catch (error) {
-  //       console.error('Error fetching job details:', error);
-  //       toast.error('Failed to fetch job details: ' + error.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchJobDetails();
-  // }, [tronWeb]); // Dependency array to run effect when tronWeb changes
 
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const tronWeb = window.tronWeb;
-        if (!tronWeb) {
-          throw new Error('TronWeb not found');
-        }
-        
-        const userAddress = tronWeb.defaultAddress.base58;
         const jobCreatorContract = await getJobCreatorContract();
+
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
         
-        const userJobsCount = await jobCreatorContract.userJobsCount(userAddress).call();
-        console.log('Number of jobs:', userJobsCount);
-        
+        console.log(userAddress, 'addresss');
+
+        const userJobsCount = await jobCreatorContract.userJobsCount(userAddress);
+        console.log('Number of jobs:', userJobsCount.toString());
+
         const tempJobs = [];
         for (let i = 0; i < userJobsCount; i++) {
-          const jobId = await jobCreatorContract.userJobs(userAddress, i).call();
+          const jobId = await jobCreatorContract.userJobs(userAddress, i);
           console.log(`Job ID ${i}:`, jobId.toString());
-          
-          const jobDetail = await jobCreatorContract.jobs(jobId).call();
+
+          const jobDetail = await jobCreatorContract.jobs(jobId);
           console.log(`Job Detail ${i}:`, jobDetail);
-          
+
           const formattedJob = {
-            id: jobId,
+            id: jobId.toString(),
             type: jobDetail.type || jobDetail[1],
             status: jobDetail.status || jobDetail[2],
             timeframe: (jobDetail.timeframe || jobDetail[3]),
-            gasLimit: (jobDetail.gasLimit || jobDetail[4]).toNumber(),
+            gasLimit: (jobDetail.gasLimit || jobDetail[4]),
             contractAddress: jobDetail.contractAddress || jobDetail[5],
             targetFunction: jobDetail.targetFunction || jobDetail[6],
-            interval: (jobDetail.interval || jobDetail[7]).toNumber(),
+            interval: (jobDetail.interval || jobDetail[7]).toString(),
             argType: jobDetail.argType || jobDetail[8],
             apiEndpoint: jobDetail.apiEndpoint || jobDetail[9],
             owner: jobDetail.owner || jobDetail[10],
-            credit: (jobDetail.credit || jobDetail[11]).toNumber()
+            credit: (jobDetail.credit || jobDetail[11])
           };
-          
+
           console.log(`Formatted Job ${i}:`, formattedJob);
           tempJobs.push(formattedJob);
         }
-        
+
         console.log('All formatted jobs:', tempJobs);
         setJobDetails(tempJobs);
       } catch (error) {
@@ -152,7 +96,24 @@ function DashboardPage() {
     };
 
     fetchJobDetails();
-  }, [tronWeb]);
+
+    // Event listener for account changes
+    const handleAccountsChanged = (accounts) => {
+      if (accounts.length > 0) {
+        fetchJobDetails(); // Call fetchJobDetails when the account changes
+      } else {
+        console.log('Please connect to MetaMask.');
+      }
+    };
+
+    // Listen for account changes
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    };
+  }, [window.ethereum]);
 
 
 
@@ -167,7 +128,7 @@ function DashboardPage() {
   const handleDeleteJob = async (jobId) => {
     try {
       const jobCreatorContract = await getJobCreatorContract();
-      await jobCreatorContract.deleteJob(jobId).send();
+      await jobCreatorContract.deleteJob(jobId,0.000000000000001);
       toast.success('Job deleted successfully');
       // Refresh job list
       window.location.reload();
@@ -189,13 +150,7 @@ function DashboardPage() {
   };
 
 
-  // const getJobCreatorContract = async () => {
-  //   const tronWeb = window.tronWeb;
-  //   if (!tronWeb) {
-  //     throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
-  //   }
-  //   return await tronWeb.contract().at(jobCreatorContractAddress);
-  // };
+  
 
   const handleJobEdit = async (e) => {
     e.preventDefault();
@@ -214,10 +169,10 @@ function DashboardPage() {
         selectedJob.contractAddress,
         selectedJob.targetFunction,
         intervalInSeconds,
-        0, // argType (you might need to adjust this based on your contract)
+        selectedJob.argType === 'None' ? 0 : selectedJob.argType === 'Static' ? 1 : selectedJob.argType === 'Dynamic' ? 2 : 0,
         [], // arguments (you might need to adjust this based on your contract)
         selectedJob.apiEndpoint
-      ).send();
+      );
 
       console.log('Job updated successfully:', result);
       toast.success('Job updated successfully');
