@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 function Header() {
   const logoRef = useRef(null);
-  const { wallet, address, connected, select, connect, disconnect } = useWallet();
-  const [isConnecting, setIsConnecting] = useState(false);
+  // const { wallet, address, connected, select, connect, disconnect } = useWallet();
+  // const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -25,28 +25,20 @@ function Header() {
     }
   }, []);
 
-  const handleWalletAction = async () => {
-    if (connected) {
-      await disconnect();
-    } else {
-      setIsConnecting(true);
-      if (wallet) {
-        try {
-          await connect();
-        } catch (error) {
-          console.error('Failed to connect:', error);
-        }
-      } else {
-        try {
-          await select('TronLink');
-          await connect();
-        } catch (error) {
-          console.error('Failed to select or connect:', error);
-        }
-      }
-      setIsConnecting(false);
-    }
-  };
+  // const handleWalletAction = async () => {
+  //   if (connected) {
+  //     await disconnect();
+  //   } else {
+  //     setIsConnecting(true);
+  //     try {
+  //       await select('MetaMask'); // Change to MetaMask
+  //       await connect();
+  //     } catch (error) {
+  //       console.error('Failed to select or connect:', error);
+  //     }
+  //     setIsConnecting(false);
+  //   }
+  // };
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
@@ -78,13 +70,16 @@ function Header() {
               <Link to="/dashboard" className="hover:text-secondary transition-colors">Dashboard</Link>
             </li>
             <li className="flex items-center">
-              <button
+              {/* <button
                 onClick={handleWalletAction}
                 disabled={isConnecting}
                 className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
               >
                 {isConnecting ? 'Connecting...' : connected ? `Disconnect (${address.slice(0, 6)}...${address.slice(-4)})` : 'Connect Wallet'}
-              </button>
+              </button> */}
+              <div className="flex items-center">
+                <ConnectButton />
+              </div>
             </li>
           </ul>
         </nav>

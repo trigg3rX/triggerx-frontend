@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Modal from 'react-modal'; // Make sure to install react-modal
+import Modal from 'react-modal';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import { ethers } from 'ethers';
+import axios from 'axios';
+import { InfuraProvider } from "ethers"
 
 function CreateJobPage() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [jobType, setJobType] = useState('');
   const [timeframe, setTimeframe] = useState({ years: 0, months: 0, days: 0 });
-  const [timeframeInSeconds, settimeframeInSeconds] = useState(0);
+  const [timeframeInSeconds, setTimeframeInSeconds] = useState(0);
   const [contractAddress, setContractAddress] = useState('');
   const [contractABI, setContractABI] = useState('');
   const [targetFunction, setTargetFunction] = useState('');
   const [timeInterval, setTimeInterval] = useState({ hours: 0, minutes: 0, seconds: 0 });
-  const [intervalInSeconds, setintervalInSeconds] = useState(0);
+  const [intervalInSeconds, setIntervalInSeconds] = useState(0);
   const [argType, setArgType] = useState('None');
   const [apiEndpoint, setApiEndpoint] = useState('');
   const [estimatedFee, setEstimatedFee] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [trxAmount, setTrxAmount] = useState(0);
-  const [argumentsInBytes, setargumentsInBytes] = useState([]);
-  const [userarguments, setArguments] = useState(''); // New state for arguments input
-  const [argsArray, setargArray] = useState([]);
+  const [ethAmount, setEthAmount] = useState(0);
+  const [argumentsInBytes, setArgumentsInBytes] = useState([]);
+  const [userArguments, setArguments] = useState('');
+  const [argsArray, setArgArray] = useState([]);
 
   const logoRef = useRef(null);
 
@@ -30,43 +33,43 @@ function CreateJobPage() {
       logo.style.transform = 'rotateY(0deg)';
       logo.style.transition = 'transform 1s ease-in-out';
 
-      const rotatelogo = () => {
+      const rotateLogo = () => {
         logo.style.transform = 'rotateY(360deg)';
         setTimeout(() => {
           logo.style.transform = 'rotateY(0deg)';
         }, 1000);
       };
 
-      const interval = setInterval(rotatelogo, 5000);
+      const interval = setInterval(rotateLogo, 5000);
       return () => clearInterval(interval);
     }
   }, []);
+
+  const ETHERSCAN_API_KEY = 'U5X9SJAFNJY7FS3TZWMWTVYJZ7Q1K6QJKM';
 
   const handleContractAddressChange = async (e) => {
     const address = e.target.value;
     setContractAddress(address);
 
-    if (address.length === 34) {
+    if (ethers.isAddress(address)) {
+      const url = `https://api-sepolia-optimism.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${ETHERSCAN_API_KEY}`;
       try {
-        const tronWeb = window.tronWeb;
-        if (!tronWeb) {
-          console.error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
-          return;
-        }
-
-        const contract = await tronWeb.contract().at(address);
-        const abi = JSON.stringify(contract.abi);
-
-        if (abi) {
-          setContractABI(abi);
+        const response = await axios.get(url);
+        const data = response.data;
+        console.log(data);
+        if (data.status === '1') {
           console.log('ABI fetched successfully');
+          setContractABI(data.result); // ABI is returned as a JSON string
         } else {
-          console.error('Error fetching ABI: ABI not found');
-          setContractABI('');
+          console.error(`Failed to fetch ABI: ${data.message}`);
+          if (data.message === 'NOTOK') {
+            console.error(`Contract address ${contractAddress} might not be verified on Etherscan or there is another issue.`);
+          }
+          throw new Error(`Failed to fetch ABI: ${data.message}`);
         }
       } catch (error) {
-        console.error('Error fetching ABI:', error);
-        setContractABI('');
+        console.error('Error fetching ABI:', error.message);
+        throw error;
       }
     } else {
       setContractABI('');
@@ -77,7 +80,7 @@ function CreateJobPage() {
     setTimeframe(prev => {
       const updatedTimeframe = { ...prev, [field]: parseInt(value) || 0 };
       const updatedTimeframeInSeconds = (updatedTimeframe.years * 31536000) + (updatedTimeframe.months * 2592000) + (updatedTimeframe.days * 86400);
-      settimeframeInSeconds(updatedTimeframeInSeconds);
+      setTimeframeInSeconds(updatedTimeframeInSeconds);
       return updatedTimeframe;
     });
   };
@@ -86,66 +89,70 @@ function CreateJobPage() {
     setTimeInterval(prev => {
       const updatedTimeInterval = { ...prev, [field]: parseInt(value) || 0 };
       const updatedIntervalInSeconds = (updatedTimeInterval.hours * 3600) + (updatedTimeInterval.minutes * 60) + updatedTimeInterval.seconds;
-      setintervalInSeconds(updatedIntervalInSeconds);
+      setIntervalInSeconds(updatedIntervalInSeconds);
       return updatedTimeInterval;
     });
   };
 
   const handleArgumentsChange = (e) => {
     const input = e.target.value;
-    const tronWeb = window.tronWeb;
-
     setArguments(input);
 
-    // Convert the input string to an array and then to bytes
     const argsArray = input.split(',').map(arg => arg.trim());
-    setargArray(argsArray);
+    setArgArray(argsArray);
     console.log(argsArray);
 
     const bytesArray = argsArray.map(arg => {
-      const hexValue = tronWeb.toHex(arg); // Convert to hex
-      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`; // Ensure even-length
-    }); // Convert to bytes
-
-
-    // const bytesArray = argsArray.map(arg => tronWeb.toHex(arg)); // Convert to bytes
-    setargumentsInBytes(bytesArray);
+      const hexValue = ethers.toBeHex(arg); // Convert to hex
+      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+    });
+    setArgumentsInBytes(bytesArray);
     console.log(bytesArray);
   };
 
+
   const estimateFee = async () => {
     try {
-      const tronWeb = window.tronWeb;
+      // Ensure we have a provider connected to OP Sepolia
+      // const provider = new ethers.providers.JsonRpcProvider('https://opt-sepolia.g.alchemy.com/v2/9eCzjtGExJJ6c_WwQ01h6Hgmj8bjAdrc');
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
-      const functionSelector = targetFunction; // Use the target function from the form
-      const options = {}; // Add any necessary options here
+      const functionFragment = contract.interface.getFunction(targetFunction);
+      console.log("function fragmenttttttttttttt", functionFragment)
 
-      // Parse the target function to get argument types
-      const argTypes = functionSelector.match(/\(([^)]+)\)/)[1].split(',').map(type => type.trim());
+      const params = functionFragment.inputs.map((input, index) => {
+        if (index < argsArray.length) {
+          return argsArray[index];
+        }
+        // Add default values here if needed
+      });
 
-      // Create parameters based on argTypes and argsArray
-      const parameters = argTypes.map((type, index) => ({
-        type: type,
-        value: argsArray[index] ? (argsArray[index]) : 0 // Convert to integer or default to 0
-      }));
-      console.log('paraaaaaa', parameters);
+      console.log('paraaaaaa', params);
+      // Now try to estimate gas
+      const gasEstimate = await contract[functionFragment.name].estimateGas(...params);
+      console.log('Gas estimation:', gasEstimate.toString());
 
-      console.log('You have to stake this amount of TRX');
-      const fee = await tronWeb.transactionBuilder.estimateEnergy(
-        tronWeb.address.toHex(contractAddress),
-        functionSelector,
-        options,
-        parameters,
-      );
-      ////
-      const tempfee = parseInt(fee.energy_required, 10);
-      console.log(tempfee);
-      const overallfee = Math.ceil((tempfee*Math.floor((timeframeInSeconds / intervalInSeconds)))*0.00021);
+      // Get the current gas price
+      const gasPrice = (await provider.getFeeData()).gasPrice;
+      console.log('gas price', gasPrice);
 
-      console.log('hureeeeeeeee', overallfee);
+      // Calculate the fee in wei
+      const feeInWei = gasEstimate*gasPrice;
 
-      setEstimatedFee(overallfee);
-      setTrxAmount(overallfee); // Set the TRX amount to stake
+      // Convert wei to ETH
+      const feeInEth = ethers.formatEther(feeInWei);
+
+      // Calculate the overall fee based on your time frame and interval
+      const overallFee = parseFloat(feeInEth) * Math.ceil(timeframeInSeconds / intervalInSeconds);
+
+      const formattedFee = ethers.formatEther(ethers.parseEther(overallFee.toString()));
+
+      console.log('Estimated fee in ETH:', overallFee);
+      console.log('Estimated fee in ETH:', typeof overallFee);
+
+      setEstimatedFee(overallFee);
+      setEthAmount(formattedFee); // Set the ETH amount to stake
       setIsModalOpen(true); // Open the modal
     } catch (error) {
       console.error('Error estimating fee:', error);
@@ -153,50 +160,69 @@ function CreateJobPage() {
     }
   };
 
-  const handlestake = async () => {
-    await handleSubmit(trxAmount); // Call handleSubmit with the trxAmount
-    setIsModalOpen(false); // Close the modal after stakeing
+  const handleStake = async () => {
+    await handleSubmit(ethAmount);
+    setIsModalOpen(false);
   };
 
-  const handleSubmit = async (trxAmount) => {
-    // e.preventDefault();
+  const formatVerySmallNumber = (num) => {
+    if (num < 1e-6) {
+      // For very small numbers, ensure we get proper decimal representation
+      return num.toLocaleString('fullwide', {
+        useGrouping: false,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 18
+      });
+    }
+    return num.toString();
+  };
+  
+
+  const handleSubmit = async (ethAmount) => {
     try {
-      const tronWeb = window.tronWeb;
-      if (!tronWeb) {
-        throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
-      }
 
-      // Replace with the actual address of your deployed JobCreator contract
-      const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
-      const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
+      const formatEthAmount = (amount) => {
+        // Convert from scientific notation to a fixed decimal string
+        const decimalStr = Number(amount).toFixed(18);
+        // Remove trailing zeros after decimal point
+        return decimalStr.replace(/\.?0+$/, "");
+      };
 
-      // Call the createJob function on the contract
-      console.log('creating job');
-      // const result = await jobCreatorContract.addTaskId(1,3).send();
-      console.log('task added');
-      // const trxAmount=1000;
-      const result1 = await jobCreatorContract.createJob(
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      // Replace with the actual address of your deployed JobCreator contract on OP Sepolia
+      const jobCreatorContractAddress = '0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d'; // Update this
+      const jobCreatorABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"name":"JobCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"uint256","name":"stakeRefunded","type":"uint256"}],"name":"JobDeleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"}],"name":"JobUpdated","type":"event"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint32","name":"taskId","type":"uint32"}],"name":"addTaskId","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"jobType","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"bytes[]","name":"arguments","type":"bytes[]"},{"internalType":"string","name":"apiEndpoint","type":"string"}],"name":"createJob","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint256","name":"stakeConsumed","type":"uint256"}],"name":"deleteJob","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint256","name":"argIndex","type":"uint256"}],"name":"getJobArgument","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"}],"name":"getJobArgumentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"","type":"uint32"}],"name":"jobs","outputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"string","name":"jobType","type":"string"},{"internalType":"string","name":"status","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"uint256","name":"blockNumber","type":"uint256"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"string","name":"apiEndpoint","type":"string"},{"internalType":"address","name":"jobCreator","type":"address"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"string","name":"jobType","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"bytes[]","name":"arguments","type":"bytes[]"},{"internalType":"string","name":"apiEndpoint","type":"string"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"name":"updateJob","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"userJobs","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userJobsCount","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalStake","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]; // Add your contract ABI here
+      const jobCreatorContract = new ethers.Contract(jobCreatorContractAddress, jobCreatorABI, signer);
+
+      console.log('Creating job');
+
+      const formattedAmount = formatVerySmallNumber(ethAmount);;
+      console.log('Formatted amount:', formattedAmount);
+
+      const tx = await jobCreatorContract.createJob(
         jobType,
         timeframeInSeconds,
         contractAddress,
         targetFunction.match(/(\w+)\(/)[1],
         intervalInSeconds,
-        argType === 'none' ? 0 : argType === 'static' ? 1 : argType === 'dynamic' ? 2 : 0,// argType,
-        argumentsInBytes,//arguments in bytes
+        argType === 'None' ? 0 : argType === 'Static' ? 1 : argType === 'Dynamic' ? 2 : 0,
+        argumentsInBytes,
         apiEndpoint,
-      ).send({
-        feeLimit: 100000000, // Adjust based on your gas limits
-        callValue: trxAmount*1000000 // The TRX value to stake
-      });
+        {
+          value: ethers.parseEther(formattedAmount)
+          // value: ethers.formatEther(ethers.parseEther(ethAmount.toString()))
+        }
+      );
 
-      console.log('Job created successfully:', result1);
+      await tx.wait();
+      console.log('Job created successfully:', tx.hash);
       toast.success('Job created successfully!');
 
-      navigate('/dashboard'); 
-      // You can add further logic here, such as showing a success message or redirecting the user
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error creating job:', error);
-      // Handle the error, e.g., show an error message to the user
       toast.error('Error creating job: ' + error.message);
     }
   };
@@ -236,7 +262,7 @@ function CreateJobPage() {
                 Keeper Network is an innovative decentralized network of nodes that automate smart contract executions and maintenance tasks on various blockchain networks. It ensures that critical operations are performed reliably and on time.
               </p>
               <p>
-                By leveraging Keeper Network through Trigg3rX, you can automate your TRON smart contracts with ease and efficiency.
+                By leveraging Keeper Network through Trigg3rX, you can automate your Ethereum smart contracts with ease and efficiency.
               </p>
             </div>
 
@@ -244,7 +270,7 @@ function CreateJobPage() {
               <h3 className="text-2xl font-bold mb-4">Why Choose Trigg3rX?</h3>
               <ul className="list-disc list-inside space-y-2">
                 <li>Advanced cross-chain automation</li>
-                <li>Seamless integration with TRON network</li>
+                <li>Seamless integration with Ethereum network</li>
                 <li>User-friendly interface for job creation</li>
                 <li>Reliable and secure execution of tasks</li>
                 <li>Customizable job parameters</li>
@@ -254,7 +280,7 @@ function CreateJobPage() {
 
           <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
             <h2 className="text-3xl font-bold mb-6">Create a New Job</h2>
-            <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); estimateFee();}} className="space-y-4">
               <div>
                 <label htmlFor="jobType" className="block mb-1">Job Type</label>
                 <input
@@ -395,7 +421,7 @@ function CreateJobPage() {
                     setArgType(e.target.value);
                     if (e.target.value !== 'Dynamic') {
                       setArguments(''); // Clear arguments if not dynamic
-                      setargumentsInBytes([]); // Clear bytes array
+                      setArgumentsInBytes([]); // Clear bytes array
                     }
                   }}
                   className="w-full px-3 py-2 border rounded-md text-gray-800"
@@ -411,7 +437,7 @@ function CreateJobPage() {
                   <input
                     type="text"
                     id="arguments"
-                    value={userarguments}
+                    value={userArguments}
                     onChange={handleArgumentsChange}
                     className="w-full px-3 py-2 border rounded-md text-gray-800"
                     placeholder="Enter arguments separated by commas"
@@ -440,9 +466,9 @@ function CreateJobPage() {
       {/* Modal for Fee Estimation */}
       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee" appElement={document.getElementById('root')}>
         <h2 className="text-xl font-bold">Estimated Fee</h2>
-        <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
-        <button onClick={handlestake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          stake
+        <p>The estimated fee for creating this job is: {estimatedFee} ETH</p>
+        <button onClick={handleStake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
+          Stake
         </button>
         <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
           Cancel

@@ -4,11 +4,11 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import CreateJobPage from './pages/CreateJobPage';
 import DashboardPage from './pages/DashboardPage';
-import { TronLinkProvider } from './providers';
+import Providers from './providers';
 
 function App() {
   return (
-    <TronLinkProvider>
+    <Providers>
       <Router>
         <Layout>
           <Routes>
@@ -18,7 +18,7 @@ function App() {
           </Routes>
         </Layout>
       </Router>
-    </TronLinkProvider>
+    </Providers>
   );
 }
 
