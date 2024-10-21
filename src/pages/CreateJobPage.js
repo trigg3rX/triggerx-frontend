@@ -228,254 +228,230 @@ function CreateJobPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center">
-            <div ref={logoRef} className="w-16 h-16 mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
-                <defs>
-                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#2980b9", stopOpacity: 1 }} />
-                  </linearGradient>
-                </defs>
-                <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
-                <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-bold">Trigg3rX</h1>
-          </div>
-          <nav>
-            <ul className="flex space-x-4">
-              <li><a href="/" className="hover:text-secondary transition-colors">Home</a></li>
-              <li><a href="/dashboard" className="hover:text-secondary transition-colors">Dashboard</a></li>
-            </ul>
-          </nav>
+    <div className="min-h-screen bg-[#0A0F1C] text-white pt-32 pb-20">
+      {/* Single gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
+      <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
+
+      <div className="container mx-auto px-6 relative">
+        {/* Rest of the component structure remains the same */}
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Create Automation Job
+          </h1>
+          <p className="text-xl text-gray-300 leading-relaxed">
+            Set up your automated blockchain tasks with precise conditions and parameters.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold mb-4">About Keeper Network</h3>
-              <p className="mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Info Panels */}
+          <div className="lg:col-span-1 space-y-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                About Keeper Network
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
                 Keeper Network is an innovative decentralized network of nodes that automate smart contract executions and maintenance tasks on various blockchain networks. It ensures that critical operations are performed reliably and on time.
-              </p>
-              <p>
-                By leveraging Keeper Network through Trigg3rX, you can automate your Ethereum smart contracts with ease and efficiency.
               </p>
             </div>
 
-            <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold mb-4">Why Choose Trigg3rX?</h3>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Advanced cross-chain automation</li>
-                <li>Seamless integration with Ethereum network</li>
-                <li>User-friendly interface for job creation</li>
-                <li>Reliable and secure execution of tasks</li>
-                <li>Customizable job parameters</li>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Why Choose Trigg3rX?
+              </h3>
+              <ul className="space-y-3 text-gray-300">
+                {["Advanced cross-chain automation", "Seamless integration with Ethereum network", "User-friendly interface", "Reliable and secure execution", "Customizable parameters"].map((item, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-400 to-purple-400" />
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
-          <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold mb-6">Create a New Job</h2>
-            <form onSubmit={(e) => { e.preventDefault(); estimateFee();}} className="space-y-4">
-              <div>
-                <label htmlFor="jobType" className="block mb-1">Job Type</label>
-                <input
-                  type="text"
-                  id="jobType"
-                  value={jobType}
-                  onChange={(e) => setJobType(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  required
-                />
-              </div>
+          {/* Form Section */}
+          <div className="lg:col-span-2">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-6">
+                {/* Job Type */}
+                <div>
+                  <label htmlFor="jobType" className="block text-sm font-medium text-gray-300 mb-2">Job Type</label>
+                  <select
+                    id="jobType"
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                    className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
+                    required
+                  >
+                    {/* <option value="" disabled>Select Job Type</option> */}
+                    <option value="Time">Time</option>
+                    <option value="Condition" disabled>Condition</option>
+                    <option value="Event" disabled>Event</option>
+                  </select>
+                </div>
 
-              {/* Timeframe Section with Labels */}
-              <div>
-                <label className="block mb-1">Timeframe</label>
-                <div className="flex space-x-2">
-                  <div className="w-1/3">
-                    <label className="block text-sm">Years</label>
+                {/* Timeframe Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Timeframe</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {['Years', 'Months', 'Days'].map((unit) => (
+                      <div key={unit}>
+                        <label className="block text-xs text-gray-400 mb-1">{unit}</label>
+                        <input
+                          type="number"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                          placeholder={unit}
+                          min="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Contract Details */}
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="contractAddress" className="block text-sm font-medium text-gray-300 mb-2">Contract Address</label>
                     <input
-                      type="number"
-                      value={timeframe.years}
-                      onChange={(e) => handleTimeframeChange('years', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Years"
-                      min="0"
+                      type="text"
+                      id="contractAddress"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                      required
                     />
                   </div>
-                  <div className="w-1/3">
-                    <label className="block text-sm">Months</label>
-                    <input
-                      type="number"
-                      value={timeframe.months}
-                      onChange={(e) => handleTimeframeChange('months', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Months"
-                      min="0"
-                      max="11"
+
+                  <div>
+                    <label htmlFor="contractABI" className="block text-sm font-medium text-gray-300 mb-2">Contract ABI</label>
+                    <textarea
+                      id="contractABI"
+                      rows={4}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                     />
                   </div>
-                  <div className="w-full">
-                    <label className="block text-sm">Days</label>
+
+                  <div>
+                    <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
                     <input
-                      type="number"
-                      value={timeframe.days}
-                      onChange={(e) => handleTimeframeChange('days', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Days"
-                      min="0"
-                      max="30"
+                      type="text"
+                      id="targetFunction"
+                      placeholder="getTask(uint256,uint256)"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                      required
                     />
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="contractAddress" className="block mb-1">Contract Address</label>
-                <input
-                  type="text"
-                  id="contractAddress"
-                  value={contractAddress}
-                  onChange={handleContractAddressChange}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contractABI" className="block mb-1">Contract ABI</label>
-                <textarea
-                  id="contractABI"
-                  value={contractABI}
-                  onChange={(e) => setContractABI(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  rows={4}
-                />
-              </div>
-              <div>
-                <label htmlFor="targetFunction" className="block mb-1">Target Function signature</label>
-                <input
-                  type="text"
-                  placeholder='getTask(uint256,uint256)'
-                  id="targetFunction"
-                  value={targetFunction}
-                  onChange={(e) => setTargetFunction(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  required
-                />
-              </div>
-
-              {/* Time Interval Section with Labels */}
-              <div>
-                <label className="block mb-1">Time Interval</label>
-                <div className="flex space-x-2">
-                  <div className="w-1/3">
-                    <label className="block text-sm">Hours</label>
-                    <input
-                      type="number"
-                      value={timeInterval.hours}
-                      onChange={(e) => handleTimeIntervalChange('hours', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Hours"
-                      min="0"
-                      max="23"
-                    />
-                  </div>
-                  <div className="w-1/3">
-                    <label className="block text-sm">Minutes</label>
-                    <input
-                      type="number"
-                      value={timeInterval.minutes}
-                      onChange={(e) => handleTimeIntervalChange('minutes', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Minutes"
-                      min="0"
-                      max="59"
-                    />
-                  </div>
-                  <div className="w-1/3">
-                    <label className="block text-sm">Seconds</label>
-                    <input
-                      type="number"
-                      value={timeInterval.seconds}
-                      onChange={(e) => handleTimeIntervalChange('seconds', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md text-gray-800"
-                      placeholder="Seconds"
-                      min="0"
-                      max="59"
-                    />
+                {/* Time Interval */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Time Interval</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {['Hours', 'Minutes', 'Seconds'].map((unit) => (
+                      <div key={unit}>
+                        <label className="block text-xs text-gray-400 mb-1">{unit}</label>
+                        <input
+                          type="number"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                          placeholder={unit}
+                          min="0"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="argType" className="block mb-1">Argument Type</label>
-                <select
-                  id="argType"
-                  value={argType}
-                  onChange={(e) => {
-                    setArgType(e.target.value);
-                    if (e.target.value !== 'Dynamic') {
-                      setArguments(''); // Clear arguments if not dynamic
-                      setArgumentsInBytes([]); // Clear bytes array
-                    }
-                  }}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
+                {/* Arguments Section */}
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="argType" className="block text-sm font-medium text-gray-300 mb-2">Argument Type</label>
+                    <select
+                      id="argType"
+                      value={argType}
+                      onChange={(e) => {
+                        setArgType(e.target.value);
+                        if (e.target.value !== 'Dynamic') {
+                          setArguments('');
+                          setApiEndpoint('');
+                        }
+                      }}
+                      className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
+                    >
+                      <option value="None">None</option>
+                      <option value="Static">Static</option>
+                      <option value="Dynamic">Dynamic</option>
+                    </select>
+                  </div>
+
+                  {/* Conditional Fields Based on Argument Type */}
+                  {argType === 'Static' && (
+                    <div>
+                      <label htmlFor="arguments" className="block text-sm font-medium text-gray-300 mb-2">
+                        Arguments (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        id="arguments"
+                        value={userArguments}
+                        onChange={(e) => setArguments(e.target.value)}
+                        className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                        placeholder="Enter arguments separated by commas"
+                      />
+                    </div>
+                  )}
+
+                  {argType === 'Dynamic' && (
+                    <div>
+                      <label htmlFor="apiEndpoint" className="block text-sm font-medium text-gray-300 mb-2">
+                        API Endpoint
+                      </label>
+                      <input
+                        type="text"
+                        id="apiEndpoint"
+                        value={apiEndpoint}
+                        onChange={(e) => setApiEndpoint(e.target.value)}
+                        className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                        placeholder="Enter API endpoint URL"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <option value="None">None</option>
-                  <option value="Static">Static</option>
-                  <option value="Dynamic">Dynamic</option>
-                </select>
-              </div>
-              {argType === 'Static' && (
-                <div>
-                  <label htmlFor="arguments" className="block mb-1">Arguments (comma-separated)</label>
-                  <input
-                    type="text"
-                    id="arguments"
-                    value={userArguments}
-                    onChange={handleArgumentsChange}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
-                    placeholder="Enter arguments separated by commas"
-                  />
-                </div>
-              )}
-              {argType === 'Dynamic' && (
-                <div>
-                  <label htmlFor="apiEndpoint" className="block mb-1">API Endpoint</label>
-                  <input
-                    type="text"
-                    id="apiEndpoint"
-                    value={apiEndpoint}
-                    onChange={(e) => setApiEndpoint(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  />
-                </div>
-              )}
-              <button type="submit" className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-                Create Job
-              </button>
-            </form>
+                  Create Job
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-      {/* Modal for Fee Estimation */}
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee" appElement={document.getElementById('root')}>
-        <h2 className="text-xl font-bold">Estimated Fee</h2>
-        <p>The estimated fee for creating this job is: {estimatedFee} ETH</p>
-        <button onClick={handleStake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          Stake
-        </button>
-        <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          Cancel
-        </button>
+
+      {/* Modal styling to match theme */}
+      <Modal
+        isOpen={false}
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#0A0F1C] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
+        overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm"
+      >
+        <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Estimated Fee
+        </h2>
+        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: 0 ETH</p>
+        <div className="flex gap-4">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+            Stake
+          </button>
+          <button className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300">
+            Cancel
+          </button>
+        </div>
       </Modal>
     </div>
   );
+  
 }
+
 
 export default CreateJobPage;

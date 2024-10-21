@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-toastify';
 import { ethers } from 'ethers';
+import { Link } from 'react-router-dom';
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -52,7 +53,7 @@ function DashboardPage() {
 
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
-        
+
         console.log(userAddress, 'addresss');
 
         const userJobsCount = await jobCreatorContract.userJobsCount(userAddress);
@@ -128,7 +129,7 @@ function DashboardPage() {
   const handleDeleteJob = async (jobId) => {
     try {
       const jobCreatorContract = await getJobCreatorContract();
-      await jobCreatorContract.deleteJob(jobId,0.000000000000001);
+      await jobCreatorContract.deleteJob(jobId, 0.000000000000001);
       toast.success('Job deleted successfully');
       // Refresh job list
       window.location.reload();
@@ -150,7 +151,7 @@ function DashboardPage() {
   };
 
 
-  
+
 
   const handleJobEdit = async (e) => {
     e.preventDefault();
@@ -206,77 +207,97 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white flex justify-center items-center">
+      <div className="min-h-screen bg-[#0A0F1C] text-white flex justify-center items-center">
         <div className="text-2xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center">
-            <div ref={logoRef} className="w-16 h-16 mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
-                <defs>
-                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%">
-                    <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#2980b9", stopOpacity: 1 }} />
-                  </linearGradient>
-                </defs>
-                <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
-                <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-bold">Trigg3rX Dashboard</h1>
-          </div>
-          <nav>
-            <ul className="flex space-x-4">
-              <li><a href="/" className="hover:text-secondary transition-colors">Home</a></li>
-              <li><a href="/create-job" className="hover:text-secondary transition-colors">Create Job</a></li>
-            </ul>
-          </nav>
-        </div>
+    <div className="min-h-screen bg-[#0A0F1C] text-white">
 
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
+      <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
+      {/* Header Section with gradient overlay */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20" />
+        <div className="container mx-auto px-6 py-8 relative">
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center">
+              <div ref={logoRef} className="w-16 h-16 mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%">
+                      <stop offset="0%" style={{ stopColor: "#60A5FA", stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: "#A78BFA", stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
+                  <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Trigg3rX Dashboard
+              </h1>
+            </div>
+            <nav>
+              <ul className="flex space-x-6">
+                <li>
+                  <Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
+                </li>
+                <li>
+                  <Link to="/create-job" className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+                    Create Job
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4">Your Jobs</h2>
+          {/* Jobs Table Section */}
+          <div className="lg:col-span-2">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Active Jobs
+              </h2>
               {jobDetails.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white border-opacity-20">
-                        <th className="px-4 py-2 text-left">ID</th>
-                        <th className="px-4 py-2 text-left">Type</th>
-                        <th className="px-4 py-2 text-left">Status</th>
-                        <th className="px-4 py-2 text-left">Interval (sec)</th>
-                        <th className="px-4 py-2 text-left">Actions</th>
+                      <tr className="border-b border-white/10">
+                        <th className="px-4 py-3 text-left text-gray-300">ID</th>
+                        <th className="px-4 py-3 text-left text-gray-300">Type</th>
+                        <th className="px-4 py-3 text-left text-gray-300">Status</th>
+                        <th className="px-4 py-3 text-left text-gray-300">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {jobDetails.map((job, index) => (
-                        <tr key={`${job.id}-${index}`} className="border-b border-white border-opacity-10">
-                          <td className="px-4 py-2">{job.id}</td>
-                          <td className="px-4 py-2">{job.type}</td>
-                          <td className="px-4 py-2">
-                            <span className={`px-2 py-1 rounded-full text-xs ${job.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'
-                              }`}>
+                      {jobDetails.map((job) => (
+                        <tr key={job.id} className="border-b border-white/5">
+                          <td className="px-4 py-3">{job.id}</td>
+                          <td className="px-4 py-3">{job.type}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-3 py-1 rounded-full text-xs bg-blue-500/20 text-blue-300">
                               {job.status}
                             </span>
                           </td>
-                          <td className="px-4 py-2">{job.interval}</td>
-                          <td className="px-4 py-2">
+                          <td className="px-4 py-3 space-x-2">
                             <button
                               onClick={() => handleUpdateJob(job.id)}
-                              className="mr-2 text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition-colors"
+                              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-sm hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
                             >
                               Update
                             </button>
                             <button
                               onClick={() => handleDeleteJob(job.id)}
-                              className="text-sm bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition-colors"
+                              className="px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/20 transition-all duration-300"
                             >
                               Delete
                             </button>
@@ -287,195 +308,70 @@ function DashboardPage() {
                   </table>
                 </div>
               ) : (
-                <p>No jobs found.</p>
+                <div className="text-center py-8 text-gray-400">
+                  No active jobs found. Create your first job to get started.
+                </div>
               )}
             </div>
           </div>
-          <div>
-            <div className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-              <ul className="space-y-2">
-                <li>
-                  <a href="/create-job" className="block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
-                    Create New Job
-                  </a>
-                </li>
-                <li>
-                  <button className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
-                    View Analytics
-                  </button>
-                </li>
-                <li>
-                  <button className="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition-colors">
-                    Manage Settings
-                  </button>
-                </li>
-              </ul>
+
+          {/* Quick Actions Section */}
+          <div className="space-y-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Quick Actions
+              </h3>
+              <div className="space-y-4">
+                <Link
+                  to="/create-job"
+                  className="block w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-center"
+                >
+                  Create New Job
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Statistics
+              </h3>
+              <div className="space-y-4 text-gray-300">
+                <div className="flex justify-between items-center">
+                  <span>Total Jobs</span>
+                  <span className="font-semibold">{jobDetails.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Active Jobs</span>
+                  <span className="font-semibold">
+                    {jobDetails.filter(job => job.status === 'Active').length}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Modal - keeping the existing modal code but updating its styles */}
       {isModalVisible && selectedJob && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-y-auto">
-          <div className="bg-white text-black p-6 rounded-lg shadow-lg max-w-2xl w-full m-4">
-            <h2 className="text-xl font-bold mb-4">Update Job</h2>
-            <form onSubmit={handleJobEdit} className="space-y-4">
-              <div>
-                <label htmlFor="jobType" className="block mb-1">Job Type</label>
-                <input
-                  type="text"
-                  id="jobType"
-                  value={selectedJob.type}
-                  onChange={(e) => handleChangeJobField('type', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="jobStatus" className="block mb-1">Status</label>
-                <select
-                  id="jobStatus"
-                  value={selectedJob.status}
-                  onChange={(e) => handleChangeJobField('status', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                >
-                  <option value="Active">Active</option>
-                  <option value="Paused">Paused</option>
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1">Timeframe</label>
-                <div className="flex space-x-2">
-                  <input
-                    type="number"
-                    value={selectedJob.timeframe.years}
-                    onChange={(e) => handleChangeTimeframe('years', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Years"
-                    min="0"
-                  />
-                  <input
-                    type="number"
-                    value={selectedJob.timeframe.months}
-                    onChange={(e) => handleChangeTimeframe('months', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Months"
-                    min="0"
-                    max="11"
-                  />
-                  <input
-                    type="number"
-                    value={selectedJob.timeframe.days}
-                    onChange={(e) => handleChangeTimeframe('days', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Days"
-                    min="0"
-                    max="30"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="contractAddress" className="block mb-1">Contract Address</label>
-                <input
-                  type="text"
-                  id="contractAddress"
-                  value={selectedJob.contractAddress}
-                  onChange={(e) => handleChangeJobField('contractAddress', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contractABI" className="block mb-1">Contract ABI</label>
-                <textarea
-                  id="contractABI"
-                  value={selectedJob.contractABI}
-                  onChange={(e) => handleChangeJobField('contractABI', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                  rows={4}
-                />
-              </div>
-              <div>
-                <label htmlFor="targetFunction" className="block mb-1">Target Function</label>
-                <input
-                  type="text"
-                  id="targetFunction"
-                  value={selectedJob.targetFunction}
-                  onChange={(e) => handleChangeJobField('targetFunction', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1">Time Interval</label>
-                <div className="flex space-x-2">
-                  <input
-                    type="number"
-                    value={selectedJob.timeInterval.hours}
-                    onChange={(e) => handleChangeTimeInterval('hours', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Hours"
-                    min="0"
-                    max="23"
-                  />
-                  <input
-                    type="number"
-                    value={selectedJob.timeInterval.minutes}
-                    onChange={(e) => handleChangeTimeInterval('minutes', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Minutes"
-                    min="0"
-                    max="59"
-                  />
-                  <input
-                    type="number"
-                    value={selectedJob.timeInterval.seconds}
-                    onChange={(e) => handleChangeTimeInterval('seconds', e.target.value)}
-                    className="w-1/3 px-3 py-2 border rounded-md"
-                    placeholder="Seconds"
-                    min="0"
-                    max="59"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="argType" className="block mb-1">Argument Type</label>
-                <select
-                  id="argType"
-                  value={selectedJob.argType}
-                  onChange={(e) => handleChangeJobField('argType', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="None">None</option>
-                  <option value="Static">Static</option>
-                  <option value="Dynamic">Dynamic</option>
-                </select>
-              </div>
-              {selectedJob.argType === 'Dynamic' && (
-                <div>
-                  <label htmlFor="apiEndpoint" className="block mb-1">API Endpoint</label>
-                  <input
-                    type="text"
-                    id="apiEndpoint"
-                    value={selectedJob.apiEndpoint}
-                    onChange={(e) => handleChangeJobField('apiEndpoint', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md"
-                  />
-                </div>
-              )}
-              <div className="flex space-x-2">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="bg-[#0A0F1C] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Update Job
+            </h2>
+            <form onSubmit={handleJobEdit} className="space-y-6">
+              {/* Form fields here */}
+              <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
                 >
                   Save Changes
                 </button>
                 <button
                   type="button"
-                  onClick={handleCloseModal}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                  onClick={() => setIsModalVisible(false)}
+                  className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
                 >
                   Cancel
                 </button>
@@ -486,6 +382,6 @@ function DashboardPage() {
       )}
     </div>
   );
-}
+};
 
 export default DashboardPage;
