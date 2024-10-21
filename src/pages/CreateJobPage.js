@@ -138,7 +138,7 @@ function CreateJobPage() {
       console.log('gas price', gasPrice);
 
       // Calculate the fee in wei
-      const feeInWei = gasEstimate*gasPrice;
+      const feeInWei = gasEstimate * gasPrice;
 
       // Convert wei to ETH
       const feeInEth = ethers.formatEther(feeInWei);
@@ -161,6 +161,7 @@ function CreateJobPage() {
   };
 
   const handleStake = async () => {
+    console.log(ethAmount,'hurreeee');
     await handleSubmit(ethAmount);
     setIsModalOpen(false);
   };
@@ -176,10 +177,11 @@ function CreateJobPage() {
     }
     return num.toString();
   };
-  
+
 
   const handleSubmit = async (ethAmount) => {
     try {
+
 
       const formatEthAmount = (amount) => {
         // Convert from scientific notation to a fixed decimal string
@@ -187,13 +189,28 @@ function CreateJobPage() {
         // Remove trailing zeros after decimal point
         return decimalStr.replace(/\.?0+$/, "");
       };
+      console.log('Creating job 2');
+
+      if (typeof window.ethereum === 'undefined') {
+        throw new Error('Please install MetaMask to use this feature');
+      }
+      console.log('Creating job 3',typeof window.ethereum);
+
+      // await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      console.log('Creating job 4');
 
       const provider = new ethers.BrowserProvider(window.ethereum);
+      console.log('Creating job 3',provider);
+
       const signer = await provider.getSigner();
+
+      console.log('Creating job 5',signer);
+
 
       // Replace with the actual address of your deployed JobCreator contract on OP Sepolia
       const jobCreatorContractAddress = '0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d'; // Update this
-      const jobCreatorABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"name":"JobCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"uint256","name":"stakeRefunded","type":"uint256"}],"name":"JobDeleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"jobId","type":"uint32"}],"name":"JobUpdated","type":"event"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint32","name":"taskId","type":"uint32"}],"name":"addTaskId","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"jobType","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"bytes[]","name":"arguments","type":"bytes[]"},{"internalType":"string","name":"apiEndpoint","type":"string"}],"name":"createJob","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint256","name":"stakeConsumed","type":"uint256"}],"name":"deleteJob","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"uint256","name":"argIndex","type":"uint256"}],"name":"getJobArgument","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"}],"name":"getJobArgumentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"","type":"uint32"}],"name":"jobs","outputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"string","name":"jobType","type":"string"},{"internalType":"string","name":"status","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"uint256","name":"blockNumber","type":"uint256"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"string","name":"apiEndpoint","type":"string"},{"internalType":"address","name":"jobCreator","type":"address"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"jobId","type":"uint32"},{"internalType":"string","name":"jobType","type":"string"},{"internalType":"uint32","name":"timeframe","type":"uint32"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"string","name":"targetFunction","type":"string"},{"internalType":"uint256","name":"timeInterval","type":"uint256"},{"internalType":"enum TriggerXJobManager.ArgType","name":"argType","type":"uint8"},{"internalType":"bytes[]","name":"arguments","type":"bytes[]"},{"internalType":"string","name":"apiEndpoint","type":"string"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"}],"name":"updateJob","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"userJobs","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userJobsCount","outputs":[{"internalType":"uint32","name":"","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalStake","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]; // Add your contract ABI here
+      const jobCreatorABI = [{ "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "JobCreated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeRefunded", "type": "uint256" }], "name": "JobDeleted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "JobUpdated", "type": "event" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint32", "name": "taskId", "type": "uint32" }], "name": "addTaskId", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }], "name": "createJob", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "stakeConsumed", "type": "uint256" }], "name": "deleteJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "argIndex", "type": "uint256" }], "name": "getJobArgument", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "getJobArgumentCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "name": "jobs", "outputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "string", "name": "status", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "uint256", "name": "blockNumber", "type": "uint256" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "address", "name": "jobCreator", "type": "address" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "updateJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" }], "name": "userJobs", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userJobsCount", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userTotalStake", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]; // Add your contract ABI here
       const jobCreatorContract = new ethers.Contract(jobCreatorContractAddress, jobCreatorABI, signer);
 
       console.log('Creating job');
@@ -296,7 +313,7 @@ function CreateJobPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Timeframe</label>
                   <div className="grid grid-cols-3 gap-4">
-                    {['Years', 'Months', 'Days'].map((unit) => (
+                    {/* {['Years', 'Months', 'Days'].map((unit) => (
                       <div key={unit}>
                         <label className="block text-xs text-gray-400 mb-1">{unit}</label>
                         <input
@@ -306,7 +323,42 @@ function CreateJobPage() {
                           min="0"
                         />
                       </div>
-                    ))}
+                    ))} */}
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Years</label>
+                      <input
+                        type="number"
+                        value={timeframe.years}
+                        onChange={(e) => handleTimeframeChange('years', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Years"
+                        min="0"
+                      />
+                    </div>
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Months</label>
+                      <input
+                        type="number"
+                        value={timeframe.months}
+                        onChange={(e) => handleTimeframeChange('months', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Months"
+                        min="0"
+                        max="11"
+                      />
+                    </div>
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Days</label>
+                      <input
+                        type="number"
+                        value={timeframe.days}
+                        onChange={(e) => handleTimeframeChange('days', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Days"
+                        min="0"
+                        max="30"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -317,6 +369,9 @@ function CreateJobPage() {
                     <input
                       type="text"
                       id="contractAddress"
+                      value={contractAddress}
+                      onChange={handleContractAddressChange}
+                      placeholder="Your op-sepolia contract address"
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                       required
                     />
@@ -326,6 +381,8 @@ function CreateJobPage() {
                     <label htmlFor="contractABI" className="block text-sm font-medium text-gray-300 mb-2">Contract ABI</label>
                     <textarea
                       id="contractABI"
+                      value={contractABI}
+                      onChange={(e) => setContractABI(e.target.value)}
                       rows={4}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                     />
@@ -337,6 +394,8 @@ function CreateJobPage() {
                       type="text"
                       id="targetFunction"
                       placeholder="getTask(uint256,uint256)"
+                      value={targetFunction}
+                      onChange={(e) => setTargetFunction(e.target.value)}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                       required
                     />
@@ -347,17 +406,57 @@ function CreateJobPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Time Interval</label>
                   <div className="grid grid-cols-3 gap-4">
-                    {['Hours', 'Minutes', 'Seconds'].map((unit) => (
+                    {/* {['Hours', 'Minutes', 'Seconds'].map((unit) => (
                       <div key={unit}>
                         <label className="block text-xs text-gray-400 mb-1">{unit}</label>
                         <input
                           type="number"
                           className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                           placeholder={unit}
+                          value={timeInterval.unit}
+                          onChange={(e) => handleTimeIntervalChange(unit, e.target.value)}
                           min="0"
                         />
                       </div>
-                    ))}
+                    ))} */}
+                    {/* <div className="flex space-x-2"> */}
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Hours</label>
+                      <input
+                        type="number"
+                        value={timeInterval.hours}
+                        onChange={(e) => handleTimeIntervalChange('hours', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Hours"
+                        min="0"
+                        max="23"
+                      />
+                    </div>
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Minutes</label>
+                      <input
+                        type="number"
+                        value={timeInterval.minutes}
+                        onChange={(e) => handleTimeIntervalChange('minutes', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Minutes"
+                        min="0"
+                        max="59"
+                      />
+                    </div>
+                    <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
+                      <label className="block text-sm">Seconds</label>
+                      <input
+                        type="number"
+                        value={timeInterval.seconds}
+                        onChange={(e) => handleTimeIntervalChange('seconds', e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md text-gray-800"
+                        placeholder="Seconds"
+                        min="0"
+                        max="59"
+                      />
+                    </div>
+                    {/* </div> */}
                   </div>
                 </div>
 
@@ -393,7 +492,7 @@ function CreateJobPage() {
                         type="text"
                         id="arguments"
                         value={userArguments}
-                        onChange={(e) => setArguments(e.target.value)}
+                        onChange={handleArgumentsChange}
                         className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                         placeholder="Enter arguments separated by commas"
                       />
@@ -417,8 +516,8 @@ function CreateJobPage() {
                   )}
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   Create Job
@@ -431,26 +530,29 @@ function CreateJobPage() {
 
       {/* Modal styling to match theme */}
       <Modal
-        isOpen={false}
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Estimate Fee"
+        // appElement={document.getElementById('root')}
         className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#0A0F1C] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
         overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm"
       >
         <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Estimated Fee
         </h2>
-        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: 0 ETH</p>
+        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: {estimatedFee} ETH</p>
         <div className="flex gap-4">
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+          <button onClick={handleStake} className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
             Stake
           </button>
-          <button className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300">
+          <button onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300">
             Cancel
           </button>
         </div>
       </Modal>
     </div>
   );
-  
+
 }
 
 
