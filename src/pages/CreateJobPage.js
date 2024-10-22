@@ -24,6 +24,9 @@ function CreateJobPage() {
   const [argumentsInBytes, setArgumentsInBytes] = useState([]);
   const [userArguments, setArguments] = useState('');
   const [argsArray, setArgArray] = useState([]);
+  const [functions, setFunctions] = useState([]);
+  const [selectedFunction, setSelectedFunction] = useState(null);
+  const [functionInputs, setFunctionInputs] = useState([]);
 
   const logoRef = useRef(null);
 
@@ -47,6 +50,51 @@ function CreateJobPage() {
 
   const ETHERSCAN_API_KEY = 'U5X9SJAFNJY7FS3TZWMWTVYJZ7Q1K6QJKM';
 
+  function extractFunctions(abi) {
+    try {
+      // Convert string to array if needed
+      let abiArray;
+      if (typeof abi === 'string') {
+        try {
+          abiArray = JSON.parse(abi);
+        } catch (e) {
+          throw new Error('Invalid ABI string format');
+        }
+      } else if (Array.isArray(abi)) {
+        abiArray = abi;
+      } else if (typeof abi === 'object') {
+        // If abi is already parsed but not an array
+        abiArray = [abi];
+      } else {
+        throw new Error('ABI must be an array, object, or valid JSON string');
+      }
+      // console.log(abi);
+
+      // Ensure we have an array to work with
+      if (!Array.isArray(abiArray)) {
+        throw new Error('Processed ABI is not an array');
+      }
+
+      // Filter and map the functions
+      const functions = abiArray
+        .filter(item => item && item.type === 'function')
+        .map(func => ({
+          name: func.name || 'unnamed',
+          inputs: func.inputs || [],
+          outputs: func.outputs || [],
+          stateMutability: func.stateMutability || 'nonpayable',
+          payable: func.payable || false,
+          constant: func.constant || false
+        }));
+      // console.log(functions);
+
+      return functions;
+    } catch (error) {
+      console.error('Error processing ABI:', error);
+      return []; // Return empty array instead of throwing error
+    }
+  }
+
   const handleContractAddressChange = async (e) => {
     const address = e.target.value;
     setContractAddress(address);
@@ -59,7 +107,15 @@ function CreateJobPage() {
         console.log(data);
         if (data.status === '1') {
           console.log('ABI fetched successfully');
+
+          const writableFunctions = extractFunctions(data.result).filter(func =>
+            func.stateMutability === 'nonpayable' || func.stateMutability === 'payable'
+          );
+          console.log(writableFunctions);
+          setFunctions(writableFunctions);
+
           setContractABI(data.result); // ABI is returned as a JSON string
+
         } else {
           console.error(`Failed to fetch ABI: ${data.message}`);
           if (data.message === 'NOTOK') {
@@ -110,6 +166,43 @@ function CreateJobPage() {
     console.log(bytesArray);
   };
 
+  const handleFunctionChange = (e) => {
+    const selectedValue = e.target.value;
+    setTargetFunction(selectedValue);
+
+    // Find the selected function object
+    const func = functions.find(f => `${f.name}(${f.inputs.map(input => input.type).join(',')})` === selectedValue);
+    setSelectedFunction(func);
+
+    if (func) {
+      // Initialize inputs array with empty strings
+      setFunctionInputs(func.inputs.map(() => ''));
+    } else {
+      setFunctionInputs([]);
+    }
+  };
+
+  const handleInputChange = (index, value) => {
+    const newInputs = [...functionInputs];
+    newInputs[index] = value;
+    setFunctionInputs(newInputs);
+  };
+
+  useEffect(() => {
+    // Update argumentsInBytes when functionInputs change
+    const bytesArray = functionInputs.map(arg => {
+      if (arg === '') return '0x'; // Return '0x' for empty inputs
+      try {
+        const hexValue = ethers.toBeHex(arg);
+        return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+      } catch (error) {
+        console.error('Error converting input to hex:', error);
+        return '0x'; // Return '0x' if conversion fails
+      }
+    });
+    setArgumentsInBytes(bytesArray);
+    
+  }, [functionInputs]);
 
   const estimateFee = async () => {
     try {
@@ -161,7 +254,7 @@ function CreateJobPage() {
   };
 
   const handleStake = async () => {
-    console.log(ethAmount,'hurreeee');
+    console.log(ethAmount, 'hurreeee');
     await handleSubmit(ethAmount);
     setIsModalOpen(false);
   };
@@ -194,18 +287,18 @@ function CreateJobPage() {
       if (typeof window.ethereum === 'undefined') {
         throw new Error('Please install MetaMask to use this feature');
       }
-      console.log('Creating job 3',typeof window.ethereum);
+      console.log('Creating job 3', typeof window.ethereum);
 
       // await window.ethereum.request({ method: 'eth_requestAccounts' });
 
       console.log('Creating job 4');
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      console.log('Creating job 3',provider);
+      console.log('Creating job 3', provider);
 
       const signer = await provider.getSigner();
 
-      console.log('Creating job 5',signer);
+      console.log('Creating job 5', signer);
 
 
       // Replace with the actual address of your deployed JobCreator contract on OP Sepolia
@@ -388,7 +481,7 @@ function CreateJobPage() {
                     />
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
                     <input
                       type="text"
@@ -399,6 +492,31 @@ function CreateJobPage() {
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                       required
                     />
+                  </div> */}
+                  <div>
+                    <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
+                    <select
+                      id="targetFunction"
+                      value={targetFunction}
+                      onChange={handleFunctionChange}
+                      className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
+                      required
+                    >
+                      <option value="" className="bg-[#1A1F2C] text-white">Select a function</option>
+                      {functions.map((func, index) => {
+                        const signature = `${func.name}(${func.inputs.map(input => input.type).join(',')})`;
+                        return (
+                          <option key={index} value={signature} className="bg-[#1A1F2C] text-white">
+                            {signature}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {functions.length === 0 && contractAddress && (
+                      <p className="mt-2 text-sm text-yellow-400">
+                        No writable functions found. Make sure the contract is verified on Etherscan.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -515,6 +633,24 @@ function CreateJobPage() {
                     </div>
                   )}
                 </div>
+
+                {selectedFunction && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Function Arguments</label>
+                    {selectedFunction.inputs.map((input, index) => (
+                      <div key={index} className="mb-2">
+                        <label className="block text-xs text-gray-400 mb-1">{input.name || `Argument ${index + 1}`} ({input.type})</label>
+                        <input
+                          type="text"
+                          value={functionInputs[index]}
+                          onChange={(e) => handleInputChange(index, e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                          placeholder={`Enter ${input.type}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <button
                   type="submit"
