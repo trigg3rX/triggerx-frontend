@@ -107,21 +107,21 @@ function DashboardPage() {
         if (!tronWeb) {
           throw new Error('TronWeb not found');
         }
-        
+
         const userAddress = tronWeb.defaultAddress.base58;
         const jobCreatorContract = await getJobCreatorContract();
-        
+
         const userJobsCount = await jobCreatorContract.userJobsCount(userAddress).call();
         console.log('Number of jobs:', userJobsCount);
-        
+
         const tempJobs = [];
         for (let i = 0; i < userJobsCount; i++) {
           const jobId = await jobCreatorContract.userJobs(userAddress, i).call();
           console.log(`Job ID ${i}:`, jobId.toString());
-          
+
           const jobDetail = await jobCreatorContract.jobs(jobId).call();
           console.log(`Job Detail ${i}:`, jobDetail);
-          
+
           const formattedJob = {
             id: jobId,
             type: jobDetail.type || jobDetail[1],
@@ -136,11 +136,11 @@ function DashboardPage() {
             owner: jobDetail.owner || jobDetail[10],
             credit: (jobDetail.credit || jobDetail[11]).toNumber()
           };
-          
+
           console.log(`Formatted Job ${i}:`, formattedJob);
           tempJobs.push(formattedJob);
         }
-        
+
         console.log('All formatted jobs:', tempJobs);
         setJobDetails(tempJobs);
       } catch (error) {
@@ -258,7 +258,10 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+    <div className="min-h-screen bg-[#0A0F1C] text-white pt-32 pb-20">
+      {/* Single gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
+      <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center">

@@ -281,7 +281,7 @@ function CreateJobPage() {
     const newInputs = [...functionInputs];
     newInputs[index] = value;
     setFunctionInputs(newInputs);
-    
+
     // Update argsArray whenever an input changes
     setargArray(newInputs);
     console.log(argsArray);
@@ -296,7 +296,7 @@ function CreateJobPage() {
 
   useEffect(() => {
     // Update argumentsInBytes when functionInputs change
-    
+
     const bytesArray = functionInputs.map(arg => {
       const tronWeb = window.tronWeb;
       if (arg === '') return '0x'; // Return '0x' for empty inputs
@@ -312,7 +312,10 @@ function CreateJobPage() {
   }, [functionInputs]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+    <div className="min-h-screen bg-[#0A0F1C] text-white pt-2 pb-20 pl-10 pr-10">
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
+      <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center">
@@ -362,9 +365,9 @@ function CreateJobPage() {
             </div>
           </div>
 
-          <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold mb-6">Create a New Job</h2>
-            <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-4">
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+            <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-6">
+              {/* Job Type */}
               <div>
                 <label htmlFor="jobType" className="block text-sm font-medium text-gray-300 mb-2">Job Type</label>
                 <select
@@ -383,9 +386,9 @@ function CreateJobPage() {
 
               {/* Timeframe Section with Labels */}
               <div>
-                <label className="block mb-1">Timeframe</label>
-                <div className="flex space-x-2">
-                  <div className="w-1/3">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Timeframe</label>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Years</label>
                     <input
                       type="number"
@@ -396,7 +399,7 @@ function CreateJobPage() {
                       min="0"
                     />
                   </div>
-                  <div className="w-1/3">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Months</label>
                     <input
                       type="number"
@@ -408,7 +411,7 @@ function CreateJobPage() {
                       max="11"
                     />
                   </div>
-                  <div className="w-full">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Days</label>
                     <input
                       type="number"
@@ -425,24 +428,25 @@ function CreateJobPage() {
 
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="contractAddress" className="block mb-1">Contract Address</label>
+                  <label htmlFor="contractAddress" className="block text-sm font-medium text-gray-300 mb-2">Contract Address</label>
                   <input
                     type="text"
                     id="contractAddress"
                     value={contractAddress}
                     onChange={handleContractAddressChange}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
+                    placeholder="Your op-sepolia contract address"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="contractABI" className="block mb-1">Contract ABI</label>
+                  <label htmlFor="contractABI" className="block text-sm font-medium text-gray-300 mb-2">Contract ABI</label>
                   <textarea
                     id="contractABI"
                     value={contractABI}
                     onChange={(e) => setContractABI(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
                     rows={4}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                   />
                 </div>
 
@@ -475,9 +479,9 @@ function CreateJobPage() {
 
               {/* Time Interval Section with Labels */}
               <div>
-                <label className="block mb-1">Time Interval</label>
-                <div className="flex space-x-2">
-                  <div className="w-1/3">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Time Interval</label>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Hours</label>
                     <input
                       type="number"
@@ -489,7 +493,7 @@ function CreateJobPage() {
                       max="23"
                     />
                   </div>
-                  <div className="w-1/3">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Minutes</label>
                     <input
                       type="number"
@@ -501,7 +505,7 @@ function CreateJobPage() {
                       max="59"
                     />
                   </div>
-                  <div className="w-1/3">
+                  <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300">
                     <label className="block text-sm">Seconds</label>
                     <input
                       type="number"
@@ -513,53 +517,9 @@ function CreateJobPage() {
                       max="59"
                     />
                   </div>
+                  {/* </div> */}
                 </div>
               </div>
-
-              <div>
-                <label htmlFor="argType" className="block mb-1">Argument Type</label>
-                <select
-                  id="argType"
-                  value={argType}
-                  onChange={(e) => {
-                    setArgType(e.target.value);
-                    if (e.target.value !== 'Dynamic') {
-                      setArguments(''); // Clear arguments if not dynamic
-                      setargumentsInBytes([]); // Clear bytes array
-                    }
-                  }}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                >
-                  <option value="None">None</option>
-                  <option value="Static">Static</option>
-                  <option value="Dynamic">Dynamic</option>
-                </select>
-              </div>
-              {argType === 'Static' && (
-                <div>
-                  <label htmlFor="arguments" className="block mb-1">Arguments (comma-separated)</label>
-                  <input
-                    type="text"
-                    id="arguments"
-                    value={userarguments}
-                    onChange={handleArgumentsChange}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
-                    placeholder="Enter arguments separated by commas"
-                  />
-                </div>
-              )}
-              {argType === 'Dynamic' && (
-                <div>
-                  <label htmlFor="apiEndpoint" className="block mb-1">API Endpoint</label>
-                  <input
-                    type="text"
-                    id="apiEndpoint"
-                    value={apiEndpoint}
-                    onChange={(e) => setApiEndpoint(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  />
-                </div>
-              )}
 
               {selectedFunction && (
                 <div>
@@ -579,7 +539,7 @@ function CreateJobPage() {
                 </div>
               )}
 
-              <button type="submit" className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-opacity-80 transition-colors">
+              <button type="submit" className="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2">
                 Create Job
               </button>
             </form>
@@ -587,18 +547,28 @@ function CreateJobPage() {
         </div>
       </div >
       {/* Modal for Fee Estimation */}
-      < Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)
-      } contentLabel="Estimate Fee" appElement={document.getElementById('root')} >
-        <h2 className="text-xl font-bold">Estimated Fee</h2>
-        <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
-        <button onClick={handlestake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          stake
-        </button>
-        <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-          Cancel
-        </button>
-      </Modal >
-    </div >
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Estimate Fee"
+        // appElement={document.getElementById('root')}
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#0A0F1C] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
+        overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm"
+      >
+        <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Estimated Fee
+        </h2>
+        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: {estimatedFee} ETH</p>
+        <div className="flex gap-4">
+          <button onClick={handlestake} className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+            Stake
+          </button>
+          <button onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300">
+            Cancel
+          </button>
+        </div>
+      </Modal>
+    </div>
   );
 }
 
