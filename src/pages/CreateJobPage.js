@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal'; // Make sure to install react-modal
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 function CreateJobPage() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [jobType, setJobType] = useState('');
   const [timeframe, setTimeframe] = useState({ years: 0, months: 0, days: 0 });
   const [timeframeInSeconds, settimeframeInSeconds] = useState(0);
@@ -21,6 +21,9 @@ function CreateJobPage() {
   const [argumentsInBytes, setargumentsInBytes] = useState([]);
   const [userarguments, setArguments] = useState(''); // New state for arguments input
   const [argsArray, setargArray] = useState([]);
+  const [functions, setFunctions] = useState([]);
+  const [selectedFunction, setSelectedFunction] = useState(null);
+  const [functionInputs, setFunctionInputs] = useState([]);
 
   const logoRef = useRef(null);
 
@@ -42,6 +45,51 @@ function CreateJobPage() {
     }
   }, []);
 
+  function extractFunctions(abi) {
+    try {
+      // Convert string to array if needed
+      let abiArray;
+      if (typeof abi === 'string') {
+        try {
+          abiArray = JSON.parse(abi);
+        } catch (e) {
+          throw new Error('Invalid ABI string format');
+        }
+      } else if (Array.isArray(abi)) {
+        abiArray = abi;
+      } else if (typeof abi === 'object') {
+        // If abi is already parsed but not an array
+        abiArray = [abi];
+      } else {
+        throw new Error('ABI must be an array, object, or valid JSON string');
+      }
+      // console.log(abi);
+
+      // Ensure we have an array to work with
+      if (!Array.isArray(abiArray)) {
+        throw new Error('Processed ABI is not an array');
+      }
+
+      // Filter and map the functions
+      const functions = abiArray
+        .filter(item => item && item.type === 'function')
+        .map(func => ({
+          name: func.name || 'unnamed',
+          inputs: func.inputs || [],
+          outputs: func.outputs || [],
+          stateMutability: func.stateMutability || 'nonpayable',
+          payable: func.payable || false,
+          constant: func.constant || false
+        }));
+      // console.log(functions);
+
+      return functions;
+    } catch (error) {
+      console.error('Error processing ABI:', error);
+      return []; // Return empty array instead of throwing error
+    }
+  }
+
   const handleContractAddressChange = async (e) => {
     const address = e.target.value;
     setContractAddress(address);
@@ -58,6 +106,13 @@ function CreateJobPage() {
         const abi = JSON.stringify(contract.abi);
 
         if (abi) {
+
+          const writableFunctions = extractFunctions(abi).filter(func =>
+            func.stateMutability === 'nonpayable' || func.stateMutability === 'payable'
+          );
+          console.log(writableFunctions);
+          setFunctions(writableFunctions);
+
           setContractABI(abi);
           console.log('ABI fetched successfully');
         } else {
@@ -89,6 +144,26 @@ function CreateJobPage() {
       setintervalInSeconds(updatedIntervalInSeconds);
       return updatedTimeInterval;
     });
+  };
+
+  const handleFunctionChange = (e) => {
+    const selectedValue = e.target.value;
+    setTargetFunction(selectedValue);
+
+    // Find the selected function object
+    const func = functions.find(f => `${f.name}(${f.inputs.map(input => input.type).join(',')})` === selectedValue);
+    setSelectedFunction(func);
+
+    if (func) {
+      // Initialize inputs array with empty strings
+      console.log('goooo', func);
+      setFunctionInputs(func.inputs.map(() => ''));
+      setargArray(func.inputs.map(() => '')); // Initialize argsArray with empty strings
+
+    } else {
+      setFunctionInputs([]);
+      setargArray([]); // Clear argsArray if no function is selected
+    }
   };
 
   const handleArgumentsChange = (e) => {
@@ -140,7 +215,7 @@ function CreateJobPage() {
       ////
       const tempfee = parseInt(fee.energy_required, 10);
       console.log(tempfee);
-      const overallfee = Math.ceil((tempfee*Math.floor((timeframeInSeconds / intervalInSeconds)))*0.00021);
+      const overallfee = Math.ceil((tempfee * Math.floor((timeframeInSeconds / intervalInSeconds))) * 0.00021);
 
       console.log('hureeeeeeeee', overallfee);
 
@@ -186,13 +261,13 @@ function CreateJobPage() {
         apiEndpoint,
       ).send({
         feeLimit: 100000000, // Adjust based on your gas limits
-        callValue: trxAmount*1000000 // The TRX value to stake
+        callValue: trxAmount * 1000000 // The TRX value to stake
       });
 
       console.log('Job created successfully:', result1);
       toast.success('Job created successfully!');
 
-      navigate('/dashboard'); 
+      navigate('/dashboard');
       // You can add further logic here, such as showing a success message or redirecting the user
     } catch (error) {
       console.error('Error creating job:', error);
@@ -200,6 +275,41 @@ function CreateJobPage() {
       toast.error('Error creating job: ' + error.message);
     }
   };
+
+  const handleInputChange = (index, value) => {
+    const tronWeb = window.tronWeb;
+    const newInputs = [...functionInputs];
+    newInputs[index] = value;
+    setFunctionInputs(newInputs);
+    
+    // Update argsArray whenever an input changes
+    setargArray(newInputs);
+    console.log(argsArray);
+
+    const bytesArray = argsArray.map(arg => {
+      const hexValue = tronWeb.toHex(arg); // Convert to hex
+      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+    });
+    setargumentsInBytes(bytesArray);
+    console.log(bytesArray);
+  };
+
+  useEffect(() => {
+    // Update argumentsInBytes when functionInputs change
+    
+    const bytesArray = functionInputs.map(arg => {
+      const tronWeb = window.tronWeb;
+      if (arg === '') return '0x'; // Return '0x' for empty inputs
+      try {
+        const hexValue = tronWeb.toHex(arg);
+        return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+      } catch (error) {
+        console.error('Error converting input to hex:', error);
+        return '0x'; // Return '0x' if conversion fails
+      }
+    });
+    setargumentsInBytes(bytesArray);
+  }, [functionInputs]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white">
@@ -256,15 +366,19 @@ function CreateJobPage() {
             <h2 className="text-3xl font-bold mb-6">Create a New Job</h2>
             <form onSubmit={(e) => { e.preventDefault(); estimateFee(); }} className="space-y-4">
               <div>
-                <label htmlFor="jobType" className="block mb-1">Job Type</label>
-                <input
-                  type="text"
+                <label htmlFor="jobType" className="block text-sm font-medium text-gray-300 mb-2">Job Type</label>
+                <select
                   id="jobType"
                   value={jobType}
                   onChange={(e) => setJobType(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
+                  className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
                   required
-                />
+                >
+                  <option value="" disabled>Select Job Type</option>
+                  <option value="Time">Time</option>
+                  <option value="Condition" disabled>Condition</option>
+                  <option value="Event" disabled>Event</option>
+                </select>
               </div>
 
               {/* Timeframe Section with Labels */}
@@ -309,38 +423,54 @@ function CreateJobPage() {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="contractAddress" className="block mb-1">Contract Address</label>
-                <input
-                  type="text"
-                  id="contractAddress"
-                  value={contractAddress}
-                  onChange={handleContractAddressChange}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contractABI" className="block mb-1">Contract ABI</label>
-                <textarea
-                  id="contractABI"
-                  value={contractABI}
-                  onChange={(e) => setContractABI(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  rows={4}
-                />
-              </div>
-              <div>
-                <label htmlFor="targetFunction" className="block mb-1">Target Function signature</label>
-                <input
-                  type="text"
-                  placeholder='getTask(uint256,uint256)'
-                  id="targetFunction"
-                  value={targetFunction}
-                  onChange={(e) => setTargetFunction(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-gray-800"
-                  required
-                />
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="contractAddress" className="block mb-1">Contract Address</label>
+                  <input
+                    type="text"
+                    id="contractAddress"
+                    value={contractAddress}
+                    onChange={handleContractAddressChange}
+                    className="w-full px-3 py-2 border rounded-md text-gray-800"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contractABI" className="block mb-1">Contract ABI</label>
+                  <textarea
+                    id="contractABI"
+                    value={contractABI}
+                    onChange={(e) => setContractABI(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-gray-800"
+                    rows={4}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
+                  <select
+                    id="targetFunction"
+                    value={targetFunction}
+                    onChange={handleFunctionChange}
+                    className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
+                    required
+                  >
+                    <option value="" className="bg-[#1A1F2C] text-white">Select a function</option>
+                    {functions.map((func, index) => {
+                      const signature = `${func.name}(${func.inputs.map(input => input.type).join(',')})`;
+                      return (
+                        <option key={index} value={signature} className="bg-[#1A1F2C] text-white">
+                          {signature}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  {functions.length === 0 && contractAddress && (
+                    <p className="mt-2 text-sm text-yellow-400">
+                      No writable functions found. Make sure the contract is verified on Etherscan.
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Time Interval Section with Labels */}
@@ -430,15 +560,35 @@ function CreateJobPage() {
                   />
                 </div>
               )}
+
+              {selectedFunction && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Function Arguments</label>
+                  {selectedFunction.inputs.map((input, index) => (
+                    <div key={index} className="mb-2">
+                      <label className="block text-xs text-gray-400 mb-1">{input.name || `Argument ${index + 1}`} ({input.type})</label>
+                      <input
+                        type="text"
+                        value={functionInputs[index]}
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                        placeholder={`Enter ${input.type}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <button type="submit" className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-opacity-80 transition-colors">
                 Create Job
               </button>
             </form>
           </div>
         </div>
-      </div>
+      </div >
       {/* Modal for Fee Estimation */}
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} contentLabel="Estimate Fee" appElement={document.getElementById('root')}>
+      < Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)
+      } contentLabel="Estimate Fee" appElement={document.getElementById('root')} >
         <h2 className="text-xl font-bold">Estimated Fee</h2>
         <p>The estimated fee for creating this job is: {estimatedFee} TRX</p>
         <button onClick={handlestake} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
@@ -447,8 +597,8 @@ function CreateJobPage() {
         <button onClick={() => setIsModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
           Cancel
         </button>
-      </Modal>
-    </div>
+      </Modal >
+    </div >
   );
 }
 
