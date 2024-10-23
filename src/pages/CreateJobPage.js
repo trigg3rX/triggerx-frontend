@@ -150,22 +150,6 @@ function CreateJobPage() {
     });
   };
 
-  const handleArgumentsChange = (e) => {
-    const input = e.target.value;
-    setArguments(input);
-
-    const argsArray = input.split(',').map(arg => arg.trim());
-    setArgArray(argsArray);
-    console.log(argsArray);
-
-    const bytesArray = argsArray.map(arg => {
-      const hexValue = ethers.toBeHex(arg); // Convert to hex
-      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
-    });
-    setArgumentsInBytes(bytesArray);
-    console.log(bytesArray);
-  };
-
   const handleFunctionChange = (e) => {
     const selectedValue = e.target.value;
     setTargetFunction(selectedValue);
@@ -176,9 +160,13 @@ function CreateJobPage() {
 
     if (func) {
       // Initialize inputs array with empty strings
+      console.log('goooo',func);
       setFunctionInputs(func.inputs.map(() => ''));
+      setArgArray(func.inputs.map(() => '')); // Initialize argsArray with empty strings
+
     } else {
       setFunctionInputs([]);
+      setArgArray([]); // Clear argsArray if no function is selected
     }
   };
 
@@ -186,6 +174,18 @@ function CreateJobPage() {
     const newInputs = [...functionInputs];
     newInputs[index] = value;
     setFunctionInputs(newInputs);
+    
+    // Update argsArray whenever an input changes
+    setArgArray(newInputs);
+    console.log(argsArray);
+
+
+    const bytesArray = argsArray.map(arg => {
+      const hexValue = ethers.toBeHex(arg); // Convert to hex
+      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+    });
+    setArgumentsInBytes(bytesArray);
+    console.log(bytesArray);
   };
 
   useEffect(() => {
@@ -201,7 +201,6 @@ function CreateJobPage() {
       }
     });
     setArgumentsInBytes(bytesArray);
-    
   }, [functionInputs]);
 
   const estimateFee = async () => {
@@ -395,7 +394,7 @@ function CreateJobPage() {
                     className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
                     required
                   >
-                    {/* <option value="" disabled>Select Job Type</option> */}
+                    <option value="" disabled>Select Job Type</option>
                     <option value="Time">Time</option>
                     <option value="Condition" disabled>Condition</option>
                     <option value="Event" disabled>Event</option>
@@ -481,18 +480,6 @@ function CreateJobPage() {
                     />
                   </div>
 
-                  {/* <div>
-                    <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
-                    <input
-                      type="text"
-                      id="targetFunction"
-                      placeholder="getTask(uint256,uint256)"
-                      value={targetFunction}
-                      onChange={(e) => setTargetFunction(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
-                      required
-                    />
-                  </div> */}
                   <div>
                     <label htmlFor="targetFunction" className="block text-sm font-medium text-gray-300 mb-2">Target Function</label>
                     <select
@@ -579,8 +566,8 @@ function CreateJobPage() {
                 </div>
 
                 {/* Arguments Section */}
-                <div className="space-y-4">
-                  <div>
+                {/* <div className="space-y-4"> */}
+                  {/* <div>
                     <label htmlFor="argType" className="block text-sm font-medium text-gray-300 mb-2">Argument Type</label>
                     <select
                       id="argType"
@@ -598,10 +585,10 @@ function CreateJobPage() {
                       <option value="Static">Static</option>
                       <option value="Dynamic">Dynamic</option>
                     </select>
-                  </div>
+                  </div> */}
 
                   {/* Conditional Fields Based on Argument Type */}
-                  {argType === 'Static' && (
+                  {/* {argType === 'Static' && (
                     <div>
                       <label htmlFor="arguments" className="block text-sm font-medium text-gray-300 mb-2">
                         Arguments (comma-separated)
@@ -631,8 +618,8 @@ function CreateJobPage() {
                         placeholder="Enter API endpoint URL"
                       />
                     </div>
-                  )}
-                </div>
+                  )} */}
+                {/* </div> */}
 
                 {selectedFunction && (
                   <div>
