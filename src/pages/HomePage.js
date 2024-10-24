@@ -71,8 +71,7 @@ function HomePage() {
         <div className="bg-white text-gray-800 p-8 rounded-lg shadow-lg mb-8 transform hover:scale-105 transition-transform duration-300">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Cross-Chain Innovation</h2>
           <p className="mb-4">
-            Trigg3rX leverages both Ethereum and TRON ecosystems to create a cross-chain AVS solution for automating DeFi tasks and more. By using LayerZero Protocol as a bridge, we transfer the utility of our existing Keeper Network from Ethereum to TRON, enabling seamless cross-chain automation.
-          </p>
+          Our cross-chain automation in TriggerX enables seamless task execution across Ethereum and TRON. We achieve this by deploying smart contracts on both chains, using decentralized messaging protocols for cross-chain communication, and coordinating tasks through our keeper network. This is crucial for ensuring interoperability between blockchains, allowing users to automate tasks across networks while maintaining efficiency, reliability, and reducing manual intervention.          </p>
         </div>
 
         <Link to="/create-job" className="inline-block px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full hover:from-purple-600 hover:to-blue-500 transform hover:scale-105 transition-all duration-300 shadow-lg">
