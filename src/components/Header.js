@@ -71,7 +71,7 @@ function Header() {
                 <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
               </svg>
             </div>
-            <span className="text-2xl font-bold">Trigg3rX</span>
+            <span className="text-2xl font-bold text-white">Trigg3rX</span>
           </Link>
           <nav className="flex items-center">
             <ul className="flex items-center space-x-8">
