@@ -63,7 +63,6 @@ function CreateJobPage() {
       } else {
         throw new Error('ABI must be an array, object, or valid JSON string');
       }
-      // console.log(abi);
 
       // Ensure we have an array to work with
       if (!Array.isArray(abiArray)) {
@@ -81,11 +80,10 @@ function CreateJobPage() {
           payable: func.payable || false,
           constant: func.constant || false
         }));
-      // console.log(functions);
 
       return functions;
     } catch (error) {
-      console.error('Error processing ABI:', error);
+      console.error('Error processing ABI:', error.message);
       return []; // Return empty array instead of throwing error
     }
   }
@@ -98,7 +96,7 @@ function CreateJobPage() {
       try {
         const tronWeb = window.tronWeb;
         if (!tronWeb) {
-          console.error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+          console.error('TronWeb not found. Please ensure TronLink is installed and connected to the correct network.');
           return;
         }
 
@@ -106,11 +104,10 @@ function CreateJobPage() {
         const abi = JSON.stringify(contract.abi);
 
         if (abi) {
-
           const writableFunctions = extractFunctions(abi).filter(func =>
             func.stateMutability === 'nonpayable' || func.stateMutability === 'payable'
           );
-          console.log(writableFunctions);
+          console.log('Writable functions extracted:', writableFunctions.length);
           setFunctions(writableFunctions);
 
           setContractABI(abi);
@@ -120,7 +117,7 @@ function CreateJobPage() {
           setContractABI('');
         }
       } catch (error) {
-        console.error('Error fetching ABI:', error);
+        console.error('Error fetching ABI:', error.message);
         setContractABI('');
       }
     } else {
@@ -156,10 +153,9 @@ function CreateJobPage() {
 
     if (func) {
       // Initialize inputs array with empty strings
-      console.log('goooo', func);
+      console.log('Selected function:', func.name);
       setFunctionInputs(func.inputs.map(() => ''));
       setargArray(func.inputs.map(() => '')); // Initialize argsArray with empty strings
-
     } else {
       setFunctionInputs([]);
       setargArray([]); // Clear argsArray if no function is selected
@@ -175,17 +171,15 @@ function CreateJobPage() {
     // Convert the input string to an array and then to bytes
     const argsArray = input.split(',').map(arg => arg.trim());
     setargArray(argsArray);
-    console.log(argsArray);
+    console.log('Arguments array:', argsArray);
 
     const bytesArray = argsArray.map(arg => {
       const hexValue = tronWeb.toHex(arg); // Convert to hex
       return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`; // Ensure even-length
     }); // Convert to bytes
 
-
-    // const bytesArray = argsArray.map(arg => tronWeb.toHex(arg)); // Convert to bytes
     setargumentsInBytes(bytesArray);
-    console.log(bytesArray);
+    console.log('Arguments in bytes:', bytesArray);
   };
 
   const estimateFee = async () => {
@@ -203,53 +197,49 @@ function CreateJobPage() {
         type: type,
         value: argsArray[index] ? (argsArray[index]) : 0 // Convert to integer or default to 0
       }));
-      console.log('paraaaaaa', parameters);
+      console.log('Parameters for fee estimation:', parameters);
 
-      console.log('You have to stake this amount of TRX');
+      console.log('Estimating fee for the job...');
       const fee = await tronWeb.transactionBuilder.estimateEnergy(
         tronWeb.address.toHex(contractAddress),
         functionSelector,
         options,
         parameters,
       );
-      ////
+
       const tempfee = parseInt(fee.energy_required, 10);
-      console.log(tempfee);
+      console.log('Estimated energy required:', tempfee);
       const overallfee = Math.ceil((tempfee * Math.floor((timeframeInSeconds / intervalInSeconds))) * 0.00021);
 
-      console.log('hureeeeeeeee', overallfee);
+      console.log('Total estimated fee in TRX:', overallfee);
 
       setEstimatedFee(overallfee);
       setTrxAmount(overallfee); // Set the TRX amount to stake
       setIsModalOpen(true); // Open the modal
     } catch (error) {
-      console.error('Error estimating fee:', error);
+      console.error('Error estimating fee:', error.message);
       toast.error('Error estimating fee: ' + error.message);
     }
   };
 
   const handlestake = async () => {
     await handleSubmit(trxAmount); // Call handleSubmit with the trxAmount
-    setIsModalOpen(false); // Close the modal after stakeing
+    setIsModalOpen(false); // Close the modal after staking
   };
 
   const handleSubmit = async (trxAmount) => {
-    // e.preventDefault();
     try {
       const tronWeb = window.tronWeb;
       if (!tronWeb) {
-        throw new Error('TronWeb not found. Please make sure TronLink is installed and connected to Nile testnet.');
+        throw new Error('TronWeb not found. Please ensure TronLink is installed and connected to the correct network.');
       }
 
       // Replace with the actual address of your deployed JobCreator contract
-      const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
+      const jobCreatorContractAddress = 'TECz49UXN9KhEF12WCrGHr4gV3CfUFiKsD';
       const jobCreatorContract = await tronWeb.contract().at(jobCreatorContractAddress);
 
       // Call the createJob function on the contract
-      console.log('creating job');
-      // const result = await jobCreatorContract.addTaskId(1,3).send();
-      console.log('task added');
-      // const trxAmount=1000;
+      console.log('Creating job...');
       const result1 = await jobCreatorContract.createJob(
         jobType,
         timeframeInSeconds,
@@ -268,10 +258,8 @@ function CreateJobPage() {
       toast.success('Job created successfully!');
 
       navigate('/dashboard');
-      // You can add further logic here, such as showing a success message or redirecting the user
     } catch (error) {
-      console.error('Error creating job:', error);
-      // Handle the error, e.g., show an error message to the user
+      console.error('Error creating job:', error.message);
       toast.error('Error creating job: ' + error.message);
     }
   };
@@ -284,19 +272,18 @@ function CreateJobPage() {
 
     // Update argsArray whenever an input changes
     setargArray(newInputs);
-    console.log(argsArray);
+    console.log('Updated arguments array:', argsArray);
 
     const bytesArray = argsArray.map(arg => {
       const hexValue = tronWeb.toHex(arg); // Convert to hex
       return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
     });
     setargumentsInBytes(bytesArray);
-    console.log(bytesArray);
+    console.log('Updated arguments in bytes:', bytesArray);
   };
 
   useEffect(() => {
     // Update argumentsInBytes when functionInputs change
-
     const bytesArray = functionInputs.map(arg => {
       const tronWeb = window.tronWeb;
       if (arg === '') return '0x'; // Return '0x' for empty inputs
@@ -304,7 +291,7 @@ function CreateJobPage() {
         const hexValue = tronWeb.toHex(arg);
         return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
       } catch (error) {
-        console.error('Error converting input to hex:', error);
+        console.error('Error converting input to hex:', error.message);
         return '0x'; // Return '0x' if conversion fails
       }
     });
@@ -471,7 +458,7 @@ function CreateJobPage() {
                   </select>
                   {functions.length === 0 && contractAddress && (
                     <p className="mt-2 text-sm text-yellow-400">
-                      No writable functions found. Make sure the contract is verified on Etherscan.
+                      No writable functions found.
                     </p>
                   )}
                 </div>
@@ -558,7 +545,7 @@ function CreateJobPage() {
         <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Estimated Fee
         </h2>
-        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: {estimatedFee} ETH</p>
+        <p className="text-gray-300 mb-6">The estimated fee for creating this job is: {estimatedFee} TRX</p>
         <div className="flex gap-4">
           <button onClick={handlestake} className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
             Stake
