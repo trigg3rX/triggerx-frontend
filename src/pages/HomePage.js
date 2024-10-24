@@ -45,14 +45,14 @@ function HomePage() {
           <p className="text-xl">Empowering TRON with Advanced Cross-Chain Automation</p>
         </div>
 
-        
+
         <div className="bg-white text-gray-800 p-8 rounded-lg shadow-lg mb-8 transform hover:scale-105 transition-transform duration-300">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Project Goal</h2>
           <p className="mb-4">
-            Trigg3rX aims to bring advanced automation capabilities to the TRON network by extending the functionalities of Keeper Network. We utilize Keeper Network, an AVS developed on Ethereum using Eigenlayer, and forward its functionalities to TRON via LayerZero Protocol.
+            TriggerX aims to bring advanced automation capabilities to the TRON network by extending the functionalities of Keeper Network. It shall utilize Keeper Network, an AVS developed on Ethereum using Eigenlayer, and forward its functionalities to TRON. Through this, we enable decentralized keepers to execute automated tasks based on time, conditions, or events across multiple chains.
           </p>
           <p>
-            Our mission is to empower TRON developers and users by introducing seamless automation, reducing manual intervention, and enhancing operational efficiency on the blockchain.
+            TriggerX will empower TRON developers and users by introducing seamless automation, thereby reducing manual intervention and enhancing operational efficiency on the blockchain.
           </p>
         </div>
 
