@@ -312,7 +312,7 @@ function CreateJobPage() {
   }, [functionInputs]);
 
   return (
-    <div className="min-h-screen bg-[#0A0F1C] text-white pt-2 pb-20 pl-10 pr-10">
+    <div className="min-h-screen bg-[#0A0F1C] text-white pt-12 pb-20 pl-10 pr-10">
       <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
 
@@ -434,7 +434,7 @@ function CreateJobPage() {
                     id="contractAddress"
                     value={contractAddress}
                     onChange={handleContractAddressChange}
-                    placeholder="Your op-sepolia contract address"
+                    placeholder="Your tron contract address on nile"
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                     required
                   />

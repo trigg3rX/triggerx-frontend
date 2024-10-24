@@ -251,14 +251,14 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 text-white flex justify-center items-center">
+      <div className="min-h-screen bg-[#0A0F1C] text-white flex justify-center items-center">
         <div className="text-2xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0F1C] text-white pt-32 pb-20">
+    <div className="min-h-screen bg-[#0A0F1C] text-white pt-12 pb-20 pl-2 pr-2">
       {/* Single gradient background */}
       <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
