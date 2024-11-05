@@ -33,6 +33,19 @@ function Header() {
       await disconnect();
     } else {
       setIsConnecting(true);
+      
+      // Check if TronLink is installed
+      if (typeof window.tronWeb === 'undefined') {
+        setIsConnecting(false);
+        const confirmDownload = window.confirm(
+          "TronLink wallet is not installed. Would you like to download it?"
+        );
+        if (confirmDownload) {
+          window.open('https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec', '_blank');
+        }
+        return;
+      }
+
       if (wallet) {
         try {
           await connect();
