@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-toastify';
+import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks';
+import { Link } from 'react-router-dom';
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -15,6 +17,8 @@ function DashboardPage() {
 
   const jobCreatorContractAddress = 'TEsKaf2n8aF6pta7wyG5gwukzR4NoHre59';
   const tronWeb = window.tronWeb; // Assuming tronWeb is available
+
+  const { connected } = useWallet();
 
   useEffect(() => {
     // fetchJobDetails();
@@ -248,6 +252,27 @@ function DashboardPage() {
       timeInterval: { ...selectedJob.timeInterval, [subfield]: parseInt(value) || 0 }
     });
   };
+
+  if (!connected) {
+    return (
+      <div className="min-h-screen bg-[#0A0F1C] text-white flex flex-col justify-center items-center">
+        <div className="bg-white/10 p-8 rounded-lg backdrop-blur-xl border border-white/10 max-w-md w-full mx-4">
+          <h2 className="text-2xl font-bold mb-4 text-center">Wallet Not Connected</h2>
+          <p className="text-gray-300 text-center mb-6">
+            Please connect your wallet to access the dashboard.
+          </p>
+          <div className="flex justify-center">
+            <Link
+              to="/"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+            >
+              Return Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
