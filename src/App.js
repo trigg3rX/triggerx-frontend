@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage';
 import CreateJobPage from './pages/CreateJobPage';
 import DashboardPage from './pages/DashboardPage';
 import { TronLinkProvider } from './providers';
+// import { ToastContainer } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
