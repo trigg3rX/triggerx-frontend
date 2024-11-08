@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal'; // Make sure to install react-modal
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import new_logo from "../images/new_logo.png"
+
 
 function CreateJobPage() {
   const navigate = useNavigate();
@@ -307,7 +309,7 @@ function CreateJobPage() {
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center">
             <div ref={logoRef} className="w-16 h-16 mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
+              {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
@@ -316,9 +318,10 @@ function CreateJobPage() {
                 </defs>
                 <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
                 <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
-              </svg>
+              </svg> */}
+              <img src={new_logo} viewBox="0 0 200 100" className="w-full h-half" />
             </div>
-            <h1 className="text-4xl font-bold">Trigg3rX</h1>
+            <h1 className="text-4xl font-bold">TriggerX</h1>
           </div>
           <nav>
             <ul className="flex space-x-4">
@@ -336,12 +339,12 @@ function CreateJobPage() {
                 Keeper Network is an innovative decentralized network of nodes that automate smart contract executions and maintenance tasks on various blockchain networks. It ensures that critical operations are performed reliably and on time.
               </p>
               <p>
-                By leveraging Keeper Network through Trigg3rX, you can automate your TRON smart contracts with ease and efficiency.
+                By leveraging Keeper Network through TriggerX, you can automate your TRON smart contracts with ease and efficiency.
               </p>
             </div>
 
             <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold mb-4">Why Choose Trigg3rX?</h3>
+              <h3 className="text-2xl font-bold mb-4">Why Choose TriggerX?</h3>
               <ul className="list-disc list-inside space-y-2">
                 <li>Advanced cross-chain automation</li>
                 <li>Seamless integration with TRON network</li>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useWallet } from '@tronweb3/tronwallet-adapter-react-hooks';
+import new_logo from "../images/new_logo.png"
 
 function Header() {
   const logoRef = useRef(null);
@@ -78,7 +79,7 @@ function Header() {
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center">
             <div ref={logoRef} className="w-8 h-8 md:w-12 md:h-12 mr-2 md:mr-3">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full">
+              {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style={{ stopColor: "#3498db", stopOpacity: 1 }} />
@@ -87,9 +88,10 @@ function Header() {
                 </defs>
                 <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
                 <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
-              </svg>
+              </svg> */}
+              <img src={new_logo}/>
             </div>
-            <span className="text-xl md:text-2xl font-bold text-white">Trigg3rX</span>
+            <span className="text-xl md:text-2xl font-bold text-white">TriggerX</span>
           </Link>
 
           <div className="flex items-center space-x-2 md:hidden">
