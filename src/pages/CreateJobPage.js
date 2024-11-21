@@ -272,9 +272,17 @@ function CreateJobPage() {
 
 
   const handleSubmit = async (ethAmount) => {
+
+    if (!jobType || !contractAddress) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    let tempjobtype;
+    if(jobType=="Time") tempjobtype=1;
+
     try {
 
-
+      
       const formatEthAmount = (amount) => {
         // Convert from scientific notation to a fixed decimal string
         const decimalStr = Number(amount).toFixed(18);
@@ -325,9 +333,51 @@ function CreateJobPage() {
         }
       );
 
+      console.log(tx);
+
       await tx.wait();
       console.log('Job created successfully:', tx.hash);
       toast.success('Job created successfully!');
+
+
+      const jobData = {
+        job_id: 3,
+        jobType: tempjobtype,
+        time_frame: timeframeInSeconds,
+        time_interval: intervalInSeconds,
+        contract_address: contractAddress,
+        target_function: targetFunction,
+        arg_type: 1,
+        arguments: argsArray,
+        status: true,
+        job_cost_prediction: estimatedFee,
+        user_id: 111,
+        chain_id: 1
+      };
+
+      console.log('Sending job data:', jobData);
+
+      const response = await fetch('http://localhost:8080/api/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body:JSON.stringify(jobData),
+        // Remove credentials if you don't need them
+        // credentials: 'include'
+      });
+
+      console.log('Response status:', response.status);
+
+      console.log(response);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(errorText || 'Failed to create job');
+      }
+
 
       navigate('/dashboard');
     } catch (error) {
