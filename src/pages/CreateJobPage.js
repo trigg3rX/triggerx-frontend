@@ -179,7 +179,7 @@ function CreateJobPage() {
 
     if (func) {
       // Initialize inputs array with empty strings
-      console.log('goooo',func);
+      console.log('goooo', func);
       setFunctionInputs(func.inputs.map(() => ''));
       setArgArray(func.inputs.map(() => '')); // Initialize argsArray with empty strings
 
@@ -193,18 +193,22 @@ function CreateJobPage() {
     const newInputs = [...functionInputs];
     newInputs[index] = value;
     setFunctionInputs(newInputs);
-    
+
     // Update argsArray whenever an input changes
     setArgArray(newInputs);
-    console.log(argsArray);
+    console.log("Current inputs:", newInputs); // Log current inputs
 
-
-    const bytesArray = argsArray.map(arg => {
-      const hexValue = ethers.toBeHex(arg); // Convert to hex
-      return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
-    });
-    setArgumentsInBytes(bytesArray);
-    console.log(bytesArray);
+    // Check if all inputs are filled before converting to bytes
+    if (newInputs.every(input => input !== '')) {
+      const bytesArray = newInputs.map(arg => {
+        const hexValue = ethers.toBeHex(arg); // Convert to hex
+        return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+      });
+      setArgumentsInBytes(bytesArray);
+      console.log("Converted bytes:", bytesArray);
+    } else {
+      setArgumentsInBytes([]); // Clear bytes if not all inputs are filled
+    }
   };
 
   useEffect(() => {
@@ -297,11 +301,11 @@ function CreateJobPage() {
       return;
     }
     let tempjobtype;
-    if(jobType=="Time") tempjobtype=1;
+    if (jobType == "Time") tempjobtype = 1;
 
     try {
 
-      
+
       const formatEthAmount = (amount) => {
         // Convert from scientific notation to a fixed decimal string
         const decimalStr = Number(amount).toFixed(18);
@@ -382,7 +386,7 @@ function CreateJobPage() {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body:JSON.stringify(jobData),
+        body: JSON.stringify(jobData),
         // Remove credentials if you don't need them
         // credentials: 'include'
       });
@@ -436,7 +440,7 @@ function CreateJobPage() {
 
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
               <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Why Choose Trigg3rX?
+                Why Choose TriggerX?
               </h3>
               <ul className="space-y-3 text-gray-300">
                 {["Advanced cross-chain automation", "Seamless integration with Ethereum network", "User-friendly interface", "Reliable and secure execution", "Customizable parameters"].map((item, index) => (
@@ -636,7 +640,7 @@ function CreateJobPage() {
 
                 {/* Arguments Section */}
                 {/* <div className="space-y-4"> */}
-                  {/* <div>
+                {/* <div>
                     <label htmlFor="argType" className="block text-sm font-medium text-gray-300 mb-2">Argument Type</label>
                     <select
                       id="argType"
@@ -656,8 +660,8 @@ function CreateJobPage() {
                     </select>
                   </div> */}
 
-                  {/* Conditional Fields Based on Argument Type */}
-                  {/* {argType === 'Static' && (
+                {/* Conditional Fields Based on Argument Type */}
+                {/* {argType === 'Static' && (
                     <div>
                       <label htmlFor="arguments" className="block text-sm font-medium text-gray-300 mb-2">
                         Arguments (comma-separated)
@@ -704,7 +708,9 @@ function CreateJobPage() {
                           placeholder={`Enter ${input.type}`}
                         />
                       </div>
+                      
                     ))}
+
                   </div>
                 )}
 

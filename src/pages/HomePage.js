@@ -87,7 +87,7 @@ function HomePage() {
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-8">Ready to Automate?</h2>
           <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-            Join the future of blockchain automation and streamline your operations with Trigg3rX.
+            Join the future of blockchain automation and streamline your operations with TriggerX.
           </p>
           <Link to="/create-job" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 gap-2">
             Launch App <ArrowRight size={20} />
