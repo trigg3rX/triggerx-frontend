@@ -3,6 +3,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { toast } from 'react-toastify';
 import { ethers } from 'ethers';
 import { Link } from 'react-router-dom';
+import new_logo from "../images/new_logo.png"
+
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +16,7 @@ function DashboardPage() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const logoRef = useRef(null);
+  const [connected, setConnected] = useState(false);
 
 
   useEffect(() => {
@@ -115,6 +118,26 @@ function DashboardPage() {
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
     };
   }, [window.ethereum]);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      setConnected(accounts.length > 0);
+    };
+
+    checkConnection();
+
+    // Event listener for account changes
+    const handleAccountsChanged = (accounts) => {
+      setConnected(accounts.length > 0);
+    };
+
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+    return () => {
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    };
+  }, []);
 
 
 
@@ -242,42 +265,21 @@ function DashboardPage() {
       {/* Header Section with gradient overlay */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20" />
-        <div className="container mx-auto px-6 py-8 relative">
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex items-center">
+        <div className="container mx-auto px-6 py-0 relative">
+          <div className="flex justify-center ml-100">
+            <div className="flex items-center mb-4 mt-14 ">
               <div ref={logoRef} className="w-16 h-16 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" className="w-full h-full">
-                  <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%">
-                      <stop offset="0%" style={{ stopColor: "#60A5FA", stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: "#A78BFA", stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                  <path d="M20,80 L80,20 M20,20 L80,80" stroke="url(#grad1)" strokeWidth="20" strokeLinecap="round" />
-                  <path d="M30,70 L70,30 M30,30 L70,70" stroke="white" strokeWidth="10" strokeLinecap="round" />
-                </svg>
+                <img src={new_logo} />
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Trigg3rX Dashboard
+                TriggerX Dashboard
               </h1>
             </div>
-            <nav>
-              <ul className="flex space-x-6">
-                <li>
-                  <Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-                </li>
-                <li>
-                  <Link to="/create-job" className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
-                    Create Job
-                  </Link>
-                </li>
-              </ul>
-            </nav>
           </div>
         </div>
       </div>
 
-      
+
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
