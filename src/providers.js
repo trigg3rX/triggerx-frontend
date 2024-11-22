@@ -1,96 +1,82 @@
 "use client";
-import { WalletDisconnectedError, WalletNotFoundError} from "@tronweb3/tronwallet-abstract-adapter";
-import { WalletProvider } from "@tronweb3/tronwallet-adapter-react-hooks";
-import { WalletModalProvider } from "@tronweb3/tronwallet-adapter-react-ui";
-import { TronLinkAdapter } from "@tronweb3/tronwallet-adapters";
-import { WalletConnectAdapter } from "@tronweb3/tronwallet-adapter-walletconnect";
-import { LedgerAdapter } from "@tronweb3/tronwallet-adapter-ledger";
-import { useMemo } from "react";
-import '@tronweb3/tronwallet-adapter-react-ui/style.css';
 
+import * as React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
 
-export function TronLinkProvider({ children }) {
+import { config } from "./wagmi";
+const myCustomTheme = {
+  blurs: {
+    modalOverlay: "blur(5px)",
+  },
+  colors: {
+    accentColor: "#BA5CC9",
+    accentColorForeground: "white",
+    actionButtonBorder: "rgba(255, 255, 255, 0.15)",
+    actionButtonBorderMobile: "rgba(255, 255, 255, 0.25)",
+    actionButtonSecondaryBackground: "rgba(255, 255, 255, 0.25)",
+    closeButton: "rgba(224, 232, 255, 0.8)",
+    closeButtonBackground: "transaperent",
+    connectButtonBackground: "#BA5CC9",
+    connectButtonBackgroundError: "#FF494A",
+    connectButtonInnerBackground: "#BA5CC9",
+    connectButtonText: "#FFF",
+    connectButtonTextError: "#FFF",
+    connectionIndicator: "#30E000",
+    downloadBottomCardBackground:
+      "linear-gradient(126deg, rgba(0, 0, 0, 0.3) 9.49%, rgba(120, 120, 120, 0.4) 71.04%), #1A1B1F",
+    downloadTopCardBackground:
+      "linear-gradient(126deg, rgba(120, 120, 120, 0.4) 9.49%, rgba(0, 0, 0, 0.3) 71.04%), #1A1B1F",
+    error: "#FF494A",
+    generalBorder: "rgba(255, 255, 255, 0.25)",
+    generalBorderDim: "rgba(255, 255, 255, 0.15)",
+    menuItemBackground: "rgba(224, 232, 255, 0.3)",
+    modalBackdrop: "rgba(0, 0, 0, 0.7)",
+    modalBackground:
+      "linear-gradient(112.07deg, #161515 26.66%, #252525 87.79%)",
+    modalBorder: "#DA619C",
+    modalText: "#FFF",
+    modalTextDim: "rgba(224, 232, 255, 0.5)",
+    modalTextSecondary: "rgba(255, 255, 255, 0.8)",
+    profileAction: "rgba(224, 232, 255, 0.3)",
+    profileActionHover: "rgba(224, 232, 255, 0.4)",
+    profileForeground:
+      "linear-gradient(112.07deg, #161515 26.66%, #252525 87.79%)",
+    selectedOptionBorder: "rgba(224, 232, 255, 0.3)",
+    standby: "#FFD641",
+  },
+  fonts: {
+    body: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol",
+  },
+  radii: {
+    actionButton: "4px",
+    connectButton: "4px",
+    menuButton: "4px",
+    modal: "8px",
+    modalMobile: "8px",
+  },
+  shadows: {
+    connectButton: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+    dialog: "0px 8px 32px rgba(0, 0, 0, 0.5)",
+    profileDetailsAction: "0px 2px 6px rgba(37, 41, 46, 0.2)",
+    selectedOption: "0px 2px 6px rgba(0, 0, 0, 0.4)",
+    selectedWallet: "0px 2px 6px rgba(0, 0, 0, 0.4)",
+    walletLogo: "0px 2px 16px rgba(0, 0, 0, 0.3)",
+  },
+};
 
-  function onError() {
-    // console.log(e);
-  }
-  const adapters = useMemo(function () {
-    const tronLink1 = new TronLinkAdapter();
-    const walletConnect1 = new WalletConnectAdapter({
-      network: "Nile",
-      options: {
-        relayUrl: "wss://relay.walletconnect.com",
-        // example WC app project ID
-        projectId: "5fc507d8fc7ae913fff0b8071c7df231",
-        metadata: {
-          name: "Test DApp",
-          description: "JustLend WalletConnect",
-          url: "https://your-dapp-url.org/",
-          icons: ["https://your-dapp-url.org/mainLogo.svg"],
-        },
-      },
-      web3ModalConfig: {
-        themeMode: "dark",
-        themeVariables: {
-          "--w3m-z-index": "1000",
-        },
-        // explorerRecommendedWalletIds: 'NONE',
-        enableExplorer: true,
-        explorerRecommendedWalletIds: [
-          "225affb176778569276e484e1b92637ad061b01e13a048b35a9d280c3b58970f",
-          "1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369",
-          "4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0",
-        ],
-        // mobileWallets: [],
-        // desktopWallets: []
-        // explorerExcludedWalletIds: [
-        //   '225affb176778569276e484e1b92637ad061b01e13a048b35a9d280c3b58970f',
-        //   '1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369',
-        //   '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0',
-        //   '802a2041afdaf4c7e41a2903e98df333c8835897532699ad370f829390c6900f',
-        //   'ecc4036f814562b41a5268adc86270fba1365471402006302e70169465b7ac18',
-        //   '19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927',
-        //   '6464873279d46030c0b6b005b33da6be5ed57a752be3ef1f857dc10eaf8028aa',
-        //   '2c81da3add65899baeac53758a07e652eea46dbb5195b8074772c62a77bbf568'
-        // ]
-      },
-    });
-    const ledger = new LedgerAdapter({
-      accountNumber: 2,
-    });
-    // const tokenPocket = new TokenPocketAdapter();
-    // const bitKeep = new BitKeepAdapter();
-    // const okxWalletAdapter = new OkxWalletAdapter();
-    return [
-      tronLink1,
-      // walletConnect1,
-      // ledger,
-      // tokenPocket,
-      // bitKeep,
-      // okxWalletAdapter,
-    ];
-  }, []);
-  function onConnect() {
-    // console.log("onConnect");
-  }
-  async function onAccountsChanged() {
-    // console.log("onAccountsChanged");
-  }
-  async function onAdapterChanged(adapter) {
-    // console.log("onAdapterChanged", adapter);
-  }
+const queryClient = new QueryClient();
 
+export default function Providers({ children }) {
   return (
-    <WalletProvider
-      onError={onError}
-      onConnect={onConnect}
-      onAccountsChanged={onAccountsChanged}
-      onAdapterChanged={onAdapterChanged}
-      autoConnect={true}
-      adapters={adapters}
-      disableAutoConnectOnLoad={true}
-    >
-      <WalletModalProvider>{children}</WalletModalProvider>
-    </WalletProvider>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider theme={myCustomTheme}>
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

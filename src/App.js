@@ -4,13 +4,11 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import CreateJobPage from './pages/CreateJobPage';
 import DashboardPage from './pages/DashboardPage';
-import { TronLinkProvider } from './providers';
-// import { ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import Providers from './providers';
 
 function App() {
   return (
-    <TronLinkProvider>
+    <Providers>
       <Router>
         <Layout>
           <Routes>
@@ -20,7 +18,7 @@ function App() {
           </Routes>
         </Layout>
       </Router>
-    </TronLinkProvider>
+    </Providers>
   );
 }
 
