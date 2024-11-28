@@ -388,7 +388,7 @@ function CreateJobPage() {
         },
         body: JSON.stringify(jobData),
         // Remove credentials if you don't need them
-        // credentials: 'include'
+        credentials: 'include'
       });
 
       console.log('Response status:', response.status);
