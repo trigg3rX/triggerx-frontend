@@ -382,13 +382,14 @@ function CreateJobPage() {
 
       const response = await fetch('http://localhost:8080/api/jobs', {
         method: 'POST',
+        mode:'cors',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify(jobData),
         // Remove credentials if you don't need them
-        credentials: 'include'
+        // credentials: 'include'
       });
 
       console.log('Response status:', response.status);
