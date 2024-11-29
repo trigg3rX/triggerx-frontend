@@ -380,7 +380,7 @@ function CreateJobPage() {
 
       console.log('Sending job data:', jobData);
 
-      const response = await fetch('http://localhost:8080/api/jobs', {
+      const response = await fetch('https://data.triggerx.network/api/jobs', {
         method: 'POST',
         mode:'cors',
         headers: {
