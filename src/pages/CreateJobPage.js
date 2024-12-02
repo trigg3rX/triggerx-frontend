@@ -341,6 +341,30 @@ function CreateJobPage() {
       const formattedAmount = formatVerySmallNumber(ethAmount);;
       console.log('Formatted amount:', formattedAmount);
 
+      // Fetch the latest job ID first
+      let nextJobId;
+      try {
+        const latestIdResponse = await fetch('https://data.triggerx.network/api/jobs/latest-id', {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!latestIdResponse.ok) {
+          throw new Error('Failed to fetch latest job ID');
+        }
+
+        const latestIdData = await latestIdResponse.json();
+        // Increment the latest ID by 1 for the new job
+        nextJobId = latestIdData.latest_id + 1;
+      } catch (error) {
+        console.error('Error fetching latest job ID:', error);
+        // Fallback to a default ID or handle the error as needed
+        nextJobId = 1;
+      }
+
       const tx = await jobCreatorContract.createJob(
         jobType,
         timeframeInSeconds,
@@ -362,9 +386,11 @@ function CreateJobPage() {
       console.log('Job created successfully:', tx.hash);
       toast.success('Job created successfully!');
 
+      
+
 
       const jobData = {
-        job_id: 3,
+        job_id: nextJobId,  // Use the dynamically fetched and incremented job ID
         jobType: tempjobtype,
         time_frame: timeframeInSeconds,
         time_interval: intervalInSeconds,
