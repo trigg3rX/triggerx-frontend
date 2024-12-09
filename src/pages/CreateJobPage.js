@@ -8,6 +8,9 @@ import { InfuraProvider } from "ethers"
 
 function CreateJobPage() {
   const navigate = useNavigate();
+  const [stakeRegistryAddress, setStakeRegistryAddress] = useState('');
+  const [stakeRegistryImplAddress, setStakeRegistryImplAddress] = useState('');
+  const [stakeRegistryABI, setStakeRegistryABI] = useState('');
   const [jobType, setJobType] = useState('');
   const [timeframe, setTimeframe] = useState({ years: 0, months: 0, days: 0 });
   const [timeframeInSeconds, setTimeframeInSeconds] = useState(0);
@@ -27,6 +30,8 @@ function CreateJobPage() {
   const [functions, setFunctions] = useState([]);
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [functionInputs, setFunctionInputs] = useState([]);
+  const [codeLanguage, setCodeLanguage] = useState('');
+  const [code_url, setCodeUrl] = useState('');
 
   const logoRef = useRef(null);
 
@@ -48,7 +53,48 @@ function CreateJobPage() {
     }
   }, []);
 
-  const ETHERSCAN_API_KEY = 'U5X9SJAFNJY7FS3TZWMWTVYJZ7Q1K6QJKM';
+  useEffect(() => {
+    const fetchStakeRegistryABI = async () => {
+      const url = 'https://raw.githubusercontent.com/trigg3rX/triggerx-contracts/main/contracts/script/output/stake.opsepolia.json';
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        if (data && data.triggerXStakeRegistry) {
+          const proxyAddress = data.triggerXStakeRegistry.proxy;
+          const implAddress = data.triggerXStakeRegistry.implementation;
+          setStakeRegistryAddress(proxyAddress);
+          setStakeRegistryImplAddress(implAddress);
+        }
+
+        const blockscoutUrl = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${stakeRegistryImplAddress}`;
+        
+        const abiResponse = await fetch(blockscoutUrl);
+        if (!abiResponse.ok) {
+          throw new Error('Failed to fetch ABI from Blockscout');
+        }
+        
+        const abiData = await abiResponse.json();
+        if (abiData.status === '1' && abiData.result) {
+          const contractAbi = JSON.parse(abiData.result);
+          const functionList = extractFunctions(contractAbi);
+
+          setFunctions(functionList);
+          setStakeRegistryABI(contractAbi);
+        } else {
+          throw new Error('Invalid ABI data received from Blockscout');
+        }
+      } catch (error) {
+        console.error('Error fetching stake registry ABI:', error);
+      }
+    };
+
+    fetchStakeRegistryABI();
+  }, []);
+
 
   function extractFunctions(abi) {
     try {
@@ -100,7 +146,7 @@ function CreateJobPage() {
     setContractAddress(address);
 
     if (ethers.isAddress(address)) {
-      const url = `https://api-sepolia-optimism.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${ETHERSCAN_API_KEY}`;
+      const url = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${address}`;
       try {
         const response = await axios.get(url);
         const data = response.data;
@@ -119,7 +165,7 @@ function CreateJobPage() {
         } else {
           console.error(`Failed to fetch ABI: ${data.message}`);
           if (data.message === 'NOTOK') {
-            console.error(`Contract address ${contractAddress} might not be verified on Etherscan or there is another issue.`);
+            console.error(`Contract address ${contractAddress} might not be verified on Blockscout / Etherscan or there is another issue.`);
           }
           throw new Error(`Failed to fetch ABI: ${data.message}`);
         }
@@ -130,6 +176,11 @@ function CreateJobPage() {
     } else {
       setContractABI('');
     }
+  };
+
+  const handleCodeUrlChange = (e) => {
+    const url = e.target.value;
+    setCodeUrl(url);
   };
 
   const handleTimeframeChange = (field, value) => {
@@ -317,26 +368,14 @@ function CreateJobPage() {
       if (typeof window.ethereum === 'undefined') {
         throw new Error('Please install MetaMask to use this feature');
       }
-      console.log('Creating job 3', typeof window.ethereum);
-
-      // await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-      console.log('Creating job 4');
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      console.log('Creating job 3', provider);
-
+      
       const signer = await provider.getSigner();
 
-      console.log('Creating job 5', signer);
+      const contract = new ethers.Contract(stakeRegistryImplAddress, stakeRegistryABI, signer);
 
-
-      // Replace with the actual address of your deployed JobCreator contract on OP Sepolia
-      const jobCreatorContractAddress = '0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d'; // Update this
-      const jobCreatorABI = [{ "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "JobCreated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "indexed": true, "internalType": "address", "name": "creator", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "stakeRefunded", "type": "uint256" }], "name": "JobDeleted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "JobUpdated", "type": "event" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint32", "name": "taskId", "type": "uint32" }], "name": "addTaskId", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }], "name": "createJob", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "stakeConsumed", "type": "uint256" }], "name": "deleteJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "uint256", "name": "argIndex", "type": "uint256" }], "name": "getJobArgument", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }], "name": "getJobArgumentCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "name": "jobs", "outputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "string", "name": "status", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "uint256", "name": "blockNumber", "type": "uint256" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "address", "name": "jobCreator", "type": "address" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint32", "name": "jobId", "type": "uint32" }, { "internalType": "string", "name": "jobType", "type": "string" }, { "internalType": "uint32", "name": "timeframe", "type": "uint32" }, { "internalType": "address", "name": "contractAddress", "type": "address" }, { "internalType": "string", "name": "targetFunction", "type": "string" }, { "internalType": "uint256", "name": "timeInterval", "type": "uint256" }, { "internalType": "enum TriggerXJobManager.ArgType", "name": "argType", "type": "uint8" }, { "internalType": "bytes[]", "name": "arguments", "type": "bytes[]" }, { "internalType": "string", "name": "apiEndpoint", "type": "string" }, { "internalType": "uint256", "name": "stakeAmount", "type": "uint256" }], "name": "updateJob", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" }], "name": "userJobs", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userJobsCount", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "userTotalStake", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]; // Add your contract ABI here
-      const jobCreatorContract = new ethers.Contract(jobCreatorContractAddress, jobCreatorABI, signer);
-
-      console.log('Creating job');
+      console.log('Staking ...');
 
       const formattedAmount = formatVerySmallNumber(ethAmount);;
       console.log('Formatted amount:', formattedAmount);
@@ -365,29 +404,16 @@ function CreateJobPage() {
         nextJobId = 1;
       }
 
-      const tx = await jobCreatorContract.createJob(
-        jobType,
-        timeframeInSeconds,
-        contractAddress,
-        targetFunction.match(/(\w+)\(/)[1],
-        intervalInSeconds,
-        argType === 'None' ? 0 : argType === 'Static' ? 1 : argType === 'Dynamic' ? 2 : 0,
-        argumentsInBytes,
-        apiEndpoint,
-        {
-          value: ethers.parseEther(formattedAmount)
-          // value: ethers.formatEther(ethers.parseEther(ethAmount.toString()))
-        }
+      const tx = await contract.stake(
+        ethers.parseEther(formattedAmount),
+        { value: ethers.parseEther(formattedAmount) }
       );
 
       console.log(tx);
 
       await tx.wait();
-      console.log('Job created successfully:', tx.hash);
-      toast.success('Job created successfully!');
-
-      
-
+      console.log('Stake staked successfully:', tx.hash);
+      toast.success('Stake staked successfully!');
 
       const jobData = {
         job_id: nextJobId,  // Use the dynamically fetched and incremented job ID
@@ -401,7 +427,8 @@ function CreateJobPage() {
         status: true,
         job_cost_prediction: estimatedFee,
         user_id: 111,
-        chain_id: 1
+        chain_id: 1,
+        code_url: code_url
       };
 
       console.log('Sending job data:', jobData);
@@ -601,7 +628,7 @@ function CreateJobPage() {
                     </select>
                     {functions.length === 0 && contractAddress && (
                       <p className="mt-2 text-sm text-yellow-400">
-                        No writable functions found. Make sure the contract is verified on Etherscan.
+                        No writable functions found. Make sure the contract is verified on Blockscout / Etherscan.
                       </p>
                     )}
                   </div>
@@ -740,6 +767,38 @@ function CreateJobPage() {
 
                   </div>
                 )}
+
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="codeLanguage" className="block text-sm font-medium text-gray-300 mb-2">Code Language</label>
+                    <select
+                      id="codeLanguage"
+                      value={codeLanguage}
+                      onChange={(e) => setCodeLanguage(e.target.value)}
+                      className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
+                      required
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="javascript">JavaScript</option>
+                      <option value="typescript">Typescript</option>
+                      <option value="golang">Golang</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="code_url" className="block text-sm font-medium text-gray-300 mb-2">Code URL (IPFS)</label>
+                    <input
+                      id="code_url"
+                      value={code_url}
+                      onChange={(e) => handleCodeUrlChange(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                      placeholder="Enter IPFS URL to your code (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                    />
+                    <p className="mt-2 text-sm text-gray-400">
+                      Provide an IPFS URL where your code is stored. Make sure the code follows the selected language's syntax.
+                    </p>
+                  </div>
+                </div>
 
                 <button
                   type="submit"
