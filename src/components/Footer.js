@@ -1,9 +1,28 @@
 import React from 'react';
+import { FaSquareXTwitter, FaGithub } from 'react-icons/fa6';
 
 function Footer() {
   return (
     <footer className="bg-gray-800 text-white py-8">
-      <div className="container mx-auto px-4 text-center">
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <div className="flex gap-4">
+          <a 
+            href="https://x.com/_TriggerX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-400 transition-colors"
+          >
+            <FaSquareXTwitter size={24} />
+          </a>
+          <a 
+            href="https://github.com/trigg3rX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-400 transition-colors"
+          >
+            <FaGithub size={24} />
+          </a>
+        </div>
         <p>&copy; 2024 TriggerX. All rights reserved.</p>
       </div>
     </footer>
