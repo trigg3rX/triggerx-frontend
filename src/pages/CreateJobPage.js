@@ -178,9 +178,11 @@ function CreateJobPage() {
     }
   };
 
-  const handleCodeUrlChange = (e) => {
-    const url = e.target.value;
-    setCodeUrl(url);
+  const handleCodeUrlChange = (event) => {
+    if(event && event.target){
+      const url = event.target.value;
+      setCodeUrl(url);
+    }
   };
 
   const handleTimeframeChange = (field, value) => {
@@ -770,27 +772,11 @@ function CreateJobPage() {
 
                 <div className="space-y-6">
                   <div>
-                    <label htmlFor="codeLanguage" className="block text-sm font-medium text-gray-300 mb-2">Code Language</label>
-                    <select
-                      id="codeLanguage"
-                      value={codeLanguage}
-                      onChange={(e) => setCodeLanguage(e.target.value)}
-                      className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
-                      required
-                    >
-                      <option value="" disabled>Select Language</option>
-                      <option value="javascript">JavaScript</option>
-                      <option value="typescript">Typescript</option>
-                      <option value="golang">Golang</option>
-                    </select>
-                  </div>
-
-                  <div>
                     <label htmlFor="code_url" className="block text-sm font-medium text-gray-300 mb-2">Code URL (IPFS)</label>
                     <input
                       id="code_url"
                       value={code_url}
-                      onChange={(e) => handleCodeUrlChange(e.target.value)}
+                      onChange={handleCodeUrlChange}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
                       placeholder="Enter IPFS URL to your code (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
                     />
