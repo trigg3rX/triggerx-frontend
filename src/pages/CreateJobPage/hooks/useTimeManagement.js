@@ -7,25 +7,25 @@ export function useTimeManagement() {
   const [intervalInSeconds, setIntervalInSeconds] = useState(0);
 
   const handleTimeframeChange = (field, value) => {
-    setTimeframe(prev => {
-      const updatedTimeframe = { ...prev, [field]: parseInt(value) || 0 };
-      const updatedTimeframeInSeconds = (updatedTimeframe.years * 31536000) + 
-                                      (updatedTimeframe.months * 2592000) + 
-                                      (updatedTimeframe.days * 86400);
-      setTimeframeInSeconds(updatedTimeframeInSeconds);
-      return updatedTimeframe;
-    });
+    const updatedTimeframe = { ...timeframe, [field]: parseInt(value) || 0 };
+    const updatedTimeframeInSeconds = (updatedTimeframe.years * 31536000) + 
+                                    (updatedTimeframe.months * 2592000) + 
+                                    (updatedTimeframe.days * 86400);
+    console.log('Calculated timeframe in seconds:', updatedTimeframeInSeconds);
+    
+    setTimeframe(updatedTimeframe);
+    setTimeframeInSeconds(updatedTimeframeInSeconds);
   };
 
   const handleTimeIntervalChange = (field, value) => {
-    setTimeInterval(prev => {
-      const updatedTimeInterval = { ...prev, [field]: parseInt(value) || 0 };
-      const updatedIntervalInSeconds = (updatedTimeInterval.hours * 3600) + 
-                                     (updatedTimeInterval.minutes * 60) + 
-                                     updatedTimeInterval.seconds;
-      setIntervalInSeconds(updatedIntervalInSeconds);
-      return updatedTimeInterval;
-    });
+    const updatedTimeInterval = { ...timeInterval, [field]: parseInt(value) || 0 };
+    const updatedIntervalInSeconds = (updatedTimeInterval.hours * 3600) + 
+                                   (updatedTimeInterval.minutes * 60) + 
+                                   updatedTimeInterval.seconds;
+    console.log('Calculated interval in seconds:', updatedIntervalInSeconds);
+    
+    setTimeInterval(updatedTimeInterval);
+    setIntervalInSeconds(updatedIntervalInSeconds);
   };
 
   return {

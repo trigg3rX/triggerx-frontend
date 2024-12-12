@@ -16,21 +16,26 @@ export function ContractDetails({
           id="contractAddress"
           value={contractAddress}
           onChange={onContractAddressChange}
-          placeholder="Your op-sepolia contract address"
+          placeholder="Your Optimism Sepolia contract address"
           className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="contractABI" className="block text-sm font-medium text-gray-300 mb-2">Contract ABI</label>
-        <textarea
-          id="contractABI"
-          value={contractABI}
-          onChange={onContractABIChange}
-          rows={4}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
-        />
+        {/* <label className="block text-sm font-medium text-gray-300 mb-2">Contract ABI</label> */}
+        <div className="flex items-center space-x-2">
+          <span className="text-gray-300">Contract ABI:</span>
+          {contractABI ? (
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <div className="flex items-center">
+              <span className="text-gray-400">Not Available </span><span className="text-red-400"> ✕</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>

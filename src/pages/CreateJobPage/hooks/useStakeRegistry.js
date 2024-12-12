@@ -18,6 +18,8 @@ export function useStakeRegistry() {
         if (data && data.triggerXStakeRegistry) {
           const proxyAddress = data.triggerXStakeRegistry.proxy;
           const implAddress = data.triggerXStakeRegistry.implementation;
+          console.log('Setting proxy address:', proxyAddress);
+          console.log('Setting implementation address:', implAddress);
           setStakeRegistryAddress(proxyAddress);
           setStakeRegistryImplAddress(implAddress);
         }
