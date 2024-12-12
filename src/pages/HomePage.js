@@ -43,7 +43,9 @@ function HomePage() {
                 Get Started <ArrowRight size={20} />
               </Link>
               <a 
-                href="#learn-more"
+                href="https://triggerx.notion.site/135f72e32db38016a723e415639398b6?v=136f72e32db380308d1e000c35bdd096"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-4 bg-white/10 rounded-full text-lg font-semibold hover:bg-white/20 transition-all duration-300"
               >
                 Learn More
