@@ -21,19 +21,6 @@ export function useJobCreation() {
     }
   };
 
-  const formatVerySmallNumber = (num) => {
-    if (num < 1e-6) {
-      const formatted = num.toLocaleString('fullwide', {
-        useGrouping: false,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 18
-      });
-      console.log('Formatted very small number:', formatted);
-      return formatted;
-    }
-    return num.toString();
-  };
-
   const estimateFee = async (contractAddress, contractABI, targetFunction, argsArray, timeframeInSeconds, intervalInSeconds) => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -86,8 +73,6 @@ export function useJobCreation() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(stakeRegistryAddress, stakeRegistryABI, signer);
 
-      const formattedAmount = formatVerySmallNumber(estimatedFee);
-
       let nextJobId;
       try {
         const latestIdResponse = await fetch('https://data.triggerx.network/api/jobs/latest-id', {
@@ -111,16 +96,7 @@ export function useJobCreation() {
         nextJobId = 1;
       }
 
-      console.log('Staking ETH amount:', formattedAmount);
-      const tx = await contract.stake(
-        ethers.parseEther(formattedAmount),
-        { value: ethers.parseEther(formattedAmount) }
-      );
-
-      await tx.wait();
-      console.log('Stake transaction confirmed: ', tx.hash);
-      toast.success('Stake staked successfully!');
-
+      const estimatedFeeInGwei = parseFloat(estimatedFee) * 1e9;
       const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
       const chainIdDecimal = parseInt(chainIdHex, 16).toString();
 
@@ -139,9 +115,19 @@ export function useJobCreation() {
         job_cost_prediction: parseInt(gasUnits),
         script_function: scriptFunction,
         script_ipfs_url: code_url,
-        stake_amount: parseFloat(formattedAmount)
+        stake_amount: estimatedFeeInGwei
       };
       console.log('Created job data:', jobData);
+
+      console.log('Staking ETH amount:', estimatedFee);
+      const tx = await contract.stake(
+        ethers.parseEther(estimatedFee),
+        { value: ethers.parseEther(estimatedFee) }
+      );
+
+      await tx.wait();
+      console.log('Stake transaction confirmed: ', tx.hash);
+      toast.success('Stake staked successfully!');
 
       const response = await fetch('https://data.triggerx.network/api/jobs', {
         method: 'POST',
