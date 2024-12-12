@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaSquareXTwitter, FaGithub } from 'react-icons/fa6';
 
-function Footer() {
+const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-8">
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -23,10 +23,10 @@ function Footer() {
             <FaGithub size={24} />
           </a>
         </div>
-        <p>&copy; 2024 TriggerX. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} TriggerX. All rights reserved.</p>
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;
