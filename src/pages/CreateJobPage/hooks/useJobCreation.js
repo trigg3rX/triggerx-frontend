@@ -138,7 +138,8 @@ export function useJobCreation() {
         status: true,
         job_cost_prediction: parseInt(gasUnits),
         script_function: scriptFunction,
-        script_ipfs_url: code_url
+        script_ipfs_url: code_url,
+        stake_amount: parseFloat(formattedAmount)
       };
       console.log('Created job data:', jobData);
 
