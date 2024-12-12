@@ -5,26 +5,31 @@ import { useNavigate } from 'react-router-dom';
 
 export function useJobCreation() {
   const navigate = useNavigate();
-  const [jobType, setJobType] = useState('');
+  const [jobType, setJobType] = useState(0);
   const [estimatedFee, setEstimatedFee] = useState(0);
+  const [gasUnits, setGasUnits] = useState(0);
+  const [argType, setArgType] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ethAmount, setEthAmount] = useState(0);
   const [code_url, setCodeUrl] = useState('');
+  const [scriptFunction, setScriptFunction] = useState('');
 
   const handleCodeUrlChange = (event) => {
     if(event && event.target){
       const url = event.target.value;
       setCodeUrl(url);
+      console.log('Code URL changed to:', url);
     }
   };
 
   const formatVerySmallNumber = (num) => {
     if (num < 1e-6) {
-      return num.toLocaleString('fullwide', {
+      const formatted = num.toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
         maximumFractionDigits: 18
       });
+      console.log('Formatted very small number:', formatted);
+      return formatted;
     }
     return num.toString();
   };
@@ -34,7 +39,7 @@ export function useJobCreation() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const functionFragment = contract.interface.getFunction(targetFunction);
-      
+
       const params = functionFragment.inputs.map((input, index) => {
         if (index < argsArray.length) {
           return argsArray[index];
@@ -42,14 +47,23 @@ export function useJobCreation() {
       });
 
       const gasEstimate = await contract[functionFragment.name].estimateGas(...params);
-      const gasPrice = (await provider.getFeeData()).gasPrice;
+      const gasEstimateStr = gasEstimate.toString();
+      setGasUnits(gasEstimateStr);
+      console.log('Gas estimate:', gasEstimateStr);
+      
+      const feeData = await provider.getFeeData();
+      const gasPrice = feeData.gasPrice;
+      console.log('Gas price:', gasPrice.toString());
+      
       const feeInWei = gasEstimate * gasPrice;
       const feeInEth = ethers.formatEther(feeInWei);
-      const overallFee = parseFloat(feeInEth) * Math.ceil(timeframeInSeconds / intervalInSeconds);
-      const formattedFee = ethers.formatEther(ethers.parseEther(overallFee.toString()));
-
-      setEstimatedFee(overallFee);
-      setEthAmount(formattedFee);
+      console.log('Fee for one execution:', feeInEth, 'ETH');
+      
+      const executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
+      const overallFee = Number(feeInEth) * executionCount;
+      console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
+      
+      setEstimatedFee(overallFee.toFixed(18));
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error estimating fee:', error);
@@ -57,13 +71,11 @@ export function useJobCreation() {
     }
   };
 
-  const handleSubmit = async (stakeRegistryImplAddress, stakeRegistryABI, contractAddress, targetFunction, argsArray, timeframeInSeconds, intervalInSeconds) => {
+  const handleSubmit = async (stakeRegistryAddress, stakeRegistryABI, contractAddress, targetFunction, argsArray, timeframeInSeconds, intervalInSeconds) => {
     if (!jobType || !contractAddress) {
       toast.error('Please fill in all required fields');
       return;
     }
-
-    let tempjobtype = jobType === "Time" ? 1 : 0;
 
     try {
       if (typeof window.ethereum === 'undefined') {
@@ -72,9 +84,9 @@ export function useJobCreation() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(stakeRegistryImplAddress, stakeRegistryABI, signer);
+      const contract = new ethers.Contract(stakeRegistryAddress, stakeRegistryABI, signer);
 
-      const formattedAmount = formatVerySmallNumber(ethAmount);
+      const formattedAmount = formatVerySmallNumber(estimatedFee);
 
       let nextJobId;
       try {
@@ -82,7 +94,8 @@ export function useJobCreation() {
           method: 'GET',
           mode: 'cors',
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Origin': 'https://triggerx.network'
           }
         });
 
@@ -91,42 +104,51 @@ export function useJobCreation() {
         }
 
         const latestIdData = await latestIdResponse.json();
-        nextJobId = latestIdData.latest_id + 1;
+        nextJobId = latestIdData.latest_job_id + 1;
+        console.log('Next job ID:', nextJobId);
       } catch (error) {
         console.error('Error fetching latest job ID:', error);
         nextJobId = 1;
       }
 
+      console.log('Staking ETH amount:', formattedAmount);
       const tx = await contract.stake(
         ethers.parseEther(formattedAmount),
         { value: ethers.parseEther(formattedAmount) }
       );
 
       await tx.wait();
+      console.log('Stake transaction confirmed: ', tx.hash);
       toast.success('Stake staked successfully!');
+
+      const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+      const chainIdDecimal = parseInt(chainIdHex, 16).toString();
 
       const jobData = {
         job_id: nextJobId,
-        jobType: tempjobtype,
+        jobType: jobType,
+        user_address: signer.address,
+        chain_id: chainIdDecimal,
         time_frame: timeframeInSeconds,
         time_interval: intervalInSeconds,
         contract_address: contractAddress,
         target_function: targetFunction,
-        arg_type: 1,
+        arg_type: argType,
         arguments: argsArray,
         status: true,
-        job_cost_prediction: estimatedFee,
-        user_id: 111,
-        chain_id: 1,
-        code_url: code_url
+        job_cost_prediction: parseInt(gasUnits),
+        script_function: scriptFunction,
+        script_ipfs_url: code_url
       };
+      console.log('Created job data:', jobData);
 
       const response = await fetch('https://data.triggerx.network/api/jobs', {
         method: 'POST',
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Origin': 'https://triggerx.network'
         },
         body: JSON.stringify(jobData)
       });
@@ -135,7 +157,9 @@ export function useJobCreation() {
         const errorText = await response.text();
         throw new Error(errorText || 'Failed to create job');
       }
+      console.log('Job created successfully');
 
+      setIsModalOpen(false);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error creating job:', error);
@@ -143,16 +167,42 @@ export function useJobCreation() {
     }
   };
 
+  const handleStake = async (estimatedFee) => {
+    setIsModalOpen(false);
+    await handleSubmit(jobType, estimatedFee);
+  };
+
+  const handleScriptFunctionChange = (event) => {
+    if(event && event.target){
+      const func = event.target.value;
+      setScriptFunction(func);
+      console.log('Script function changed to:', func);
+    }
+  };
+
+  const handleJobTypeChange = (value) => {
+    const numericType = parseInt(value);
+    console.log('Setting job type:', numericType);
+    setJobType(numericType);
+  };
+
   return {
     jobType,
     estimatedFee,
     isModalOpen,
-    ethAmount,
+    estimatedFee,
     code_url,
-    setJobType,
-    setIsModalOpen,
+    argType,
+    setJobType: handleJobTypeChange,
+    setIsModalOpen: (value) => {
+      console.log('Setting modal open:', value);
+      setIsModalOpen(value);
+    },
     handleCodeUrlChange,
     estimateFee,
-    handleSubmit
+    handleSubmit,
+    handleStake,
+    scriptFunction,
+    handleScriptFunctionChange,
   };
 } 

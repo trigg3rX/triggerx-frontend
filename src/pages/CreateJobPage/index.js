@@ -9,6 +9,14 @@ import { useTimeManagement } from './hooks/useTimeManagement';
 import { useContractInteraction } from './hooks/useContractInteraction';
 import { useStakeRegistry } from './hooks/useStakeRegistry';
 import { useJobCreation } from './hooks/useJobCreation';
+import Modal from 'react-modal';
+// import { toast } from 'react-toastify';
+// import { ethers } from 'ethers';
+// import axios from 'axios';
+
+if (typeof window !== 'undefined') {
+  Modal.setAppElement('#root');
+}
 
 function CreateJobPage() {
   // Custom hooks
@@ -51,7 +59,9 @@ function CreateJobPage() {
     setIsModalOpen,
     handleCodeUrlChange,
     estimateFee,
-    handleSubmit
+    handleSubmit,
+    scriptFunction,
+    handleScriptFunctionChange
   } = useJobCreation();
 
   // Logo animation
@@ -76,15 +86,27 @@ function CreateJobPage() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    await handleSubmit(
-      stakeRegistryImplAddress,
-      stakeRegistryABI,
+    
+    console.log('Estimating fee with params:', {
       contractAddress,
+      hasABI: !!contractABI,
+      targetFunction,
+      argsArray,
+      timeframeInSeconds,
+      intervalInSeconds
+    });
+    
+    // First estimate the fee
+    await estimateFee(
+      contractAddress,
+      contractABI,
       targetFunction,
       argsArray,
       timeframeInSeconds,
       intervalInSeconds
     );
+    
+    // handleSubmit will be called later through the modal's onStake
   };
 
   return (
@@ -142,9 +164,10 @@ function CreateJobPage() {
                     className="w-full bg-[#1A1F2C] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
                     required
                   >
-                    <option value="">Select job type</option>
-                    <option value="Time">Time-based</option>
-                    <option value="Event">Event-based</option>
+                    <option value="0">Select job type</option>
+                    <option value="1">Time-based</option>
+                    <option value="2" disabled>Event-based</option>
+                    <option value="3" disabled>Condition-based</option>
                   </select>
                 </div>
 
@@ -180,19 +203,38 @@ function CreateJobPage() {
                 <div className="space-y-6">
                   <div>
                     <label htmlFor="code_url" className="block text-sm font-medium text-gray-300 mb-2">
-                      Code URL (IPFS)
+                      Code URL (or IPFS CID)
                     </label>
                     <input
                       id="code_url"
                       value={code_url}
-                      onChange={handleCodeUrlChange}
+                      onChange={(e) => {
+                        handleCodeUrlChange(e);
+                      }}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
-                      placeholder="Enter IPFS URL to your code (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                      placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
                     />
                     <p className="mt-2 text-sm text-gray-400">
-                      Provide an IPFS URL where your code is stored. Make sure the code follows the selected language's syntax.
+                      Provide an IPFS URL or CIDwhere your code is stored.
                     </p>
                   </div>
+                </div>
+
+                {/* Script Function Input */}
+                <div>
+                  <label htmlFor="script_function" className="block text-sm font-medium text-gray-300 mb-2">
+                    Script Function Name
+                  </label>
+                  <input
+                    id="script_function"
+                    value={scriptFunction}
+                    onChange={handleScriptFunctionChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300"
+                    placeholder="Enter the script function name"
+                  />
+                  <p className="mt-2 text-sm text-gray-400">
+                    Provide the name of the function to be executed in your script
+                  </p>
                 </div>
 
                 {/* Submit Button */}
@@ -211,17 +253,31 @@ function CreateJobPage() {
       {/* Estimated Fee Modal */}
       <EstimatedFeeModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          console.log('Closing fee modal');
+          setIsModalOpen(false);
+        }}
         estimatedFee={estimatedFee}
-        onStake={() => handleSubmit(
-          stakeRegistryImplAddress,
-          stakeRegistryABI,
-          contractAddress,
-          targetFunction,
-          argsArray,
-          timeframeInSeconds,
-          intervalInSeconds
-        )}
+        onStake={() => {
+          console.log('Initiating stake with params:', {
+            stakeRegistryImplAddress,
+            hasABI: !!stakeRegistryABI,
+            contractAddress,
+            targetFunction,
+            argsArray,
+            timeframeInSeconds,
+            intervalInSeconds
+          });
+          handleSubmit(
+            stakeRegistryAddress,
+            stakeRegistryABI,
+            contractAddress,
+            targetFunction,
+            argsArray,
+            timeframeInSeconds,
+            intervalInSeconds
+          );
+        }}
       />
     </div>
   );

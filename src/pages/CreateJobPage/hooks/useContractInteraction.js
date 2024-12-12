@@ -44,6 +44,7 @@ export function useContractInteraction() {
           constant: func.constant || false
         }));
 
+      console.log('Extracted functions:', functions);
       return functions;
     } catch (error) {
       console.error('Error processing ABI:', error);
@@ -53,6 +54,7 @@ export function useContractInteraction() {
 
   const handleContractAddressChange = async (e) => {
     const address = e.target.value;
+    console.log('Contract address changed to:', address);
     setContractAddress(address);
 
     if (ethers.isAddress(address)) {
@@ -64,6 +66,7 @@ export function useContractInteraction() {
           const writableFunctions = extractFunctions(data.result).filter(func =>
             func.stateMutability === 'nonpayable' || func.stateMutability === 'payable'
           );
+          console.log('Setting writable functions:', writableFunctions);
           setFunctions(writableFunctions);
           setContractABI(data.result);
         } else {
@@ -74,12 +77,14 @@ export function useContractInteraction() {
         throw error;
       }
     } else {
+      console.log('Invalid address, clearing ABI');
       setContractABI('');
     }
   };
 
   const handleFunctionChange = (e) => {
     const selectedValue = e.target.value;
+    console.log('Function selection changed to:', selectedValue);
     setTargetFunction(selectedValue);
 
     const func = functions.find(f => `${f.name}(${f.inputs.map(input => input.type).join(',')})` === selectedValue);
@@ -107,6 +112,7 @@ export function useContractInteraction() {
       });
       setArgumentsInBytes(bytesArray);
     } else {
+      console.log('Not all inputs filled, clearing bytes array');
       setArgumentsInBytes([]);
     }
   };
@@ -116,12 +122,14 @@ export function useContractInteraction() {
       if (arg === '') return '0x';
       try {
         const hexValue = ethers.toBeHex(arg);
-        return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+        const paddedHex = hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
+        return paddedHex;
       } catch (error) {
         console.error('Error converting input to hex:', error);
         return '0x';
       }
     });
+    console.log('Setting arguments in bytes:', bytesArray);
     setArgumentsInBytes(bytesArray);
   }, [functionInputs]);
 
