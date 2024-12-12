@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from "wagmi";
+import { WagmiConfig } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { config } from "./wagmi";
+import { config, chains } from "./wagmi";
 const myCustomTheme = {
   blurs: {
     modalOverlay: "blur(5px)",
@@ -71,12 +71,12 @@ const queryClient = new QueryClient();
 
 export default function Providers({ children }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={myCustomTheme}>
+    <QueryClientProvider client={queryClient}>
+      <WagmiConfig config={config}>
+        <RainbowKitProvider chains={chains} theme={myCustomTheme}>
           {children}
         </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WagmiConfig>
+    </QueryClientProvider>
   );
 }

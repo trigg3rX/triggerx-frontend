@@ -6,7 +6,7 @@ import CreateJobPage from './pages/CreateJobPage';
 import DashboardPage from './pages/DashboardPage';
 import Providers from './providers';
 
-function App() {
+const App = () => {
   return (
     <Providers>
       <Router>
@@ -20,6 +20,6 @@ function App() {
       </Router>
     </Providers>
   );
-}
+};
 
 export default App;
