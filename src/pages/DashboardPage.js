@@ -45,41 +45,25 @@ function DashboardPage() {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const jobCreatorContract = await getJobCreatorContract();
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
 
         console.log(userAddress, 'address');
 
-        const userJobsCount = await jobCreatorContract.userJobsCount(userAddress);
-        console.log('Number of jobs:', userJobsCount.toString());
-
-        const tempJobs = [];
-        for (let i = 0; i < userJobsCount; i++) {
-          const jobId = await jobCreatorContract.userJobs(userAddress, i);
-          console.log(`Job ID ${i}:`, jobId.toString());
-
-          const jobDetail = await jobCreatorContract.jobs(jobId);
-          console.log(`Job Detail ${i}:`, jobDetail);
-
-          const formattedJob = {
-            id: jobId.toString(),
-            type: jobDetail.type || jobDetail[1],
-            status: jobDetail.status || jobDetail[2],
-            timeframe: jobDetail.timeframe || jobDetail[3],
-            gasLimit: jobDetail.gasLimit || jobDetail[4],
-            contractAddress: jobDetail.contractAddress || jobDetail[5],
-            targetFunction: jobDetail.targetFunction || jobDetail[6],
-            interval: (jobDetail.interval || jobDetail[7]).toString(),
-            argType: jobDetail.argType || jobDetail[8],
-            apiEndpoint: jobDetail.apiEndpoint || jobDetail[9],
-            owner: jobDetail.owner || jobDetail[10],
-            credit: jobDetail.credit || jobDetail[11]
-          };
-
-          console.log(`Formatted Job ${i}:`, formattedJob);
-          tempJobs.push(formattedJob);
+        // Fetch job details from the ScyllaDB API
+        const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job details from the database');
         }
+
+        const jobsData = await response.json();
+        console.log('Fetched jobs data:', jobsData);
+
+        const tempJobs = jobsData.map((jobDetail) => ({
+          id: jobDetail.job_id,        // job_id
+          type: mapJobType(jobDetail.jobType), // Map job_type ID to label
+          status: jobDetail.status ? 'true' : 'false' // Convert boolean to string
+        }));
 
         console.log('All formatted jobs:', tempJobs);
         setJobDetails(tempJobs);
@@ -88,6 +72,23 @@ function DashboardPage() {
         toast.error('Failed to fetch job details: ' + error.message);
       } finally {
         setLoading(false);
+      }
+    };
+
+    // Helper function to map job type ID to label
+    const mapJobType = (jobTypeId) => {
+      // Convert jobTypeId to string to handle both string and number types
+      const typeId = String(jobTypeId);
+      
+      switch (typeId) {
+        case '1':
+          return 'Time-based';
+        case '2':
+          return 'Event-based';
+        case '3':
+          return 'Condition-based';
+        default:
+          return 'Unknown';
       }
     };
 
@@ -157,21 +158,21 @@ function DashboardPage() {
 
   const handleJobEdit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const jobCreatorContract = await getJobCreatorContract();
 
-      const timeframeInSeconds = (selectedJob.timeframe.years * 31536000) + 
-                                (selectedJob.timeframe.months * 2592000) + 
-                                (selectedJob.timeframe.days * 86400);
-                                
-      const intervalInSeconds = (selectedJob.timeInterval.hours * 3600) + 
-                               (selectedJob.timeInterval.minutes * 60) + 
-                               selectedJob.timeInterval.seconds;
+      const timeframeInSeconds = (selectedJob.timeframe.years * 31536000) +
+        (selectedJob.timeframe.months * 2592000) +
+        (selectedJob.timeframe.days * 86400);
 
-      const argType = selectedJob.argType === 'None' ? 0 : 
-                     selectedJob.argType === 'Static' ? 1 : 
-                     selectedJob.argType === 'Dynamic' ? 2 : 0;
+      const intervalInSeconds = (selectedJob.timeInterval.hours * 3600) +
+        (selectedJob.timeInterval.minutes * 60) +
+        selectedJob.timeInterval.seconds;
+
+      const argType = selectedJob.argType === 'None' ? 0 :
+        selectedJob.argType === 'Static' ? 1 :
+          selectedJob.argType === 'Dynamic' ? 2 : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
@@ -214,6 +215,8 @@ function DashboardPage() {
     });
   };
 
+
+
   if (!connected) {
     return (
       <div className="min-h-screen bg-[#0A0F1C] text-white flex flex-col justify-center items-center">
@@ -247,7 +250,7 @@ function DashboardPage() {
     <div className="min-h-screen bg-[#0A0F1C] text-white">
       <div className="fixed inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20 pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
-      
+
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20" />
         <div className="container mx-auto px-6 py-0 relative">
