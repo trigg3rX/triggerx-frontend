@@ -47,16 +47,16 @@ function DashboardPage() {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      console.log(userAddress, 'address');
+        console.log(userAddress, 'address');
 
-      // Fetch job details from the ScyllaDB API
-      const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch job details from the database');
-      }
+        // Fetch job details from the ScyllaDB API
+        const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job details from the database');
+        }
 
-      const jobsData = await response.json();
-      console.log('Fetched jobs data:', jobsData);
+        const jobsData = await response.json();
+        console.log('Fetched jobs data:', jobsData);
 
       const tempJobs = jobsData.map((jobDetail) => ({
         id: jobDetail.job_id,        // job_id
@@ -64,15 +64,15 @@ function DashboardPage() {
         status: jobDetail.status ? 'true' : 'false' // Convert boolean to string
       }));
 
-      console.log('All formatted jobs:', tempJobs);
-      setJobDetails(tempJobs);
-    } catch (error) {
-      console.error('Error fetching job details:', error);
-      toast.error('Failed to fetch job details: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        console.log('All formatted jobs:', tempJobs);
+        setJobDetails(tempJobs);
+      } catch (error) {
+        console.error('Error fetching job details:', error);
+        toast.error('Failed to fetch job details: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // Helper function to map job type ID to label
   const mapJobType = (jobTypeId) => {
@@ -96,15 +96,15 @@ function DashboardPage() {
     fetchJobDetails();
   }, [window.ethereum]);
 
-  const handleAccountsChanged = (accounts) => {
-    if (accounts.length > 0) {
-      fetchJobDetails();
-    } else {
-      console.log('Please connect to MetaMask.');
-    }
-  };
+    const handleAccountsChanged = (accounts) => {
+      if (accounts.length > 0) {
+        fetchJobDetails();
+      } else {
+        console.log('Please connect to MetaMask.');
+      }
+    };
 
-  window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -195,7 +195,8 @@ function DashboardPage() {
       console.log('Job updated successfully:', result);
       toast.success('Job updated successfully');
 
-      setJobs(jobs.map(job => job.id === selectedJob.id ? selectedJob : job));
+      // Refresh job details after update
+      await fetchJobDetails();
       handleCloseModal();
     } catch (error) {
       console.error('Error updating job:', error);
@@ -303,7 +304,7 @@ function DashboardPage() {
                           </td>
                           <td className="px-4 py-3 space-x-2">
                             <button
-                              onClick={() => handleUpdateJob(job.id)}
+                              onClick={() => handleOpenModal(job)}
                               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-sm hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
                             >
                               Update
