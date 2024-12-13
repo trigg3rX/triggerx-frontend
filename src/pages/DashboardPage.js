@@ -42,72 +42,69 @@ function DashboardPage() {
     return new ethers.Contract(jobCreatorContractAddress, jobCreatorABI, signer);
   };
 
+  const fetchJobDetails = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      console.log(userAddress, 'address');
+
+      // Fetch job details from the ScyllaDB API
+      const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch job details from the database');
+      }
+
+      const jobsData = await response.json();
+      console.log('Fetched jobs data:', jobsData);
+
+      const tempJobs = jobsData.map((jobDetail) => ({
+        id: jobDetail.job_id,        // job_id
+        type: mapJobType(jobDetail.jobType), // Map job_type ID to label
+        status: jobDetail.status ? 'true' : 'false' // Convert boolean to string
+      }));
+
+      console.log('All formatted jobs:', tempJobs);
+      setJobDetails(tempJobs);
+    } catch (error) {
+      console.error('Error fetching job details:', error);
+      toast.error('Failed to fetch job details: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to map job type ID to label
+  const mapJobType = (jobTypeId) => {
+    // Convert jobTypeId to string to handle both string and number types
+    const typeId = String(jobTypeId);
+    
+    switch (typeId) {
+      case '1':
+        return 'Time-based';
+      case '2':
+        return 'Event-based';
+      case '3':
+        return 'Condition-based';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  // useEffect to fetch job details on component mount
   useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const signer = await provider.getSigner();
-        const userAddress = await signer.getAddress();
-
-        console.log(userAddress, 'address');
-
-        // Fetch job details from the ScyllaDB API
-        const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch job details from the database');
-        }
-
-        const jobsData = await response.json();
-        console.log('Fetched jobs data:', jobsData);
-
-        const tempJobs = jobsData.map((jobDetail) => ({
-          id: jobDetail.job_id,        // job_id
-          type: mapJobType(jobDetail.jobType), // Map job_type ID to label
-          status: jobDetail.status ? 'true' : 'false' // Convert boolean to string
-        }));
-
-        console.log('All formatted jobs:', tempJobs);
-        setJobDetails(tempJobs);
-      } catch (error) {
-        console.error('Error fetching job details:', error);
-        toast.error('Failed to fetch job details: ' + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Helper function to map job type ID to label
-    const mapJobType = (jobTypeId) => {
-      // Convert jobTypeId to string to handle both string and number types
-      const typeId = String(jobTypeId);
-      
-      switch (typeId) {
-        case '1':
-          return 'Time-based';
-        case '2':
-          return 'Event-based';
-        case '3':
-          return 'Condition-based';
-        default:
-          return 'Unknown';
-      }
-    };
-
     fetchJobDetails();
-
-    const handleAccountsChanged = (accounts) => {
-      if (accounts.length > 0) {
-        fetchJobDetails();
-      } else {
-        console.log('Please connect to MetaMask.');
-      }
-    };
-
-    window.ethereum.on('accountsChanged', handleAccountsChanged);
-
-    return () => {
-      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-    };
   }, [window.ethereum]);
+
+  const handleAccountsChanged = (accounts) => {
+    if (accounts.length > 0) {
+      fetchJobDetails();
+    } else {
+      console.log('Please connect to MetaMask.');
+    }
+  };
+
+  window.ethereum.on('accountsChanged', handleAccountsChanged);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -136,13 +133,22 @@ function DashboardPage() {
 
   const handleDeleteJob = async (jobId) => {
     try {
-      const jobCreatorContract = await getJobCreatorContract();
-      await jobCreatorContract.deleteJob(jobId, 0.000000000000001);
+      // Delete the job from the database
+      const response = await fetch(`http://localhost:8080/api/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete job from the database');
+      }
+
       toast.success('Job deleted successfully');
-      window.location.reload();
+
+      // Fetch the updated job details
+      await fetchJobDetails();
     } catch (error) {
       console.error('Error deleting job:', error);
-      toast.error('Failed to delete job');
+      toast.error('Failed to delete job: ' + error.message);
     }
   };
 
@@ -215,7 +221,7 @@ function DashboardPage() {
     });
   };
 
-
+  
 
   if (!connected) {
     return (
