@@ -50,7 +50,7 @@ function DashboardPage() {
         console.log(userAddress, 'address');
 
         // Fetch job details from the ScyllaDB API
-        const response = await fetch(`http://localhost:8080/api/jobs/user/${userAddress}`);
+        const response = await fetch(`https://data.triggerx.network/api/jobs/user/${userAddress}`);
         if (!response.ok) {
           throw new Error('Failed to fetch job details from the database');
         }
@@ -134,7 +134,7 @@ function DashboardPage() {
   const handleDeleteJob = async (jobId) => {
     try {
       // Delete the job from the database
-      const response = await fetch(`http://localhost:8080/api/jobs/${jobId}`, {
+      const response = await fetch(`https://data.triggerx.network/api/jobs/${jobId}`, {
         method: 'DELETE',
       });
 
