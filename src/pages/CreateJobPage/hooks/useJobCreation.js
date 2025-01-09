@@ -12,6 +12,7 @@ export function useJobCreation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [code_url, setCodeUrl] = useState('');
   const [scriptFunction, setScriptFunction] = useState('');
+  const [userBalance, setUserBalance] = useState(0);
 
   const handleCodeUrlChange = (event) => {
     if(event && event.target){
@@ -47,9 +48,37 @@ export function useJobCreation() {
       console.log('Fee for one execution:', feeInEth, 'ETH');
       
       const executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
+
       const overallFee = Number(feeInEth) * executionCount;
       console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
-      
+
+      let totalFeeTG=10;
+      // user TG balance    
+
+      if (code_url) {
+        try {
+          const response = await fetch(`https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(code_url)}`, {
+              method: 'GET',
+              headers: {
+                  'Accept': 'application/json',
+                  'Origin': 'https://triggerx.network'
+              }
+          });
+
+          if (!response.ok) {
+              throw new Error('Failed to get fees');
+          }
+
+          const data = await response.json();
+          totalFeeTG += (Number(data.total_fee) * executionCount);
+          console.log('Total TG fee including JOB fee:', totalFeeTG.toFixed(18), 'TG');
+        } catch (error) {
+          console.error('Error getting task fees:', error);
+          toast.warning('Failed to get task fees. Using base fee estimation.');
+        }
+      }
+
+      setUserBalance(totalFeeTG);
       setEstimatedFee(overallFee.toFixed(18));
       setIsModalOpen(true);
     } catch (error) {
@@ -115,7 +144,8 @@ export function useJobCreation() {
         job_cost_prediction: parseInt(gasUnits),
         script_function: scriptFunction,
         script_ipfs_url: code_url,
-        stake_amount: estimatedFeeInGwei
+        stake_amount: estimatedFeeInGwei,
+        user_balance: userBalance 
       };
       console.log('Created job data:', jobData);
 
