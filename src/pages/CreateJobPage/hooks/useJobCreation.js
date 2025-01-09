@@ -102,6 +102,34 @@ export function useJobCreation() {
     }
   };
 
+  const {
+    stakeRegistryAddress,
+    stakeRegistryImplAddress,
+    stakeRegistryABI
+  } = useStakeRegistry();
+
+  const fetchTGBalance = async () => {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      
+      const stakeRegistryContract = new ethers.Contract(
+        stakeRegistryAddress,
+        ['function getStake(address) view returns (uint256, uint256)'], // Assuming getStake returns (TG balance, other value)
+        provider
+      );
+
+      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
+      console.log('Raw TG Balance:', tgBalance.toString());
+      setUserBalance(ethers.formatEther(tgBalance));
+    } catch (error) {
+      console.error('Error fetching TG balance:', error);
+      toast.error('Failed to fetch TG balance');
+    }
+  };
+  console.log(userBalance,"my TG ......")
+
   const handleSubmit = async (stakeRegistryAddress, stakeRegistryABI, contractAddress, targetFunction, argsArray, timeframeInSeconds, intervalInSeconds) => {
     if (!jobType || !contractAddress) {
       toast.error('Please fill in all required fields');
@@ -205,33 +233,7 @@ export function useJobCreation() {
     }
   };
 
-  const {
-    stakeRegistryAddress,
-    stakeRegistryImplAddress,
-    stakeRegistryABI
-  } = useStakeRegistry();
-
-  const fetchTGBalance = async () => {
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-      
-      const stakeRegistryContract = new ethers.Contract(
-        stakeRegistryAddress,
-        ['function getStake(address) view returns (uint256, uint256)'], // Assuming getStake returns (TG balance, other value)
-        provider
-      );
-
-      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      // console.log('Raw TG Balance:', tgBalance.toString());
-      setUserBalance(ethers.formatEther(tgBalance));
-    } catch (error) {
-      console.error('Error fetching TG balance:', error);
-      toast.error('Failed to fetch TG balance');
-    }
-  };
-  console.log(userBalance,"my TG ......")
+  
 
   const handleStake = async (estimatedFee) => {
     setIsModalOpen(false);
