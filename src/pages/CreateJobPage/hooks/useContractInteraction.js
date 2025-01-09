@@ -1,3 +1,4 @@
+//useContractInteraction.js
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import axios from 'axios';
@@ -11,7 +12,7 @@ export function useContractInteraction() {
   const [functionInputs, setFunctionInputs] = useState([]);
   const [argumentsInBytes, setArgumentsInBytes] = useState([]);
   const [argsArray, setArgArray] = useState([]);
-
+  const [argumentType, setArgumentType] = useState('static');
   function extractFunctions(abi) {
     try {
       let abiArray;
@@ -90,6 +91,11 @@ export function useContractInteraction() {
     const func = functions.find(f => `${f.name}(${f.inputs.map(input => input.type).join(',')})` === selectedValue);
     setSelectedFunction(func);
 
+    // Reset argument type if function has no inputs
+    if (!func?.inputs?.length) {
+      setArgumentType('static');
+    }
+
     if (func) {
       setFunctionInputs(func.inputs.map(() => ''));
       setArgArray(func.inputs.map(() => ''));
@@ -99,6 +105,18 @@ export function useContractInteraction() {
     }
   };
 
+  const handleArgumentTypeChange = (e) => {
+    const newType = e.target.value;
+    console.log('Argument type changed to:', newType);
+    setArgumentType(newType);
+    
+    // Clear inputs when switching to dynamic
+    if (newType === 'dynamic') {
+      const emptyInputs = selectedFunction?.inputs?.map(() => '') || [];
+      setFunctionInputs(emptyInputs);
+      setArgArray(emptyInputs);
+    }
+  };
   const handleInputChange = (index, value) => {
     const newInputs = [...functionInputs];
     newInputs[index] = value;
@@ -142,8 +160,10 @@ export function useContractInteraction() {
     functionInputs,
     argumentsInBytes,
     argsArray,
+    argumentType,
     handleContractAddressChange,
     handleFunctionChange,
-    handleInputChange
+    handleInputChange,
+    handleArgumentTypeChange
   };
 } 

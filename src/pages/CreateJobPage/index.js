@@ -1,3 +1,4 @@
+//index.js
 import React, { useRef, useEffect } from 'react';
 import { PageHeader } from './components/PageHeader';
 import { TimeframeInputs } from './components/TimeframeInputs';
@@ -40,7 +41,9 @@ function CreateJobPage() {
     argsArray,
     handleContractAddressChange,
     handleFunctionChange,
-    handleInputChange
+    handleInputChange,
+    argumentType,
+  handleArgumentTypeChange
   } = useContractInteraction();
 
   const {
@@ -190,6 +193,8 @@ function CreateJobPage() {
                   functions={functions}
                   onContractAddressChange={handleContractAddressChange}
                   onFunctionChange={handleFunctionChange}
+                  argumentType={argumentType}
+                  onArgumentTypeChange={handleArgumentTypeChange}
                 />
 
                 {/* Function Arguments */}
@@ -197,6 +202,7 @@ function CreateJobPage() {
                   selectedFunction={selectedFunction}
                   functionInputs={functionInputs}
                   onInputChange={handleInputChange}
+                  argumentType={argumentType} 
                 />
 
                 {/* Code URL Input */}
