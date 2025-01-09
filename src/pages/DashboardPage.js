@@ -260,7 +260,7 @@ function DashboardPage() {
 
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-purple-600/20" />
-        <div className="container mx-auto px-6 py-0 relative">
+        <div className="container mx-auto px-6 py-6 relative">
           <div className="flex justify-center ml-100">
             <div className="flex items-center mb-4 mt-14">
               <div ref={logoRef} className="w-16 h-16 mr-4">
