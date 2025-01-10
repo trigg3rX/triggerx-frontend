@@ -5,11 +5,10 @@ export function EstimatedFeeModal({
   onClose,
   estimatedFee,
   userBalance,
-  onStake,
-  onNext,
+  onStake
 }) {
   const hasEnoughBalance = userBalance >= estimatedFee;
-
+  
   return (
     <Modal
       isOpen={isOpen}
@@ -32,9 +31,9 @@ export function EstimatedFeeModal({
       </div>
       <div className="flex gap-4">
         {hasEnoughBalance ? (
-          <button
-            onClick={onNext}
-            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold "
+          <button 
+            onClick={onStake} 
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
           >
             Next
           </button>
