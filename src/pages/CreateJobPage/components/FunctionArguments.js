@@ -1,13 +1,20 @@
 //FunctionArguments.js
-export function FunctionArguments({ selectedFunction, functionInputs, onInputChange, argumentType }) {
+export function FunctionArguments({
+  selectedFunction,
+  functionInputs,
+  onInputChange,
+  argumentType,
+}) {
   if (!selectedFunction || !selectedFunction.inputs.length) return null;
-  
-  const isDisabled = argumentType === 'dynamic';
+
+  const isDisabled = argumentType === "dynamic";
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <label className="block text-sm font-medium text-gray-300">Function Arguments</label>
+        <label className="block text-sm font-medium text-gray-300 tracking-wider">
+          Function Arguments
+        </label>
         {isDisabled && (
           <span className="text-sm text-yellow-400">
             Arguments disabled for dynamic type
@@ -21,10 +28,10 @@ export function FunctionArguments({ selectedFunction, functionInputs, onInputCha
           </label>
           <input
             type="text"
-            value={functionInputs[index] || ''}
+            value={functionInputs[index] || ""}
             onChange={(e) => onInputChange(index, e.target.value)}
-            className={`w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/20 transition-all duration-300 ${
-              isDisabled ? 'opacity-50 cursor-not-allowed bg-gray-800' : ''
+            className={`w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none  ${
+              isDisabled ? "opacity-50 cursor-not-allowed bg-gray-800" : ""
             }`}
             placeholder={`Enter ${input.type}`}
             disabled={isDisabled}

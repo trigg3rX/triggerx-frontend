@@ -1,7 +1,71 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  --font-heading: "HeadingFont";
+  --font-subheading: "SubHeadingFont";
+  --font-subtext: "SubText";
+  --font-actay: "ActayRegular";
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
 
 body {
-  @apply bg-gray-100;
+  color: var(--foreground);
+  background: var(--background);
+  background-image: url("assets//grid.png");
+}
+
+h1 {
+  font-family: var(--font-heading);
+}
+
+p,
+td,
+th {
+  font-family: var(--font-subheading);
+}
+
+h4,
+li,
+select {
+  font-family: var(--font-actay);
+}
+
+h2,
+h3,
+label,
+input {
+  font-family: var(--font-subtext);
+}
+input {
+  font-size: small;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@font-face {
+  font-family: "HeadingFont";
+  src: url("../public/fonts/Book23.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "SubHeadingFont";
+  src: url("../public/fonts/ActayCondensed-Thin.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "SubText";
+  src: url("../public/fonts/ActayWide-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "ActayRegular";
+  src: url("../public/fonts/Actay-Regular.otf") format("opentype");
 }
