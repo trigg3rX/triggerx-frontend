@@ -14,7 +14,7 @@ function DashboardPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
   const logoRef = useRef(null);
-  const [tgBalance, setTgBalance] = useState('0');
+  const [tgBalance, setTgBalance] = useState(0);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [stakeAmount, setStakeAmount] = useState('');
 
@@ -34,9 +34,11 @@ function DashboardPage() {
       const interval = setInterval(rotateLogo, 5000);
       return () => clearInterval(interval);
     }
-
-    fetchTGBalance();
   }, []);
+
+  useEffect(() => {
+    fetchTGBalance();
+  })
 
   const provider = new ethers.BrowserProvider(window.ethereum);
 
@@ -248,7 +250,7 @@ function DashboardPage() {
       );
 
       const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      // console.log('Raw TG Balance:', tgBalance.toString());
+      console.log('Raw TG Balance:', tgBalance.toString());
       setTgBalance(ethers.formatEther(tgBalance));
     } catch (error) {
       console.error('Error fetching TG balance:', error);
@@ -267,98 +269,35 @@ function DashboardPage() {
     checkConnectionAndBalance();
   }, []);
 
-  // const handleStake = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const signer = await provider.getSigner();
-  //     const stakingContract = new ethers.Contract(
-  //       stakeRegistryAddress,
-  //       ['function stake() payable'],
-  //       signer
-  //     );
-      
-  //     const tx = await stakingContract.stake({
-  //       value: ethers.parseEther(stakeAmount)
-  //     });
-  //     await tx.wait();
-      
-  //     toast.success('Staking successful!');
-  //     fetchTGBalance();
-  //     setStakeModalVisible(false);
-  //   } catch (error) {
-  //     console.error('Error staking:', error);
-  //     toast.error('Staking failed: ' + error.message);
-  //   }
-  // };
   const handleStake = async (e) => {
     e.preventDefault();
     try {
-        // Input validation
-        if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
-            toast.error('Please enter a valid stake amount');
-            return;
-        }
-
         const signer = await provider.getSigner();
-        
-        // First, verify the contract exists at the address
-        const code = await provider.getCode(stakeRegistryAddress);
-        if (code === '0x' || code === '') {
-            throw new Error('No contract found at the specified address');
-        }
-
-        // Create contract instance with full ABI interface
         const stakingContract = new ethers.Contract(
             stakeRegistryAddress,
             [
-                // Include full function signature
-                'function stake() external payable',
-                // You might also need these depending on your contract
-                'function withdraw() external',
-                'function getStakeBalance() external view returns (uint256)'
+                'function stake(uint256 amount) external payable returns (uint256)'
             ],
             signer
         );
 
-        // Estimate gas before sending transaction
-        const gasEstimate = await stakingContract.stake.estimateGas({
-            value: ethers.parseEther(stakeAmount.toString())
-        });
+        console.log('Staking Contract:', stakingContract);
 
-        // Add 20% buffer to gas estimate
-        const gasLimit = Math.floor(gasEstimate * 1.2);
+        const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
+        // console.log('Stake amount in Wei:', stakeAmountInWei.toString());
 
-        // Send transaction with explicit gas limit
-        const tx = await stakingContract.stake({
-            value: ethers.parseEther(stakeAmount.toString()),
-            gasLimit: gasLimit
-        });
+        // const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei);
+        // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
 
-        // Wait for transaction with status updates
-        toast.info('Transaction submitted. Waiting for confirmation...');
-        const receipt = await tx.wait();
+        const tx = await stakingContract.stake(stakeAmountInWei,{value: stakeAmountInWei});
+        await tx.wait();
 
-        if (receipt.status === 1) {
-            toast.success('Staking successful!');
-            await fetchTGBalance();
-            setStakeModalVisible(false);
-        } else {
-            throw new Error('Transaction failed');
-        }
-
+        toast.success('Staking successful!');
+        fetchTGBalance();
+        setStakeModalVisible(false);
     } catch (error) {
         console.error('Error staking:', error);
-        
-        // More user-friendly error messages
-        if (error.code === 'INSUFFICIENT_FUNDS') {
-            toast.error('Insufficient funds for staking');
-        } else if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
-            toast.error('Unable to estimate gas. The transaction might fail.');
-        } else if (error.message.includes('user rejected')) {
-            toast.error('Transaction rejected by user');
-        } else {
-            toast.error(`Staking failed: ${error.message}`);
-        }
+        toast.error('Staking failed: ' + error.message);
     }
   };
 
@@ -442,8 +381,8 @@ function DashboardPage() {
                           </td>
                           <td className="px-4 py-3 space-x-2">
                             <button
-                              onClick={() => handleOpenModal(job)}
-                              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-sm hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+                              disabled
+                              className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-600 rounded-lg text-sm text-gray-400 cursor-not-allowed opacity-50"
                             >
                               Update
                             </button>
