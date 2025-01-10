@@ -33,14 +33,14 @@ export function EstimatedFeeModal({
         {hasEnoughBalance ? (
           <button
             onClick={onStake}
-            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold transition-all duration-300"
+            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold text-black transition-all duration-300"
           >
             Next
           </button>
         ) : (
           <button
             onClick={onStake}
-            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold "
+            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold text-black transition-all duration-300"
           >
             Stake ETH
           </button>
