@@ -146,7 +146,7 @@ export function useJobCreation() {
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
-        const requiredEth = 0.001 * estimatedFee;
+        const requiredEth = (0.001 * estimatedFee).toFixed(18);
         const contract = new ethers.Contract(stakeRegistryAddress, stakeRegistryABI, signer);
         
         console.log('Staking ETH amount:', requiredEth);
@@ -203,7 +203,7 @@ export function useJobCreation() {
         job_cost_prediction: parseInt(gasUnits),
         script_function: scriptFunction,
         script_ipfs_url: code_url,
-        stake_amount: estimatedFeeInGwei,
+        stake_amount: Number(estimatedFeeInGwei.toString()),
         user_balance: 0.0,
         required_tg: estimatedFee
       };
