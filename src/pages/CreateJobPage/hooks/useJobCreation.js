@@ -30,8 +30,6 @@ export function useJobCreation() {
   })
   const estimateFee = async (contractAddress, contractABI, targetFunction, argsArray, timeframeInSeconds, intervalInSeconds) => {
     try {
-
-      
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
       // const functionFragment = contract.interface.getFunction(targetFunction);
@@ -60,7 +58,7 @@ export function useJobCreation() {
       // const overallFee = Number(feeInEth) * executionCount;
       // console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
 
-      let totalFeeTG=1;
+      let totalFeeTG=0;
       // user TG balance    
 
       if (code_url) {
@@ -78,7 +76,7 @@ export function useJobCreation() {
           }
 
           const data = await response.json();
-          totalFeeTG =totalFeeTG + (Number(data.total_fee) * executionCount);
+          totalFeeTG = (Number(data.total_fee) * executionCount);
           console.log('Total TG fee required:', totalFeeTG.toFixed(18), 'TG');
           
           // Calculate stake amount in ETH and convert to Gwei
@@ -204,7 +202,7 @@ export function useJobCreation() {
         script_function: scriptFunction,
         script_ipfs_url: code_url,
         stake_amount: estimatedFeeInGwei,
-        user_balance: userBalance,
+        user_balance: 0.0,
         required_tg: estimatedFee
       };
 

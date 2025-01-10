@@ -55,6 +55,7 @@ function CreateJobPage() {
   const {
     jobType,
     estimatedFee,
+    userBalance,
     isModalOpen,
     ethAmount,
     code_url,
@@ -284,6 +285,7 @@ function CreateJobPage() {
             intervalInSeconds
           );
         }}
+        userBalance={userBalance}
       />
     </div>
   );
