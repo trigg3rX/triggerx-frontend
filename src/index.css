@@ -21,15 +21,15 @@ h1 {
   font-family: var(--font-heading);
 }
 
-p,
-td,
-th {
+/* {
   font-family: var(--font-subheading);
-}
+} */
 
 h4,
 li,
-select {
+select,p,
+td,
+th {
   font-family: var(--font-actay);
 }
 

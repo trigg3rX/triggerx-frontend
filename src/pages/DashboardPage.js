@@ -386,16 +386,16 @@ function DashboardPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="px-4 py-3 text-left text-[#A2A2A2]">
+                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
                           ID
                         </th>
-                        <th className="px-4 py-3 text-left text-[#A2A2A2]">
+                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
                           Type
                         </th>
-                        <th className="px-4 py-3 text-left text-[#A2A2A2]">
+                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
                           Status
                         </th>
-                        <th className="px-4 py-3 text-left text-[#A2A2A2]">
+                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
                           Actions
                         </th>
                       </tr>
@@ -403,10 +403,10 @@ function DashboardPage() {
                     <tbody>
                       {jobDetails.map((job) => (
                         <tr key={job.id} className="border-b border-white/5">
-                          <td className="px-4 py-3 text-white">{job.id}</td>
+                          <td className="px-4 py-3 text-white text-md" >{job.id}</td>
                           <td className="px-4 py-3 text-white">{job.type}</td>
                           <td className="px-4 py-3 text-white">
-                            <span className="px-3 py-1 rounded-full text-xs bg-blue-500/20 text-white">
+                            <span className="px-3 py-1 rounded-md text-md bg-blue-500/20 text-white">
                               {job.status}
                             </span>
                           </td>
