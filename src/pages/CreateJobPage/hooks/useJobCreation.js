@@ -77,11 +77,13 @@ export function useJobCreation() {
 
           const data = await response.json();
           totalFeeTG = (Number(data.total_fee) * executionCount);
-          console.log('Total TG fee required:', totalFeeTG.toFixed(18), 'TG');
           
           // Calculate stake amount in ETH and convert to Gwei
           const stakeAmountEth = totalFeeTG * 0.001;
-          const stakeAmountGwei = ethers.parseUnits(stakeAmountEth.toFixed(18), 'gwei');
+          
+          console.log('Total TG fee required:', totalFeeTG.toFixed(18), 'TG');
+          
+          const stakeAmountGwei = ethers.parseUnits((stakeAmountEth * 1e9).toFixed(0), 'gwei');          
           const estimatedFeeInGwei = stakeAmountGwei;
           console.log('Stake amount in Gwei:', estimatedFeeInGwei);
           
