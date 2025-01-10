@@ -84,11 +84,7 @@ export function ContractDetails({
               .map((input) => input.type)
               .join(",")})`;
             return (
-              <option
-                key={index}
-                value={signature}
-                className="bg-[#1A1F2C] text-white"
-              >
+              <option key={index} value={signature} className="">
                 {signature}
               </option>
             );
@@ -118,12 +114,8 @@ export function ContractDetails({
           }`}
           disabled={!hasArguments}
         >
-          <option value="static" className="bg-[#1A1F2C] text-white">
-            Static
-          </option>
-          <option value="dynamic" className="bg-[#1A1F2C] text-white">
-            Dynamic
-          </option>
+          <option value="static">Static</option>
+          <option value="dynamic">Dynamic</option>
         </select>
         <h4 className="mt-2 text-sm text-gray-400">
           {hasArguments

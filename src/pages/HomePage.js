@@ -62,10 +62,10 @@ function homepage() {
 
           {/* Buttons */}
           <div className="flex gap-4">
-            <button className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-full transition-colors">
+            <button className="bg-white  text-black px-6 py-3 rounded-full transition-colors  liquid-button">
               Get Started
             </button>
-            <button className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-full transition-colors">
+            <button className="liquid-button bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-full transition-colors">
               Learn More
             </button>
           </div>
@@ -230,7 +230,7 @@ function homepage() {
                   </div>
 
                   <h2 className="text-xl px-2">Time-Based Tasks</h2>
-                  <h4 className="text-[#1F1F1F] leading-relaxed px-2">
+                  <h4 className="text-[#1F1F1F] leading-relaxed px-2 text-lg">
                     Schedule automated actions at specific times or intervals
                   </h4>
                 </div>
@@ -241,7 +241,7 @@ function homepage() {
                     02
                   </div>
                   <h2 className="text-xl px-2">Event-Triggered Actions</h2>
-                  <h4 className="text-[#1F1F1F] leading-relaxed px-2">
+                  <h4 className="text-[#1F1F1F] leading-relaxed px-2 text-lg">
                     Trigger workflows based on on-chain events like governance
                     proposals or token transfers
                   </h4>
@@ -253,7 +253,7 @@ function homepage() {
                     03
                   </div>
                   <h2 className="text-xl px-2">Condition-Based Processes</h2>
-                  <h4 className="text-[#1F1F1F] leading-relaxed px-2">
+                  <h4 className="text-[#1F1F1F] leading-relaxed px-2 text-lg">
                     Execute tasks when specific conditions are met, such as
                     price thresholds or liquidity levels
                   </h4>
@@ -305,7 +305,7 @@ function homepage() {
                 </div>
                 <div>
                   <h3 className="text-xl">Incentivized Honesty</h3>
-                  <h4 className="text-[#A2A2A2] mt-2">
+                  <h4 className="text-[#A2A2A2] mt-2 text-md">
                     Misbehaving keepers are penalized through slashing, ensuring
                     reliability.
                   </h4>
@@ -352,7 +352,7 @@ function homepage() {
                 </div>
                 <div>
                   <h3 className="text-xl">Shared Security</h3>
-                  <h4 className="text-[#A2A2A2] mt-2">
+                  <h4 className="text-[#A2A2A2] mt-2 text-md">
                     Operators leverage EigenLayer's crypto-economic guarantees
                   </h4>
                 </div>
@@ -376,7 +376,7 @@ function homepage() {
                 </div>
                 <div>
                   <h3 className="text-xl">Decentralized Validations</h3>
-                  <h4 className="text-[#A2A2A2] mt-2">
+                  <h4 className="text-[#A2A2A2] mt-2 text-md">
                     Tasks are verified by a distributed network of keepers using
                     AVS mechanisms
                   </h4>
@@ -476,7 +476,7 @@ function homepage() {
                 </div>
                 <div className="p-6 max-w-[16rem]">
                   <h3 className="text-2xl mb-3 text-start">Submit Tasks</h3>
-                  <h4 className=" text-sm text-start tracking-wider">
+                  <h4 className=" text-md text-start tracking-wider text-[#A2A2A2]">
                     Use our intuitive interface to solve your automation needs
                   </h4>
                 </div>
@@ -488,7 +488,7 @@ function homepage() {
                 </div>
                 <div className="p-6 max-w-[16rem]">
                   <h3 className="text-2xl mb-3 text-start">Track Progress</h3>
-                  <h4 className=" text-sm text-start tracking-wider">
+                  <h4 className=" text-md text-start tracking-wider text-[#A2A2A2]">
                     Stay updated with real-time dashboards and alerts
                   </h4>
                 </div>
@@ -502,7 +502,7 @@ function homepage() {
                   <h3 className="text-2xl mb-3 text-start">
                     Scale with Confidence
                   </h3>
-                  <h4 className=" text-sm text-start tracking-wider">
+                  <h4 className=" text-md text-start tracking-wider text-[#A2A2A2]">
                     Expand your automation capabilities as your project grows
                   </h4>
                 </div>

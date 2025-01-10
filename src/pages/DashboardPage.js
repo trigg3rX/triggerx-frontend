@@ -37,7 +37,7 @@ function DashboardPage() {
 
   useEffect(() => {
     fetchTGBalance();
-  })
+  });
 
   const provider = new ethers.BrowserProvider(window.ethereum);
 
@@ -272,7 +272,7 @@ function DashboardPage() {
       );
 
       const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      console.log('Raw TG Balance:', tgBalance.toString());
+      console.log("Raw TG Balance:", tgBalance.toString());
       setTgBalance(ethers.formatEther(tgBalance));
     } catch (error) {
       console.error("Error fetching TG balance:", error);
@@ -296,32 +296,32 @@ function DashboardPage() {
   const handleStake = async (e) => {
     e.preventDefault();
     try {
-        const signer = await provider.getSigner();
-        const stakingContract = new ethers.Contract(
-            stakeRegistryAddress,
-            [
-                'function stake(uint256 amount) external payable returns (uint256)'
-            ],
-            signer
-        );
+      const signer = await provider.getSigner();
+      const stakingContract = new ethers.Contract(
+        stakeRegistryAddress,
+        ["function stake(uint256 amount) external payable returns (uint256)"],
+        signer
+      );
 
-        console.log('Staking Contract:', stakingContract);
+      console.log("Staking Contract:", stakingContract);
 
-        const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
-        // console.log('Stake amount in Wei:', stakeAmountInWei.toString());
+      const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
+      // console.log('Stake amount in Wei:', stakeAmountInWei.toString());
 
-        // const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei);
-        // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
+      // const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei);
+      // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
 
-        const tx = await stakingContract.stake(stakeAmountInWei,{value: stakeAmountInWei});
-        await tx.wait();
+      const tx = await stakingContract.stake(stakeAmountInWei, {
+        value: stakeAmountInWei,
+      });
+      await tx.wait();
 
-        toast.success('Staking successful!');
-        fetchTGBalance();
-        setStakeModalVisible(false);
+      toast.success("Staking successful!");
+      fetchTGBalance();
+      setStakeModalVisible(false);
     } catch (error) {
-        console.error('Error staking:', error);
-        toast.error('Staking failed: ' + error.message);
+      console.error("Error staking:", error);
+      toast.error("Staking failed: " + error.message);
     }
   };
 
@@ -403,7 +403,9 @@ function DashboardPage() {
                     <tbody>
                       {jobDetails.map((job) => (
                         <tr key={job.id} className="border-b border-white/5">
-                          <td className="px-4 py-3 text-white text-md" >{job.id}</td>
+                          <td className="px-4 py-3 text-white text-md">
+                            {job.id}
+                          </td>
                           <td className="px-4 py-3 text-white">{job.type}</td>
                           <td className="px-4 py-3 text-white">
                             <span className="px-3 py-1 rounded-md text-md bg-blue-500/20 text-white">
@@ -453,20 +455,20 @@ function DashboardPage() {
             </div>
 
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+              <h3 className=" text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Quick Actions
               </h3>
               <div className="space-y-4">
                 <button
                   onClick={() => setStakeModalVisible(true)}
-                  className="block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
+                  className=" liquid-button2 block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
                 >
                   Stake ETH
                 </button>
 
                 <Link
                   to="/create-job"
-                  className="block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
+                  className=" liquid-button2 block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
                 >
                   Create New Job
                 </Link>
@@ -548,14 +550,14 @@ function DashboardPage() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-white rounded-lg text-black font-semibold"
+                  className=" liquid-button2 flex-1 px-6 py-3 bg-white rounded-lg text-black font-semibold"
                 >
                   Stake
                 </button>
                 <button
                   type="button"
                   onClick={() => setStakeModalVisible(false)}
-                  className="flex-1 px-6 py-3 bg-white/10 rounded-lg  hover:bg-white/20 "
+                  className=" liquid-button2 flex-1 px-6 py-3 bg-white/10 rounded-lg  hover:bg-white/20 "
                 >
                   Cancel
                 </button>

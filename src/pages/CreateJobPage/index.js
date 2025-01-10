@@ -271,7 +271,7 @@ function CreateJobPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold  transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                  className=" liquid-button2  px-8 py-4 bg-white rounded-lg text-lg font-semibold  transition-all duration-300 flex items-center justify-center gap-2 text-black"
                 >
                   Create Job
                 </button>

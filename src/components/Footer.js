@@ -77,7 +77,11 @@ const Footer = () => {
         </div>
 
         <div className="flex space-x-4 items-center">
-          <a href="https://github.com" className="hover:text-gray-300">
+          <a
+            href="https://github.com/trigg3rX"
+            className="hover:text-gray-300"
+            target="blank"
+          >
             <svg
               width="48"
               height="48"
@@ -93,7 +97,11 @@ const Footer = () => {
               />
             </svg>
           </a>
-          <a href="https://twitter.com" className="hover:text-gray-300">
+          <a
+            href="https://x.com/_TriggerX"
+            className="hover:text-gray-300"
+            target="blank"
+          >
             <svg
               width="40"
               height="45"
@@ -111,7 +119,11 @@ const Footer = () => {
               </g>
             </svg>
           </a>
-          <a href="https://telegram.com" className="hover:text-gray-300">
+          <a
+            href="https://t.me/+RDAFhnPrPa1kOWRl"
+            className="hover:text-gray-300"
+            target="blank"
+          >
             <svg
               width="46"
               height="45"
