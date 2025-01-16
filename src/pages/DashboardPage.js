@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
+import WalletModal from '../components/WalletModal';
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -16,6 +17,25 @@ function DashboardPage() {
   const [tgBalance, setTgBalance] = useState(0);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [stakeAmount, setStakeAmount] = useState("");
+  const [isWalletInstalled, setIsWalletInstalled] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [provider, setProvider] = useState(null);
+
+  useEffect(() => {
+    const initializeProvider = () => {
+      if (typeof window.ethereum !== 'undefined') {
+        const ethProvider = new ethers.BrowserProvider(window.ethereum);
+        setProvider(ethProvider);
+        setIsWalletInstalled(true);
+      } else {
+        setIsWalletInstalled(false);
+        setShowModal(true);
+      }
+    };
+
+    initializeProvider();
+  }, []);
+
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -39,9 +59,12 @@ function DashboardPage() {
     fetchTGBalance();
   });
 
-  const provider = new ethers.BrowserProvider(window.ethereum);
+  // const provider = new ethers.BrowserProvider(window.ethereum);
 
   const getJobCreatorContract = async () => {
+    if (!provider) {
+      throw new Error("Web3 provider not initialized");
+    }
     const signer = await provider.getSigner();
     const jobCreatorContractAddress =
       "0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d";
@@ -56,6 +79,11 @@ function DashboardPage() {
   };
 
   const fetchJobDetails = async () => {
+    if (!provider) {
+      console.log("Web3 provider not initialized");
+      return;
+    }
+    
     try {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
@@ -108,38 +136,48 @@ function DashboardPage() {
 
   // useEffect to fetch job details on component mount
   useEffect(() => {
-    fetchJobDetails();
-  }, [window.ethereum]);
-
-  const handleAccountsChanged = (accounts) => {
-    if (accounts.length > 0) {
-      fetchJobDetails();
-    } else {
-      console.log("Please connect to MetaMask.");
+    if (!window.ethereum) {
+      return;
     }
-  };
-
-  window.ethereum.on("accountsChanged", handleAccountsChanged);
-
-  useEffect(() => {
-    const checkConnection = async () => {
-      const accounts = await window.ethereum.request({
-        method: "eth_accounts",
-      });
-      setConnected(accounts.length > 0);
-    };
-
-    checkConnection();
 
     const handleAccountsChanged = (accounts) => {
-      setConnected(accounts.length > 0);
+      if (accounts.length > 0) {
+        fetchJobDetails();
+        setConnected(true);
+      } else {
+        setConnected(false);
+      }
     };
 
     window.ethereum.on("accountsChanged", handleAccountsChanged);
 
     return () => {
-      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      if (window.ethereum) {
+        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      }
     };
+  }, [provider]); // Add provider to dependency array
+
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!window.ethereum) {
+        setConnected(false);
+        return;
+      }
+
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        setConnected(accounts.length > 0);
+      } catch (error) {
+        console.error("Error checking connection:", error);
+        setConnected(false);
+      }
+    };
+
+    checkConnection();
   }, []);
 
   const handleUpdateJob = (id) => {
@@ -260,8 +298,12 @@ function DashboardPage() {
     useStakeRegistry();
 
   const fetchTGBalance = async () => {
+    if (!provider || !isWalletInstalled) {
+      return;
+    }
+
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      // const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
@@ -281,21 +323,20 @@ function DashboardPage() {
   };
 
   useEffect(() => {
-    const checkConnectionAndBalance = async () => {
-      const accounts = await window.ethereum.request({
-        method: "eth_accounts",
-      });
-      setConnected(accounts.length > 0);
-      if (accounts.length > 0) {
-        fetchTGBalance();
-      }
-    };
-    checkConnectionAndBalance();
-  }, []);
+    if (connected && provider) {
+      fetchTGBalance();
+    }
+  }, [connected, provider]);
+
 
   const handleStake = async (e) => {
     e.preventDefault();
     try {
+      if (!isWalletInstalled) {
+        throw new Error("Web3 wallet is not installed.");
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const stakingContract = new ethers.Contract(
         stakeRegistryAddress,
@@ -303,16 +344,21 @@ function DashboardPage() {
         signer
       );
 
-      console.log("Staking Contract:", stakingContract);
-
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
-      // console.log('Stake amount in Wei:', stakeAmountInWei.toString());
+      console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
 
-      // const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei);
-      // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
+      if (stakeAmountInWei.isZero()) {
+        throw new Error("Stake amount must be greater than zero.");
+      }
+
+      const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei, {
+        value: stakeAmountInWei,
+      });
+      const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
 
       const tx = await stakingContract.stake(stakeAmountInWei, {
         value: stakeAmountInWei,
+        gasLimit: gasLimit,
       });
       await tx.wait();
 
@@ -325,6 +371,14 @@ function DashboardPage() {
     }
   };
 
+  useEffect(() => {
+    // Check if MetaMask or any web3 wallet is installed
+    if (typeof window.ethereum === 'undefined') {
+      setIsWalletInstalled(false);
+      setShowModal(true);
+    }
+  }, []);
+
   if (!connected) {
     return (
       <div className="min-h-screen  text-white flex flex-col justify-center items-center">
@@ -336,7 +390,7 @@ function DashboardPage() {
             Please connect your wallet to access the dashboard.
           </p>
           <div className="flex justify-center">
-            <Link to="/" className="px-6 py-3 bg-white rounded-lg ">
+            <Link to="/" className="px-6 py-3 bg-white rounded-lg text-black ">
               Return Home
             </Link>
           </div>
@@ -565,6 +619,10 @@ function DashboardPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {!isWalletInstalled && showModal && (
+        <WalletModal onClose={() => setShowModal(false)} />
       )}
     </div>
   );
