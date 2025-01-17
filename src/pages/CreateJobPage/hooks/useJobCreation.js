@@ -77,11 +77,13 @@ export function useJobCreation() {
 
           const data = await response.json();
           totalFeeTG = (Number(data.total_fee) * executionCount);
-          console.log('Total TG fee required:', totalFeeTG.toFixed(18), 'TG');
           
           // Calculate stake amount in ETH and convert to Gwei
           const stakeAmountEth = totalFeeTG * 0.001;
-          const stakeAmountGwei = ethers.parseUnits(stakeAmountEth.toFixed(18), 'gwei');
+          
+          console.log('Total TG fee required:', totalFeeTG.toFixed(18), 'TG');
+          
+          const stakeAmountGwei = ethers.parseUnits((stakeAmountEth * 1e9).toFixed(0), 'gwei');          
           const estimatedFeeInGwei = stakeAmountGwei;
           console.log('Stake amount in Gwei:', estimatedFeeInGwei);
           
@@ -144,7 +146,7 @@ export function useJobCreation() {
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
-        const requiredEth = 0.001 * estimatedFee;
+        const requiredEth = (0.001 * estimatedFee).toFixed(18);
         const contract = new ethers.Contract(stakeRegistryAddress, stakeRegistryABI, signer);
         
         console.log('Staking ETH amount:', requiredEth);
@@ -201,7 +203,7 @@ export function useJobCreation() {
         job_cost_prediction: parseInt(gasUnits),
         script_function: scriptFunction,
         script_ipfs_url: code_url,
-        stake_amount: estimatedFeeInGwei,
+        stake_amount: Number(estimatedFeeInGwei.toString()),
         user_balance: 0.0,
         required_tg: estimatedFee
       };
