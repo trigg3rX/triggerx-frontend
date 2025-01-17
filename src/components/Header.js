@@ -110,7 +110,7 @@ function Header() {
 
   return (
     <div>
-      <div className="lg:w-[80%] md:w-[90%] mx-auto  justify-between my-10 header sm:hidden hidden lg:flex md:flex items-center ">
+      <div className="lg:w-[80%] md:w-[90%] mx-auto  justify-between my-10 header sm:hidden hidden lg:flex md:hidden items-center ">
         <div className=" ">
           <img src={logo} alt="" className="lg:w-full md:w-[200px]" />
         </div>
@@ -131,7 +131,7 @@ function Header() {
                 isActiveRoute("/")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                   : "transparent"
-              }  px-7 py-3 rounded-xl`}
+              }  px-7 py-3 rounded-xl cursor-pointer`}
             >
               Home
             </h4>
@@ -141,7 +141,7 @@ function Header() {
                 isActiveRoute("/create-job")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                   : "transparent"
-              }  px-7 py-3 rounded-xl`}
+              }  px-7 py-3 rounded-xl cursor-pointer`}
             >
               Create Job
             </h4>
@@ -151,7 +151,7 @@ function Header() {
                 isActiveRoute("/dashboard")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                   : "transparent"
-              }  px-7 py-3 rounded-xl`}
+              }  px-7 py-3 rounded-xl cursor-pointer`}
             >
               Dashboard
             </h4>
@@ -161,7 +161,7 @@ function Header() {
           <ConnectButton />
         </div>
       </div>
-      <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:hidden">
+      <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:flex">
         <div className="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-10 z-0">
           <img src={nav} alt="Nav Background" className="w-64 h-auto z-0" />
         </div>
@@ -169,14 +169,15 @@ function Header() {
         <div className="flex-shrink-0 relative z-10">
           <img src={logo} alt="Logo" width={150} />
         </div>
-        {/* Connect Wallet Button */}
-        <div className="flex-shrink-0 relative z-10">
-          <ConnectButton />
-        </div>
+
         {/* Hamburger Menu and Navigation */}
-        <div className="relative flex items-center">
+        <div className="relative flex items-center gap-5">
+          {/* Connect Wallet Button */}
+          <div className="flex-shrink-0 relative z-10">
+            <ConnectButton />
+          </div>
           {/* Hamburger Menu for Mobile */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <h4
               onClick={() => setMenuOpen(!menuOpen)}
               className="text-white text-2xl"
@@ -184,15 +185,15 @@ function Header() {
               {menuOpen ? "✖" : "☰"}
             </h4>
             {menuOpen && (
-              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg">
-                <div className="flex flex-col gap-4 text-white">
+              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10">
+                <div className="flex flex-col gap-4 text-white ">
                   <h4
                     onClick={() => navigate("/")}
                     className={`lg:w-[135px] md:w-[100px] hover:bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white hover:border-[#4B4A4A] hover:border ${
                       isActiveRoute("/")
                         ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                         : "transparent"
-                    }  px-7 py-3 rounded-xl`}
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Home
                   </h4>
@@ -202,7 +203,7 @@ function Header() {
                       isActiveRoute("/create-job")
                         ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                         : "transparent"
-                    }  px-7 py-3 rounded-xl`}
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Create Job
                   </h4>
@@ -212,7 +213,7 @@ function Header() {
                       isActiveRoute("/dashboard")
                         ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] text-white border-[#4B4A4A] border"
                         : "transparent"
-                    }  px-7 py-3 rounded-xl`}
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
                   </h4>
