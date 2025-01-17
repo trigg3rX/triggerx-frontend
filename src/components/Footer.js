@@ -27,7 +27,7 @@ const Footer = () => {
           alt=""
           className="absolute lg:w-[250px] md:w-[250px] sm:w-[150px] w-[150px] right-0 -z-10"
         />
-        <div className=" lg:mt-40 md:mt-40 mt-20 sm:mt-20 flex justify-between lg:flex-row md:flex-row sm:flex-col flex-col">
+        <div className=" lg:mt-40 md:mt-40 mt-20 sm:mt-20 flex justify-between  flex-col">
           <div className="flex flex-col items-center justify-end  py-8">
             <div className="flex gap-5 bg-[#181818F0] rounded-xl relative z-10 p-1">
               <h4
