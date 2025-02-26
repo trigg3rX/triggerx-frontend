@@ -111,7 +111,7 @@ function CreateJobPage() {
   };
 
   return (
-    <div className="min-h-screen  text-white pt-32 pb-20">
+    <div className="min-h-screen  text-white  mt-[20rem]">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
