@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
-import CreateJobPage from './pages/CreateJobPage';
-import DashboardPage from './pages/DashboardPage';
-import Providers from './providers';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import HomePage from "./pages/HomePage";
+import CreateJobPage from "./pages/CreateJobPage";
+import DashboardPage from "./pages/DashboardPage";
+import Providers from "./providers";
 
 const App = () => {
   return (
@@ -12,7 +12,6 @@ const App = () => {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/" element={<HomePage />} />
             <Route path="/create-job" element={<CreateJobPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
           </Routes>
