@@ -104,19 +104,26 @@ function Header() {
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => {
-                  console.log("Navigating to /create-job");
-                  navigate("/create-job");
+                  navigate("/");
                 }}
                 className={`text-center lg:w-[150px] md:w-[100px]
-                }  px-7 py-3 rounded-xl cursor-pointer`}
+                  ${
+                    isActiveRoute("/")
+                      ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                      : "transparent"
+                  } px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Create Job
               </h4>
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center lg:w-[150px] md:w-[100px]  
-                }  px-7 py-3 rounded-xl cursor-pointer`}
+                className={`text-center lg:w-[150px] md:w-[100px]  ${
+                  isActiveRoute("/dashboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }
+                 px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
               </h4>
