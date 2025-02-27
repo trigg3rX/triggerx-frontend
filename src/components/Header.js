@@ -138,7 +138,7 @@ function Header() {
         <div className="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-10 z-0">
           <img
             src={nav}
-            alt="Nav Background"
+            alt="Nav"
             className="w-64 h-auto z-0"
             style={{
               top: "-50px",
