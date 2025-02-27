@@ -64,7 +64,7 @@ function Header() {
       <div className=" xl:w-[90%] md:w-[90%] mx-auto  justify-between my-10 header sm:hidden hidden lg:flex md:hidden items-center ">
         <div className=" ">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="" className="lg:w-full md:w-[200px]" />
+            <img src={logo} alt="" className="xl:w-full lg:w-[200px]" />
           </a>
         </div>
         <div className="relative flex flex-col items-center">
@@ -94,9 +94,9 @@ function Header() {
               <a href="https://www.triggerx.network/" target="blank">
                 <h4
                   onMouseEnter={handleMouseEnter}
-                  className={`text-center lg:w-[150px] md:w-[100px] 
+                  className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
                 
-              }  px-7 py-3 rounded-xl cursor-pointer`}
+              }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
                 >
                   Home
                 </h4>
@@ -106,7 +106,7 @@ function Header() {
                 onClick={() => {
                   navigate("/");
                 }}
-                className={`text-center lg:w-[150px] md:w-[100px]
+                className={`text-center xl:w-[150px] lg:w-[130px] xl:text-base lg:text-[12px]
                   ${
                     isActiveRoute("/")
                       ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
@@ -118,7 +118,7 @@ function Header() {
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center lg:w-[150px] md:w-[100px]  ${
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
                   isActiveRoute("/dashboard")
                     ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                     : "transparent"
@@ -130,15 +130,14 @@ function Header() {
             </div>
           </nav>
         </div>
-        <div>
-          <ConnectButton />
-        </div>
+
+        <ConnectButton chainStatus="icon" accountStatus="address" />
       </div>
       <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:flex">
         <div className="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-10 z-0">
           <img
             src={nav}
-            alt="Nav"
+            alt="Nav" 
             className="w-64 h-auto z-0"
             style={{
               top: "-50px",
@@ -158,7 +157,7 @@ function Header() {
         <div className="relative flex items-center gap-5">
           {/* Connect Wallet Button */}
           <div className="flex-shrink-0 relative z-10">
-            <ConnectButton />
+            <ConnectButton chainStatus="none" accountStatus="address" />
           </div>
           {/* Hamburger Menu for Mobile */}
           <div className="lg:hidden">
