@@ -12,7 +12,7 @@ const App = () => {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/create-job" element={<CreateJobPage />} />
+            <Route path="/" element={<CreateJobPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
           </Routes>
         </Layout>
