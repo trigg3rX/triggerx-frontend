@@ -7,6 +7,7 @@ import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
 import WalletModal from "../components/WalletModal";
 import talk from "../assets/talk.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Helmet } from "react-helmet";
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -406,6 +407,14 @@ function DashboardPage() {
   }
 
   return (
+    <div>
+    <Helmet>
+    <meta property="og:title" content="TriggerX | Build" />
+    <meta property="og:description" content="Automate Tasks Effortlessly" />
+    <meta property="og:image" content="https://app.triggerx.network/dashboard/images/image.jpg" />
+    <meta property="og:url" content="https://app.triggerx.network/dashboard" />
+    <meta property="og:type" content="website" />
+  </Helmet>
     <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed  pointer-events-none" />
@@ -636,6 +645,7 @@ function DashboardPage() {
       {!isWalletInstalled && showModal && (
         <WalletModal onClose={() => setShowModal(false)} />
       )}
+    </div>
     </div>
   );
 }
