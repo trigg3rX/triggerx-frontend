@@ -211,7 +211,7 @@ function CreateJobPage() {
 
 
   return (
-    <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20">
+    <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem]">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
@@ -1109,14 +1109,14 @@ function CreateJobPage() {
             <div className="flex items-center justify-center gap-2 mx-auto">
               <button
                 onClick={(e) => handleFormSubmit(e, jobType)}
-                className="px-10 py-3 bg-white hover:translate-y-1 rounded-full text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                className="px-4 sm:px-10 py-2.5 sm:py-3 bg-white hover:translate-y-1 rounded-full text-sm sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
               >
                 Create Job
               </button>
               {(linkedJobs[jobType]?.length ?? 0) < 3 && (
                 <button
                   onClick={() => handleLinkJob(jobType)}
-                  className="px-10 py-3 bg-white hover:translate-y-1 rounded-full text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                  className="px-4 sm:px-10 py-2.5 sm:py-3 bg-white hover:translate-y-1 rounded-full text-sm sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
                 >
                   Link Job
                 </button>
