@@ -14,6 +14,7 @@ import {
 } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
+import NotFound from "./components/NotFound";
 
 const myCustomTheme = {
   blurs: {
@@ -93,6 +94,8 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<CreateJobPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="*" element={<NotFound />} />
+
               </Routes>
             </Layout>
           </Router>
