@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
-import { Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
-import WalletModal from '../components/WalletModal';
+import WalletModal from "../components/WalletModal";
+import talk from "../assets/talk.svg";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Helmet } from "react-helmet";
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -20,10 +23,23 @@ function DashboardPage() {
   const [isWalletInstalled, setIsWalletInstalled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
+  const [scrollToSection, setScrollToSection] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  if (!connected) {
+    toast.error("Please connect your wallet!");
+  }
+
+  const data = new Array(15).fill({
+    id: 1,
+    type: "Condition-based",
+    status: "Active",
+  }); // Example data with more than 7 rows
 
   useEffect(() => {
     const initializeProvider = () => {
-      if (typeof window.ethereum !== 'undefined') {
+      if (typeof window.ethereum !== "undefined") {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
         setProvider(ethProvider);
         setIsWalletInstalled(true);
@@ -35,7 +51,6 @@ function DashboardPage() {
 
     initializeProvider();
   }, []);
-
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -83,7 +98,7 @@ function DashboardPage() {
       console.log("Web3 provider not initialized");
       return;
     }
-    
+
     try {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
@@ -153,11 +168,13 @@ function DashboardPage() {
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
       }
     };
   }, [provider]); // Add provider to dependency array
-
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -328,7 +345,6 @@ function DashboardPage() {
     }
   }, [connected, provider]);
 
-
   const handleStake = async (e) => {
     e.preventDefault();
     try {
@@ -351,9 +367,12 @@ function DashboardPage() {
         throw new Error("Stake amount must be greater than zero.");
       }
 
-      const gasEstimate = await stakingContract.estimateGas.stake(stakeAmountInWei, {
-        value: stakeAmountInWei,
-      });
+      const gasEstimate = await stakingContract.estimateGas.stake(
+        stakeAmountInWei,
+        {
+          value: stakeAmountInWei,
+        }
+      );
       const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
 
       const tx = await stakingContract.stake(stakeAmountInWei, {
@@ -373,181 +392,169 @@ function DashboardPage() {
 
   useEffect(() => {
     // Check if MetaMask or any web3 wallet is installed
-    if (typeof window.ethereum === 'undefined') {
+    if (typeof window.ethereum === "undefined") {
       setIsWalletInstalled(false);
       setShowModal(true);
     }
   }, []);
 
-  if (!connected) {
-    return (
-      <div className="min-h-screen  text-white flex flex-col justify-center items-center">
-        <div className="bg-white/10 p-8 rounded-lg backdrop-blur-xl border border-white/10 max-w-md w-full mx-4">
-          <h2 className="text-2xl font-bold mb-4 text-center">
-            Wallet Not Connected
-          </h2>
-          <p className="text-gray-300 text-center mb-6">
-            Please connect your wallet to access the dashboard.
-          </p>
-          <div className="flex justify-center">
-            <Link to="/" className="px-6 py-3 bg-white rounded-lg text-black ">
-              Return Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen  flex justify-center items-center">
-        <div className="text-2xl">Loading...</div>
+        <div className="text-2xl">Fetching The Data....</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen  text-white">
+    <div>
+    <Helmet>
+    <meta property="og:title" content="TriggerX | Build" />
+    <meta property="og:description" content="Automate Tasks Effortlessly" />
+    <meta property="og:image" content="https://app.triggerx.network/dashboard/images/image.jpg" />
+    <meta property="og:url" content="https://app.triggerx.network/dashboard" />
+    <meta property="og:type" content="website" />
+  </Helmet>
+    <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed  pointer-events-none" />
 
-      {/* <div className="relative">
-        <div className="absolute inset-0 " />
-        <div className="container mx-auto px-6 py-6 relative">
-          <div className="flex justify-center ml-100">
-            <div className="flex items-center mb-4 mt-14">
-              <div>
-                <img src={logo} alt="Logo" />
-              </div>
-              <h1 className="text-4xl font-bold bg-clip-text text-white">
-                Dashboard
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      <div className="container mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+      <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
+        <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
+          <div className="lg:w-[70%] w-full">
+            <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Active Jobs
               </h2>
               {jobDetails.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
-                          ID
-                        </th>
-                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
-                          Type
-                        </th>
-                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left text-[#FFFFFF] font-bold text-lg">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {jobDetails.map((job) => (
-                        <tr key={job.id} className="border-b border-white/5">
-                          <td className="px-4 py-3 text-white text-md">
-                            {job.id}
-                          </td>
-                          <td className="px-4 py-3 text-white">{job.type}</td>
-                          <td className="px-4 py-3 text-white">
-                            <span className="px-3 py-1 rounded-md text-md bg-blue-500/20 text-white">
-                              {job.status}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 space-x-2 text-white">
-                            <button
-                              disabled
-                              className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-600 rounded-lg text-sm text-gray-400 cursor-not-allowed opacity-50"
-                            >
-                              Update
-                            </button>
-                            <button
-                              onClick={() => handleDeleteJob(job.id)}
-                              className="px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/20 transition-all duration-300"
-                            >
-                              Delete
-                            </button>
-                          </td>
+                  <div
+                    className="max-h-[650px] overflow-y-auto"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  >
+                    <table className="w-full border-separate border-spacing-y-4 ">
+                      <thead className="sticky top-0 bg-[#2A2A2A]">
+                        <tr>
+                          <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
+                            ID
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                            Type
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
+                            Status
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
+                            Actions
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {jobDetails.map((job) => (
+                          <tr key={job.id} className="  ">
+                            <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                              {job.id}
+                            </td>
+                            <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                              {job.type}
+                            </td>
+                            <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                              <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                {job.status}
+                              </span>
+                            </td>
+                            <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                              <button
+                                disabled
+                                className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                              >
+                                Update
+                              </button>
+                              <button
+                                onClick={() => handleDeleteJob(job.id)}
+                                className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ) : (
-                <h4 className="text-center py-8 text-[#A2A2A2]">
+                <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
                   No active jobs found. Create your first job to get started.
                 </h4>
               )}
             </div>
           </div>
 
-          <div className="space-y-8">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+          <div className="space-y-8 h-full lg:w-[25%] w-full">
+            <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+              <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
                 Your Balance
               </h3>
-              <div className="p-6 bg-white/5 rounded-lg border border-white/10">
-                <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
+              <div className="p-6 bg-[#242323] rounded-lg ">
+                <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
                   Total TG Balance
                 </p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
                   {tgBalance} TG
                 </p>
               </div>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <h3 className=" text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+            <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+              <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Quick Actions
               </h3>
-              <div className="space-y-4">
-                <button
-                  onClick={() => setStakeModalVisible(true)}
-                  className=" liquid-button2 block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
-                >
-                  Stake ETH
-                </button>
+              <div className="space-y-8  ">
+                <div className="my-5">
+                  <button
+                    onClick={() => setStakeModalVisible(true)}
+                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                  >
+                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                      Stake ETH
+                    </span>
+                  </button>
+                </div>
 
-                <Link
-                  to="/create-job"
-                  className=" liquid-button2 block w-full px-8 py-4 bg-white rounded-lg text-lg font-semibold text-center text-black"
-                >
-                  Create New Job
+                <Link to="/create-job">
+                  <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
+                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                      Create New Job
+                    </span>
+                  </button>
                 </Link>
               </div>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
+              <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Statistics
               </h3>
               <div className="space-y-4 text-gray-300">
-                <div className="flex justify-between items-center">
-                  <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
-                    Total Jobs
-                  </p>
-                  <p className="font-semibold text-white">
+                <div className="flex justify-start items-center gap-7">
+                  <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
                     {jobDetails.length}
                   </p>
+                  <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
+                    Total Jobs
+                  </p>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-start items-center gap-7">
+                  <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md">
+                    {jobDetails.filter((job) => job.status === "Active").length}
+                  </p>
                   <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
                     Active Jobs
-                  </p>
-                  <p className="font-semibold">
-                    {jobDetails.filter((job) => job.status === "Active").length}
                   </p>
                 </div>
               </div>
@@ -563,19 +570,28 @@ function DashboardPage() {
               Update Job
             </h2>
             <form onSubmit={handleJobEdit} className="space-y-6">
-              <div className="flex gap-4">
+              <div className="flex gap-4 justify-center">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                 >
-                  Save Changes
+                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                    Save Changes
+                  </span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setIsModalVisible(false)}
-                  className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
+                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
                 >
-                  Cancel
+                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                    Cancel
+                  </span>
                 </button>
               </div>
             </form>
@@ -601,19 +617,24 @@ function DashboardPage() {
                   placeholder="Enter ETH amount"
                 />
               </div>
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className=" liquid-button2 flex-1 px-6 py-3 bg-white rounded-lg text-black font-semibold"
-                >
-                  Stake
+              <div className="flex gap-4 justify-center">
+                <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
+                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                    Stake
+                  </span>
                 </button>
+
                 <button
-                  type="button"
                   onClick={() => setStakeModalVisible(false)}
-                  className=" liquid-button2 flex-1 px-6 py-3 bg-white/10 rounded-lg  hover:bg-white/20 "
+                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
                 >
-                  Cancel
+                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                    Cancel
+                  </span>
                 </button>
               </div>
             </form>
@@ -624,6 +645,7 @@ function DashboardPage() {
       {!isWalletInstalled && showModal && (
         <WalletModal onClose={() => setShowModal(false)} />
       )}
+    </div>
     </div>
   );
 }
