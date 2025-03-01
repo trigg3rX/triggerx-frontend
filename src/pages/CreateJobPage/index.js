@@ -1,288 +1,1133 @@
 //index.js
-import React, { useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { PageHeader } from "./components/PageHeader";
+import { useJobCreation } from "./hooks/useJobCreation";
+import { ChevronDown } from "lucide-react";
 import { TimeframeInputs } from "./components/TimeframeInputs";
+import { useTimeManagement } from "./hooks/useTimeManagement";
 import { TimeIntervalInputs } from "./components/TimeIntervalInputs";
 import { ContractDetails } from "./components/ContractDetails";
-import { FunctionArguments } from "./components/FunctionArguments";
-import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
-import { useTimeManagement } from "./hooks/useTimeManagement";
 import { useContractInteraction } from "./hooks/useContractInteraction";
-import { useStakeRegistry } from "./hooks/useStakeRegistry";
-import { useJobCreation } from "./hooks/useJobCreation";
-import Modal from "react-modal";
-// import { toast } from 'react-toastify';
-// import { ethers } from 'ethers';
-// import axios from 'axios';
-
-if (typeof window !== "undefined") {
-  Modal.setAppElement("#root");
-}
+import { FunctionArguments } from "./components/FunctionArguments";
+// import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
+// import { useStakeRegistry } from "./hooks/useStakeRegistry";
 
 function CreateJobPage() {
-  // Custom hooks
+  const [selectedNetwork, setSelectedNetwork] = useState("Optimism");
+  const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+  const [linkedJobs, setLinkedJobs] = useState({});
+  const [isEventOpen, setIsEventOpen] = useState(false);
+
+  // trigger option
+  const options = [
+    { value: "1", label: "Time-based Trigger", icon: "\u23F0" },
+    {
+      value: "2",
+      label: "Condition-based Trigger",
+      icon: "⚡",
+    },
+    {
+      value: "3",
+      label: "Event-based Trigger",
+      icon: "\u2737",
+    },
+  ];
+
+  const networks = ["Optimism", "Base"];
+
+  const networkIcons = {
+    Optimism: (
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28ZM12.5021 19.1895C11.7876 19.1895 11.2022 19.0214 10.7458 18.6851C10.2955 18.3429 10.0703 17.8565 10.0703 17.2261C10.0703 17.094 10.0853 16.9318 10.1153 16.7397C10.1934 16.3074 10.3045 15.788 10.4486 15.1816C10.8569 13.5304 11.9107 12.7048 13.6099 12.7048C14.0723 12.7048 14.4866 12.7828 14.8528 12.9389C15.2191 13.089 15.5073 13.3172 15.7175 13.6234C15.9276 13.9236 16.0327 14.2839 16.0327 14.7042C16.0327 14.8303 16.0177 14.9894 15.9877 15.1816C15.8976 15.7159 15.7895 16.2353 15.6634 16.7397C15.4533 17.5623 15.09 18.1778 14.5736 18.586C14.0572 18.9883 13.3668 19.1895 12.5021 19.1895ZM12.6282 17.8925C12.9645 17.8925 13.2496 17.7935 13.4838 17.5953C13.724 17.3972 13.8951 17.094 13.9972 16.6857C14.1353 16.1212 14.2404 15.6289 14.3125 15.2086C14.3365 15.0825 14.3485 14.9534 14.3485 14.8213C14.3485 14.2749 14.0632 14.0017 13.4929 14.0017C13.1566 14.0017 12.8684 14.1007 12.6282 14.2989C12.394 14.4971 12.2259 14.8003 12.1238 15.2086C12.0158 15.6109 11.9077 16.1032 11.7996 16.6857C11.7756 16.8057 11.7636 16.9318 11.7636 17.0639C11.7636 17.6164 12.0518 17.8925 12.6282 17.8925ZM16.2939 19.0362C16.3299 19.0782 16.381 19.0993 16.447 19.0993H17.6719C17.7319 19.0993 17.789 19.0782 17.843 19.0362C17.897 18.9941 17.9301 18.9401 17.9421 18.8741L18.3564 16.9016H19.5723C20.3589 16.9016 20.9773 16.7365 21.4277 16.4063C21.884 16.076 22.1872 15.5656 22.3373 14.8751C22.3734 14.713 22.3914 14.5569 22.3914 14.4068C22.3914 13.8844 22.1872 13.4851 21.7789 13.2089C21.3766 12.9327 20.8422 12.7946 20.1757 12.7946H17.78C17.7199 12.7946 17.6629 12.8156 17.6088 12.8576C17.5548 12.8997 17.5218 12.9537 17.5098 13.0198L16.2669 18.8741C16.2549 18.9341 16.2638 18.9881 16.2939 19.0362ZM20.2928 15.4515C20.1067 15.5896 19.8875 15.6587 19.6354 15.6587H18.5996L18.9418 14.0465H20.0226C20.2688 14.0465 20.4429 14.0945 20.545 14.1906C20.6471 14.2807 20.6981 14.4128 20.6981 14.5869C20.6981 14.665 20.6891 14.755 20.6711 14.8571C20.6111 15.1153 20.485 15.3134 20.2928 15.4515Z"
+          fill="currentColor"
+        ></path>
+      </svg>
+    ),
+    Base: (
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M7.98995 14C11.3092 14 14 11.3137 14 8C14 4.6863 11.3092 2 7.98995 2C4.84104 2 2.25776 4.41765 2.0009 7.49506H10.9195V8.49416H2C2.25171 11.5767 4.83736 14 7.98995 14Z"
+          fill="currentColor"
+        ></path>
+      </svg>
+    ),
+  };
+
+  const handleLinkJob = (jobType) => {
+    setLinkedJobs((prevJobs) => {
+      const existingJobs = prevJobs[jobType] || []; // Get existing jobs for the selected job type
+      if (existingJobs.length < 3) {
+        // Limit to 3 linked jobs per type
+        return {
+          ...prevJobs,
+          [jobType]: [...existingJobs, existingJobs.length + 1], // Add a new linked job
+        };
+      }
+      return prevJobs; // Do nothing if the limit is reached
+    });
+  };
+
   const {
-    timeframe,
+    timeframes,
+    handleTimeframeChange,
     timeframeInSeconds,
     timeInterval,
     intervalInSeconds,
-    handleTimeframeChange,
     handleTimeIntervalChange,
   } = useTimeManagement();
 
   const {
-    contractAddress,
-    contractABI,
-    functions,
-    targetFunction,
-    selectedFunction,
-    functionInputs,
-    argumentsInBytes,
-    argsArray,
-    handleContractAddressChange,
-    handleFunctionChange,
-    handleInputChange,
-    argumentType,
-    handleArgumentTypeChange,
-  } = useContractInteraction();
-
-  const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
-    useStakeRegistry();
-
-  const {
     jobType,
-    estimatedFee,
-    userBalance,
-    isModalOpen,
-    ethAmount,
-    code_url,
     setJobType,
-    setIsModalOpen,
+    codeUrls,
     handleCodeUrlChange,
-    estimateFee,
-    handleSubmit,
-    scriptFunction,
-    handleScriptFunctionChange,
+    // estimatedFee,
+    // userBalance,
+    // isModalOpen,
+    //     // ethAmount,
+    // setIsModalOpen,
+    // estimateFee,
+    // handleSubmit,
+    //     scriptFunction,
+    //     handleScriptFunctionChange,
   } = useJobCreation();
 
-  // Logo animation
-  const logoRef = useRef(null);
-  useEffect(() => {
-    const logo = logoRef.current;
-    if (logo) {
-      logo.style.transform = "rotateY(0deg)";
-      logo.style.transition = "transform 1s ease-in-out";
+  // const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
+  //   useStakeRegistry();
 
-      const rotateLogo = () => {
-        logo.style.transform = "rotateY(360deg)";
-        setTimeout(() => {
-          logo.style.transform = "rotateY(0deg)";
-        }, 1000);
-      };
+  const timeContractInteraction = useContractInteraction(1);
+  const time1ContractInteraction = useContractInteraction(1_1);
+  const time2ContractInteraction = useContractInteraction(1_2);
+  const time3ContractInteraction = useContractInteraction(1_3);
 
-      const interval = setInterval(rotateLogo, 5000);
-      return () => clearInterval(interval);
-    }
-  }, []);
+  const conditionContractInteraction = useContractInteraction(2);
+  const condition1ContractInteraction = useContractInteraction(2_1);
+  const condition2ContractInteraction = useContractInteraction(2_2);
+  const condition3ContractInteraction = useContractInteraction(2_3);
 
-  const handleFormSubmit = async (e) => {
+  const eventFunctionContractInteraction = useContractInteraction(3);
+  const eventFunction1ContractInteraction = useContractInteraction(3_1);
+  const eventFunction2ContractInteraction = useContractInteraction(3_2);
+  const eventFunction3ContractInteraction = useContractInteraction(3_3);
+
+  // const eventContractInteraction = useContractInteraction(4);
+
+  // const handleFormSubmit = async (e, jobType) => {
+  //   e.preventDefault();
+
+  //   // Mapping jobType to corresponding contract interaction
+  //   const contractInteractionMap = {
+  //     1: timeContractInteraction,
+  //     2: conditionContractInteraction,
+  //     3: eventFunctionContractInteraction,
+  //   };
+
+  //   const selectedContract = contractInteractionMap[jobType];
+
+  //   if (!selectedContract) {
+  //     console.error("Invalid job type selected:", jobType);
+  //     return;
+  //   }
+
+  //   // Get linked job if available
+  //   const linkedJob = linkedJobs[jobType]?.length ? linkedJobs[jobType] : null;
+
+  //   console.log("Estimating fee with params:", {
+  //     contractAddress: selectedContract.contractAddress,
+  //     hasABI: !!selectedContract.contractABI,
+  //     targetFunction: selectedContract.targetFunction,
+  //     argsArray: selectedContract.argsArray,
+  //     timeframeInSeconds,
+  //     intervalInSeconds,
+  //     linkedJob, // Logging the linked job as well
+  //   });
+
+  //   // Estimate the fee using the selected contract interaction
+  //   // await estimateFee(
+  //   //   selectedContract.contractAddress,
+  //   //   selectedContract.contractABI,
+  //   //   selectedContract.targetFunction,
+  //   //   selectedContract.argsArray,
+  //   //   timeframeInSeconds,
+  //   //   intervalInSeconds,
+  //   //   linkedJob // Pass linked job if needed in estimateFee
+  //   // );
+
+  //   // handleSubmit will be called later through the modal's onStake
+  // }
+
+  const handleFormSubmit = async (e, jobType) => {
     e.preventDefault();
 
-    console.log("Estimating fee with params:", {
-      contractAddress,
-      hasABI: !!contractABI,
-      targetFunction,
-      argsArray,
+    // Mapping jobType to corresponding contract interaction
+    const contractInteractionMap = {
+      1: timeContractInteraction,
+      2: conditionContractInteraction,
+      3: eventFunctionContractInteraction,
+    };
+
+    const linkedJobsMap = {
+      1: [time1ContractInteraction, time2ContractInteraction, time3ContractInteraction],
+      2: [condition1ContractInteraction, condition2ContractInteraction, condition3ContractInteraction],
+      3: [eventFunction1ContractInteraction, eventFunction2ContractInteraction, eventFunction3ContractInteraction],
+    };
+
+    const selectedContract = contractInteractionMap[jobType];
+
+    if (!selectedContract) {
+      console.error("Invalid job type selected:", jobType);
+      return;
+    }
+
+    // Construct an array of contract addresses (main job + linked jobs if available)
+    const jobDetails = [
+      selectedContract,
+      ...(linkedJobsMap[jobType] || [])
+    ]
+    .filter(Boolean) // Remove any undefined/null values
+    .map(job => ({
+      contractAddress: job.contractAddress,
+      hasABI: !!job.contractABI,
+      targetFunction: job.targetFunction,
+      argsArray: job.argsArray,
       timeframeInSeconds,
       intervalInSeconds,
-    });
+    }));
 
-    // First estimate the fee
-    await estimateFee(
-      contractAddress,
-      contractABI,
-      targetFunction,
-      argsArray,
-      timeframeInSeconds,
-      intervalInSeconds
-    );
+    console.log("jobdetails", jobDetails)
+
+    // Estimate the fee using the selected contract interaction
+    // await estimateFee(
+    //   jobAddresses, // Pass the array of contract addresses
+    //   timeframeInSeconds,
+    //   intervalInSeconds
+    // );
 
     // handleSubmit will be called later through the modal's onStake
-  };
+};
+
 
   return (
-    <div className="min-h-screen  text-white pt-32 pb-20">
+    <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
 
-      <div className="container mx-auto px-6 relative">
+      <div className="mx-auto px-6 relative">
         <PageHeader />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Info Panels*/}
-          <div className="lg:col-span-1 space-y-8">
-            <div className="bg-[#141414]  rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                About Keeper Network
-              </h3>
-              <h4 className="text-[#A2A2A2] leading-relaxed text-md">
-                Keeper Network is an innovative decentralized network of nodes
-                that automate smart contract executions and maintenance tasks on
-                various blockchain networks. It ensures that critical operations
-                are performed reliably and on time.
-              </h4>
-            </div>
-
-            <div className="bg-[#141414]  backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <div className="relative font-semibold">
-                <h1 className="text-2xl relative  pb-5">
-                  Why Choose
-                  <span className="relative text-[#C07AF6] py-2 px-4 ml-3 font-bold">
-                    TriggerX ?{/* Decorative Elements */}
-                    <div className="absolute inset-0 border-2 border-transparent pointer-events-none">
-                      {/* Top Left Corner */}
-                      <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-[#C07AF6] rounded-tl-md"></div>
-                      {/* Bottom Right Corner */}
-                      <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-[#C07AF6] rounded-br-md"></div>
-                    </div>
-                  </span>
-                </h1>
-              </div>
-              <ul className="space-y-3 text-[#A2A2A2]">
-                {[
-                  "Advanced cross-chain automation",
-                  "Seamless integration with Ethereum network",
-                  "User-friendly interface",
-                  "Reliable and secure execution",
-                  "Customizable parameters",
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#FFFFFF]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Form Section - Right Side */}
-          <div className="lg:col-span-2">
-            <div className="bg-[#141414]  backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-              <form onSubmit={handleFormSubmit} className="space-y-8">
-                {/* Job Type Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Job Type
-                  </label>
-                  <select
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
-                    className="w-full bg-[#141414] border border-white/10  rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/20 transition-all duration-300"
-                    required
+        <div className="w-full lg:w-[80%] max-w-[1600px] mx-auto">
+          <div className="space-y-8">
+            {/* Job Type Selection */}
+            <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
+              <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
+                Trigger Type
+              </label>
+              <div className="flex flex-wrap md:flex-nowrap gap-4 justify-between w-[95%] mx-auto">
+                {options.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      if (!option.disabled) {
+                        setJobType(option.value);
+                      }
+                    }}
+                    className="text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 bg-white/5 border border-white/10 text-xs xs:text-base"
                   >
-                    <option value="0">Select job type</option>
-                    <option value="1">Time-based</option>
-                    <option value="2" disabled>
-                      Event-based
-                    </option>
-                    <option value="3" disabled>
-                      Condition-based
-                    </option>
-                  </select>
+                    <div
+                      className={`${
+                        Number(option.value) === jobType ? "bg-white" : ""
+                      } absolute top-2 left-2 rounded-full w-2.5 h-2.5 border`}
+                    ></div>
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
+              {/* network */}
+              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
+                  Network
+                </label>
+                <div className="relative w-full md:w-[70%] xl:w-[80%]">
+                  <div
+                    className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center gap-5"
+                    onClick={() => setIsNetworkOpen(!isNetworkOpen)}
+                  >
+                    <div className="w-6 h-6 text-xs xs:text-sm sm:text-base">
+                      {networkIcons[selectedNetwork]}
+                    </div>
+                    {selectedNetwork}
+                    <ChevronDown className="absolute top-3 right-4 text-white text-xs" />
+                  </div>
+                  {isNetworkOpen && (
+                    <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
+                      {networks.map((network) => (
+                        <div
+                          key={network}
+                          className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg flex items-center gap-5 text-xs xs:text-sm sm:text-base"
+                          onClick={() => {
+                            setSelectedNetwork(network);
+                            setIsNetworkOpen(false);
+                          }}
+                        >
+                          <div className="w-6 h-6">{networkIcons[network]}</div>
+                          {network}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Time Management */}
-                <TimeframeInputs
-                  timeframe={timeframe}
-                  onTimeframeChange={handleTimeframeChange}
-                />
+              {/* Time Management */}
+              <TimeframeInputs
+                timeframe={
+                  timeframes[jobType] || { years: 0, months: 0, days: 0 }
+                }
+                onTimeframeChange={(field, value) =>
+                  handleTimeframeChange(jobType, field, value)
+                }
+              />
 
+              {jobType === 1 && (
                 <TimeIntervalInputs
                   timeInterval={timeInterval}
                   onTimeIntervalChange={handleTimeIntervalChange}
                 />
+              )}
 
-                {/* Contract Details */}
-                <ContractDetails
-                  contractAddress={contractAddress}
-                  contractABI={contractABI}
-                  targetFunction={targetFunction}
-                  functions={functions}
-                  onContractAddressChange={handleContractAddressChange}
-                  onFunctionChange={handleFunctionChange}
-                  argumentType={argumentType}
-                  onArgumentTypeChange={handleArgumentTypeChange}
-                />
-
-                {/* Function Arguments */}
-                <FunctionArguments
-                  selectedFunction={selectedFunction}
-                  functionInputs={functionInputs}
-                  onInputChange={handleInputChange}
-                  argumentType={argumentType}
-                />
-
-                {/* Code URL Input */}
-                <div className="space-y-6">
-                  <div>
-                    <label
-                      htmlFor="code_url"
-                      className="block text-sm font-medium text-gray-300 mb-2"
-                    >
-                      Code URL (or IPFS CID)
+              {/* {jobType === 3 && (
+                <>
+                  <div className="relative flex items-center justify-between gap-6">
+                    <label className="block text-base font-medium text-gray-300 w-[20%]">
+                      Event Contract Address
                     </label>
                     <input
-                      id="code_url"
-                      value={code_url}
-                      onChange={(e) => {
-                        handleCodeUrlChange(e);
-                      }}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
-                      placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                      type="text"
+                      id="contractAddress"
+                      value={eventContractInteraction.contractAddress}
+                      onChange={
+                        eventContractInteraction.handleContractAddressChange
+                      }
+                      placeholder="Your Contract address"
+                      className="w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
+                      required
                     />
-                    <h4 className="mt-2 text-sm text-gray-400">
-                      Provide an IPFS URL or CIDwhere your code is stored.
+                  </div>
+                  <div className="flex items-center justify-between gap-6">
+                    <h4 className="block text-base font-medium text-gray-300 text-nowrap">
+                      Contract ABI
                     </h4>
                   </div>
-                </div>
+                  {eventContractInteraction.contractAddress && (
+                    <>
+                      <div className="flex items-center justify-between gap-6">
+                        <label
+                          htmlFor="targetEvent"
+                          className="block text-base font-medium text-gray-300 text-nowrap"
+                        >
+                          Target event
+                        </label>
 
-                {/* Script Function Input */}
-                <div>
-                  <label
-                    htmlFor="script_function"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Script Function Name
-                  </label>
-                  <input
-                    id="script_function"
-                    value={scriptFunction}
-                    onChange={handleScriptFunctionChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
-                    placeholder="Enter the script function name"
+                        <div className="relative w-[70%] xl:w-[80%] z-50">
+                          <div
+                            className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
+                            onClick={() => setIsEventOpen(!isEventOpen)}
+                          >
+                            {eventContractInteraction.targetEvent ||
+                              "Select an event"}
+                            <ChevronDown className="text-white text-xs" />
+                          </div>
+                          {isEventOpen && (
+                            <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
+                              {eventContractInteraction.events.map(
+                                (func, index) => {
+                                  const signature = `${func.name}(${func.inputs
+                                    .map((input) => input.type)
+                                    .join(",")})`;
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg"
+                                      onClick={() => {
+                                        eventContractInteraction.handleEventChange(
+                                          {
+                                            target: { value: signature },
+                                          }
+                                        );
+                                        setIsEventOpen(false);
+                                      }}
+                                    >
+                                      {signature}
+                                    </div>
+                                  );
+                                }
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {eventContractInteraction.events.length === 0 &&
+                        eventContractInteraction.contractAddress && (
+                          <h4 className="w-[67%] xl:w-[78%] ml-auto  text-sm text-yellow-400">
+                            No writable events found. Make sure the contract is
+                            verified on Blockscout / Etherscan.
+                          </h4>
+                        )}
+                    </>
+                  )}
+                </>
+              )} */}
+
+              {jobType === 1 && (
+                <>
+                  <ContractDetails
+                    contractAddress={timeContractInteraction.contractAddress}
+                    contractABI={timeContractInteraction.contractABI}
+                    targetFunction={timeContractInteraction.targetFunction}
+                    functions={timeContractInteraction.functions}
+                    onContractAddressChange={
+                      timeContractInteraction.handleContractAddressChange
+                    }
+                    onFunctionChange={
+                      timeContractInteraction.handleFunctionChange
+                    }
+                    argumentType={timeContractInteraction.argumentType}
+                    onArgumentTypeChange={
+                      timeContractInteraction.handleArgumentTypeChange
+                    }
                   />
-                  <h4 className="mt-2 text-sm text-gray-400">
-                    Provide the name of the function to be executed in your
-                    script
-                  </h4>
-                </div>
+                  {timeContractInteraction.contractAddress && (
+                    <FunctionArguments
+                      selectedFunction={
+                        timeContractInteraction.selectedFunction
+                      }
+                      functionInputs={timeContractInteraction.functionInputs}
+                      onInputChange={timeContractInteraction.handleInputChange}
+                      argumentType={timeContractInteraction.argumentType}
+                    />
+                  )}
+                </>
+              )}
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className=" liquid-button2  px-8 py-4 bg-white rounded-lg text-lg font-semibold  transition-all duration-300 flex items-center justify-center gap-2 text-black"
+              {jobType === 2 && (
+                <>
+                  <ContractDetails
+                    contractAddress={
+                      conditionContractInteraction.contractAddress
+                    }
+                    contractABI={conditionContractInteraction.contractABI}
+                    targetFunction={conditionContractInteraction.targetFunction}
+                    functions={conditionContractInteraction.functions}
+                    onContractAddressChange={
+                      conditionContractInteraction.handleContractAddressChange
+                    }
+                    onFunctionChange={
+                      conditionContractInteraction.handleFunctionChange
+                    }
+                    argumentType={conditionContractInteraction.argumentType}
+                    onArgumentTypeChange={
+                      conditionContractInteraction.handleArgumentTypeChange
+                    }
+                  />
+                  {conditionContractInteraction.contractAddress && (
+                    <FunctionArguments
+                      selectedFunction={
+                        conditionContractInteraction.selectedFunction
+                      }
+                      functionInputs={
+                        conditionContractInteraction.functionInputs
+                      }
+                      onInputChange={
+                        conditionContractInteraction.handleInputChange
+                      }
+                      argumentType={conditionContractInteraction.argumentType}
+                    />
+                  )}
+                </>
+              )}
+
+              {jobType === 3 && (
+                <>
+                  <ContractDetails
+                    contractAddress={
+                      eventFunctionContractInteraction.contractAddress
+                    }
+                    contractABI={eventFunctionContractInteraction.contractABI}
+                    targetFunction={
+                      eventFunctionContractInteraction.targetFunction
+                    }
+                    functions={eventFunctionContractInteraction.functions}
+                    onContractAddressChange={
+                      eventFunctionContractInteraction.handleContractAddressChange
+                    }
+                    onFunctionChange={
+                      eventFunctionContractInteraction.handleFunctionChange
+                    }
+                    argumentType={eventFunctionContractInteraction.argumentType}
+                    onArgumentTypeChange={
+                      eventFunctionContractInteraction.handleArgumentTypeChange
+                    }
+                  />
+
+                  {eventFunctionContractInteraction.contractAddress && (
+                    <>
+                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label
+                          htmlFor="targetEvent"
+                          className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                        >
+                          Target event
+                        </label>
+
+                        <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
+                          <div
+                            className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
+                            onClick={() => setIsEventOpen(!isEventOpen)}
+                          >
+                            {eventFunctionContractInteraction.targetEvent ||
+                              "Select an event"}
+                            <ChevronDown className="text-white text-xs" />
+                          </div>
+                          {isEventOpen && (
+                            <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
+                              {eventFunctionContractInteraction.events.map(
+                                (func, index) => {
+                                  const signature = `${func.name}(${func.inputs
+                                    .map((input) => input.type)
+                                    .join(",")})`;
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg text-xs xs:text-sm sm:text-base"
+                                      onClick={() => {
+                                        eventFunctionContractInteraction.handleEventChange(
+                                          {
+                                            target: { value: signature },
+                                          }
+                                        );
+                                        setIsEventOpen(false);
+                                      }}
+                                    >
+                                      {signature}
+                                    </div>
+                                  );
+                                }
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {eventFunctionContractInteraction.events.length === 0 &&
+                        eventFunctionContractInteraction.contractAddress && (
+                          <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs xs:text-sm text-yellow-400">
+                            No writable events found. Make sure the contract is
+                            verified on Blockscout / Etherscan.
+                          </h4>
+                        )}
+                    </>
+                  )}
+                  {eventFunctionContractInteraction.contractAddress && (
+                    <FunctionArguments
+                      selectedFunction={
+                        eventFunctionContractInteraction.selectedFunction
+                      }
+                      functionInputs={
+                        eventFunctionContractInteraction.functionInputs
+                      }
+                      onInputChange={
+                        eventFunctionContractInteraction.handleInputChange
+                      }
+                      argumentType={
+                        eventFunctionContractInteraction.argumentType
+                      }
+                    />
+                  )}
+                </>
+              )}
+
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <label
+                  htmlFor={jobType + "_code_url"}
+                  className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
                 >
-                  Create Job
+                  IPFS Code URL
+                </label>
+
+                <input
+                  id={jobType + "_code_url"}
+                  value={codeUrls[jobType]?.main || ""}
+                  onChange={(e) => {
+                    handleCodeUrlChange(e, jobType);
+                  }}
+                  className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
+                  placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                />
+              </div>
+
+              <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto mt-0 text-xs text-gray-400">
+                Provide an IPFS URL or CID, where your code is stored.
+              </h4>
+            </div>
+
+            {linkedJobs[jobType]?.length > 0 && (
+              <div className="space-y-8">
+                {linkedJobs[jobType].map((jobId) => (
+                  <div
+                    key={jobId}
+                    className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8"
+                  >
+                    <p className="w-full text-center py-4 underline underline-offset-4">
+                      Linked Job {jobId}
+                    </p>
+
+                    <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                      <label className="block text-sm sm:text-base font-medium text-gray-300">
+                        Network
+                      </label>
+                      <div className="relative w-full md:w-[70%] xl:w-[80%]">
+                        <div className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5">
+                          <div className="w-6 h-6">
+                            {networkIcons[selectedNetwork]}
+                          </div>
+                          {selectedNetwork}
+                        </div>
+                      </div>
+                    </div>
+                    {jobType === 1 && jobId === 1 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {timeContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 1 && jobId === 2 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {time1ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 1 && jobId === 3 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {time2ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+
+                    {jobType === 2 && jobId === 1 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {conditionContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 2 && jobId === 2 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {condition1ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 2 && jobId === 3 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {condition2ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+
+                    {jobType === 3 && jobId === 1 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {eventFunctionContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 3 && jobId === 2 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {eventFunction1ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+                    {jobType === 3 && jobId === 3 && (
+                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label className="block text-sm sm:text-base font-medium text-gray-300">
+                          Trigger Function
+                        </label>
+                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                          {eventFunction2ContractInteraction.targetFunction}
+                        </div>
+                      </div>
+                    )}
+
+                    {jobType === 1 && (
+                      <>
+                        <ContractDetails
+                          contractAddress={
+                            jobId === 1
+                              ? time1ContractInteraction.contractAddress
+                              : jobId === 2
+                              ? time2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? time3ContractInteraction.contractAddress
+                              : ""
+                          }
+                          contractABI={
+                            jobId === 1
+                              ? time1ContractInteraction.contractABI
+                              : jobId === 2
+                              ? time2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? time3ContractInteraction.contractABI
+                              : []
+                          }
+                          targetFunction={
+                            jobId === 1
+                              ? time1ContractInteraction.targetFunction
+                              : jobId === 2
+                              ? time2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? time3ContractInteraction.targetFunction
+                              : ""
+                          }
+                          functions={
+                            jobId === 1
+                              ? time1ContractInteraction.functions
+                              : jobId === 2
+                              ? time2ContractInteraction.functions
+                              : jobId === 3
+                              ? time3ContractInteraction.functions
+                              : []
+                          }
+                          onContractAddressChange={
+                            jobId === 1
+                              ? time1ContractInteraction.handleContractAddressChange
+                              : jobId === 2
+                              ? time2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleContractAddressChange
+                              : () => {}
+                          }
+                          onFunctionChange={
+                            jobId === 1
+                              ? time1ContractInteraction.handleFunctionChange
+                              : jobId === 2
+                              ? time2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleFunctionChange
+                              : () => {}
+                          }
+                          argumentType={
+                            jobId === 1
+                              ? time1ContractInteraction.argumentType
+                              : jobId === 2
+                              ? time2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? time3ContractInteraction.argumentType
+                              : ""
+                          }
+                          onArgumentTypeChange={
+                            jobId === 1
+                              ? time1ContractInteraction.handleArgumentTypeChange
+                              : jobId === 2
+                              ? time2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
+                          }
+                        />
+                        {jobId === 1 &&
+                          time1ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                time1ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                time1ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                time1ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                time1ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 2 &&
+                          time2ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                time2ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                time2ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                time2ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                time2ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 3 &&
+                          time3ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                time3ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                time3ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                time3ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                time3ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                      </>
+                    )}
+
+                    {jobType === 2 && (
+                      <>
+                        <ContractDetails
+                          contractAddress={
+                            jobId === 1
+                              ? condition1ContractInteraction.contractAddress
+                              : jobId === 2
+                              ? condition2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? condition3ContractInteraction.contractAddress
+                              : ""
+                          }
+                          contractABI={
+                            jobId === 1
+                              ? condition1ContractInteraction.contractABI
+                              : jobId === 2
+                              ? condition2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? condition3ContractInteraction.contractABI
+                              : []
+                          }
+                          targetFunction={
+                            jobId === 1
+                              ? condition1ContractInteraction.targetFunction
+                              : jobId === 2
+                              ? condition2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? condition3ContractInteraction.targetFunction
+                              : ""
+                          }
+                          functions={
+                            jobId === 1
+                              ? condition1ContractInteraction.functions
+                              : jobId === 2
+                              ? condition2ContractInteraction.functions
+                              : jobId === 3
+                              ? condition3ContractInteraction.functions
+                              : []
+                          }
+                          onContractAddressChange={
+                            jobId === 1
+                              ? condition1ContractInteraction.handleContractAddressChange
+                              : jobId === 2
+                              ? condition2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleContractAddressChange
+                              : () => {}
+                          }
+                          onFunctionChange={
+                            jobId === 1
+                              ? condition1ContractInteraction.handleFunctionChange
+                              : jobId === 2
+                              ? condition2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleFunctionChange
+                              : () => {}
+                          }
+                          argumentType={
+                            jobId === 1
+                              ? condition1ContractInteraction.argumentType
+                              : jobId === 2
+                              ? condition2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? condition3ContractInteraction.argumentType
+                              : ""
+                          }
+                          onArgumentTypeChange={
+                            jobId === 1
+                              ? condition1ContractInteraction.handleArgumentTypeChange
+                              : jobId === 2
+                              ? condition2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
+                          }
+                        />
+                        {jobId === 1 &&
+                          condition1ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                condition1ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                condition1ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                condition1ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                condition1ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 2 &&
+                          condition2ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                condition2ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                condition2ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                condition2ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                condition2ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 3 &&
+                          condition3ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                condition3ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                condition3ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                condition3ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                condition3ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                      </>
+                    )}
+
+                    {jobType === 3 && (
+                      <>
+                        <ContractDetails
+                          contractAddress={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.contractAddress
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.contractAddress
+                              : ""
+                          }
+                          contractABI={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.contractABI
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.contractABI
+                              : []
+                          }
+                          targetFunction={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.targetFunction
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.targetFunction
+                              : ""
+                          }
+                          functions={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.functions
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.functions
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.functions
+                              : []
+                          }
+                          onContractAddressChange={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.handleContractAddressChange
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleContractAddressChange
+                              : () => {}
+                          }
+                          onFunctionChange={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.handleFunctionChange
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleFunctionChange
+                              : () => {}
+                          }
+                          argumentType={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.argumentType
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.argumentType
+                              : ""
+                          }
+                          onArgumentTypeChange={
+                            jobId === 1
+                              ? eventFunction1ContractInteraction.handleArgumentTypeChange
+                              : jobId === 2
+                              ? eventFunction2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
+                          }
+                        />
+                        {jobId === 1 &&
+                          eventFunction1ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                eventFunction1ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                eventFunction1ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                eventFunction1ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                eventFunction1ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 2 &&
+                          eventFunction2ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                eventFunction2ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                eventFunction2ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                eventFunction2ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                eventFunction2ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                        {jobId === 3 &&
+                          eventFunction3ContractInteraction.contractAddress && (
+                            <FunctionArguments
+                              selectedFunction={
+                                eventFunction3ContractInteraction.selectedFunction
+                              }
+                              functionInputs={
+                                eventFunction3ContractInteraction.functionInputs
+                              }
+                              onInputChange={
+                                eventFunction3ContractInteraction.handleInputChange
+                              }
+                              argumentType={
+                                eventFunction3ContractInteraction.argumentType
+                              }
+                            />
+                          )}
+                      </>
+                    )}
+
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                      <label
+                        htmlFor={jobType + "_" + jobId + "_code_url"}
+                        className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                      >
+                        IPFS Code URL
+                      </label>
+                      <input
+                        id={jobType + "_" + jobId + "_code_url"}
+                        value={codeUrls[jobType]?.[jobId] || ""}
+                        onChange={(e) => handleCodeUrlChange(e, jobType, jobId)}
+                        className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
+                        placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-center gap-2 mx-auto">
+              <button
+                onClick={(e) => handleFormSubmit(e, jobType)}
+                className="px-10 py-3 bg-white hover:translate-y-1 rounded-full text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+              >
+                Create Job
+              </button>
+              {(linkedJobs[jobType]?.length ?? 0) < 3 && (
+                <button
+                  onClick={() => handleLinkJob(jobType)}
+                  className="px-10 py-3 bg-white hover:translate-y-1 rounded-full text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                >
+                  Link Job
                 </button>
-              </form>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Estimated Fee Modal */}
-      <EstimatedFeeModal
+      {/* <EstimatedFeeModal
         isOpen={isModalOpen}
         onClose={() => {
           console.log("Closing fee modal");
@@ -310,7 +1155,7 @@ function CreateJobPage() {
           );
         }}
         userBalance={userBalance}
-      />
+      /> */}
     </div>
   );
 }
