@@ -71,7 +71,7 @@ function CreateJobPage() {
   };
 
   const {
-    timeframes,
+    timeframe,
     handleTimeframeChange,
     timeframeInSeconds,
     timeInterval,
@@ -192,6 +192,7 @@ function CreateJobPage() {
       .map(job => ({
         contractAddress: job.contractAddress,
         hasABI: !!job.contractABI,
+        contractABI: job.contractABI,
         targetFunction: job.targetFunction,
         argsArray: job.argsArray,
         timeframeInSeconds,
@@ -204,7 +205,7 @@ function CreateJobPage() {
     const totalEstimatedFee = await Promise.all(jobDetails.map(async (job) => {
       const fee = await estimateFee(
         job.contractAddress,
-        job.hasABI ? job.contractABI : null,
+        job.contractABI,
         job.targetFunction,
         job.argsArray,
         job.timeframeInSeconds,
@@ -300,14 +301,20 @@ function CreateJobPage() {
               </div>
 
               {/* Time Management */}
-              <TimeframeInputs
+              {/* <TimeframeInputs
                 timeframe={
                   timeframes[jobType] || { years: 0, months: 0, days: 0 }
                 }
                 onTimeframeChange={(field, value) =>
                   handleTimeframeChange(jobType, field, value)
                 }
+              /> */}
+
+              <TimeframeInputs
+                timeframe={timeframe}
+                onTimeframeChange={handleTimeframeChange}
               />
+
 
               {jobType === 1 && (
                 <TimeIntervalInputs
