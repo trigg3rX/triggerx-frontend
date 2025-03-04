@@ -9,14 +9,46 @@ import { TimeIntervalInputs } from "./components/TimeIntervalInputs";
 import { ContractDetails } from "./components/ContractDetails";
 import { useContractInteraction } from "./hooks/useContractInteraction";
 import { FunctionArguments } from "./components/FunctionArguments";
-// import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
-// import { useStakeRegistry } from "./hooks/useStakeRegistry";
+import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
+import { useStakeRegistry } from "./hooks/useStakeRegistry";
+import { useAccount } from "wagmi";
+import { optimism, base } from 'wagmi/chains';
+
+const networkIcons = {
+  [optimism.name]: (
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Optimism SVG path */}
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28ZM12.5021 19.1895C11.7876 19.1895 11.2022 19.0214 10.7458 18.6851C10.2955 18.3429 10.0703 17.8565 10.0703 17.2261C10.0703 17.094 10.0853 16.9318 10.1153 16.7397C10.1934 16.3074 10.3045 15.788 10.4486 15.1816C10.8569 13.5304 11.9107 12.7048 13.6099 12.7048C14.0723 12.7048 14.4866 12.7828 14.8528 12.9389C15.2191 13.089 15.5073 13.3172 15.7175 13.6234C15.9276 13.9236 16.0327 14.2839 16.0327 14.7042C16.0327 14.8303 16.0177 14.9894 15.9877 15.1816C15.8976 15.7159 15.7895 16.2353 15.6634 16.7397C15.4533 17.5623 15.09 18.1778 14.5736 18.586C14.0572 18.9883 13.3668 19.1895 12.5021 19.1895ZM12.6282 17.8925C12.9645 17.8925 13.2496 17.7935 13.4838 17.5953C13.724 17.3972 13.8951 17.094 13.9972 16.6857C14.1353 16.1212 14.2404 15.6289 14.3125 15.2086C14.3365 15.0825 14.3485 14.9534 14.3485 14.8213C14.3485 14.2749 14.0632 14.0017 13.4929 14.0017C13.1566 14.0017 12.8684 14.1007 12.6282 14.2989C12.394 14.4971 12.2259 14.8003 12.1238 15.2086C12.0158 15.6109 11.9077 16.1032 11.7996 16.6857C11.7756 16.8057 11.7636 16.9318 11.7636 17.0639C11.7636 17.6164 12.0518 17.8925 12.6282 17.8925ZM16.2939 19.0362C16.3299 19.0782 16.381 19.0993 16.447 19.0993H17.6719C17.7319 19.0993 17.789 19.0782 17.843 19.0362C17.897 18.9941 17.9301 18.9401 17.9421 18.8741L18.3564 16.9016H19.5723C20.3589 16.9016 20.9773 16.7365 21.4277 16.4063C21.884 16.076 22.1872 15.5656 22.3373 14.8751C22.3734 14.713 22.3914 14.5569 22.3914 14.4068C22.3914 13.8844 22.1872 13.4851 21.7789 13.2089C21.3766 12.9327 20.8422 12.7946 20.1757 12.7946H17.78C17.7199 12.7946 17.6629 12.8156 17.6088 12.8576C17.5548 12.8997 17.5218 12.9537 17.5098 13.0198L16.2669 18.8741C16.2549 18.9341 16.2638 18.9881 16.2939 19.0362ZM20.2928 15.4515C20.1067 15.5896 19.8875 15.6587 19.6354 15.6587H18.5996L18.9418 14.0465H20.0226C20.2688 14.0465 20.4429 14.0945 20.545 14.1906C20.6471 14.2807 20.6981 14.4128 20.6981 14.5869C20.6981 14.665 20.6891 14.755 20.6711 14.8571C20.6111 15.1153 20.485 15.3134 20.2928 15.4515Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+  [base.name]: (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M7.98995 14C11.3092 14 14 11.3137 14 8C14 4.6863 11.3092 2 7.98995 2C4.84104 2 2.25776 4.41765 2.0009 7.49506H10.9195V8.49416H2C2.25171 11.5767 4.83736 14 7.98995 14Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+};
+
+const supportedNetworks = [optimism, base];
+
 
 function CreateJobPage() {
-  const [selectedNetwork, setSelectedNetwork] = useState("Optimism");
+  const [selectedNetwork, setSelectedNetwork] = useState(supportedNetworks[0].name);
+  const [triggerChainId, setTriggerChainId] = useState(supportedNetworks[0].id);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [linkedJobs, setLinkedJobs] = useState({});
   const [isEventOpen, setIsEventOpen] = useState(false);
+  const [jobDetails, setJobDetails] = useState([]);
+
+  const { address, isConnected } = useAccount();
+  const walletAddress = isConnected ? address : null
 
   // trigger option
   const options = [
@@ -32,29 +64,6 @@ function CreateJobPage() {
       icon: "\u2737",
     },
   ];
-
-  const networks = ["Optimism", "Base"];
-
-  const networkIcons = {
-    Optimism: (
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28ZM12.5021 19.1895C11.7876 19.1895 11.2022 19.0214 10.7458 18.6851C10.2955 18.3429 10.0703 17.8565 10.0703 17.2261C10.0703 17.094 10.0853 16.9318 10.1153 16.7397C10.1934 16.3074 10.3045 15.788 10.4486 15.1816C10.8569 13.5304 11.9107 12.7048 13.6099 12.7048C14.0723 12.7048 14.4866 12.7828 14.8528 12.9389C15.2191 13.089 15.5073 13.3172 15.7175 13.6234C15.9276 13.9236 16.0327 14.2839 16.0327 14.7042C16.0327 14.8303 16.0177 14.9894 15.9877 15.1816C15.8976 15.7159 15.7895 16.2353 15.6634 16.7397C15.4533 17.5623 15.09 18.1778 14.5736 18.586C14.0572 18.9883 13.3668 19.1895 12.5021 19.1895ZM12.6282 17.8925C12.9645 17.8925 13.2496 17.7935 13.4838 17.5953C13.724 17.3972 13.8951 17.094 13.9972 16.6857C14.1353 16.1212 14.2404 15.6289 14.3125 15.2086C14.3365 15.0825 14.3485 14.9534 14.3485 14.8213C14.3485 14.2749 14.0632 14.0017 13.4929 14.0017C13.1566 14.0017 12.8684 14.1007 12.6282 14.2989C12.394 14.4971 12.2259 14.8003 12.1238 15.2086C12.0158 15.6109 11.9077 16.1032 11.7996 16.6857C11.7756 16.8057 11.7636 16.9318 11.7636 17.0639C11.7636 17.6164 12.0518 17.8925 12.6282 17.8925ZM16.2939 19.0362C16.3299 19.0782 16.381 19.0993 16.447 19.0993H17.6719C17.7319 19.0993 17.789 19.0782 17.843 19.0362C17.897 18.9941 17.9301 18.9401 17.9421 18.8741L18.3564 16.9016H19.5723C20.3589 16.9016 20.9773 16.7365 21.4277 16.4063C21.884 16.076 22.1872 15.5656 22.3373 14.8751C22.3734 14.713 22.3914 14.5569 22.3914 14.4068C22.3914 13.8844 22.1872 13.4851 21.7789 13.2089C21.3766 12.9327 20.8422 12.7946 20.1757 12.7946H17.78C17.7199 12.7946 17.6629 12.8156 17.6088 12.8576C17.5548 12.8997 17.5218 12.9537 17.5098 13.0198L16.2669 18.8741C16.2549 18.9341 16.2638 18.9881 16.2939 19.0362ZM20.2928 15.4515C20.1067 15.5896 19.8875 15.6587 19.6354 15.6587H18.5996L18.9418 14.0465H20.0226C20.2688 14.0465 20.4429 14.0945 20.545 14.1906C20.6471 14.2807 20.6981 14.4128 20.6981 14.5869C20.6981 14.665 20.6891 14.755 20.6711 14.8571C20.6111 15.1153 20.485 15.3134 20.2928 15.4515Z"
-          fill="currentColor"
-        ></path>
-      </svg>
-    ),
-    Base: (
-      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M7.98995 14C11.3092 14 14 11.3137 14 8C14 4.6863 11.3092 2 7.98995 2C4.84104 2 2.25776 4.41765 2.0009 7.49506H10.9195V8.49416H2C2.25171 11.5767 4.83736 14 7.98995 14Z"
-          fill="currentColor"
-        ></path>
-      </svg>
-    ),
-  };
 
   const handleLinkJob = (jobType) => {
     setLinkedJobs((prevJobs) => {
@@ -85,19 +94,20 @@ function CreateJobPage() {
     codeUrls,
     handleCodeUrlChange,
     estimateFee,
-    // estimatedFee,
-    // userBalance,
-    // isModalOpen,
+    estimatedFee,
+    setEstimatedFee,
+    userBalance,
+    isModalOpen,
     //     // ethAmount,
-    // setIsModalOpen,
+    setIsModalOpen,
     // estimateFee,
-    // handleSubmit,
+    handleSubmit,
     //     scriptFunction,
     //     handleScriptFunctionChange,
   } = useJobCreation();
 
-  // const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
-  //   useStakeRegistry();
+  const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
+    useStakeRegistry();
 
   const timeContractInteraction = useContractInteraction(1);
   const time1ContractInteraction = useContractInteraction(1_1);
@@ -183,55 +193,95 @@ function CreateJobPage() {
       return;
     }
 
+    //recurring
+
     // Construct an array of contract addresses (main job + linked jobs if available)
-    const jobDetails = [
+    const jobsArray = [
       selectedContract,
       ...(linkedJobsMap[jobType] || [])
-    ]
-      .filter(Boolean) // Remove any undefined/null values
-      .map(job => ({
-        contractAddress: job.contractAddress,
-        hasABI: !!job.contractABI,
-        contractABI: job.contractABI,
-        targetFunction: job.targetFunction,
-        argsArray: job.argsArray,
-        timeframeInSeconds,
-        intervalInSeconds,
-      }));
+    ].filter(Boolean); // Remove any undefined/null values
+  
+    const jobDetails = jobsArray.map((job, index, arr) => {
+  
+        let taskdefinitionid;
+        if (jobType === 1) {
+          // For jobtype 1: static -> 1, dynamic -> 2
+          taskdefinitionid = job.argumentType === "static" ? 1 : job.argumentType === "dynamic" ? 2 : null;
+        } else if (jobType === 2) {
+          // For jobtype 2: static -> 5, dynamic -> 6
+          taskdefinitionid = job.argumentType === "static" ? 5 : job.argumentType === "dynamic" ? 6 : null;
+        } else if (jobType === 3) {
+          // For jobtype 3: static -> 3, dynamic -> 4
+          taskdefinitionid = job.argumentType === "static" ? 3 : job.argumentType === "dynamic" ? 4 : null;
+        }
+
+        const argType = job.argumentType === "static" ? 0 : job.argumentType === "dynamic" ? 1 : null;
+        const nextJob = arr[index + 1];
+
+        return {
+          //   Recurring              bool     `json:"recurring"`
+   
+          jobType: jobType,
+          user_address: address,
+          stake_amount: 0,
+          token_amount: 0,
+          task_definition_id: taskdefinitionid,
+          priority: 0,
+          security: 0,
+          time_frame: timeframeInSeconds,
+          time_interval: intervalInSeconds,
+          recurring: false,   /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+          trigger_chain_id: triggerChainId,          
+          trigger_contract_address: job.contractAddress,
+          trigger_event: jobType === 3 ? (eventContractInteraction.targetEvent || "NULL") : "NULL",
+          script_ipfs_url: index === 0 ? (codeUrls[jobType]?.main || "") : (codeUrls[jobType]?.[index] || ""),          
+          script_target_function: "trigger",
+          target_chain_id: triggerChainId, 
+          target_contract_address: nextJob ? nextJob.contractAddress : "NULL",
+          target_function: job.targetFunction,
+          arg_type: argType,
+          arguments: job.argsArray,
+          script_trigger_function: "action",
+          hasABI: !!job.contractABI,
+          contractABI: job.contractABI,
+        };
+      });
 
     console.log("jobdetails", jobDetails);
 
     // Estimate the fee for all jobs and sum them up
     const totalEstimatedFee = await Promise.all(jobDetails.map(async (job) => {
       const fee = await estimateFee(
-        job.contractAddress,
+        job.trigger_contract_address,
         job.contractABI,
-        job.targetFunction,
-        job.argsArray,
-        job.timeframeInSeconds,
-        job.intervalInSeconds
+        job.target_function,
+        job.arguments,
+        job.time_frame,
+        job.time_interval
       );
 
       // Log the fee for debugging
-      console.log(`Estimated fee for job ${job.targetFunction}:`, fee);
+      console.log(`Estimated fee for job ${job.target_function}:`, fee);
 
       // Ensure the fee is a valid number
-      return typeof fee === 'number' ? fee : 100000; // Return 0 if fee is not a number
+      return typeof fee === 'number' ? fee : 10; // Return 0 if fee is not a number
     })).then(fees => fees.reduce((acc, fee) => acc + fee, 0)); // Sum all fees
 
     console.log("Total Estimated Fee:", totalEstimatedFee);
-
+    setJobDetails(jobDetails);
+    setEstimatedFee(totalEstimatedFee);
+    setIsModalOpen(true);
     // handleSubmit will be called later through the modal's onStake
   };
 
 
   return (
-    <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem]">
+    <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
       <div className="fixed top-0 left-1/2 w-96 h-96 rounded-full blur-3xl -translate-x-1/2 pointer-events-none" />
 
-      <div className="mx-auto px-6 relative">
+      <div className="mx-auto px-6 relative z-30">
         <PageHeader />
 
         <div className="w-full lg:w-[80%] max-w-[1600px] mx-auto">
@@ -282,24 +332,26 @@ function CreateJobPage() {
                   </div>
                   {isNetworkOpen && (
                     <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
-                      {networks.map((network) => (
+                      {supportedNetworks.map((network) => (
                         <div
-                          key={network}
+                          key={network.id}
                           className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg flex items-center gap-5 text-xs xs:text-sm sm:text-base"
                           onClick={() => {
-                            setSelectedNetwork(network);
+                            setSelectedNetwork(network.name);
+                            setTriggerChainId(network.id);
                             setIsNetworkOpen(false);
                           }}
                         >
-                          <div className="w-6 h-6">{networkIcons[network]}</div>
-                          {network}
+                          <div className="w-6 h-6">
+                            {networkIcons[network.name] || null}
+                          </div>
+                          {network.name}
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
               </div>
-
               {/* Time Management */}
               {/* <TimeframeInputs
                 timeframe={
@@ -1112,7 +1164,7 @@ function CreateJobPage() {
       </div>
 
       {/* Estimated Fee Modal */}
-      {/* <EstimatedFeeModal
+      <EstimatedFeeModal
         isOpen={isModalOpen}
         onClose={() => {
           console.log("Closing fee modal");
@@ -1123,24 +1175,24 @@ function CreateJobPage() {
           console.log("Initiating stake with params:", {
             stakeRegistryImplAddress,
             hasABI: !!stakeRegistryABI,
-            contractAddress,
-            targetFunction,
-            argsArray,
-            timeframeInSeconds,
-            intervalInSeconds,
+            jobDetails,
+            // targetFunction,
+            // argsArray,
+            // timeframeInSeconds,
+            // intervalInSeconds,
           });
           handleSubmit(
             stakeRegistryAddress,
             stakeRegistryABI,
-            contractAddress,
-            targetFunction,
-            argsArray,
-            timeframeInSeconds,
-            intervalInSeconds
+            jobDetails,
+            // targetFunction,
+            // argsArray,
+            // timeframeInSeconds,
+            // intervalInSeconds
           );
         }}
         userBalance={userBalance}
-      /> */}
+      />
     </div>
   );
 }

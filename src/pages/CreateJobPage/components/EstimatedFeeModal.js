@@ -14,9 +14,9 @@ export function EstimatedFeeModal({
       isOpen={isOpen}
       onRequestClose={onClose}
       contentLabel="Estimate Fee"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
-      overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm"
-    >
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
+      overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+      >
       <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
         Estimated Fee
       </h2>
