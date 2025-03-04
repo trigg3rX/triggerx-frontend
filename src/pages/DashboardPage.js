@@ -408,244 +408,278 @@ function DashboardPage() {
 
   return (
     <div>
-    <Helmet>
-    <meta property="og:title" content="TriggerX | Build" />
-    <meta property="og:description" content="Automate Tasks Effortlessly" />
-    <meta property="og:image" content="https://app.triggerx.network/dashboard/images/image.jpg" />
-    <meta property="og:url" content="https://app.triggerx.network/dashboard" />
-    <meta property="og:type" content="website" />
-  </Helmet>
-    <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
-      <div className="fixed inset-0  pointer-events-none" />
-      <div className="fixed  pointer-events-none" />
+      <Helmet>
+        {/* Page Title */}
+        <title>Your Page Title</title>
 
-      <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
-        <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
-          <div className="lg:w-[70%] w-full">
-            <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                Active Jobs
-              </h2>
-              {jobDetails.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <div
-                    className="max-h-[650px] overflow-y-auto"
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                  >
-                    <table className="w-full border-separate border-spacing-y-4 ">
-                      <thead className="sticky top-0 bg-[#2A2A2A]">
-                        <tr>
-                          <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
-                            ID
-                          </th>
-                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                            Type
-                          </th>
-                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
-                            Status
-                          </th>
-                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {jobDetails.map((job) => (
-                          <tr key={job.id} className="  ">
-                            <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                              {job.id}
-                            </td>
-                            <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                              {job.type}
-                            </td>
-                            <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                              <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                                {job.status}
-                              </span>
-                            </td>
-                            <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                              <button
-                                disabled
-                                className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
-                              >
-                                Update
-                              </button>
-                              <button
-                                onClick={() => handleDeleteJob(job.id)}
-                                className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
-                              >
-                                Delete
-                              </button>
-                            </td>
+        {/* Basic Meta Tags */}
+        <meta name="description" content="Descriptive page description" />
+        <meta name="keywords" content="react, meta tags, seo" />
+
+        {/* Open Graph Tags for Social Media */}
+        <meta property="og:title" content="Page Title for Social Sharing" />
+        <meta
+          property="og:description"
+          content="Description for social platforms"
+        />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:url"
+          content="https://app.triggerx.network/dashboard"
+        />
+        <meta
+          property="og:image"
+          content="https://app.triggerx.network/images/dashboard.jpg"
+        />
+
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Twitter Page Title" />
+        <meta name="twitter:description" content="Twitter description" />
+        <meta
+          name="twitter:image"
+          content="https://app.triggerx.network/images/dashboard.jpg"
+        />
+      </Helmet>
+      <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
+        <div className="fixed inset-0  pointer-events-none" />
+        <div className="fixed  pointer-events-none" />
+
+        <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
+          <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
+            <div className="lg:w-[70%] w-full">
+              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                  Active Jobs
+                </h2>
+                {jobDetails.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <div
+                      className="max-h-[650px] overflow-y-auto"
+                      style={{
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                      }}
+                    >
+                      <table className="w-full border-separate border-spacing-y-4 ">
+                        <thead className="sticky top-0 bg-[#2A2A2A]">
+                          <tr>
+                            <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
+                              ID
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                              Type
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
+                              Status
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {jobDetails.map((job) => (
+                            <tr key={job.id} className="  ">
+                              <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                {job.id}
+                              </td>
+                              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                                {job.type}
+                              </td>
+                              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                  {job.status}
+                                </span>
+                              </td>
+                              <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                <button
+                                  disabled
+                                  className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteJob(job.id)}
+                                  className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
-                  No active jobs found. Create your first job to get started.
-                </h4>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-8 h-full lg:w-[25%] w-full">
-            <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-              <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
-                Your Balance
-              </h3>
-              <div className="p-6 bg-[#242323] rounded-lg ">
-                <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
-                  Total TG Balance
-                </p>
-                <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
-                  {tgBalance} TG
-                </p>
+                ) : (
+                  <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
+                    No active jobs found. Create your first job to get started.
+                  </h4>
+                )}
               </div>
             </div>
 
-            <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-              <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                Quick Actions
-              </h3>
-              <div className="space-y-8  ">
-                <div className="my-5">
+            <div className="space-y-8 h-full lg:w-[25%] w-full">
+              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+                <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
+                  Your Balance
+                </h3>
+                <div className="p-6 bg-[#242323] rounded-lg ">
+                  <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
+                    Total TG Balance
+                  </p>
+                  <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
+                    {tgBalance} TG
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+                <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                  Quick Actions
+                </h3>
+                <div className="space-y-8  ">
+                  <div className="my-5">
+                    <button
+                      onClick={() => setStakeModalVisible(true)}
+                      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                    >
+                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                        Stake ETH
+                      </span>
+                    </button>
+                  </div>
+
+                  <Link to="/create-job">
+                    <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
+                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                        Create New Job
+                      </span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
+                <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                  Statistics
+                </h3>
+                <div className="space-y-4 text-gray-300">
+                  <div className="flex justify-start items-center gap-7">
+                    <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
+                      {jobDetails.length}
+                    </p>
+                    <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
+                      Total Jobs
+                    </p>
+                  </div>
+                  <div className="flex justify-start items-center gap-7">
+                    <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md">
+                      {
+                        jobDetails.filter((job) => job.status === "Active")
+                          .length
+                      }
+                    </p>
+                    <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
+                      Active Jobs
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {isModalVisible && selectedJob && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+            <div className=" p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
+              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                Update Job
+              </h2>
+              <form onSubmit={handleJobEdit} className="space-y-6">
+                <div className="flex gap-4 justify-center">
                   <button
-                    onClick={() => setStakeModalVisible(true)}
+                    type="submit"
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                      Stake ETH
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                      Save Changes
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsModalVisible(false)}
+                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
+                  >
+                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                      Cancel
                     </span>
                   </button>
                 </div>
+              </form>
+            </div>
+          </div>
+        )}
 
-                <Link to="/create-job">
+        {stakeModalVisible && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+            <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
+              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                Stake ETH
+              </h2>
+              <form onSubmit={handleStake} className="space-y-6">
+                <div>
+                  <label className="block text-gray-300 mb-2">
+                    Amount (ETH)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={stakeAmount}
+                    onChange={(e) => setStakeAmount(e.target.value)}
+                    className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none  text-white"
+                    placeholder="Enter ETH amount"
+                  />
+                </div>
+                <div className="flex gap-4 justify-center">
                   <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                      Create New Job
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                      Stake
                     </span>
                   </button>
-                </Link>
-              </div>
-            </div>
 
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
-              <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                Statistics
-              </h3>
-              <div className="space-y-4 text-gray-300">
-                <div className="flex justify-start items-center gap-7">
-                  <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
-                    {jobDetails.length}
-                  </p>
-                  <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
-                    Total Jobs
-                  </p>
+                  <button
+                    onClick={() => setStakeModalVisible(false)}
+                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
+                  >
+                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                      Cancel
+                    </span>
+                  </button>
                 </div>
-                <div className="flex justify-start items-center gap-7">
-                  <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md">
-                    {jobDetails.filter((job) => job.status === "Active").length}
-                  </p>
-                  <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
-                    Active Jobs
-                  </p>
-                </div>
-              </div>
+              </form>
             </div>
           </div>
-        </div>
+        )}
+
+        {!isWalletInstalled && showModal && (
+          <WalletModal onClose={() => setShowModal(false)} />
+        )}
       </div>
-
-      {isModalVisible && selectedJob && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className=" p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-              Update Job
-            </h2>
-            <form onSubmit={handleJobEdit} className="space-y-6">
-              <div className="flex gap-4 justify-center">
-                <button
-                  type="submit"
-                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
-                >
-                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                    Save Changes
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsModalVisible(false)}
-                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
-                >
-                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                    Cancel
-                  </span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {stakeModalVisible && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-          <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-              Stake ETH
-            </h2>
-            <form onSubmit={handleStake} className="space-y-6">
-              <div>
-                <label className="block text-gray-300 mb-2">Amount (ETH)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={stakeAmount}
-                  onChange={(e) => setStakeAmount(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none  text-white"
-                  placeholder="Enter ETH amount"
-                />
-              </div>
-              <div className="flex gap-4 justify-center">
-                <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
-                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                    Stake
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => setStakeModalVisible(false)}
-                  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
-                >
-                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                  <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                    Cancel
-                  </span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {!isWalletInstalled && showModal && (
-        <WalletModal onClose={() => setShowModal(false)} />
-      )}
-    </div>
     </div>
   );
 }

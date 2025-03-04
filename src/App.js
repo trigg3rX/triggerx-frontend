@@ -95,7 +95,6 @@ const App = () => {
                 <Route path="/" element={<CreateJobPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="*" element={<NotFound />} />
-
               </Routes>
             </Layout>
           </Router>

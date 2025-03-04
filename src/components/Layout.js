@@ -5,7 +5,6 @@ import Footer from "./Footer";
 const Layout = ({ children }) => {
   return (
     <div className="">
-      
       <div className="relative z-50">
         <Header />
       </div>
