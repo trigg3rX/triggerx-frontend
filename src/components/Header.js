@@ -74,9 +74,8 @@ function Header() {
             alt="Background Design"
             className="absolute z-0 h-auto lg:max-w-min  lg:w-[500px] md:[200px] "
             style={{
-              top: "-50px",
-              opacity: isScrolled ? 0 : 1,
-              transition: "opacity 0.3s ease",
+              top: isScrolled ? -300 : -50,
+              transition: "top 0.7s ease",
             }}
           />
 
@@ -134,17 +133,14 @@ function Header() {
         <ConnectButton chainStatus="icon" accountStatus="address" />
       </div>
       <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:flex">
-        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-10 z-0">
-          <img
-            src={nav}
-            alt="Nav" 
-            className="w-64 h-auto z-0"
-            style={{
-              top: "-50px",
-              opacity: isScrolled ? 0 : 1,
-              transition: "opacity 0.3s ease",
-            }}
-          />
+        <div
+          className="absolute  left-1/2 transform -translate-x-1/2 -translate-y-10 z-0"
+          style={{
+            top: isScrolled ? -100 : 15,
+            transition: "top 0.7s ease",
+          }}
+        >
+          <img src={nav} alt="Nav" className="w-64 h-auto z-0" />
         </div>
         {/* Logo */}
         <div className="flex-shrink-0 relative z-10">
