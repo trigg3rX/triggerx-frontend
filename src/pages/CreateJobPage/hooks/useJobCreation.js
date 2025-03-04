@@ -47,11 +47,11 @@ export function useJobCreation() {
     timeframeInSeconds,
     intervalInSeconds
   ) => {
-    console.log("in est", contractAddress,
-      targetFunction,
-      argsArray,
-      timeframeInSeconds,
-      intervalInSeconds)
+    // console.log("in est", contractAddress,
+    //   targetFunction,
+    //   argsArray,
+    //   timeframeInSeconds,
+    //   intervalInSeconds)
     try {
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
@@ -162,13 +162,9 @@ export function useJobCreation() {
   const handleSubmit = async (
     stakeRegistryAddress,
     stakeRegistryABI,
-    contractAddress,
-    targetFunction,
-    argsArray,
-    timeframeInSeconds,
-    intervalInSeconds
+    jobdetails,
   ) => {
-    if (!jobType || !contractAddress) {
+    if (!jobType ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -177,6 +173,12 @@ export function useJobCreation() {
       if (typeof window.ethereum === "undefined") {
         throw new Error("Please install MetaMask to use this feature");
       }
+
+      const updatedJobDetails = jobdetails.map(job => ({
+        ...job,
+        job_cost_prediction: estimatedFee,
+      }));
+      console.log("updated",updatedJobDetails);
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -202,56 +204,58 @@ export function useJobCreation() {
       }
 
       // Continue with job creation
-      let nextJobId;
-      try {
-        const latestIdResponse = await fetch(
-          "https://data.triggerx.network/api/jobs/latest-id",
-          {
-            method: "GET",
-            mode: "cors",
-            headers: {
-              Accept: "application/json",
-              Origin: "https://triggerx.network",
-            },
-          }
-        );
+      // let nextJobId;
+      // try {
+      //   const latestIdResponse = await fetch(
+      //     "https://data.triggerx.network/api/jobs/latest-id",
+      //     {
+      //       method: "GET",
+      //       mode: "cors",
+      //       headers: {
+      //         Accept: "application/json",
+      //         Origin: "https://triggerx.network",
+      //       },
+      //     }
+      //   );
 
-        if (!latestIdResponse.ok) {
-          throw new Error("Failed to fetch latest job ID");
-        }
+      //   if (!latestIdResponse.ok) {
+      //     throw new Error("Failed to fetch latest job ID");
+      //   }
 
-        const latestIdData = await latestIdResponse.json();
-        nextJobId = latestIdData.latest_job_id + 1;
-        console.log("Next job ID:", nextJobId);
-      } catch (error) {
-        console.error("Error fetching latest job ID:", error);
-        nextJobId = 1;
-      }
+      //   const latestIdData = await latestIdResponse.json();
+      //   nextJobId = latestIdData.latest_job_id + 1;
+      //   console.log("Next job ID:", nextJobId);
+      // } catch (error) {
+      //   console.error("Error fetching latest job ID:", error);
+      //   nextJobId = 1;
+      // }
 
-      const chainIdHex = await window.ethereum.request({
-        method: "eth_chainId",
-      });
-      const chainIdDecimal = parseInt(chainIdHex, 16).toString();
+      // const chainIdHex = await window.ethereum.request({
+      //   method: "eth_chainId",
+      // });
+      // const chainIdDecimal = parseInt(chainIdHex, 16).toString();
 
-      const jobData = {
-        job_id: nextJobId,
-        jobType: jobType,
-        user_address: signer.address,
-        chain_id: chainIdDecimal,
-        time_frame: timeframeInSeconds,
-        time_interval: intervalInSeconds,
-        contract_address: contractAddress,
-        target_function: targetFunction,
-        arg_type: argType,
-        arguments: argsArray,
-        status: true,
-        job_cost_prediction: parseInt(gasUnits),
-        script_function: scriptFunction,
-        script_ipfs_url: codeUrls[jobType],
-        stake_amount: Number(estimatedFeeInGwei.toString()),
-        user_balance: 0.0,
-        required_tg: estimatedFee,
-      };
+      // const jobData = {
+      //   job_id: nextJobId,
+      //   jobType: jobType,
+      //   user_address: signer.address,
+      //   chain_id: chainIdDecimal,
+      //   time_frame: timeframeInSeconds,
+      //   time_interval: intervalInSeconds,
+      //   contract_address: contractAddress,
+      //   target_function: targetFunction,
+      //   arg_type: argType,
+      //   arguments: argsArray,
+      //   status: true,
+      //   job_cost_prediction: parseInt(gasUnits),
+      //   script_function: scriptFunction,
+      //   script_ipfs_url: codeUrls[jobType],
+      //   stake_amount: Number(estimatedFeeInGwei.toString()),
+      //   user_balance: 0.0,
+      //   required_tg: estimatedFee,
+      // };
+
+      
 
       const response = await fetch("https://data.triggerx.network/api/jobs", {
         method: "POST",
@@ -261,7 +265,7 @@ export function useJobCreation() {
           Accept: "application/json",
           Origin: "https://triggerx.network",
         },
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(updatedJobDetails),
       });
 
       if (!response.ok) {
@@ -301,6 +305,7 @@ export function useJobCreation() {
     jobType,
     setJobType: handleJobTypeChange,
     estimatedFee,
+    setEstimatedFee,
     isModalOpen,
     codeUrls,
     argType,
