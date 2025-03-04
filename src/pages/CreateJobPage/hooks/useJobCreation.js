@@ -47,6 +47,11 @@ export function useJobCreation() {
     timeframeInSeconds,
     intervalInSeconds
   ) => {
+    console.log("in est", contractAddress,
+      targetFunction,
+      argsArray,
+      timeframeInSeconds,
+      intervalInSeconds)
     try {
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
