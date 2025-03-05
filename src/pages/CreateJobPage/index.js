@@ -12,10 +12,10 @@ import { FunctionArguments } from "./components/FunctionArguments";
 import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
 import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
-import { optimism, base } from 'wagmi/chains';
+import { optimismSepolia, baseSepolia } from 'wagmi/chains';
 
 const networkIcons = {
-  [optimism.name]: (
+  [optimismSepolia.name]: (
     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Optimism SVG path */}
       <path
@@ -26,7 +26,7 @@ const networkIcons = {
       />
     </svg>
   ),
-  [base.name]: (
+  [baseSepolia.name]: (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M7.98995 14C11.3092 14 14 11.3137 14 8C14 4.6863 11.3092 2 7.98995 2C4.84104 2 2.25776 4.41765 2.0009 7.49506H10.9195V8.49416H2C2.25171 11.5767 4.83736 14 7.98995 14Z"
@@ -36,7 +36,7 @@ const networkIcons = {
   ),
 };
 
-const supportedNetworks = [optimism, base];
+const supportedNetworks = [optimismSepolia, baseSepolia];
 
 
 function CreateJobPage() {
@@ -126,50 +126,6 @@ function CreateJobPage() {
 
   const eventContractInteraction = useContractInteraction(4);
 
-  // const handleFormSubmit = async (e, jobType) => {
-  //   e.preventDefault();
-
-  //   // Mapping jobType to corresponding contract interaction
-  //   const contractInteractionMap = {
-  //     1: timeContractInteraction,
-  //     2: conditionContractInteraction,
-  //     3: eventFunctionContractInteraction,
-  //   };
-
-  //   const selectedContract = contractInteractionMap[jobType];
-
-  //   if (!selectedContract) {
-  //     console.error("Invalid job type selected:", jobType);
-  //     return;
-  //   }
-
-  //   // Get linked job if available
-  //   const linkedJob = linkedJobs[jobType]?.length ? linkedJobs[jobType] : null;
-
-  //   console.log("Estimating fee with params:", {
-  //     contractAddress: selectedContract.contractAddress,
-  //     hasABI: !!selectedContract.contractABI,
-  //     targetFunction: selectedContract.targetFunction,
-  //     argsArray: selectedContract.argsArray,
-  //     timeframeInSeconds,
-  //     intervalInSeconds,
-  //     linkedJob, // Logging the linked job as well
-  //   });
-
-  //   // Estimate the fee using the selected contract interaction
-  //   // await estimateFee(
-  //   //   selectedContract.contractAddress,
-  //   //   selectedContract.contractABI,
-  //   //   selectedContract.targetFunction,
-  //   //   selectedContract.argsArray,
-  //   //   timeframeInSeconds,
-  //   //   intervalInSeconds,
-  //   //   linkedJob // Pass linked job if needed in estimateFee
-  //   // );
-
-  //   // handleSubmit will be called later through the modal's onStake
-  // }
-
   const handleFormSubmit = async (e, jobType) => {
     e.preventDefault();
 
@@ -193,59 +149,57 @@ function CreateJobPage() {
       return;
     }
 
-    //recurring
-
     // Construct an array of contract addresses (main job + linked jobs if available)
     const jobsArray = [
       selectedContract,
       ...(linkedJobsMap[jobType] || [])
-    ].filter(Boolean); // Remove any undefined/null values
-  
+    ].filter(job => job && job.contractAddress);
+
     const jobDetails = jobsArray.map((job, index, arr) => {
-  
-        let taskdefinitionid;
-        if (jobType === 1) {
-          // For jobtype 1: static -> 1, dynamic -> 2
-          taskdefinitionid = job.argumentType === "static" ? 1 : job.argumentType === "dynamic" ? 2 : null;
-        } else if (jobType === 2) {
-          // For jobtype 2: static -> 5, dynamic -> 6
-          taskdefinitionid = job.argumentType === "static" ? 5 : job.argumentType === "dynamic" ? 6 : null;
-        } else if (jobType === 3) {
-          // For jobtype 3: static -> 3, dynamic -> 4
-          taskdefinitionid = job.argumentType === "static" ? 3 : job.argumentType === "dynamic" ? 4 : null;
-        }
 
-        const argType = job.argumentType === "static" ? 0 : job.argumentType === "dynamic" ? 1 : null;
-        const nextJob = arr[index + 1];
+      let taskdefinitionid;
+      if (jobType === 1) {
+        // For jobtype 1: static -> 1, dynamic -> 2
+        taskdefinitionid = job.argumentType === "static" ? 1 : job.argumentType === "dynamic" ? 2 : null;
+      } else if (jobType === 2) {
+        // For jobtype 2: static -> 5, dynamic -> 6
+        taskdefinitionid = job.argumentType === "static" ? 5 : job.argumentType === "dynamic" ? 6 : null;
+      } else if (jobType === 3) {
+        // For jobtype 3: static -> 3, dynamic -> 4
+        taskdefinitionid = job.argumentType === "static" ? 3 : job.argumentType === "dynamic" ? 4 : null;
+      }
 
-        return {
+      const argType = job.argumentType === "static" ? 0 : job.argumentType === "dynamic" ? 1 : null;
+      const nextJob = arr[index + 1];
+
+      return {
           //   Recurring              bool     `json:"recurring"`
    
-          jobType: jobType,
-          user_address: address,
-          stake_amount: 0,
-          token_amount: 0,
-          task_definition_id: taskdefinitionid,
-          priority: 0,
-          security: 0,
-          time_frame: timeframeInSeconds,
-          time_interval: intervalInSeconds,
-          recurring: false,   /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-          trigger_chain_id: triggerChainId,          
-          trigger_contract_address: job.contractAddress,
-          trigger_event: jobType === 3 ? (eventContractInteraction.targetEvent || "NULL") : "NULL",
-          script_ipfs_url: index === 0 ? (codeUrls[jobType]?.main || "") : (codeUrls[jobType]?.[index] || ""),          
-          script_target_function: "trigger",
-          target_chain_id: triggerChainId, 
-          target_contract_address: nextJob ? nextJob.contractAddress : "NULL",
-          target_function: job.targetFunction,
-          arg_type: argType,
-          arguments: job.argsArray,
-          script_trigger_function: "action",
-          hasABI: !!job.contractABI,
-          contractABI: job.contractABI,
-        };
-      });
+        jobType: jobType,
+        user_address: address,
+        stake_amount: 0,
+        token_amount: 0,
+        task_definition_id: taskdefinitionid,
+        priority: 0,
+        security: 0,
+        time_frame: timeframeInSeconds,
+        time_interval: intervalInSeconds,
+        recurring: false,   /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+        trigger_chain_id: triggerChainId.toString(),
+        trigger_contract_address: job.contractAddress,
+        trigger_event: jobType === 3 ? (eventContractInteraction.targetEvent || "NULL") : "NULL",
+        script_ipfs_url: index === 0 ? (codeUrls[jobType]?.main || "") : (codeUrls[jobType]?.[index] || ""),
+        script_target_function: "trigger",
+        target_chain_id: triggerChainId.toString(),
+        target_contract_address: nextJob ? nextJob.contractAddress : "NULL",
+        target_function: job.targetFunction,
+        arg_type: argType,
+        arguments: job.argsArray,
+        script_trigger_function: "action",
+        hasABI: !!job.contractABI,
+        contractABI: job.contractABI,
+      };
+    });
 
     console.log("jobdetails", jobDetails);
 
@@ -264,7 +218,7 @@ function CreateJobPage() {
       console.log(`Estimated fee for job ${job.target_function}:`, fee);
 
       // Ensure the fee is a valid number
-      return typeof fee === 'number' ? fee : 10; // Return 0 if fee is not a number
+      return typeof fee === 'number' ? fee : 2; // Return 0 if fee is not a number
     })).then(fees => fees.reduce((acc, fee) => acc + fee, 0)); // Sum all fees
 
     console.log("Total Estimated Fee:", totalEstimatedFee);
@@ -284,7 +238,7 @@ function CreateJobPage() {
       <div className="mx-auto px-6 relative z-30">
         <PageHeader />
 
-        <div className="w-full lg:w-[80%] max-w-[1600px] mx-auto">
+        <form onSubmit={(e) => handleFormSubmit(e, jobType)} className="w-full lg:w-[80%] max-w-[1600px] mx-auto">
           <div className="space-y-8">
             {/* Job Type Selection */}
             <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
@@ -352,15 +306,6 @@ function CreateJobPage() {
                   )}
                 </div>
               </div>
-              {/* Time Management */}
-              {/* <TimeframeInputs
-                timeframe={
-                  timeframes[jobType] || { years: 0, months: 0, days: 0 }
-                }
-                onTimeframeChange={(field, value) =>
-                  handleTimeframeChange(jobType, field, value)
-                }
-              /> */}
 
               <TimeframeInputs
                 timeframe={timeframe}
@@ -481,116 +426,37 @@ function CreateJobPage() {
                 </>
               )}
 
-              {jobType === 1 && (
-                <>
-                  <ContractDetails
-                    contractAddress={timeContractInteraction.contractAddress}
-                    contractABI={timeContractInteraction.contractABI}
-                    targetFunction={timeContractInteraction.targetFunction}
-                    functions={timeContractInteraction.functions}
-                    onContractAddressChange={
-                      timeContractInteraction.handleContractAddressChange
-                    }
-                    onFunctionChange={
-                      timeContractInteraction.handleFunctionChange
-                    }
-                    argumentType={timeContractInteraction.argumentType}
-                    onArgumentTypeChange={
-                      timeContractInteraction.handleArgumentTypeChange
-                    }
-                  />
-                  {timeContractInteraction.contractAddress && (
-                    <FunctionArguments
-                      selectedFunction={
-                        timeContractInteraction.selectedFunction
-                      }
-                      functionInputs={timeContractInteraction.functionInputs}
-                      onInputChange={timeContractInteraction.handleInputChange}
-                      argumentType={timeContractInteraction.argumentType}
-                    />
-                  )}
-                </>
-              )}
-
-              {jobType === 2 && (
-                <>
-                  <ContractDetails
-                    contractAddress={
-                      conditionContractInteraction.contractAddress
-                    }
-                    contractABI={conditionContractInteraction.contractABI}
-                    targetFunction={conditionContractInteraction.targetFunction}
-                    functions={conditionContractInteraction.functions}
-                    onContractAddressChange={
-                      conditionContractInteraction.handleContractAddressChange
-                    }
-                    onFunctionChange={
-                      conditionContractInteraction.handleFunctionChange
-                    }
-                    argumentType={conditionContractInteraction.argumentType}
-                    onArgumentTypeChange={
-                      conditionContractInteraction.handleArgumentTypeChange
-                    }
-                  />
-                  {conditionContractInteraction.contractAddress && (
-                    <FunctionArguments
-                      selectedFunction={
-                        conditionContractInteraction.selectedFunction
-                      }
-                      functionInputs={
-                        conditionContractInteraction.functionInputs
-                      }
-                      onInputChange={
-                        conditionContractInteraction.handleInputChange
-                      }
-                      argumentType={conditionContractInteraction.argumentType}
-                    />
-                  )}
-                </>
-              )}
-
-              {jobType === 3 && (
-                <>
-                  <ContractDetails
-                    contractAddress={
-                      eventFunctionContractInteraction.contractAddress
-                    }
-                    contractABI={eventFunctionContractInteraction.contractABI}
-                    targetFunction={
-                      eventFunctionContractInteraction.targetFunction
-                    }
-                    functions={eventFunctionContractInteraction.functions}
-                    onContractAddressChange={
-                      eventFunctionContractInteraction.handleContractAddressChange
-                    }
-                    onFunctionChange={
-                      eventFunctionContractInteraction.handleFunctionChange
-                    }
-                    argumentType={eventFunctionContractInteraction.argumentType}
-                    onArgumentTypeChange={
-                      eventFunctionContractInteraction.handleArgumentTypeChange
-                    }
-                  />
-
-
-                  {eventFunctionContractInteraction.contractAddress && (
-                    <FunctionArguments
-                      selectedFunction={
-                        eventFunctionContractInteraction.selectedFunction
-                      }
-                      functionInputs={
-                        eventFunctionContractInteraction.functionInputs
-                      }
-                      onInputChange={
-                        eventFunctionContractInteraction.handleInputChange
-                      }
-                      argumentType={
-                        eventFunctionContractInteraction.argumentType
-                      }
-                    />
-                  )}
-                </>
-              )}
+              {[1, 2, 3].includes(jobType) &&
+                (() => {
+                  const contractInteraction =
+                    jobType === 1
+                      ? timeContractInteraction
+                      : jobType === 2
+                        ? conditionContractInteraction
+                        : eventFunctionContractInteraction;
+                  return (
+                    <>
+                      <ContractDetails
+                        contractAddress={contractInteraction.contractAddress}
+                        contractABI={contractInteraction.contractABI}
+                        targetFunction={contractInteraction.targetFunction}
+                        functions={contractInteraction.functions}
+                        onContractAddressChange={contractInteraction.handleContractAddressChange}
+                        onFunctionChange={contractInteraction.handleFunctionChange}
+                        argumentType={contractInteraction.argumentType}
+                        onArgumentTypeChange={contractInteraction.handleArgumentTypeChange}
+                      />
+                      {contractInteraction.contractAddress && (
+                        <FunctionArguments
+                          selectedFunction={contractInteraction.selectedFunction}
+                          functionInputs={contractInteraction.functionInputs}
+                          onInputChange={contractInteraction.handleInputChange}
+                          argumentType={contractInteraction.argumentType}
+                        />
+                      )}
+                    </>
+                  );
+                })()}
 
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <label
@@ -603,6 +469,7 @@ function CreateJobPage() {
                 <input
                   id={jobType + "_code_url"}
                   value={codeUrls[jobType]?.main || ""}
+                  required
                   onChange={(e) => {
                     handleCodeUrlChange(e, jobType);
                   }}
@@ -640,98 +507,45 @@ function CreateJobPage() {
                         </div>
                       </div>
                     </div>
-                    {jobType === 1 && jobId === 1 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {timeContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 1 && jobId === 2 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {time1ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 1 && jobId === 3 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {time2ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
 
-                    {jobType === 2 && jobId === 1 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {conditionContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 2 && jobId === 2 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {condition1ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 2 && jobId === 3 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {condition2ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
+                    {
+                      [1, 2, 3].includes(jobType) &&
+                      [1, 2, 3].includes(jobId) &&
+                      (() => {
+                        const interactions = {
+                          1: {
+                            1: timeContractInteraction,
+                            2: time1ContractInteraction,
+                            3: time2ContractInteraction,
+                          },
+                          2: {
+                            1: conditionContractInteraction,
+                            2: condition1ContractInteraction,
+                            3: condition2ContractInteraction,
+                          },
+                          3: {
+                            1: eventFunctionContractInteraction,
+                            2: eventFunction1ContractInteraction,
+                            3: eventFunction2ContractInteraction,
+                          },
+                        };
 
-                    {jobType === 3 && jobId === 1 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {eventFunctionContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 3 && jobId === 2 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {eventFunction1ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
-                    {jobType === 3 && jobId === 3 && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Trigger Function
-                        </label>
-                        <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
-                          {eventFunction2ContractInteraction.targetFunction}
-                        </div>
-                      </div>
-                    )}
+                        const currentInteraction = interactions[jobType]?.[jobId];
+
+                        return (
+                          currentInteraction && (
+                            <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                              <label className="block text-sm sm:text-base font-medium text-gray-300">
+                                Trigger Function
+                              </label>
+                              <div className="text-xs xs:text-sm sm:text-base relative w-full md:w-[70%] xl:w-[80%]">
+                                {currentInteraction.targetFunction}
+                              </div>
+                            </div>
+                          )
+                        );
+                      })()
+                    }
 
                     {jobType === 1 && (
                       <>
@@ -993,7 +807,7 @@ function CreateJobPage() {
                       </>
                     )}
 
-                    {jobType === 3 && (
+{jobType === 3 && (
                       <>
                         <ContractDetails
                           contractAddress={
@@ -1123,6 +937,8 @@ function CreateJobPage() {
                       </>
                     )}
 
+
+
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                       <label
                         htmlFor={jobType + "_" + jobId + "_code_url"}
@@ -1133,6 +949,7 @@ function CreateJobPage() {
                       <input
                         id={jobType + "_" + jobId + "_code_url"}
                         value={codeUrls[jobType]?.[jobId] || ""}
+                        required
                         onChange={(e) => handleCodeUrlChange(e, jobType, jobId)}
                         className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
                         placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
@@ -1145,7 +962,8 @@ function CreateJobPage() {
 
             <div className="flex items-center justify-center gap-2 mx-auto">
               <button
-                onClick={(e) => handleFormSubmit(e, jobType)}
+                // onClick={(e) => handleFormSubmit(e, jobType)}
+                type="submit"
                 className="px-4 sm:px-10 py-2.5 sm:py-3 bg-white hover:translate-y-1 rounded-full text-sm sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
               >
                 Create Job
@@ -1160,7 +978,7 @@ function CreateJobPage() {
               )}
             </div>
           </div>
-        </div>
+        </form>
       </div>
 
       {/* Estimated Fee Modal */}

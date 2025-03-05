@@ -11,6 +11,7 @@ import {
   optimism,
   arbitrum,
   baseSepolia,
+  optimismSepolia,
 } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -78,7 +79,7 @@ const myCustomTheme = {
 const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "f8a6524307e28135845a9fe5811fcaa2",
-  chains: [mainnet, polygon, optimism, arbitrum, baseSepolia],
+  chains: [mainnet, polygon, optimism, arbitrum, baseSepolia, optimismSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

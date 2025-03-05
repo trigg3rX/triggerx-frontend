@@ -34,11 +34,12 @@ export function ContractDetails({
         <input
           type="text"
           id="contractAddress"
+          required
           value={contractAddress}
           onChange={onContractAddressChange}
           placeholder="Your Contract address"
           className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
-          required
+          
         />
       </div>
 
@@ -85,6 +86,7 @@ export function ContractDetails({
             <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
               <div
                 className="break-all text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
+                aria-required
                 onClick={() => setIsFunctionOpen(!isFunctionOpen)}
               >
                 {targetFunction || "Select a function"}
