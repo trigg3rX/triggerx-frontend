@@ -8,7 +8,7 @@ import { WagmiProvider } from "wagmi";
 import {
   mainnet,
   polygon,
-  optimism,
+  optimismSepolia,
   arbitrum,
   baseSepolia,
 } from "wagmi/chains";
@@ -78,7 +78,7 @@ const myCustomTheme = {
 const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "f8a6524307e28135845a9fe5811fcaa2",
-  chains: [mainnet, polygon, optimism, arbitrum, baseSepolia],
+  chains: [mainnet, polygon, optimismSepolia, arbitrum, baseSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

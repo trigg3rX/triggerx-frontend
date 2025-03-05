@@ -24,12 +24,21 @@ function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
   const [scrollToSection, setScrollToSection] = useState(false);
+  const [expandedJobs, setExpandedJobs] = useState({}); // Add this state to track expanded dropdowns
+
   const location = useLocation();
   const navigate = useNavigate();
 
   if (!connected) {
     toast.error("Please connect your wallet!");
   }
+ // Add this function to toggle dropdown
+ const toggleJobExpand = (jobId) => {
+  setExpandedJobs(prev => ({
+    ...prev,
+    [jobId]: !prev[jobId]
+  }));
+};
 
   const data = new Array(15).fill({
     id: 1,
@@ -94,6 +103,8 @@ function DashboardPage() {
   };
 
   const fetchJobDetails = async () => {
+    console.log("🚀 Starting fetchJobDetails method");
+
     if (!provider) {
       console.log("Web3 provider not initialized");
       return;
@@ -103,7 +114,7 @@ function DashboardPage() {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      console.log(userAddress, "address");
+      console.log("👤 User Address:", userAddress);
 
       // Fetch job details from the ScyllaDB API
       const response = await fetch(
@@ -116,12 +127,37 @@ function DashboardPage() {
       const jobsData = await response.json();
       console.log("Fetched jobs data:", jobsData);
 
-      const tempJobs = jobsData.map((jobDetail) => ({
-        id: jobDetail.job_id, // job_id
-        type: mapJobType(jobDetail.jobType), // Map job_type ID to label
-        status: jobDetail.status ? "true" : "false", // Convert boolean to string
-      }));
+      // Group jobs by link_job_id
+      const jobsMap = new Map();
+      
+      jobsData.forEach(job => {
+        if (!job.link_job_id) {
+          // This is a main job
+          jobsMap.set(job.job_id, {
+            id: job.job_id,
+            type: mapJobType(job.jobType),
+            status: job.status ? "true" : "false",
+            linked_jobs: []
+          });
+        }
+      });
 
+      // Add linked jobs to their main jobs
+      jobsData.forEach(job => {
+        if (job.link_job_id) {
+          // This is a linked job
+          const mainJob = jobsMap.get(job.link_job_id);
+          if (mainJob) {
+            mainJob.linked_jobs.push({
+              id: job.job_id,
+              type: mapJobType(job.jobType),
+              status: job.status ? "true" : "false"
+            });
+          }
+        }
+      });
+
+      const tempJobs = Array.from(jobsMap.values());
       console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
     } catch (error) {
@@ -341,9 +377,58 @@ function DashboardPage() {
 
   useEffect(() => {
     if (connected && provider) {
+      fetchJobDetails();
+
       fetchTGBalance();
     }
   }, [connected, provider]);
+
+  // const handleStake = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     if (!isWalletInstalled) {
+  //       throw new Error("Web3 wallet is not installed.");
+  //     }
+
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const stakingContract = new ethers.Contract(
+  //       stakeRegistryAddress,
+  //       ["function stake(uint256 amount) external payable returns (uint256)"],
+  //       signer
+  //     );
+  //     console.log("Stake contract:", stakingContract);
+
+  //     const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
+  //     console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
+
+  //     // if (stakeAmountInWei.isZero()) {
+  //     //   throw new Error("Stake amount must be greater than zero.");
+  //     // }
+
+  //     const gasEstimate = await stakingContract.estimateGas.stake(
+  //       stakeAmountInWei,
+  //       {
+  //         value: stakeAmountInWei,
+  //       }
+  //     );
+  //     const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
+  //     console.log("gas", gasLimit);
+
+  //     const tx = await stakingContract.stake(stakeAmountInWei, {
+  //       value: stakeAmountInWei,
+  //       gasLimit: gasLimit,
+  //     });
+  //     await tx.wait();
+
+  //     toast.success("Staking successful!");
+  //     fetchTGBalance();
+  //     setStakeModalVisible(false);
+  //   } catch (error) {
+  //     console.error("Error staking:", error);
+  //     toast.error("Staking failed: " + error.message);
+  //   }
+  // };
 
   const handleStake = async (e) => {
     e.preventDefault();
@@ -359,26 +444,36 @@ function DashboardPage() {
         ["function stake(uint256 amount) external payable returns (uint256)"],
         signer
       );
+      console.log("Stake contract:", stakingContract);
 
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
       console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
 
-      if (stakeAmountInWei.isZero()) {
+      if (stakeAmountInWei === 0n) {
+        // ✅ Correct way to check if BigInt is zero
         throw new Error("Stake amount must be greater than zero.");
       }
+      console.log("hello");
 
-      const gasEstimate = await stakingContract.estimateGas.stake(
-        stakeAmountInWei,
-        {
-          value: stakeAmountInWei,
-        }
+      // const gasEstimate = await stakingContract.estimateGas.stake(
+      //   stakeAmountInWei,
+      //   {
+      //     value: stakeAmountInWei,
+      //   }
+      // );
+      // console.log("gasEstimate", gasEstimate);
+
+      // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
+
+      // const tx = await stakingContract.stake(stakeAmountInWei, {
+      //   value: stakeAmountInWei,
+      //   gasLimit: gasLimit,
+      // });
+      // await tx.wait();
+      const tx = await stakingContract.stake(
+        ethers.parseEther(stakeAmount.toString()),
+        { value: ethers.parseEther(stakeAmount.toString()) }
       );
-      const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
-
-      const tx = await stakingContract.stake(stakeAmountInWei, {
-        value: stakeAmountInWei,
-        gasLimit: gasLimit,
-      });
       await tx.wait();
 
       toast.success("Staking successful!");
@@ -398,49 +493,8 @@ function DashboardPage() {
     }
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen  flex justify-center items-center">
-        <div className="text-2xl">Fetching The Data....</div>
-      </div>
-    );
-  }
-
   return (
     <div>
-      <Helmet>
-        {/* Page Title */}
-        <title>Your Page Title</title>
-
-        {/* Basic Meta Tags */}
-        <meta name="description" content="Descriptive page description" />
-        <meta name="keywords" content="react, meta tags, seo" />
-
-        {/* Open Graph Tags for Social Media */}
-        <meta property="og:title" content="Page Title for Social Sharing" />
-        <meta
-          property="og:description"
-          content="Description for social platforms"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://app.triggerx.network/dashboard"
-        />
-        <meta
-          property="og:image"
-          content="https://app.triggerx.network/images/dashboard.jpg"
-        />
-
-        {/* Twitter Card Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Twitter Page Title" />
-        <meta name="twitter:description" content="Twitter description" />
-        <meta
-          name="twitter:image"
-          content="https://app.triggerx.network/images/dashboard.jpg"
-        />
-      </Helmet>
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -480,9 +534,20 @@ function DashboardPage() {
                         </thead>
                         <tbody>
                           {jobDetails.map((job) => (
+                            < >
                             <tr key={job.id} className="  ">
                               <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                {job.id}
+                              <div className="flex items-center justify-center gap-2">
+            {job.linked_jobs?.length > 0 && ( // Only show dropdown if there are linked jobs
+              <button
+                onClick={() => toggleJobExpand(job.id)}
+                className="text-white hover:text-gray-300"
+              >
+                {expandedJobs[job.id] ? '▼' : '▶'}
+              </button>
+            )}
+            {job.id}
+          </div>
                               </td>
                               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
                                 {job.type}
@@ -507,6 +572,32 @@ function DashboardPage() {
                                 </button>
                               </td>
                             </tr>
+                             {expandedJobs[job.id] && job.linked_jobs && job.linked_jobs.length > 0 && (
+                              job.linked_jobs.map((linkedJob, index) => (
+                                <tr key={`${job.id}-${index}`} className="bg-[#242424]">
+                                  <td className="px-5 py-4 text-[#A2A2A2] text-sm text-center border border-r-0 border-[#2A2A2A] bg-[#242424]">
+                                    ↳ {linkedJob.id}
+                                  </td>
+                                  <td className="px-6 py-4 text-[#A2A2A2] text-sm border border-l-0 border-r-0 border-[#2A2A2A] bg-[#242424]">
+                                    {linkedJob.type}
+                                  </td>
+                                  <td className="px-6 py-4 text-[#A2A2A2] text-sm border border-l-0 border-[#2A2A2A] border-r-0 bg-[#242424]">
+                                    <span className="px-4 py-2 rounded-full text-[13px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10">
+                                      {linkedJob.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] bg-[#242424]">
+                                    <button
+                                      onClick={() => handleDeleteJob(linkedJob.id)}
+                                      className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                    >
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                            </>
                           ))}
                         </tbody>
                       </table>
