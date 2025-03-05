@@ -46,9 +46,11 @@ function DashboardPage() {
   };
 
   useEffect(() => {
-    const initializeProvider = () => {
+    const initializeProvider = async () => {
+      console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
+        console.log(ethProvider);
         setProvider(ethProvider);
         setIsWalletInstalled(true);
       } else {
@@ -58,7 +60,25 @@ function DashboardPage() {
     };
 
     initializeProvider();
+
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", initializeProvider);
+      window.ethereum.on("chainChanged", initializeProvider);
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener("accountsChanged", initializeProvider);
+        window.ethereum.removeListener("chainChanged", initializeProvider);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (provider) {
+      fetchJobDetails();
+    }
+  }, [provider]);
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -163,7 +183,6 @@ function DashboardPage() {
         }));
 
       console.log(tempJobs);
-
 
       console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
@@ -303,10 +322,10 @@ function DashboardPage() {
         selectedJob.argType === "None"
           ? 0
           : selectedJob.argType === "Static"
-          ? 1
-          : selectedJob.argType === "Dynamic"
-          ? 2
-          : 0;
+            ? 1
+            : selectedJob.argType === "Dynamic"
+              ? 2
+              : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
