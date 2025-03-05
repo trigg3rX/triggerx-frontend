@@ -38,9 +38,11 @@ function DashboardPage() {
   }); // Example data with more than 7 rows
 
   useEffect(() => {
-    const initializeProvider = () => {
+    const initializeProvider = async () => {
+      console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
+        console.log(ethProvider);
         setProvider(ethProvider);
         setIsWalletInstalled(true);
       } else {
@@ -50,7 +52,25 @@ function DashboardPage() {
     };
 
     initializeProvider();
+
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", initializeProvider);
+      window.ethereum.on("chainChanged", initializeProvider);
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener("accountsChanged", initializeProvider);
+        window.ethereum.removeListener("chainChanged", initializeProvider);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (provider) {
+      fetchJobDetails();
+    }
+  }, [provider]);
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -116,11 +136,45 @@ function DashboardPage() {
       const jobsData = await response.json();
       console.log("Fetched jobs data:", jobsData);
 
-      const tempJobs = jobsData.map((jobDetail) => ({
-        id: jobDetail.job_id, // job_id
-        type: mapJobType(jobDetail.jobType), // Map job_type ID to label
-        status: jobDetail.status ? "true" : "false", // Convert boolean to string
-      }));
+      // First, create a lookup for quick access by job_id
+      const jobMap = {};
+      jobsData.forEach(job => {
+        jobMap[job.job_id] = job;
+      });
+
+      // Build the linkedJobsMap
+      const linkedJobsMap = {};
+      jobsData.forEach(job => {
+        // Only process main jobs (chain_status === 0)
+        if (job.chain_status === 0) {
+          let mainJobId = job.job_id;
+          let linkedJobs = [];
+          // Start the chain from the main job's link_job_id
+          let nextJobId = job.link_job_id;
+
+          // Follow the chain until link_job_id is -1
+          while (nextJobId !== -1) {
+            const nextJob = jobMap[nextJobId];
+            if (!nextJob) break; // in case of missing data
+            linkedJobs.push(nextJob);
+            nextJobId = nextJob.link_job_id;
+          }
+
+          linkedJobsMap[mainJobId] = linkedJobs;
+        }
+      });
+
+      // Now create your tempJobs array by filtering main jobs and adding their linked jobs
+      const tempJobs = jobsData
+        .filter(jobDetail => jobDetail.chain_status === 0) // Only main jobs
+        .map(jobDetail => ({
+          id: jobDetail.job_id, // job_id
+          type: mapJobType(jobDetail.job_type), // Map job_type ID to label
+          status: jobDetail.status ? "true" : "false", // Convert boolean to string
+          linkedJobs: linkedJobsMap[jobDetail.job_id] || [] // Get linked jobs from the map
+        }));
+
+      console.log(tempJobs);
 
       console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
@@ -261,10 +315,10 @@ function DashboardPage() {
         selectedJob.argType === "None"
           ? 0
           : selectedJob.argType === "Static"
-          ? 1
-          : selectedJob.argType === "Dynamic"
-          ? 2
-          : 0;
+            ? 1
+            : selectedJob.argType === "Dynamic"
+              ? 2
+              : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
