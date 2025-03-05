@@ -36,6 +36,7 @@ export function FunctionArguments({
             placeholder={`Enter ${input.type}`}
             disabled={isDisabled}
             readOnly={isDisabled}
+            required
           />
         </div>
       )))}

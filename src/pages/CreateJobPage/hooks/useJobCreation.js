@@ -191,6 +191,7 @@ export function useJobCreation() {
           stakeRegistryABI,
           signer
         );
+        
 
         console.log("Staking ETH amount:", requiredEth);
         const tx = await contract.stake(
