@@ -206,8 +206,14 @@ function DashboardPage() {
       case "1":
         return "Time-based";
       case "2":
-        return "Event-based";
+        return "Time-based";
       case "3":
+        return "Event-based";
+      case "4":
+        return "Event-based";
+      case "5":
+        return "Condition-based";
+      case "6":
         return "Condition-based";
       default:
         return "Unknown";
@@ -327,10 +333,10 @@ function DashboardPage() {
         selectedJob.argType === "None"
           ? 0
           : selectedJob.argType === "Static"
-          ? 1
-          : selectedJob.argType === "Dynamic"
-          ? 2
-          : 0;
+            ? 1
+            : selectedJob.argType === "Dynamic"
+              ? 2
+              : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
@@ -555,11 +561,10 @@ function DashboardPage() {
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className={`transition-transform duration-300 ${
-                                              expandedJobs[job.id]
+                                            className={`transition-transform duration-300 ${expandedJobs[job.id]
                                                 ? "rotate-180"
                                                 : ""
-                                            }`}
+                                              }`}
                                           >
                                             <path d="m6 9 6 6 6-6" />
                                           </svg>
