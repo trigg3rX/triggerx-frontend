@@ -26,7 +26,38 @@ function DashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
- 
+  // Metatag useEffect
+
+  useEffect(() => {
+    // Define meta tags for About page
+    const metaTags = {
+      title: "TriggerX | Dashboard",
+      description: "Automate Tasks Effortlessly",
+      image: "/dashboard.jpg", // Make sure this image exists in public folder
+      url: window.location.origin + "/dashboard",
+    };
+
+    // Update basic meta tags
+    document.title = metaTags.title;
+
+    // Function to update or create meta tags
+    const updateMetaTag = (property, content) => {
+      let meta = document.querySelector(`meta[property="${property}"]`);
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("property", property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", content);
+    };
+
+    // Set Open Graph meta tags
+    updateMetaTag("og:title", metaTags.title);
+    updateMetaTag("og:description", metaTags.description);
+    updateMetaTag("og:image", window.location.origin + metaTags.image);
+    updateMetaTag("og:url", metaTags.url);
+    updateMetaTag("og:type", "website");
+  }, []);
 
   const data = new Array(15).fill({
     id: 1,
@@ -333,10 +364,10 @@ function DashboardPage() {
         selectedJob.argType === "None"
           ? 0
           : selectedJob.argType === "Static"
-            ? 1
-            : selectedJob.argType === "Dynamic"
-              ? 2
-              : 0;
+          ? 1
+          : selectedJob.argType === "Dynamic"
+          ? 2
+          : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
@@ -407,7 +438,6 @@ function DashboardPage() {
       setTgBalance(ethers.formatEther(tgBalance));
     } catch (error) {
       // console.error("Error fetching TG balance:", error);
-     
     }
   };
 
@@ -561,10 +591,11 @@ function DashboardPage() {
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className={`transition-transform duration-300 ${expandedJobs[job.id]
+                                            className={`transition-transform duration-300 ${
+                                              expandedJobs[job.id]
                                                 ? "rotate-180"
                                                 : ""
-                                              }`}
+                                            }`}
                                           >
                                             <path d="m6 9 6 6 6-6" />
                                           </svg>
