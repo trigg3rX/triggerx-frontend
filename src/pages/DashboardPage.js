@@ -8,6 +8,7 @@ import WalletModal from "../components/WalletModal";
 import talk from "../assets/talk.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Helmet } from "react-helmet";
+import DashboardSkeleton from "../components/DashboardSkeleton";
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -17,6 +18,7 @@ function DashboardPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
   const logoRef = useRef(null);
+  const modelRef = useRef(null);
   const [expandedJobs, setExpandedJobs] = useState({});
   const [tgBalance, setTgBalance] = useState(0);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
@@ -43,6 +45,12 @@ function DashboardPage() {
       ...prev,
       [jobId]: !prev[jobId],
     }));
+  };
+
+  const outsideClick = (e) => {
+    if (modelRef.current && !modelRef.current.contains(e.target)) {
+      setStakeModalVisible(false);
+    }
   };
 
   useEffect(() => {
@@ -527,256 +535,305 @@ function DashboardPage() {
         <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
           <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
             <div className="lg:w-[70%] w-full">
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
-                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                  Active Jobs
-                </h2>
-                {jobDetails.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <div
-                      className="max-h-[650px] overflow-y-auto"
-                      style={{
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
-                      }}
-                    >
-                      <table className="w-full border-separate border-spacing-y-4 ">
-                        <thead className="sticky top-0 bg-[#2A2A2A]">
-                          <tr>
-                            <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
-                              ID
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                              Type
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
-                              Status
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {jobDetails.map((job) => (
-                            <React.Fragment>
-                              <tr key={job.id} className="  ">
-                                <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                  {job.id}
-                                </td>
-                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                                  {job.type}
-                                </td>
-                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                  <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                                    {job.status}
-                                  </span>
-                                </td>
-                                <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                                  <div className="flex flex-row gap-5">
-                                    <button
-                                      disabled
-                                      className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
-                                    >
-                                      Update
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteJob(job.id)}
-                                      className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
-                                    >
-                                      Delete
-                                    </button>
-                                  </div>
-                                  {job.linkedJobs &&
-                                    job.linkedJobs.some(
-                                      (linkedJob) =>
-                                        linkedJob.chain_status === 1
-                                    ) && (
-                                      <div
-                                        onClick={() => toggleJobExpand(job.id)}
-                                        className="flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg"
+              {loading ? (
+                <DashboardSkeleton />
+              ) : (
+                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
+                  <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                    Active Jobs
+                  </h2>
+                  {jobDetails.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <div
+                        className="max-h-[650px] overflow-y-auto"
+                        style={{
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                        }}
+                      >
+                        <table className="w-full border-separate border-spacing-y-4 ">
+                          <thead className="sticky top-0 bg-[#2A2A2A]">
+                            <tr>
+                              <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
+                                ID
+                              </th>
+                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                                Type
+                              </th>
+                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
+                                Status
+                              </th>
+                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {jobDetails.map((job, index) => (
+                              <React.Fragment>
+                                <tr key={job.id} className="  ">
+                                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                    {index + 1}{" "}
+                                    {/* Display sequential number instead of job.id */}
+                                  </td>
+                                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                                    {job.type}
+                                  </td>
+                                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                    <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                      {job.status}
+                                    </span>
+                                  </td>
+                                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                    <div className="flex flex-row gap-5">
+                                      <button
+                                        disabled
+                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
                                       >
-                                        <svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          width="20"
-                                          height="20"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          strokeWidth="2"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          className={`transition-transform duration-300 ${
-                                            expandedJobs[job.id]
-                                              ? "rotate-180"
-                                              : ""
-                                          }`}
+                                        Update
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteJob(job.id)}
+                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                    {job.linkedJobs &&
+                                      job.linkedJobs.some(
+                                        (linkedJob) =>
+                                          linkedJob.chain_status === 1
+                                      ) && (
+                                        <div
+                                          onClick={() =>
+                                            toggleJobExpand(job.id)
+                                          }
+                                          className="flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg"
                                         >
-                                          <path d="m6 9 6 6 6-6" />
-                                        </svg>
-                                      </div>
-                                    )}
-                                </td>
-                              </tr>
-                              {expandedJobs[job.id] &&
-                                job.linkedJobs &&
-                                job.linkedJobs.length > 0 && (
-                                  <tr>
-                                    <td colSpan="4" className="">
-                                      <div className="bg-[#1A1A1A] rounded-lg p-4">
-                                        <h4 className="text-white font-bold mb-4">
-                                          Linked Jobs
-                                        </h4>
-                                        <table className="w-full border-separate border-spacing-y-4 ">
-                                          <thead className=" bg-[#2A2A2A]">
-                                            <tr>
-                                              <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
-                                                ID
-                                              </th>
-                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                                                Type
-                                              </th>
-                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
-                                                Status
-                                              </th>
-                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
-                                                Actions
-                                              </th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {job.linkedJobs.map((linkedJob) => (
-                                              <tr key={job.id} className="  ">
-                                                <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                                  {linkedJob.job_id}
-                                                </td>
-                                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                                                  {mapJobType(
-                                                    linkedJob.job_type
-                                                  )}
-                                                </td>
-                                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                                  <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                                                    {linkedJob.status
-                                                      ? "true"
-                                                      : "false"}
-                                                  </span>
-                                                </td>
-                                                <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                                                  <button
-                                                    disabled
-                                                    className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
-                                                  >
-                                                    Update
-                                                  </button>
-                                                  <button
-                                                    onClick={() =>
-                                                      handleDeleteJob(job.id)
-                                                    }
-                                                    className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
-                                                  >
-                                                    Delete
-                                                  </button>
-                                                </td>
+                                          <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className={`transition-transform duration-300 ${
+                                              expandedJobs[job.id]
+                                                ? "rotate-180"
+                                                : ""
+                                            }`}
+                                          >
+                                            <path d="m6 9 6 6 6-6" />
+                                          </svg>
+                                        </div>
+                                      )}
+                                  </td>
+                                </tr>
+                                {expandedJobs[job.id] &&
+                                  job.linkedJobs &&
+                                  job.linkedJobs.length > 0 && (
+                                    <tr>
+                                      <td colSpan="4" className="">
+                                        <div className="bg-[#1A1A1A] rounded-lg p-4">
+                                          <h4 className="text-white font-bold mb-4">
+                                            Linked Jobs
+                                          </h4>
+                                          <table className="w-full border-separate border-spacing-y-4 ">
+                                            <thead className=" bg-[#2A2A2A]">
+                                              <tr>
+                                                <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
+                                                  ID
+                                                </th>
+                                                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                                                  Type
+                                                </th>
+                                                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
+                                                  Status
+                                                </th>
+                                                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
+                                                  Actions
+                                                </th>
                                               </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                )}
-                            </React.Fragment>
-                          ))}
-                        </tbody>
-                      </table>
+                                            </thead>
+                                            <tbody>
+                                              {job.linkedJobs.map(
+                                                (linkedJob, index) => (
+                                                  <tr
+                                                    key={job.id}
+                                                    className="  "
+                                                  >
+                                                    <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                                      {index + 1}
+                                                    </td>
+                                                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                                                      {mapJobType(
+                                                        linkedJob.job_type
+                                                      )}
+                                                    </td>
+                                                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                                      <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                                        {linkedJob.status
+                                                          ? "true"
+                                                          : "false"}
+                                                      </span>
+                                                    </td>
+                                                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                                      <button
+                                                        disabled
+                                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                                      >
+                                                        Update
+                                                      </button>
+                                                      <button
+                                                        onClick={() =>
+                                                          handleDeleteJob(
+                                                            job.id
+                                                          )
+                                                        }
+                                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                                      >
+                                                        Delete
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                              </React.Fragment>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
-                    No active jobs found. Create your first job to get started.
-                  </h4>
-                )}
-              </div>
+                  ) : (
+                    <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
+                      No active jobs found. Create your first job to get
+                      started.
+                    </h4>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-8 h-full lg:w-[25%] w-full">
-              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-                <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
-                  Your Balance
-                </h3>
-                <div className="p-6 bg-[#242323] rounded-lg ">
-                  <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
-                    Total TG Balance
-                  </p>
-                  <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
-                    {tgBalance} TG
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-                <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                  Quick Actions
-                </h3>
-                <div className="space-y-8  ">
-                  <div className="my-5">
-                    <button
-                      onClick={() => setStakeModalVisible(true)}
-                      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
-                    >
-                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                        Stake ETH
-                      </span>
-                    </button>
+              {loading ? (
+                <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
+                  <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                  <div className="p-6 bg-[#242323] rounded-lg">
+                    <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
+                    <div className="h-8 bg-gray-700 rounded w-32"></div>
                   </div>
-
-                  <Link to="/create-job">
-                    <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
-                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                        Create New Job
-                      </span>
-                    </button>
-                  </Link>
                 </div>
+              ) : (
+                <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+                  <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
+                    Your Balance
+                  </h3>
+                  <div className="p-6 bg-[#242323] rounded-lg ">
+                    <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
+                      Total TG Balance
+                    </p>
+                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
+                      {tgBalance} TG
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+                {loading ? (
+                  <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
+                    <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                    <div className="p-6 bg-[#242323] rounded-lg">
+                      <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
+                      <div className="h-8 bg-gray-700 rounded w-32"></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                      Quick Actions
+                    </h3>
+
+                    <div className="space-y-8  ">
+                      <div className="my-5">
+                        <button
+                          onClick={() => setStakeModalVisible(true)}
+                          className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                        >
+                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                            Stake ETH
+                          </span>
+                        </button>
+                      </div>
+
+                      <Link to="/create-job">
+                        <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
+                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                            Create New Job
+                          </span>
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
-                <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                  Statistics
-                </h3>
-                <div className="space-y-4 text-gray-300">
-                  <div className="flex justify-start items-center gap-7">
-                    <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
-                      {jobDetails.length}
-                    </p>
-                    <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
-                      Total Jobs
-                    </p>
+                {loading ? (
+                  <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
+                    <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                    <div className="p-6 bg-[#242323] rounded-lg">
+                      <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
+                      <div className="h-8 bg-gray-700 rounded w-32"></div>
+                    </div>
                   </div>
-                  <div className="flex justify-start items-center gap-7">
-                    <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md">
-                      {
-                        jobDetails.filter((job) => job.status === "Active")
-                          .length
-                      }
-                    </p>
-                    <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
-                      Active Jobs
-                    </p>
+                ) : (
+                  <div>
+                    <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                      Statistics
+                    </h3>
+                    <div className="space-y-4 text-gray-300">
+                      <div className="flex justify-start items-center gap-7">
+                        <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
+                          {jobDetails.length}
+                        </p>
+                        <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
+                          Total Jobs
+                        </p>
+                      </div>
+                      <div className="flex justify-start items-center gap-7">
+                        <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md">
+                          {
+                            jobDetails.filter((job) => job.status === "Active")
+                              .length
+                          }
+                        </p>
+                        <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
+                          Active Jobs
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {isModalVisible && selectedJob && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="fixed inset-0  backdrop-blur-sm flex justify-center items-center p-4">
             <div className=" p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Update Job
@@ -812,8 +869,14 @@ function DashboardPage() {
         )}
 
         {stakeModalVisible && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-            <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
+          <div
+            onClick={outsideClick}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+          >
+            <div
+              ref={modelRef}
+              className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
+            >
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Stake ETH
               </h2>

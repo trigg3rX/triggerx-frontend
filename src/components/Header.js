@@ -164,7 +164,7 @@ function Header() {
               {menuOpen ? "✖" : "☰"}
             </h4>
             {menuOpen && (
-              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10">
+              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10 min-w-[200px]">
                 <div className="flex flex-col gap-4 text-white ">
                   <a href="https://www.triggerx.network/" target="blank">
                     <h4
