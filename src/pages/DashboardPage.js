@@ -11,7 +11,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Helmet } from "react-helmet";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 
-
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
   const [jobDetails, setJobDetails] = useState([]);
@@ -184,13 +183,13 @@ function DashboardPage() {
 
       // Now create your tempJobs array by filtering main jobs and adding their linked jobs
       const tempJobs = jobsData
-        .filter((jobDetail) => jobDetail.chain_status === 0) // Only main jobs
-        .map((jobDetail) => ({
-          id: jobDetail.job_id, // job_id
-          type: mapJobType(jobDetail.job_type), // Map job_type ID to label
-          status: jobDetail.status ? "true" : "false", // Convert boolean to string
-          linkedJobs: linkedJobsMap[jobDetail.job_id] || [], // Get linked jobs from the map
-        }));
+      .filter((jobDetail) => jobDetail.chain_status === 0 && !jobDetail.status) // Only main jobs with status === false
+      .map((jobDetail) => ({
+          id: jobDetail.job_id,
+          type: mapJobType(jobDetail.job_type),
+          status: "false", // Only including jobs where status is false
+          linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
+      }));
 
       console.log(tempJobs);
 
@@ -531,7 +530,7 @@ function DashboardPage() {
 
   return (
     <div>
-      <Toaster/>
+      <Toaster />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
