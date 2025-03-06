@@ -39,9 +39,9 @@ function DashboardPage() {
   }); // Example data with more than 7 rows
 
   const toggleJobExpand = (jobId) => {
-    setExpandedJobs(prev => ({
+    setExpandedJobs((prev) => ({
       ...prev,
-      [jobId]: !prev[jobId]
+      [jobId]: !prev[jobId],
     }));
   };
 
@@ -146,13 +146,13 @@ function DashboardPage() {
 
       // First, create a lookup for quick access by job_id
       const jobMap = {};
-      jobsData.forEach(job => {
+      jobsData.forEach((job) => {
         jobMap[job.job_id] = job;
       });
 
       // Build the linkedJobsMap
       const linkedJobsMap = {};
-      jobsData.forEach(job => {
+      jobsData.forEach((job) => {
         // Only process main jobs (chain_status === 0)
         if (job.chain_status === 0) {
           let mainJobId = job.job_id;
@@ -174,12 +174,12 @@ function DashboardPage() {
 
       // Now create your tempJobs array by filtering main jobs and adding their linked jobs
       const tempJobs = jobsData
-        .filter(jobDetail => jobDetail.chain_status === 0) // Only main jobs
-        .map(jobDetail => ({
+        .filter((jobDetail) => jobDetail.chain_status === 0) // Only main jobs
+        .map((jobDetail) => ({
           id: jobDetail.job_id, // job_id
           type: mapJobType(jobDetail.job_type), // Map job_type ID to label
           status: jobDetail.status ? "true" : "false", // Convert boolean to string
-          linkedJobs: linkedJobsMap[jobDetail.job_id] || [] // Get linked jobs from the map
+          linkedJobs: linkedJobsMap[jobDetail.job_id] || [], // Get linked jobs from the map
         }));
 
       console.log(tempJobs);
@@ -322,10 +322,10 @@ function DashboardPage() {
         selectedJob.argType === "None"
           ? 0
           : selectedJob.argType === "Static"
-            ? 1
-            : selectedJob.argType === "Dynamic"
-              ? 2
-              : 0;
+          ? 1
+          : selectedJob.argType === "Dynamic"
+          ? 2
+          : 0;
 
       const result = await jobCreatorContract.updateJob(
         selectedJob.id,
@@ -559,120 +559,133 @@ function DashboardPage() {
                         </thead>
                         <tbody>
                           {jobDetails.map((job) => (
-                                                        <React.Fragment >
-
-                            <tr key={job.id} className="  ">
-                              <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                {job.id}
-                              </td>
-                              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                                {job.type}
-                              </td>
-                              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                                  {job.status}
-                                </span>
-                              </td>
-                              <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row justify-between border border-r-0 border-l-0 border-[#2A2A2A] ">
-                                <div className="flex flex-row gap-5">
-                                <button
-                                  disabled
-                                  className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
-                                >
-                                  Update
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteJob(job.id)}
-                                  className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
-                                >
-                                  Delete
-                                </button>
-                                </div>
-                                
-                                <div 
+                            <React.Fragment>
+                              <tr key={job.id} className="  ">
+                                <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                  {job.id}
+                                </td>
+                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                                  {job.type}
+                                </td>
+                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                  <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                    {job.status}
+                                  </span>
+                                </td>
+                                <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                  <div className="flex flex-row gap-5">
+                                    <button
+                                      disabled
+                                      className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                    >
+                                      Update
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteJob(job.id)}
+                                      className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                  {job.linkedJobs &&
+                                    job.linkedJobs.some(
+                                      (linkedJob) =>
+                                        linkedJob.chain_status === 1
+                                    ) && (
+                                      <div
                                         onClick={() => toggleJobExpand(job.id)}
                                         className="flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg"
                                       >
-                                       
-                                        <svg 
-                                          xmlns="http://www.w3.org/2000/svg" 
-                                          width="24" 
-                                          height="24" 
-                                          viewBox="0 0 24 24" 
-                                          fill="none" 
-                                          stroke="currentColor" 
-                                          strokeWidth="2" 
-                                          strokeLinecap="round" 
-                                          strokeLinejoin="round" 
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="20"
+                                          height="20"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth="2"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
                                           className={`transition-transform duration-300 ${
-                                            expandedJobs[job.id] ? 'rotate-180' : ''
+                                            expandedJobs[job.id]
+                                              ? "rotate-180"
+                                              : ""
                                           }`}
                                         >
-                                          <path d="m6 9 6 6 6-6"/>
+                                          <path d="m6 9 6 6 6-6" />
                                         </svg>
                                       </div>
-                              </td>
-                             
-                            </tr>
-                             {expandedJobs[job.id] && job.linkedJobs && job.linkedJobs.length > 0 && (
-                              <tr>
-                                <td colSpan="4" className="bg-[#111111] p-4">
-                                  <div className="bg-[#1A1A1A] rounded-lg p-4">
-                                    <h4 className="text-white font-bold mb-4">Linked Jobs</h4>
-                                    <table className="w-full">
-                                    <thead className="sticky top-0 bg-[#2A2A2A]">
-                          <tr>
-                            <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
-                              ID
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                              Type
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
-                              Status
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                                      <tbody>
-                                        {job.linkedJobs.map((linkedJob) => (
-                                           <tr key={job.id} className="  ">
-                                           <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                          {linkedJob.job_id}
-                                           </td>
-                                           <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                                            {mapJobType(linkedJob.job_type)}
-                                           </td>
-                                           <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                             <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                                               {linkedJob.status ? "true" : "false"}
-                                             </span>
-                                           </td>
-                                           <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                                             <button
-                                               disabled
-                                               className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
-                                             >
-                                               Update
-                                             </button>
-                                             <button
-                                               onClick={() => handleDeleteJob(job.id)}
-                                               className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
-                                             >
-                                               Delete
-                                             </button>
-                                            
-                                           </td>
-                                         </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
+                                    )}
                                 </td>
                               </tr>
-                            )}
+                              {expandedJobs[job.id] &&
+                                job.linkedJobs &&
+                                job.linkedJobs.length > 0 && (
+                                  <tr>
+                                    <td colSpan="4" className="">
+                                      <div className="bg-[#1A1A1A] rounded-lg p-4">
+                                        <h4 className="text-white font-bold mb-4">
+                                          Linked Jobs
+                                        </h4>
+                                        <table className="w-full border-separate border-spacing-y-4 ">
+                                          <thead className=" bg-[#2A2A2A]">
+                                            <tr>
+                                              <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
+                                                ID
+                                              </th>
+                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                                                Type
+                                              </th>
+                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
+                                                Status
+                                              </th>
+                                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
+                                                Actions
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {job.linkedJobs.map((linkedJob) => (
+                                              <tr key={job.id} className="  ">
+                                                <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                                  {linkedJob.job_id}
+                                                </td>
+                                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                                                  {mapJobType(
+                                                    linkedJob.job_type
+                                                  )}
+                                                </td>
+                                                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                                  <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                                    {linkedJob.status
+                                                      ? "true"
+                                                      : "false"}
+                                                  </span>
+                                                </td>
+                                                <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                                  <button
+                                                    disabled
+                                                    className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                                  >
+                                                    Update
+                                                  </button>
+                                                  <button
+                                                    onClick={() =>
+                                                      handleDeleteJob(job.id)
+                                                    }
+                                                    className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                                  >
+                                                    Delete
+                                                  </button>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
                             </React.Fragment>
                           ))}
                         </tbody>
