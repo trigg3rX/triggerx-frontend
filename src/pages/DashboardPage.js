@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { toast } from "react-toastify";
+// import Toster, { toast } from "react-toastify";
+import { Toaster, toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
@@ -9,6 +10,7 @@ import talk from "../assets/talk.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Helmet } from "react-helmet";
 import DashboardSkeleton from "../components/DashboardSkeleton";
+
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -279,10 +281,11 @@ function DashboardPage() {
   const handleDeleteJob = async (jobId) => {
     try {
       // Delete the job from the database
+      console.log("delete job");
       const response = await fetch(
-        `https://data.triggerx.network/api/jobs/${jobId}`,
+        `https://data.triggerx.network/api/jobs/delete/${jobId}`,
         {
-          method: "DELETE",
+          method: "PUT",
         }
       );
 
@@ -528,6 +531,7 @@ function DashboardPage() {
 
   return (
     <div>
+      <Toaster/>
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
