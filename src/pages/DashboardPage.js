@@ -22,42 +22,7 @@ function DashboardPage() {
   const [isWalletInstalled, setIsWalletInstalled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
-  const [scrollToSection, setScrollToSection] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Metatag useEffect
-
-  useEffect(() => {
-    // Define meta tags for About page
-    const metaTags = {
-      title: "TriggerX | Dashboard",
-      description: "Automate Tasks Effortlessly",
-      image: "/dashboard.jpg", // Make sure this image exists in public folder
-      url: window.location.origin + "/dashboard",
-    };
-
-    // Update basic meta tags
-    document.title = metaTags.title;
-
-    // Function to update or create meta tags
-    const updateMetaTag = (property, content) => {
-      let meta = document.querySelector(`meta[property="${property}"]`);
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("property", property);
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", content);
-    };
-
-    // Set Open Graph meta tags
-    updateMetaTag("og:title", metaTags.title);
-    updateMetaTag("og:description", metaTags.description);
-    updateMetaTag("og:image", window.location.origin + metaTags.image);
-    updateMetaTag("og:url", metaTags.url);
-    updateMetaTag("og:type", "website");
-  }, []);
 
   const data = new Array(15).fill({
     id: 1,
@@ -80,7 +45,7 @@ function DashboardPage() {
 
   useEffect(() => {
     const initializeProvider = async () => {
-      console.log("Initializing provider...");
+      // console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
         // console.log(ethProvider);
@@ -156,7 +121,7 @@ function DashboardPage() {
 
   const fetchJobDetails = async () => {
     if (!provider) {
-      console.log("Web3 provider not initialized");
+      // console.log("Web3 provider not initialized");
       return;
     }
 
@@ -222,8 +187,8 @@ function DashboardPage() {
       // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
     } catch (error) {
-      console.error("Error fetching job details:", error);
-      toast.error("Failed to fetch job details: " + error.message);
+      // console.error("Error fetching job details:", error);
+      toast.error("Failed to fetch job details ");
     } finally {
       setLoading(false);
     }
@@ -329,8 +294,8 @@ function DashboardPage() {
       // Fetch the updated job details
       await fetchJobDetails();
     } catch (error) {
-      console.error("Error deleting job:", error);
-      toast.error("Failed to delete job: " + error.message);
+      // console.error("Error deleting job:", error);
+      toast.error("Failed to delete job");
     }
   };
 
@@ -388,8 +353,8 @@ function DashboardPage() {
       await fetchJobDetails();
       handleCloseModal();
     } catch (error) {
-      console.error("Error updating job:", error);
-      toast.error("Error updating job: " + error.message);
+      // console.error("Error updating job:", error);
+      toast.error("Error updating job");
     }
   };
 
@@ -483,8 +448,8 @@ function DashboardPage() {
       fetchTGBalance();
       setStakeModalVisible(false);
     } catch (error) {
-      console.error("Error staking:", error);
-      toast.error("Staking failed: " + error.message);
+      // console.error("Error staking:", error);
+      toast.error("Staking failed ");
     }
   };
 
@@ -498,7 +463,7 @@ function DashboardPage() {
 
   return (
     <div>
-      <Toaster position="right" />
+      <Toaster position="center" className="mt-10" />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -747,7 +712,7 @@ function DashboardPage() {
                         </button>
                       </div>
 
-                      <Link to="/create-job">
+                      <Link to="/">
                         <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
                           <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                           <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
@@ -842,7 +807,7 @@ function DashboardPage() {
         {stakeModalVisible && (
           <div
             onClick={outsideClick}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+            className="fixed inset-0  backdrop-blur-sm flex justify-center items-center p-4 z-50"
           >
             <div
               ref={modelRef}

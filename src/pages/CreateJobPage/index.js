@@ -66,39 +66,6 @@ function CreateJobPage() {
     },
   ];
 
-  // Metatag useEffect
-
-  useEffect(() => {
-    // Define meta tags for About page
-    const metaTags = {
-      title: "TriggerX | Build",
-      description: "Automate Tasks Effortlessly",
-      image: "/build.jpg", // Make sure this image exists in public folder
-      url: window.location.origin + "/",
-    };
-
-    // Update basic meta tags
-    document.title = metaTags.title;
-
-    // Function to update or create meta tags
-    const updateMetaTag = (property, content) => {
-      let meta = document.querySelector(`meta[property="${property}"]`);
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("property", property);
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", content);
-    };
-
-    // Set Open Graph meta tags
-    updateMetaTag("og:title", metaTags.title);
-    updateMetaTag("og:description", metaTags.description);
-    updateMetaTag("og:image", window.location.origin + metaTags.image);
-    updateMetaTag("og:url", metaTags.url);
-    updateMetaTag("og:type", "website");
-  }, []);
-
   const handleLinkJob = (jobType) => {
     setLinkedJobs((prevJobs) => {
       const existingJobs = prevJobs[jobType] || []; // Get existing jobs for the selected job type
