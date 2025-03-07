@@ -15,35 +15,35 @@ export function useJobCreation() {
   const [userBalance, setUserBalance] = useState(0);
   const [estimatedFeeInGwei, setEstimatedFeeInGwei] = useState(0);
 
-  const [codeUrls, setCodeUrls] = useState({});
+  const [codeUrls, setCodeUrls] = useState([]);
 
   const handleCodeUrlChange = (event, jobType, jobId = null) => {
     if (event?.target) {
       const url = event.target.value;
-  
-      setCodeUrls((prev) => ({
-        ...prev,
-        [jobType]: {
-          ...(prev[jobType] || {}),
-          [jobId !== null ? jobId : "main"]: url, // Use "main" for the primary job, jobId for linked jobs
-        },
-      }));
-  
+      setCodeUrls((prev) => {
+        // If jobType already exists as an array, make a copy; otherwise, initialize it as an empty array.
+        const urls = prev[jobType] ? [...prev[jobType]] : [];
+        // If jobId is provided, update that index; otherwise, update index 0 for the main job.
+        if (jobId !== null) {
+          urls[jobId] = url;
+        } else {
+          urls[0] = url;
+        }
+        return { ...prev, [jobType]: urls };
+      });
+    
       console.log(
         `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"} changed to:`,
         url
       );
     }
-  };  
-
+  };
+  
   useEffect(() => {
     fetchTGBalance();
   });
+  
   const estimateFee = async (
-    contractAddress,
-    contractABI,
-    targetFunction,
-    argsArray,
     timeframeInSeconds,
     intervalInSeconds
   ) => {
@@ -84,6 +84,7 @@ export function useJobCreation() {
       let totalFeeTG = 0;
       // user TG balance
       const selectedCodeUrl = codeUrls[jobType]; // Use jobType-specific URL
+      console.log("ipfs",selectedCodeUrl);
 
       if (selectedCodeUrl) {
         try {
