@@ -243,8 +243,15 @@ function CreateJobPage() {
 
     // Estimate the fee for all jobs and sum them up
     const rawFee = await estimateFee(timeframeInSeconds, intervalInSeconds);
-    
+    // console.log("raw fee",rawFee);
+    const totalEstimatedFee = typeof rawFee === 'undefined' ? 2 : rawFee; // Use 0 as fallback per your comment
+
+
+
+
+    console.log("Total Estimated Fee:", totalEstimatedFee);
     setJobDetails(jobDetails);
+    setEstimatedFee(totalEstimatedFee);
     setIsModalOpen(true);
     // handleSubmit will be called later through the modal's onStake
   };
