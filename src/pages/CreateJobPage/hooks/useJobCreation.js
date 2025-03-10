@@ -96,7 +96,7 @@ export function useJobCreation() {
               method: "GET",
               headers: {
                 Accept: "application/json",
-                Origin: "https://triggerx.network"
+                Origin: "https://app.triggerx.network"
               },
             }
           );
