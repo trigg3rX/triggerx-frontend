@@ -163,12 +163,14 @@ const Footer = () => {
               <a
                 href="https://triggerx.gitbook.io/triggerx-docs"
                 className="hover:text-gray-400 "
+                target="blank"
               >
                 Docs
               </a>
               <a
                 href="https://t.me/triggerxnetwork"
                 className="hover:text-gray-400"
+                target="blank"
               >
                 Dev Hub
               </a>
@@ -177,15 +179,16 @@ const Footer = () => {
               <a
                 href="https://triggerx.gitbook.io/triggerx-docs/join-as-keeper"
                 className="hover:text-gray-400"
+                target="blank"
               >
                 Join As Keeper
               </a>
-              <a href="#" className="hover:text-gray-400">
+              <div href="#" className="hover:text-gray-400">
                 Term of Use
-              </a>
-              <a href="#" className="hover:text-gray-400">
+              </div>
+              <div href="#" className="hover:text-gray-400">
                 Privacy Policy
-              </a>
+              </div>
             </div>
           </div>
         </div>
