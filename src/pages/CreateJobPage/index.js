@@ -297,32 +297,32 @@ function CreateJobPage() {
             job.argumentType === "static"
               ? 1
               : job.argumentType === "dynamic"
-              ? 2
-              : null;
+                ? 2
+                : null;
         } else if (jobType === 2) {
           // For jobtype 2: static -> 5, dynamic -> 6
           taskdefinitionid =
             job.argumentType === "static"
               ? 5
               : job.argumentType === "dynamic"
-              ? 6
-              : null;
+                ? 6
+                : null;
         } else if (jobType === 3) {
           // For jobtype 3: static -> 3, dynamic -> 4
           taskdefinitionid =
             job.argumentType === "static"
               ? 3
               : job.argumentType === "dynamic"
-              ? 4
-              : null;
+                ? 4
+                : null;
         }
 
         const argType =
           job.argumentType === "static"
             ? 0
             : job.argumentType === "dynamic"
-            ? 1
-            : null;
+              ? 1
+              : null;
         const nextJob = arr[index + 1];
 
         return {
@@ -360,15 +360,12 @@ function CreateJobPage() {
 
       console.log("jobdetails", jobDetails);
 
-      // Estimate the fee for all jobs and sum them up
-      const rawFee = await estimateFee(timeframeInSeconds, intervalInSeconds);
-      // console.log("raw fee",rawFee);
-      const totalEstimatedFee = typeof rawFee === "undefined" ? 2 : rawFee; // Use 0 as fallback per your comment
 
-      console.log("Total Estimated Fee:", totalEstimatedFee);
+      await estimateFee(timeframeInSeconds, intervalInSeconds);
+
       setJobDetails(jobDetails);
-      setEstimatedFee(totalEstimatedFee);
       setIsModalOpen(true);
+
     } catch (error) {
       console.error("Error during job creation:", error);
       // Handle the error appropriately (e.g., show an error message)
@@ -411,9 +408,8 @@ function CreateJobPage() {
                     className="text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 bg-white/5 border border-white/10 text-xs xs:text-base"
                   >
                     <div
-                      className={`${
-                        Number(option.value) === jobType ? "bg-white" : ""
-                      } absolute top-2 left-2 rounded-full w-2.5 h-2.5 border`}
+                      className={`${Number(option.value) === jobType ? "bg-white" : ""
+                        } absolute top-2 left-2 rounded-full w-2.5 h-2.5 border`}
                     ></div>
                     <span>{option.icon}</span>
                     <span>{option.label}</span>
@@ -595,8 +591,8 @@ function CreateJobPage() {
                     jobType === 1
                       ? timeContractInteraction
                       : jobType === 2
-                      ? conditionContractInteraction
-                      : eventFunctionContractInteraction;
+                        ? conditionContractInteraction
+                        : eventFunctionContractInteraction;
                   return (
                     <>
                       <ContractDetails
@@ -727,73 +723,73 @@ function CreateJobPage() {
                             jobId === 1
                               ? time1ContractInteraction.contractAddress
                               : jobId === 2
-                              ? time2ContractInteraction.contractAddress
-                              : jobId === 3
-                              ? time3ContractInteraction.contractAddress
-                              : ""
+                                ? time2ContractInteraction.contractAddress
+                                : jobId === 3
+                                  ? time3ContractInteraction.contractAddress
+                                  : ""
                           }
                           contractABI={
                             jobId === 1
                               ? time1ContractInteraction.contractABI
                               : jobId === 2
-                              ? time2ContractInteraction.contractABI
-                              : jobId === 3
-                              ? time3ContractInteraction.contractABI
-                              : []
+                                ? time2ContractInteraction.contractABI
+                                : jobId === 3
+                                  ? time3ContractInteraction.contractABI
+                                  : []
                           }
                           targetFunction={
                             jobId === 1
                               ? time1ContractInteraction.targetFunction
                               : jobId === 2
-                              ? time2ContractInteraction.targetFunction
-                              : jobId === 3
-                              ? time3ContractInteraction.targetFunction
-                              : ""
+                                ? time2ContractInteraction.targetFunction
+                                : jobId === 3
+                                  ? time3ContractInteraction.targetFunction
+                                  : ""
                           }
                           functions={
                             jobId === 1
                               ? time1ContractInteraction.functions
                               : jobId === 2
-                              ? time2ContractInteraction.functions
-                              : jobId === 3
-                              ? time3ContractInteraction.functions
-                              : []
+                                ? time2ContractInteraction.functions
+                                : jobId === 3
+                                  ? time3ContractInteraction.functions
+                                  : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? time1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                              ? time2ContractInteraction.handleContractAddressChange
-                              : jobId === 3
-                              ? time3ContractInteraction.handleContractAddressChange
-                              : () => {}
+                                ? time2ContractInteraction.handleContractAddressChange
+                                : jobId === 3
+                                  ? time3ContractInteraction.handleContractAddressChange
+                                  : () => { }
                           }
                           onFunctionChange={
                             jobId === 1
                               ? time1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                              ? time2ContractInteraction.handleFunctionChange
-                              : jobId === 3
-                              ? time3ContractInteraction.handleFunctionChange
-                              : () => {}
+                                ? time2ContractInteraction.handleFunctionChange
+                                : jobId === 3
+                                  ? time3ContractInteraction.handleFunctionChange
+                                  : () => { }
                           }
                           argumentType={
                             jobId === 1
                               ? time1ContractInteraction.argumentType
                               : jobId === 2
-                              ? time2ContractInteraction.argumentType
-                              : jobId === 3
-                              ? time3ContractInteraction.argumentType
-                              : ""
+                                ? time2ContractInteraction.argumentType
+                                : jobId === 3
+                                  ? time3ContractInteraction.argumentType
+                                  : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? time1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                              ? time2ContractInteraction.handleArgumentTypeChange
-                              : jobId === 3
-                              ? time3ContractInteraction.handleArgumentTypeChange
-                              : () => {}
+                                ? time2ContractInteraction.handleArgumentTypeChange
+                                : jobId === 3
+                                  ? time3ContractInteraction.handleArgumentTypeChange
+                                  : () => { }
                           }
                         />
                         {jobId === 1 &&
@@ -858,73 +854,73 @@ function CreateJobPage() {
                             jobId === 1
                               ? condition1ContractInteraction.contractAddress
                               : jobId === 2
-                              ? condition2ContractInteraction.contractAddress
-                              : jobId === 3
-                              ? condition3ContractInteraction.contractAddress
-                              : ""
+                                ? condition2ContractInteraction.contractAddress
+                                : jobId === 3
+                                  ? condition3ContractInteraction.contractAddress
+                                  : ""
                           }
                           contractABI={
                             jobId === 1
                               ? condition1ContractInteraction.contractABI
                               : jobId === 2
-                              ? condition2ContractInteraction.contractABI
-                              : jobId === 3
-                              ? condition3ContractInteraction.contractABI
-                              : []
+                                ? condition2ContractInteraction.contractABI
+                                : jobId === 3
+                                  ? condition3ContractInteraction.contractABI
+                                  : []
                           }
                           targetFunction={
                             jobId === 1
                               ? condition1ContractInteraction.targetFunction
                               : jobId === 2
-                              ? condition2ContractInteraction.targetFunction
-                              : jobId === 3
-                              ? condition3ContractInteraction.targetFunction
-                              : ""
+                                ? condition2ContractInteraction.targetFunction
+                                : jobId === 3
+                                  ? condition3ContractInteraction.targetFunction
+                                  : ""
                           }
                           functions={
                             jobId === 1
                               ? condition1ContractInteraction.functions
                               : jobId === 2
-                              ? condition2ContractInteraction.functions
-                              : jobId === 3
-                              ? condition3ContractInteraction.functions
-                              : []
+                                ? condition2ContractInteraction.functions
+                                : jobId === 3
+                                  ? condition3ContractInteraction.functions
+                                  : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                              ? condition2ContractInteraction.handleContractAddressChange
-                              : jobId === 3
-                              ? condition3ContractInteraction.handleContractAddressChange
-                              : () => {}
+                                ? condition2ContractInteraction.handleContractAddressChange
+                                : jobId === 3
+                                  ? condition3ContractInteraction.handleContractAddressChange
+                                  : () => { }
                           }
                           onFunctionChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                              ? condition2ContractInteraction.handleFunctionChange
-                              : jobId === 3
-                              ? condition3ContractInteraction.handleFunctionChange
-                              : () => {}
+                                ? condition2ContractInteraction.handleFunctionChange
+                                : jobId === 3
+                                  ? condition3ContractInteraction.handleFunctionChange
+                                  : () => { }
                           }
                           argumentType={
                             jobId === 1
                               ? condition1ContractInteraction.argumentType
                               : jobId === 2
-                              ? condition2ContractInteraction.argumentType
-                              : jobId === 3
-                              ? condition3ContractInteraction.argumentType
-                              : ""
+                                ? condition2ContractInteraction.argumentType
+                                : jobId === 3
+                                  ? condition3ContractInteraction.argumentType
+                                  : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                              ? condition2ContractInteraction.handleArgumentTypeChange
-                              : jobId === 3
-                              ? condition3ContractInteraction.handleArgumentTypeChange
-                              : () => {}
+                                ? condition2ContractInteraction.handleArgumentTypeChange
+                                : jobId === 3
+                                  ? condition3ContractInteraction.handleArgumentTypeChange
+                                  : () => { }
                           }
                         />
                         {jobId === 1 &&
@@ -989,73 +985,73 @@ function CreateJobPage() {
                             jobId === 1
                               ? eventFunction1ContractInteraction.contractAddress
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.contractAddress
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.contractAddress
-                              : ""
+                                ? eventFunction2ContractInteraction.contractAddress
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.contractAddress
+                                  : ""
                           }
                           contractABI={
                             jobId === 1
                               ? eventFunction1ContractInteraction.contractABI
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.contractABI
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.contractABI
-                              : []
+                                ? eventFunction2ContractInteraction.contractABI
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.contractABI
+                                  : []
                           }
                           targetFunction={
                             jobId === 1
                               ? eventFunction1ContractInteraction.targetFunction
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.targetFunction
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.targetFunction
-                              : ""
+                                ? eventFunction2ContractInteraction.targetFunction
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.targetFunction
+                                  : ""
                           }
                           functions={
                             jobId === 1
                               ? eventFunction1ContractInteraction.functions
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.functions
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.functions
-                              : []
+                                ? eventFunction2ContractInteraction.functions
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.functions
+                                  : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.handleContractAddressChange
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.handleContractAddressChange
-                              : () => {}
+                                ? eventFunction2ContractInteraction.handleContractAddressChange
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.handleContractAddressChange
+                                  : () => { }
                           }
                           onFunctionChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.handleFunctionChange
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.handleFunctionChange
-                              : () => {}
+                                ? eventFunction2ContractInteraction.handleFunctionChange
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.handleFunctionChange
+                                  : () => { }
                           }
                           argumentType={
                             jobId === 1
                               ? eventFunction1ContractInteraction.argumentType
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.argumentType
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.argumentType
-                              : ""
+                                ? eventFunction2ContractInteraction.argumentType
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.argumentType
+                                  : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                              ? eventFunction2ContractInteraction.handleArgumentTypeChange
-                              : jobId === 3
-                              ? eventFunction3ContractInteraction.handleArgumentTypeChange
-                              : () => {}
+                                ? eventFunction2ContractInteraction.handleArgumentTypeChange
+                                : jobId === 3
+                                  ? eventFunction3ContractInteraction.handleArgumentTypeChange
+                                  : () => { }
                           }
                         />
                         {jobId === 1 &&
@@ -1176,9 +1172,8 @@ function CreateJobPage() {
                   <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                   <span
-                    className={`${
-                      isLoading ? "cursor-not-allowed opacity-50 " : ""
-                    }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                    className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
+                      }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                   >
                     Link Job
                   </span>

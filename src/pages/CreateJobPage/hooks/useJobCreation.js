@@ -89,18 +89,17 @@ export function useJobCreation() {
       if (selectedCodeUrl) {
         try {
           const response = await fetch(
-            `https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(
+            `http://localhost:8080/api/fees?ipfs_url=${encodeURIComponent(
               selectedCodeUrl
             )}`,
-            // {
-            //   method: "GET",
-            //   headers: {
-            //     Accept: "application/json",
-            //     Origin: "https://app.triggerx.network"
-            //   },
-            // }
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                Origin: "https://app.triggerx.network"
+              },
+            }
           );
-
           if (!response.ok) {
             throw new Error("Failed to get fees");
           }
