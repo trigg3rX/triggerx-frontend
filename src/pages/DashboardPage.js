@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-// import Toster, { toast } from "react-toastify";
 import { Toaster, toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import logo from "../assets/logo.svg";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
 import WalletModal from "../components/WalletModal";
-import talk from "../assets/talk.svg";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Helmet } from "react-helmet";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 
 function DashboardPage() {
@@ -27,13 +22,7 @@ function DashboardPage() {
   const [isWalletInstalled, setIsWalletInstalled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
-  const [scrollToSection, setScrollToSection] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-
-  if (!connected) {
-    toast.error("Please connect your wallet!");
-  }
 
   const data = new Array(15).fill({
     id: 1,
@@ -56,10 +45,10 @@ function DashboardPage() {
 
   useEffect(() => {
     const initializeProvider = async () => {
-      console.log("Initializing provider...");
+      // console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
-        console.log(ethProvider);
+        // console.log(ethProvider);
         setProvider(ethProvider);
         setIsWalletInstalled(true);
       } else {
@@ -132,7 +121,7 @@ function DashboardPage() {
 
   const fetchJobDetails = async () => {
     if (!provider) {
-      console.log("Web3 provider not initialized");
+      // console.log("Web3 provider not initialized");
       return;
     }
 
@@ -140,7 +129,7 @@ function DashboardPage() {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      console.log(userAddress, "address");
+      // console.log(userAddress, "address");
 
       // Fetch job details from the ScyllaDB API
       const response = await fetch(
@@ -151,7 +140,7 @@ function DashboardPage() {
       }
 
       const jobsData = await response.json();
-      console.log("Fetched jobs data:", jobsData);
+      // console.log("Fetched jobs data:", jobsData);
 
       // First, create a lookup for quick access by job_id
       const jobMap = {};
@@ -183,21 +172,23 @@ function DashboardPage() {
 
       // Now create your tempJobs array by filtering main jobs and adding their linked jobs
       const tempJobs = jobsData
-      .filter((jobDetail) => jobDetail.chain_status === 0 && !jobDetail.status) // Only main jobs with status === false
-      .map((jobDetail) => ({
+        .filter(
+          (jobDetail) => jobDetail.chain_status === 0 && !jobDetail.status
+        ) // Only main jobs with status === false
+        .map((jobDetail) => ({
           id: jobDetail.job_id,
           type: mapJobType(jobDetail.job_type),
-          status: "false", // Only including jobs where status is false
+          status: "Active", // Only including jobs where status is false
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
-      }));
+        }));
 
-      console.log(tempJobs);
+      // console.log(tempJobs);
 
-      console.log("All formatted jobs:", tempJobs);
+      // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
     } catch (error) {
-      console.error("Error fetching job details:", error);
-      toast.error("Failed to fetch job details: " + error.message);
+      // console.error("Error fetching job details:", error);
+      toast.error("Failed to fetch job details ");
     } finally {
       setLoading(false);
     }
@@ -211,8 +202,14 @@ function DashboardPage() {
       case "1":
         return "Time-based";
       case "2":
-        return "Event-based";
+        return "Time-based";
       case "3":
+        return "Event-based";
+      case "4":
+        return "Event-based";
+      case "5":
+        return "Condition-based";
+      case "6":
         return "Condition-based";
       default:
         return "Unknown";
@@ -259,7 +256,7 @@ function DashboardPage() {
         });
         setConnected(accounts.length > 0);
       } catch (error) {
-        console.error("Error checking connection:", error);
+        toast.error("Please connect your wallet!");
         setConnected(false);
       }
     };
@@ -280,7 +277,7 @@ function DashboardPage() {
   const handleDeleteJob = async (jobId) => {
     try {
       // Delete the job from the database
-      console.log("delete job");
+      // console.log("delete job");
       const response = await fetch(
         `https://data.triggerx.network/api/jobs/delete/${jobId}`,
         {
@@ -297,8 +294,8 @@ function DashboardPage() {
       // Fetch the updated job details
       await fetchJobDetails();
     } catch (error) {
-      console.error("Error deleting job:", error);
-      toast.error("Failed to delete job: " + error.message);
+      // console.error("Error deleting job:", error);
+      toast.error("Failed to delete job");
     }
   };
 
@@ -349,15 +346,15 @@ function DashboardPage() {
         selectedJob.apiEndpoint
       );
 
-      console.log("Job updated successfully:", result);
+      // console.log("Job updated successfully:", result);
       toast.success("Job updated successfully");
 
       // Refresh job details after update
       await fetchJobDetails();
       handleCloseModal();
     } catch (error) {
-      console.error("Error updating job:", error);
-      toast.error("Error updating job: " + error.message);
+      // console.error("Error updating job:", error);
+      toast.error("Error updating job");
     }
   };
 
@@ -402,11 +399,10 @@ function DashboardPage() {
       );
 
       const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      console.log("Raw TG Balance:", tgBalance.toString());
+      // console.log("Raw TG Balance:", tgBalance.toString());
       setTgBalance(ethers.formatEther(tgBalance));
     } catch (error) {
-      console.error("Error fetching TG balance:", error);
-      toast.error("Failed to fetch TG balance");
+      // console.error("Error fetching TG balance:", error);
     }
   };
 
@@ -417,53 +413,6 @@ function DashboardPage() {
       fetchTGBalance();
     }
   }, [connected, provider]);
-
-  // const handleStake = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     if (!isWalletInstalled) {
-  //       throw new Error("Web3 wallet is not installed.");
-  //     }
-
-  //     const provider = new ethers.BrowserProvider(window.ethereum);
-  //     const signer = await provider.getSigner();
-  //     const stakingContract = new ethers.Contract(
-  //       stakeRegistryAddress,
-  //       ["function stake(uint256 amount) external payable returns (uint256)"],
-  //       signer
-  //     );
-  //     console.log("Stake contract:", stakingContract);
-
-  //     const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
-  //     console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
-
-  //     // if (stakeAmountInWei.isZero()) {
-  //     //   throw new Error("Stake amount must be greater than zero.");
-  //     // }
-
-  //     const gasEstimate = await stakingContract.estimateGas.stake(
-  //       stakeAmountInWei,
-  //       {
-  //         value: stakeAmountInWei,
-  //       }
-  //     );
-  //     const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
-  //     console.log("gas", gasLimit);
-
-  //     const tx = await stakingContract.stake(stakeAmountInWei, {
-  //       value: stakeAmountInWei,
-  //       gasLimit: gasLimit,
-  //     });
-  //     await tx.wait();
-
-  //     toast.success("Staking successful!");
-  //     fetchTGBalance();
-  //     setStakeModalVisible(false);
-  //   } catch (error) {
-  //     console.error("Error staking:", error);
-  //     toast.error("Staking failed: " + error.message);
-  //   }
-  // };
 
   const handleStake = async (e) => {
     e.preventDefault();
@@ -479,32 +428,16 @@ function DashboardPage() {
         ["function stake(uint256 amount) external payable returns (uint256)"],
         signer
       );
-      console.log("Stake contract:", stakingContract);
+      // console.log("Stake contract:", stakingContract);
 
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
-      console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
+      // console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
 
       if (stakeAmountInWei === 0n) {
         // ✅ Correct way to check if BigInt is zero
         throw new Error("Stake amount must be greater than zero.");
       }
-      console.log("hello");
 
-      // const gasEstimate = await stakingContract.estimateGas.stake(
-      //   stakeAmountInWei,
-      //   {
-      //     value: stakeAmountInWei,
-      //   }
-      // );
-      // console.log("gasEstimate", gasEstimate);
-
-      // const gasLimit = Math.floor(gasEstimate.toNumber() * 1.2);
-
-      // const tx = await stakingContract.stake(stakeAmountInWei, {
-      //   value: stakeAmountInWei,
-      //   gasLimit: gasLimit,
-      // });
-      // await tx.wait();
       const tx = await stakingContract.stake(
         ethers.parseEther(stakeAmount.toString()),
         { value: ethers.parseEther(stakeAmount.toString()) }
@@ -515,8 +448,8 @@ function DashboardPage() {
       fetchTGBalance();
       setStakeModalVisible(false);
     } catch (error) {
-      console.error("Error staking:", error);
-      toast.error("Staking failed: " + error.message);
+      // console.error("Error staking:", error);
+      toast.error("Staking failed ");
     }
   };
 
@@ -530,7 +463,7 @@ function DashboardPage() {
 
   return (
     <div>
-      <Toaster />
+      <Toaster position="center" className="mt-10" />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -679,8 +612,8 @@ function DashboardPage() {
                                                     <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
                                                       <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
                                                         {linkedJob.status
-                                                          ? "true"
-                                                          : "false"}
+                                                          ? "InActive"
+                                                          : "Active"}
                                                       </span>
                                                     </td>
                                                     <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
@@ -779,7 +712,7 @@ function DashboardPage() {
                         </button>
                       </div>
 
-                      <Link to="/create-job">
+                      <Link to="/">
                         <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
                           <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                           <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
@@ -874,7 +807,7 @@ function DashboardPage() {
         {stakeModalVisible && (
           <div
             onClick={outsideClick}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+            className="fixed inset-0  backdrop-blur-sm flex justify-center items-center p-4 z-50"
           >
             <div
               ref={modelRef}

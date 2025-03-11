@@ -145,14 +145,14 @@ function Header() {
         {/* Logo */}
         <div className="flex-shrink-0 relative z-10">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="Logo" width={150} />
+            <img src={logo} alt="Logo" width={120} height={120} />
           </a>
         </div>
 
         {/* Hamburger Menu and Navigation */}
         <div className="relative flex items-center gap-5">
           {/* Connect Wallet Button */}
-          <div className="flex-shrink-0 relative z-10">
+          <div className="flex-shrink-0 relative z-10 ">
             <ConnectButton chainStatus="none" accountStatus="address" />
           </div>
           {/* Hamburger Menu for Mobile */}
