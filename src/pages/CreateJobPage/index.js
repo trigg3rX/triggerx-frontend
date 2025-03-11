@@ -365,7 +365,6 @@ function CreateJobPage() {
 
       setJobDetails(jobDetails);
       setIsModalOpen(true);
-
     } catch (error) {
       console.error("Error during job creation:", error);
       // Handle the error appropriately (e.g., show an error message)
