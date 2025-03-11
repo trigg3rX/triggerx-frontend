@@ -1,11 +1,21 @@
-export function TimeframeInputs({ timeframe, onTimeframeChange }) {
+import { forwardRef } from "react";
+
+export const TimeframeInputs = forwardRef(({ timeframe, onTimeframeChange, error }, errorRef) => {
   return (
     <div>
-      <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6">
+      <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
         Timeframe
       </label>
+
+      {/* Error message near heading */}
+      {error && (
+        <div ref={errorRef} className="text-red-500 text-xs sm:text-sm mb-4">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none  transition-all duration-300">
+        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none transition-all duration-300">
           <label className="block text-xs sm:text-sm pb-3 tracking-wider">Years</label>
           <input
             type="number"
@@ -16,7 +26,7 @@ export function TimeframeInputs({ timeframe, onTimeframeChange }) {
             min="0"
           />
         </div>
-        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400  transition-all duration-300">
+        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 transition-all duration-300">
           <label className="block text-xs sm:text-sm pb-3 tracking-wider">Months</label>
           <input
             type="number"
@@ -43,4 +53,4 @@ export function TimeframeInputs({ timeframe, onTimeframeChange }) {
       </div>
     </div>
   );
-}
+});

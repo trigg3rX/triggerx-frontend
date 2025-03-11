@@ -244,6 +244,8 @@ function CreateJobPage() {
     // Estimate the fee for all jobs and sum them up
     // const rawFee = 
     await estimateFee(timeframeInSeconds, intervalInSeconds);
+    // const rawFee = 
+    await estimateFee(timeframeInSeconds, intervalInSeconds);
     // console.log("raw fee",rawFee);
     // const totalEstimatedFee = typeof rawFee === 'undefined' ? 2 : rawFee; // Use 0 as fallback per your comment
 
