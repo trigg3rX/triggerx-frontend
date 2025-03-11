@@ -21,7 +21,10 @@ export function EstimatedFeeModal({
         Estimated Fee
       </h2>
       <div className="space-y-4 mb-6">
-        <p className="text-gray-300">Required TG: {estimatedFee} TG</p>
+      <p className="text-gray-300">
+          {estimatedFee && estimatedFee > 0 ? `Required TG: ${estimatedFee.toFixed(4)} TG` : "Something went wrong"}
+        </p>
+
         <p className="text-gray-300">Your TG Balance: {userBalance} TG</p>
         {!hasEnoughBalance && (
           <p className="text-gray-300">
@@ -32,11 +35,15 @@ export function EstimatedFeeModal({
       <div className="flex gap-4">
         {hasEnoughBalance ? (
           <button
-            onClick={onStake}
-            className="flex-1 px-6 py-3 bg-white rounded-lg font-semibold text-black transition-all duration-300"
-          >
-            Next
-          </button>
+          onClick={onStake}
+          disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
+          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!estimatedFee || estimatedFee <= 0
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"  // Disabled styles
+              : "bg-white text-black"  // Enabled styles
+            }`}
+        >
+          Next
+        </button>
         ) : (
           <button
             onClick={onStake}
