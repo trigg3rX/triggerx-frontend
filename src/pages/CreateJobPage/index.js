@@ -361,24 +361,9 @@ function CreateJobPage() {
       console.log("jobdetails", jobDetails);
 
       // Estimate the fee for all jobs and sum them up
-      const totalEstimatedFee = await Promise.all(
-        jobDetails.map(async (job) => {
-          const fee = await estimateFee(
-            job.trigger_contract_address,
-            job.contractABI,
-            job.target_function,
-            job.arguments,
-            job.time_frame,
-            job.time_interval
-          );
-
-          // Log the fee for debugging
-          console.log(`Estimated fee for job ${job.target_function}:`, fee);
-
-          // Ensure the fee is a valid number
-          return typeof fee === "number" ? fee : 2; // Return 0 if fee is not a number
-        })
-      ).then((fees) => fees.reduce((acc, fee) => acc + fee, 0)); // Sum all fees
+      const rawFee = await estimateFee(timeframeInSeconds, intervalInSeconds);
+      // console.log("raw fee",rawFee);
+      const totalEstimatedFee = typeof rawFee === "undefined" ? 2 : rawFee; // Use 0 as fallback per your comment
 
       console.log("Total Estimated Fee:", totalEstimatedFee);
       setJobDetails(jobDetails);
@@ -420,7 +405,7 @@ function CreateJobPage() {
                     key={option.value}
                     onClick={() => {
                       if (!option.disabled) {
-                        setJobType(option.value);
+                        setJobType(Number(option.value));
                       }
                     }}
                     className="text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 bg-white/5 border border-white/10 text-xs xs:text-base"
@@ -656,7 +641,7 @@ function CreateJobPage() {
 
                 <input
                   id={jobType + "_code_url"}
-                  value={codeUrls[jobType]?.main || ""}
+                  value={codeUrls[jobType] || ""}
                   required
                   onChange={(e) => {
                     handleCodeUrlChange(e, jobType);
