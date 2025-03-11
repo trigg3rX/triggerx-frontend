@@ -1,5 +1,5 @@
 //index.js
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PageHeader } from "./components/PageHeader";
 import { useJobCreation } from "./hooks/useJobCreation";
 import { ChevronDown } from "lucide-react";
@@ -12,7 +12,7 @@ import { FunctionArguments } from "./components/FunctionArguments";
 import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
 import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
-import { optimismSepolia, baseSepolia } from 'wagmi/chains';
+import { optimismSepolia, baseSepolia } from "wagmi/chains";
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -38,17 +38,95 @@ const networkIcons = {
 
 const supportedNetworks = [optimismSepolia, baseSepolia];
 
+const useFormKeyboardNavigation = () => {
+  // This ref will help us avoid re-focusing the first input when unnecessary
+  const initialized = useRef(false);
+
+  const handleKeyDown = (event) => {
+    // Only process if the key is Enter and not in a textarea
+    if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+      event.preventDefault(); // Prevent form submission
+
+      // Get all focusable elements in the form
+      const form = event.target.closest("form");
+      if (!form) return;
+
+      const focusableElements = [
+        ...form.querySelectorAll(
+          'input, select, button, [tabindex]:not([tabindex="-1"]), [role="button"]'
+        ),
+      ].filter(
+        (el) =>
+          !el.disabled && el.style.display !== "none" && el.type !== "submit"
+      );
+
+      // Find current element index
+      const currentIndex = focusableElements.indexOf(event.target);
+
+      // If it's a dropdown trigger element, open the dropdown
+      if (
+        event.target.getAttribute("role") === "button" ||
+        event.target.closest('[role="button"]') ||
+        event.target.classList.contains("cursor-pointer")
+      ) {
+        // Simulate click to open dropdown
+        event.target.click();
+        return;
+      }
+
+      // Move to next element if available
+      if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
+        focusableElements[currentIndex + 1].focus();
+      }
+    }
+  };
+
+  // This effect will focus the first input ONLY on initial component mount
+  const focusFirstInput = (formRef) => {
+    if (formRef.current && !initialized.current) {
+      const firstInput = formRef.current.querySelector('input, [tabindex="0"]');
+      if (firstInput) {
+        firstInput.focus();
+        initialized.current = true; // Mark as initialized to prevent future re-focusing
+      }
+    }
+  };
+
+  return { handleKeyDown, focusFirstInput };
+};
 
 function CreateJobPage() {
-  const [selectedNetwork, setSelectedNetwork] = useState(supportedNetworks[0].name);
+  const [selectedNetwork, setSelectedNetwork] = useState(
+    supportedNetworks[0].name
+  );
   const [triggerChainId, setTriggerChainId] = useState(supportedNetworks[0].id);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [linkedJobs, setLinkedJobs] = useState({});
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [jobDetails, setJobDetails] = useState([]);
+  const [functionError, setFunctionError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { address } = useAccount();
 
-  const { address, isConnected } = useAccount();
-  const walletAddress = isConnected ? address : null
+  const formRef = useRef(null);
+  const { handleKeyDown, focusFirstInput } = useFormKeyboardNavigation();
+
+  useEffect(() => {
+    focusFirstInput(formRef);
+  });
+
+  const dropdownRef = useRef(null);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsNetworkOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // trigger option
   const options = [
@@ -85,6 +163,12 @@ function CreateJobPage() {
     timeframeInSeconds,
     timeInterval,
     intervalInSeconds,
+    errorFrame,
+    setErrorFrame,
+    errorInterval,
+    setErrorInterval,
+    errorFrameRef,
+    errorIntervalRef,
     handleTimeIntervalChange,
   } = useTimeManagement();
 
@@ -137,9 +221,21 @@ function CreateJobPage() {
     };
 
     const linkedJobsMap = {
-      1: [time1ContractInteraction, time2ContractInteraction, time3ContractInteraction],
-      2: [condition1ContractInteraction, condition2ContractInteraction, condition3ContractInteraction],
-      3: [eventFunction1ContractInteraction, eventFunction2ContractInteraction, eventFunction3ContractInteraction],
+      1: [
+        time1ContractInteraction,
+        time2ContractInteraction,
+        time3ContractInteraction,
+      ],
+      2: [
+        condition1ContractInteraction,
+        condition2ContractInteraction,
+        condition3ContractInteraction,
+      ],
+      3: [
+        eventFunction1ContractInteraction,
+        eventFunction2ContractInteraction,
+        eventFunction3ContractInteraction,
+      ],
     };
 
     const selectedContract = contractInteractionMap[jobType];
@@ -149,85 +245,153 @@ function CreateJobPage() {
       return;
     }
 
-    // Construct an array of contract addresses (main job + linked jobs if available)
-    const jobsArray = [
-      selectedContract,
-      ...(linkedJobsMap[jobType] || [])
-    ].filter(job => job && job.contractAddress);
+    if (
+      timeframe.years === 0 &&
+      timeframe.months === 0 &&
+      timeframe.days === 0
+    ) {
+      setErrorFrame("Please set a valid timeframe before submitting.");
 
-    const jobDetails = jobsArray.map((job, index, arr) => {
+      setTimeout(() => {
+        errorFrameRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100); // Small delay ensures it happens after state updates
 
-      let taskdefinitionid;
-      if (jobType === 1) {
-        // For jobtype 1: static -> 1, dynamic -> 2
-        taskdefinitionid = job.argumentType === "static" ? 1 : job.argumentType === "dynamic" ? 2 : null;
-      } else if (jobType === 2) {
-        // For jobtype 2: static -> 5, dynamic -> 6
-        taskdefinitionid = job.argumentType === "static" ? 5 : job.argumentType === "dynamic" ? 6 : null;
-      } else if (jobType === 3) {
-        // For jobtype 3: static -> 3, dynamic -> 4
-        taskdefinitionid = job.argumentType === "static" ? 3 : job.argumentType === "dynamic" ? 4 : null;
-      }
+      return;
+    } else if (
+      timeInterval.hours === 0 &&
+      timeInterval.minutes === 0 &&
+      timeInterval.seconds === 0
+    ) {
+      setErrorInterval("Please set a valid timeinterval before submitting.");
 
-      const argType = job.argumentType === "static" ? 0 : job.argumentType === "dynamic" ? 1 : null;
-      const nextJob = arr[index + 1];
+      setTimeout(() => {
+        errorIntervalRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100); // Small delay ensures it happens after state updates
 
-      return {
-          //   Recurring              bool     `json:"recurring"`
-   
-        jobType: jobType,
-        user_address: address,
-        stake_amount: 0,
-        token_amount: 0,
-        task_definition_id: taskdefinitionid,
-        priority: 0,
-        security: 0,
-        time_frame: timeframeInSeconds,
-        time_interval: intervalInSeconds,
-        recurring: false,   /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-        trigger_chain_id: triggerChainId.toString(),
-        trigger_contract_address: job.contractAddress,
-        trigger_event: jobType === 3 ? (eventContractInteraction.targetEvent || "NULL") : "NULL",
-        script_ipfs_url: index === 0 ? (codeUrls[jobType]?.main || "") : (codeUrls[jobType]?.[index] || ""),
-        script_target_function: "trigger",
-        target_chain_id: triggerChainId.toString(),
-        target_contract_address: nextJob ? nextJob.contractAddress : "NULL",
-        target_function: job.targetFunction,
-        arg_type: argType,
-        arguments: job.argsArray,
-        script_trigger_function: "action",
-        hasABI: !!job.contractABI,
-        contractABI: job.contractABI,
-      };
-    });
+      return;
+    } else if (!selectedContract.targetFunction) {
+      setFunctionError(true);
+      return;
+    }
 
-    console.log("jobdetails", jobDetails);
+    setIsLoading(true);
 
-    // Estimate the fee for all jobs and sum them up
-    const totalEstimatedFee = await Promise.all(jobDetails.map(async (job) => {
-      const fee = await estimateFee(
-        job.trigger_contract_address,
-        job.contractABI,
-        job.target_function,
-        job.arguments,
-        job.time_frame,
-        job.time_interval
-      );
+    try {
+      // Construct an array of contract addresses (main job + linked jobs if available)
+      const jobsArray = [
+        selectedContract,
+        ...(linkedJobsMap[jobType] || []),
+      ].filter((job) => job && job.contractAddress);
 
-      // Log the fee for debugging
-      console.log(`Estimated fee for job ${job.target_function}:`, fee);
+      const jobDetails = jobsArray.map((job, index, arr) => {
+        let taskdefinitionid;
+        if (jobType === 1) {
+          // For jobtype 1: static -> 1, dynamic -> 2
+          taskdefinitionid =
+            job.argumentType === "static"
+              ? 1
+              : job.argumentType === "dynamic"
+              ? 2
+              : null;
+        } else if (jobType === 2) {
+          // For jobtype 2: static -> 5, dynamic -> 6
+          taskdefinitionid =
+            job.argumentType === "static"
+              ? 5
+              : job.argumentType === "dynamic"
+              ? 6
+              : null;
+        } else if (jobType === 3) {
+          // For jobtype 3: static -> 3, dynamic -> 4
+          taskdefinitionid =
+            job.argumentType === "static"
+              ? 3
+              : job.argumentType === "dynamic"
+              ? 4
+              : null;
+        }
 
-      // Ensure the fee is a valid number
-      return typeof fee === 'number' ? fee : 2; // Return 0 if fee is not a number
-    })).then(fees => fees.reduce((acc, fee) => acc + fee, 0)); // Sum all fees
+        const argType =
+          job.argumentType === "static"
+            ? 0
+            : job.argumentType === "dynamic"
+            ? 1
+            : null;
+        const nextJob = arr[index + 1];
 
-    console.log("Total Estimated Fee:", totalEstimatedFee);
-    setJobDetails(jobDetails);
-    setEstimatedFee(totalEstimatedFee);
-    setIsModalOpen(true);
-    // handleSubmit will be called later through the modal's onStake
+        return {
+          jobType: jobType,
+          user_address: address,
+          stake_amount: 0,
+          token_amount: 0,
+          task_definition_id: taskdefinitionid,
+          priority: 0,
+          security: 0,
+          time_frame: timeframeInSeconds,
+          time_interval: intervalInSeconds,
+          recurring: false, /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+          trigger_chain_id: triggerChainId.toString(),
+          trigger_contract_address: job.contractAddress,
+          trigger_event:
+            jobType === 3
+              ? eventContractInteraction.targetEvent || "NULL"
+              : "NULL",
+          script_ipfs_url:
+            index === 0
+              ? codeUrls[jobType]?.main || ""
+              : codeUrls[jobType]?.[index] || "",
+          script_target_function: "trigger",
+          target_chain_id: triggerChainId.toString(),
+          target_contract_address: nextJob ? nextJob.contractAddress : "NULL",
+          target_function: job.targetFunction,
+          arg_type: argType,
+          arguments: job.argsArray,
+          script_trigger_function: "action",
+          hasABI: !!job.contractABI,
+          contractABI: job.contractABI,
+        };
+      });
+
+      console.log("jobdetails", jobDetails);
+
+      // Estimate the fee for all jobs and sum them up
+      const totalEstimatedFee = await Promise.all(
+        jobDetails.map(async (job) => {
+          const fee = await estimateFee(
+            job.trigger_contract_address,
+            job.contractABI,
+            job.target_function,
+            job.arguments,
+            job.time_frame,
+            job.time_interval
+          );
+
+          // Log the fee for debugging
+          console.log(`Estimated fee for job ${job.target_function}:`, fee);
+
+          // Ensure the fee is a valid number
+          return typeof fee === "number" ? fee : 2; // Return 0 if fee is not a number
+        })
+      ).then((fees) => fees.reduce((acc, fee) => acc + fee, 0)); // Sum all fees
+
+      console.log("Total Estimated Fee:", totalEstimatedFee);
+      setJobDetails(jobDetails);
+      setEstimatedFee(totalEstimatedFee);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error during job creation:", error);
+      // Handle the error appropriately (e.g., show an error message)
+    } finally {
+      // Set loading to false regardless of success or failure
+      setIsLoading(false);
+    }
   };
-
 
   return (
     <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
@@ -238,7 +402,12 @@ function CreateJobPage() {
       <div className="mx-auto px-6 relative z-30">
         <PageHeader />
 
-        <form onSubmit={(e) => handleFormSubmit(e, jobType)} className="w-full lg:w-[80%] max-w-[1600px] mx-auto">
+        <form
+          ref={formRef}
+          onSubmit={(e) => handleFormSubmit(e, jobType)}
+          onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
+          className="w-full lg:w-[80%] max-w-[1600px] mx-auto"
+        >
           <div className="space-y-8">
             {/* Job Type Selection */}
             <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
@@ -257,8 +426,9 @@ function CreateJobPage() {
                     className="text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 bg-white/5 border border-white/10 text-xs xs:text-base"
                   >
                     <div
-                      className={`${Number(option.value) === jobType ? "bg-white" : ""
-                        } absolute top-2 left-2 rounded-full w-2.5 h-2.5 border`}
+                      className={`${
+                        Number(option.value) === jobType ? "bg-white" : ""
+                      } absolute top-2 left-2 rounded-full w-2.5 h-2.5 border`}
                     ></div>
                     <span>{option.icon}</span>
                     <span>{option.label}</span>
@@ -273,10 +443,13 @@ function CreateJobPage() {
                 <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
                   Network
                 </label>
-                <div className="relative w-full md:w-[70%] xl:w-[80%]">
+                <div
+                  ref={dropdownRef}
+                  className="relative w-full md:w-[70%] xl:w-[80%]"
+                >
                   <div
                     className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center gap-5"
-                    onClick={() => setIsNetworkOpen(!isNetworkOpen)}
+                    onClick={() => setIsNetworkOpen((prev) => !prev)}
                   >
                     <div className="w-6 h-6 text-xs xs:text-sm sm:text-base">
                       {networkIcons[selectedNetwork]}
@@ -310,13 +483,16 @@ function CreateJobPage() {
               <TimeframeInputs
                 timeframe={timeframe}
                 onTimeframeChange={handleTimeframeChange}
+                error={errorFrame}
+                ref={errorFrameRef}
               />
-
 
               {jobType === 1 && (
                 <TimeIntervalInputs
                   timeInterval={timeInterval}
                   onTimeIntervalChange={handleTimeIntervalChange}
+                  error={errorInterval}
+                  ref={errorIntervalRef}
                 />
               )}
 
@@ -359,7 +535,9 @@ function CreateJobPage() {
                         </svg>
                       ) : (
                         <div className="flex items-center ml-3">
-                          <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">Not Available </h4>
+                          <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
+                            Not Available{" "}
+                          </h4>
                           <h4 className="text-red-400 mt-[2px]"> ✕</h4>
                         </div>
                       )}
@@ -432,8 +610,8 @@ function CreateJobPage() {
                     jobType === 1
                       ? timeContractInteraction
                       : jobType === 2
-                        ? conditionContractInteraction
-                        : eventFunctionContractInteraction;
+                      ? conditionContractInteraction
+                      : eventFunctionContractInteraction;
                   return (
                     <>
                       <ContractDetails
@@ -441,14 +619,24 @@ function CreateJobPage() {
                         contractABI={contractInteraction.contractABI}
                         targetFunction={contractInteraction.targetFunction}
                         functions={contractInteraction.functions}
-                        onContractAddressChange={contractInteraction.handleContractAddressChange}
-                        onFunctionChange={contractInteraction.handleFunctionChange}
+                        onContractAddressChange={
+                          contractInteraction.handleContractAddressChange
+                        }
+                        onFunctionChange={
+                          contractInteraction.handleFunctionChange
+                        }
                         argumentType={contractInteraction.argumentType}
-                        onArgumentTypeChange={contractInteraction.handleArgumentTypeChange}
+                        onArgumentTypeChange={
+                          contractInteraction.handleArgumentTypeChange
+                        }
+                        functionError={functionError}
+                        setFunctionError={setFunctionError}
                       />
                       {contractInteraction.contractAddress && (
                         <FunctionArguments
-                          selectedFunction={contractInteraction.selectedFunction}
+                          selectedFunction={
+                            contractInteraction.selectedFunction
+                          }
                           functionInputs={contractInteraction.functionInputs}
                           onInputChange={contractInteraction.handleInputChange}
                           argumentType={contractInteraction.argumentType}
@@ -508,8 +696,7 @@ function CreateJobPage() {
                       </div>
                     </div>
 
-                    {
-                      [1, 2, 3].includes(jobType) &&
+                    {[1, 2, 3].includes(jobType) &&
                       [1, 2, 3].includes(jobId) &&
                       (() => {
                         const interactions = {
@@ -530,7 +717,8 @@ function CreateJobPage() {
                           },
                         };
 
-                        const currentInteraction = interactions[jobType]?.[jobId];
+                        const currentInteraction =
+                          interactions[jobType]?.[jobId];
 
                         return (
                           currentInteraction && (
@@ -544,83 +732,83 @@ function CreateJobPage() {
                             </div>
                           )
                         );
-                      })()
-                    }
+                      })()}
 
                     {jobType === 1 && (
                       <>
                         <ContractDetails
+                          setFunctionError={setFunctionError}
                           contractAddress={
                             jobId === 1
                               ? time1ContractInteraction.contractAddress
                               : jobId === 2
-                                ? time2ContractInteraction.contractAddress
-                                : jobId === 3
-                                  ? time3ContractInteraction.contractAddress
-                                  : ""
+                              ? time2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? time3ContractInteraction.contractAddress
+                              : ""
                           }
                           contractABI={
                             jobId === 1
                               ? time1ContractInteraction.contractABI
                               : jobId === 2
-                                ? time2ContractInteraction.contractABI
-                                : jobId === 3
-                                  ? time3ContractInteraction.contractABI
-                                  : []
+                              ? time2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? time3ContractInteraction.contractABI
+                              : []
                           }
                           targetFunction={
                             jobId === 1
                               ? time1ContractInteraction.targetFunction
                               : jobId === 2
-                                ? time2ContractInteraction.targetFunction
-                                : jobId === 3
-                                  ? time3ContractInteraction.targetFunction
-                                  : ""
+                              ? time2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? time3ContractInteraction.targetFunction
+                              : ""
                           }
                           functions={
                             jobId === 1
                               ? time1ContractInteraction.functions
                               : jobId === 2
-                                ? time2ContractInteraction.functions
-                                : jobId === 3
-                                  ? time3ContractInteraction.functions
-                                  : []
+                              ? time2ContractInteraction.functions
+                              : jobId === 3
+                              ? time3ContractInteraction.functions
+                              : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? time1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                                ? time2ContractInteraction.handleContractAddressChange
-                                : jobId === 3
-                                  ? time3ContractInteraction.handleContractAddressChange
-                                  : () => { }
+                              ? time2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleContractAddressChange
+                              : () => {}
                           }
                           onFunctionChange={
                             jobId === 1
                               ? time1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                                ? time2ContractInteraction.handleFunctionChange
-                                : jobId === 3
-                                  ? time3ContractInteraction.handleFunctionChange
-                                  : () => { }
+                              ? time2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleFunctionChange
+                              : () => {}
                           }
                           argumentType={
                             jobId === 1
                               ? time1ContractInteraction.argumentType
                               : jobId === 2
-                                ? time2ContractInteraction.argumentType
-                                : jobId === 3
-                                  ? time3ContractInteraction.argumentType
-                                  : ""
+                              ? time2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? time3ContractInteraction.argumentType
+                              : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? time1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                                ? time2ContractInteraction.handleArgumentTypeChange
-                                : jobId === 3
-                                  ? time3ContractInteraction.handleArgumentTypeChange
-                                  : () => { }
+                              ? time2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? time3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
                           }
                         />
                         {jobId === 1 &&
@@ -680,77 +868,78 @@ function CreateJobPage() {
                     {jobType === 2 && (
                       <>
                         <ContractDetails
+                          setFunctionError={setFunctionError}
                           contractAddress={
                             jobId === 1
                               ? condition1ContractInteraction.contractAddress
                               : jobId === 2
-                                ? condition2ContractInteraction.contractAddress
-                                : jobId === 3
-                                  ? condition3ContractInteraction.contractAddress
-                                  : ""
+                              ? condition2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? condition3ContractInteraction.contractAddress
+                              : ""
                           }
                           contractABI={
                             jobId === 1
                               ? condition1ContractInteraction.contractABI
                               : jobId === 2
-                                ? condition2ContractInteraction.contractABI
-                                : jobId === 3
-                                  ? condition3ContractInteraction.contractABI
-                                  : []
+                              ? condition2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? condition3ContractInteraction.contractABI
+                              : []
                           }
                           targetFunction={
                             jobId === 1
                               ? condition1ContractInteraction.targetFunction
                               : jobId === 2
-                                ? condition2ContractInteraction.targetFunction
-                                : jobId === 3
-                                  ? condition3ContractInteraction.targetFunction
-                                  : ""
+                              ? condition2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? condition3ContractInteraction.targetFunction
+                              : ""
                           }
                           functions={
                             jobId === 1
                               ? condition1ContractInteraction.functions
                               : jobId === 2
-                                ? condition2ContractInteraction.functions
-                                : jobId === 3
-                                  ? condition3ContractInteraction.functions
-                                  : []
+                              ? condition2ContractInteraction.functions
+                              : jobId === 3
+                              ? condition3ContractInteraction.functions
+                              : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                                ? condition2ContractInteraction.handleContractAddressChange
-                                : jobId === 3
-                                  ? condition3ContractInteraction.handleContractAddressChange
-                                  : () => { }
+                              ? condition2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleContractAddressChange
+                              : () => {}
                           }
                           onFunctionChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                                ? condition2ContractInteraction.handleFunctionChange
-                                : jobId === 3
-                                  ? condition3ContractInteraction.handleFunctionChange
-                                  : () => { }
+                              ? condition2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleFunctionChange
+                              : () => {}
                           }
                           argumentType={
                             jobId === 1
                               ? condition1ContractInteraction.argumentType
                               : jobId === 2
-                                ? condition2ContractInteraction.argumentType
-                                : jobId === 3
-                                  ? condition3ContractInteraction.argumentType
-                                  : ""
+                              ? condition2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? condition3ContractInteraction.argumentType
+                              : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? condition1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                                ? condition2ContractInteraction.handleArgumentTypeChange
-                                : jobId === 3
-                                  ? condition3ContractInteraction.handleArgumentTypeChange
-                                  : () => { }
+                              ? condition2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? condition3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
                           }
                         />
                         {jobId === 1 &&
@@ -807,80 +996,81 @@ function CreateJobPage() {
                       </>
                     )}
 
-{jobType === 3 && (
+                    {jobType === 3 && (
                       <>
                         <ContractDetails
+                          setFunctionError={setFunctionError}
                           contractAddress={
                             jobId === 1
                               ? eventFunction1ContractInteraction.contractAddress
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.contractAddress
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.contractAddress
-                                  : ""
+                              ? eventFunction2ContractInteraction.contractAddress
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.contractAddress
+                              : ""
                           }
                           contractABI={
                             jobId === 1
                               ? eventFunction1ContractInteraction.contractABI
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.contractABI
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.contractABI
-                                  : []
+                              ? eventFunction2ContractInteraction.contractABI
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.contractABI
+                              : []
                           }
                           targetFunction={
                             jobId === 1
                               ? eventFunction1ContractInteraction.targetFunction
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.targetFunction
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.targetFunction
-                                  : ""
+                              ? eventFunction2ContractInteraction.targetFunction
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.targetFunction
+                              : ""
                           }
                           functions={
                             jobId === 1
                               ? eventFunction1ContractInteraction.functions
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.functions
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.functions
-                                  : []
+                              ? eventFunction2ContractInteraction.functions
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.functions
+                              : []
                           }
                           onContractAddressChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleContractAddressChange
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.handleContractAddressChange
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.handleContractAddressChange
-                                  : () => { }
+                              ? eventFunction2ContractInteraction.handleContractAddressChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleContractAddressChange
+                              : () => {}
                           }
                           onFunctionChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleFunctionChange
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.handleFunctionChange
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.handleFunctionChange
-                                  : () => { }
+                              ? eventFunction2ContractInteraction.handleFunctionChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleFunctionChange
+                              : () => {}
                           }
                           argumentType={
                             jobId === 1
                               ? eventFunction1ContractInteraction.argumentType
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.argumentType
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.argumentType
-                                  : ""
+                              ? eventFunction2ContractInteraction.argumentType
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.argumentType
+                              : ""
                           }
                           onArgumentTypeChange={
                             jobId === 1
                               ? eventFunction1ContractInteraction.handleArgumentTypeChange
                               : jobId === 2
-                                ? eventFunction2ContractInteraction.handleArgumentTypeChange
-                                : jobId === 3
-                                  ? eventFunction3ContractInteraction.handleArgumentTypeChange
-                                  : () => { }
+                              ? eventFunction2ContractInteraction.handleArgumentTypeChange
+                              : jobId === 3
+                              ? eventFunction3ContractInteraction.handleArgumentTypeChange
+                              : () => {}
                           }
                         />
                         {jobId === 1 &&
@@ -937,8 +1127,6 @@ function CreateJobPage() {
                       </>
                     )}
 
-
-
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                       <label
                         htmlFor={jobType + "_" + jobId + "_code_url"}
@@ -960,20 +1148,55 @@ function CreateJobPage() {
               </div>
             )}
 
-            <div className="flex items-center justify-center gap-2 mx-auto">
+            <div className="flex gap-4 justify-center items-center">
               <button
-                // onClick={(e) => handleFormSubmit(e, jobType)}
                 type="submit"
-                className="px-4 sm:px-10 py-2.5 sm:py-3 bg-white hover:translate-y-1 rounded-full text-sm sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
+                disabled={isLoading} // Disable while loading
               >
-                Create Job
+                <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                {isLoading ? (
+                  <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
+                    Estimating Fees
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <ellipse
+                        className="spinner_rXNP"
+                        cx="9"
+                        cy="4"
+                        rx="3"
+                        ry="3"
+                      />
+                    </svg>
+                  </span>
+                ) : (
+                  // Show button text
+                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                    Create Job
+                  </span>
+                )}
               </button>
               {(linkedJobs[jobType]?.length ?? 0) < 3 && (
                 <button
                   onClick={() => handleLinkJob(jobType)}
-                  className="px-4 sm:px-10 py-2.5 sm:py-3 bg-white hover:translate-y-1 rounded-full text-sm sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-black"
+                  className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
+                  disabled={isLoading}
                 >
-                  Link Job
+                  <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                  <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+
+                  <span
+                    className={`${
+                      isLoading ? "cursor-not-allowed opacity-50 " : ""
+                    }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                  >
+                    Link Job
+                  </span>
                 </button>
               )}
             </div>
@@ -1002,7 +1225,7 @@ function CreateJobPage() {
           handleSubmit(
             stakeRegistryAddress,
             stakeRegistryABI,
-            jobDetails,
+            jobDetails
             // targetFunction,
             // argsArray,
             // timeframeInSeconds,
