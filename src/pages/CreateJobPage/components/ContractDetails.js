@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 //ContractDetails.js
 export function ContractDetails({
@@ -12,6 +12,8 @@ export function ContractDetails({
   onFunctionChange,
   argumentType,
   onArgumentTypeChange,
+  setFunctionError,
+  functionError,
 }) {
   const selectedFunction = functions.find(
     (f) =>
@@ -21,6 +23,53 @@ export function ContractDetails({
   const hasArguments = selectedFunction?.inputs?.length > 0;
   const [isFunctionOpen, setIsFunctionOpen] = useState(false);
   const [isArgumentTypeOpen, setIsArgumentTypeOpen] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const dropdownRef = useRef(null);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsFunctionOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const dropdown2Ref = useRef(null);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdown2Ref.current &&
+        !dropdown2Ref.current.contains(event.target)
+      ) {
+        setIsArgumentTypeOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleFunctionSelect = (signature) => {
+    onFunctionChange({ target: { value: signature } });
+    setIsFunctionOpen(false);
+    setFunctionError(false); // Clear error once function is selected
+  };
+
+  const validateAddress = (address) => {
+    const isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
+    setAddressError(isValid ? "" : "Invalid contract address");
+    return isValid;
+  };
+
+  const handleContractAddressChange = (e) => {
+    const newAddress = e.target.value;
+    validateAddress(newAddress);
+    onContractAddressChange(e);
+  };
 
   return (
     <div className="space-y-8">
@@ -31,16 +80,22 @@ export function ContractDetails({
         >
           Contract Address
         </label>
-        <input
-          type="text"
-          id="contractAddress"
-          required
-          value={contractAddress}
-          onChange={onContractAddressChange}
-          placeholder="Your Contract address"
-          className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
-          
-        />
+        <div className="w-full md:w-[70%] xl:w-[80%]">
+          <input
+            type="text"
+            id="contractAddress"
+            required
+            value={contractAddress}
+            onChange={handleContractAddressChange}
+            placeholder="Your Contract address"
+            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+              addressError ? "border-red-500" : "border-white/10"
+            }`}
+          />
+          {addressError && (
+            <p className="text-red-500 text-xs mt-1">{addressError}</p>
+          )}
+        </div>
       </div>
 
       <div>
@@ -65,7 +120,9 @@ export function ContractDetails({
               </svg>
             ) : (
               <div className="flex items-center ml-3">
-                <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">Not Available </h4>
+                <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
+                  Not Available{" "}
+                </h4>
                 <h4 className="text-red-400 mt-[2px]"> ✕</h4>
               </div>
             )}
@@ -73,7 +130,7 @@ export function ContractDetails({
         </div>
       </div>
 
-      {contractAddress && (
+      {contractAddress && !addressError && (
         <>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <label
@@ -83,7 +140,10 @@ export function ContractDetails({
               Target Function
             </label>
 
-            <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
+            <div
+              ref={dropdownRef}
+              className="relative w-full md:w-[70%] xl:w-[80%] z-50"
+            >
               <div
                 className="break-all text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
                 aria-required
@@ -102,16 +162,18 @@ export function ContractDetails({
                       <div
                         key={index}
                         className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg text-xs xs:text-sm sm:text-base text-clip"
-                        onClick={() => {
-                          onFunctionChange({ target: { value: signature } });
-                          setIsFunctionOpen(false);
-                        }}
+                        onClick={() => handleFunctionSelect(signature)}
                       >
                         {signature}
                       </div>
                     );
                   })}
                 </div>
+              )}
+              {functionError && (
+                <p className="text-red-500 text-xs mt-1">
+                  Please select a function.
+                </p>
               )}
             </div>
           </div>
@@ -130,7 +192,10 @@ export function ContractDetails({
             >
               Argument Type
             </label>
-            <div className="relative w-full md:w-[70%] xl:w-[80%] z-30">
+            <div
+              ref={dropdown2Ref}
+              className="relative w-full md:w-[70%] xl:w-[80%] z-30"
+            >
               <div
                 className={`text-xs xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${
                   !hasArguments ? "opacity-50 cursor-not-allowed" : ""
