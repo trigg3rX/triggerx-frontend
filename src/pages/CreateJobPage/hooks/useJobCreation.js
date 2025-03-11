@@ -89,7 +89,7 @@ export function useJobCreation() {
       if (selectedCodeUrl) {
         try {
           const response = await fetch(
-            `http:/data.triggerx.network//api/fees?ipfs_url=${encodeURIComponent(
+            `https:/data.triggerx.network//api/fees?ipfs_url=${encodeURIComponent(
               selectedCodeUrl
             )}`,
             {
