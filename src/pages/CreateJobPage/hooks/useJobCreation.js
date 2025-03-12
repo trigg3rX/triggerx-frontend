@@ -92,13 +92,13 @@ export function useJobCreation() {
             `https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(
               selectedCodeUrl
             )}`,
-            // {
-            //   method: "GET",
-            //   headers: {
-            //     Accept: "application/json",
-            //     Origin: "https://app.triggerx.network"
-            //   },
-            // }
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                Origin: "https://app.triggerx.network"
+              },
+            }
           );
           console.log("response",response);
 
