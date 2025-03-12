@@ -13,6 +13,8 @@ import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
 import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
+import { Toaster, toast } from "react-hot-toast";
+
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -367,6 +369,7 @@ function CreateJobPage() {
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error during job creation:", error);
+      toast.error('Failed to create job!'); // 
       // Handle the error appropriately (e.g., show an error message)
     } finally {
       // Set loading to false regardless of success or failure
@@ -375,6 +378,19 @@ function CreateJobPage() {
   };
 
   return (
+    <div>
+    <Toaster 
+          position="center" 
+          className="mt-10" 
+          toastOptions={{
+            style: {
+              background: '#0a0a0a', // Dark background
+              color: '#fff',     // White text
+              borderRadius: '8px',
+              border:"1px gray solid"
+            },
+          }}
+        />
     <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
@@ -1192,6 +1208,7 @@ function CreateJobPage() {
         }}
         estimatedFee={estimatedFee}
         onStake={() => {
+          toast.success('Job created successfully!');
           console.log("Initiating stake with params:", {
             stakeRegistryImplAddress,
             hasABI: !!stakeRegistryABI,
@@ -1213,6 +1230,7 @@ function CreateJobPage() {
         }}
         userBalance={userBalance}
       />
+    </div>
     </div>
   );
 }

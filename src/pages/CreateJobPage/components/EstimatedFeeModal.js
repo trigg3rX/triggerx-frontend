@@ -36,9 +36,9 @@ export function EstimatedFeeModal({
         {hasEnoughBalance ? (
           <button
           onClick={onStake}
-          disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
+          // disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
           className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!estimatedFee || estimatedFee <= 0
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"  // Disabled styles
+              ? "bg-gray-400 text-gray-700 "  // Disabled styles
               : "bg-white text-black"  // Enabled styles
             }`}
         >

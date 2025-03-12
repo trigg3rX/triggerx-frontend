@@ -468,7 +468,18 @@ function DashboardPage() {
 
   return (
     <div>
-      <Toaster position="center" className="mt-10" />
+      <Toaster 
+            position="center" 
+            className="mt-10" 
+            toastOptions={{
+              style: {
+                background: '#0a0a0a', // Dark background
+                color: '#fff',     // White text
+                borderRadius: '8px',
+                border:"1px gray solid"
+              },
+            }}
+          />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -825,9 +836,10 @@ function DashboardPage() {
                 <div>
                 
                   {isStaking ? (
-                    <div className="flex items-center justify-center py-3">
-                      <div className="w-8 h-8 border-t-2 border-white border-solid rounded-full animate-spin"></div>
-                    </div>
+                    <div className="flex justify-center p-5">
+                <div className="loader "></div>
+</div>
+                    
                   ) : (
                     <div>
                     <label className="block text-gray-300 mb-2">
@@ -853,7 +865,7 @@ function DashboardPage() {
                     </span>
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => setStakeModalVisible(false)}
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
                   >
@@ -862,7 +874,7 @@ function DashboardPage() {
                     <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
                       Cancel
                     </span>
-                  </button>
+                  </button> */}
                 </div>
               </form>
             </div>
