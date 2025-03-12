@@ -23,6 +23,7 @@ function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
   const navigate = useNavigate();
+  const [isStaking, setIsStaking] = useState(false);
 
   const data = new Array(15).fill({
     id: 1,
@@ -417,6 +418,7 @@ function DashboardPage() {
   const handleStake = async (e) => {
     e.preventDefault();
     try {
+      setIsStaking(true);
       if (!isWalletInstalled) {
         throw new Error("Web3 wallet is not installed.");
       }
@@ -447,9 +449,12 @@ function DashboardPage() {
       toast.success("Staking successful!");
       fetchTGBalance();
       setStakeModalVisible(false);
+      
     } catch (error) {
       // console.error("Error staking:", error);
       toast.error("Staking failed ");
+    } finally{
+      setIsStaking(false)
     }
   };
 
@@ -818,17 +823,26 @@ function DashboardPage() {
               </h2>
               <form onSubmit={handleStake} className="space-y-6">
                 <div>
-                  <label className="block text-gray-300 mb-2">
+                
+                  {isStaking ? (
+                    <div className="flex items-center justify-center py-3">
+                      <div className="w-8 h-8 border-t-2 border-white border-solid rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    <div>
+                    <label className="block text-gray-300 mb-2">
                     Amount (ETH)
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none  text-white"
-                    placeholder="Enter ETH amount"
-                  />
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={stakeAmount}
+                      onChange={(e) => setStakeAmount(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
+                      placeholder="Enter ETH amount"
+                    />
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-4 justify-center">
                   <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
