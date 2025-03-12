@@ -100,7 +100,6 @@ export function useJobCreation() {
             //   },
             // }
           );
-
           if (!response.ok) {
             throw new Error("Failed to get fees");
           }
