@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
+import { FiInfo } from "react-icons/fi";
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ function Header() {
   const navRef = useRef();
   const isActiveRoute = (path) => location.pathname === path;
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
 
   const handleMouseEnter = (event) => {
     const hoveredElement = event.currentTarget;
@@ -129,8 +131,33 @@ function Header() {
             </div>
           </nav>
         </div>
-
-        <ConnectButton chainStatus="icon" accountStatus="address" />
+        <div className="flex items-center">
+          {" "}
+          <ConnectButton chainStatus="icon" accountStatus="address" />
+          {/* <div className="relative">
+            <FiInfo
+              className="text-gray-400 hover:text-white cursor-pointer ml-2"
+              size={20}
+              onMouseEnter={() => setShowInfoTooltip(true)}
+              onMouseLeave={() => setShowInfoTooltip(false)}
+            />
+            {showInfoTooltip && (
+              <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
+                <div className="flex flex-col gap-2 text-sm text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <span>• View only permissions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>• Smart contract audit</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>• Trusted by 418k traders</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div> */}
+        </div>
       </div>
       <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:flex">
         <div
@@ -168,9 +195,11 @@ function Header() {
                 <div className="flex flex-col gap-4 text-white ">
                   <a href="https://www.triggerx.network/" target="blank">
                     <h4
-                      className={`w-full  
+                      className={`w-full 
+                         
                         ${
                           isActiveRoute("https://www.triggerx.network/")
+                         
                             ? "text-white"
                             : "text-gray-400"
                         }  px-7 py-3 rounded-xl cursor-pointer`}
@@ -179,17 +208,21 @@ function Header() {
                     </h4>
                   </a>
                   <h4
-                    onClick={() => navigate("/create-job")}
+                    onClick={() => {
+                      navigate("/");
+                      setMenuOpen(false);
+                    }}
                     className={`w-full ${
-                      isActiveRoute("/create-job")
-                        ? "text-white"
-                        : "text-gray-400"
+                      isActiveRoute("/") ? "text-white" : "text-gray-400"
                     }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Create Job
                   </h4>
                   <h4
-                    onClick={() => navigate("/dashboard")}
+                   onClick={() => {
+                    navigate("/dashboard");
+                    setMenuOpen(false);
+                  }}
                     className={` w-full  ${
                       isActiveRoute("/dashboard")
                         ? "text-white"
