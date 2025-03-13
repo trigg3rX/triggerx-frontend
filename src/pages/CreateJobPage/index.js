@@ -109,6 +109,8 @@ function CreateJobPage() {
   const [functionError, setFunctionError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
+  const [connected, setConnected] = useState(false);
+
 
   const formRef = useRef(null);
   const { handleKeyDown, focusFirstInput } = useFormKeyboardNavigation();
@@ -158,6 +160,7 @@ function CreateJobPage() {
       return prevJobs; // Do nothing if the limit is reached
     });
   };
+  
 
   const {
     timeframe,
@@ -366,6 +369,7 @@ function CreateJobPage() {
       await estimateFee(timeframeInSeconds, intervalInSeconds);
 
       setJobDetails(jobDetails);
+      toast.error('Job created successfully !'); // 
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error during job creation:", error);
@@ -376,6 +380,33 @@ function CreateJobPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!window.ethereum) {
+        toast.error("Please install MetaMask to use this application!");
+        setConnected(false);
+        return;
+      }
+  
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length === 0) {
+          // Clear any existing toasts before showing connection message
+          toast.dismiss();
+          toast.error("Please connect your wallet to continue!");
+        }
+        setConnected(accounts.length > 0);
+      } catch (error) {
+        toast.error("Failed to check wallet connection!");
+        setConnected(false);
+      }
+    };
+  
+    checkConnection();
+  }, []);
 
   return (
     <div>
