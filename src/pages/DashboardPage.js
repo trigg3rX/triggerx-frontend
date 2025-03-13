@@ -41,6 +41,7 @@ function DashboardPage() {
   const outsideClick = (e) => {
     if (modelRef.current && !modelRef.current.contains(e.target)) {
       setStakeModalVisible(false);
+      setStakeAmount(""); 
     }
   };
 
@@ -101,7 +102,6 @@ function DashboardPage() {
     fetchTGBalance();
   });
 
-  // const provider = new ethers.BrowserProvider(window.ethereum);
 
   const getJobCreatorContract = async () => {
     if (!provider) {
@@ -122,7 +122,6 @@ function DashboardPage() {
 
   const fetchJobDetails = async () => {
     if (!provider) {
-      // console.log("Web3 provider not initialized");
       return;
     }
 
@@ -187,12 +186,21 @@ function DashboardPage() {
 
       // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
+      if (tempJobs.length === 0 && connected && !loading) {
+        toast("No jobs found. Create a new job to get started!", {
+          icon: 'ℹ️',
+        });
+      }
     } catch (error) {
-      toast.error("Failed to fetch job details ");
+      if (connected && error.message !== "Failed to fetch") {
+        // Only show error toast for actual server errors, not for no jobs
+        toast.error("Failed to fetch jobs. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
   // Helper function to map job type ID to label
   const mapJobType = (jobTypeId) => {
     // Convert jobTypeId to string to handle both string and number types
@@ -243,26 +251,32 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!window.ethereum) {
-        setConnected(false);
-        return;
-      }
+useEffect(() => {
+  const checkConnection = async () => {
+    if (!window.ethereum) {
+      toast.error("Please install MetaMask to use this application!");
+      setConnected(false);
+      return;
+    }
 
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        setConnected(accounts.length > 0);
-      } catch (error) {
-        toast.error("Please connect your wallet!");
-        setConnected(false);
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      if (accounts.length === 0) {
+        // Clear any existing toasts before showing connection message
+        toast.dismiss();
+        toast.error("Please connect your wallet to continue!");
       }
-    };
+      setConnected(accounts.length > 0);
+    } catch (error) {
+      toast.error("Failed to check wallet connection!");
+      setConnected(false);
+    }
+  };
 
-    checkConnection();
-  }, []);
+  checkConnection();
+}, []);
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -448,9 +462,12 @@ function DashboardPage() {
       toast.success("Staking successful!");
       fetchTGBalance();
       setStakeModalVisible(false);
+      setStakeAmount(""); 
     } catch (error) {
       // console.error("Error staking:", error);
       toast.error("Staking failed ");
+      setStakeModalVisible(false);
+      setStakeAmount(""); 
     } finally {
       setIsStaking(false);
     }
@@ -857,7 +874,7 @@ function DashboardPage() {
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                     <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                      {loading ? "staking..." : "Stake"}
+                      {isStaking ? "staking..." : "Stake"}
                     </span>
                   </button>
 
