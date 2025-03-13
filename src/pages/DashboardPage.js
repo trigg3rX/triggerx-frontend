@@ -188,7 +188,6 @@ function DashboardPage() {
       // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
     } catch (error) {
-      // console.error("Error fetching job details:", error);
       toast.error("Failed to fetch job details ");
     } finally {
       setLoading(false);
@@ -449,12 +448,11 @@ function DashboardPage() {
       toast.success("Staking successful!");
       fetchTGBalance();
       setStakeModalVisible(false);
-      
     } catch (error) {
       // console.error("Error staking:", error);
       toast.error("Staking failed ");
-    } finally{
-      setIsStaking(false)
+    } finally {
+      setIsStaking(false);
     }
   };
 
@@ -468,18 +466,18 @@ function DashboardPage() {
 
   return (
     <div>
-      <Toaster 
-            position="center" 
-            className="mt-10" 
-            toastOptions={{
-              style: {
-                background: '#0a0a0a', // Dark background
-                color: '#fff',     // White text
-                borderRadius: '8px',
-                border:"1px gray solid"
-              },
-            }}
-          />
+      <Toaster
+        position="center"
+        className="mt-10"
+        toastOptions={{
+          style: {
+            background: "#0a0a0a", // Dark background
+            color: "#fff", // White text
+            borderRadius: "8px",
+            border: "1px gray solid",
+          },
+        }}
+      />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -834,25 +832,23 @@ function DashboardPage() {
               </h2>
               <form onSubmit={handleStake} className="space-y-6">
                 <div>
-                
                   {isStaking ? (
                     <div className="flex justify-center p-5">
-                <div className="loader "></div>
-</div>
-                    
+                      <div className="loader "></div>
+                    </div>
                   ) : (
                     <div>
-                    <label className="block text-gray-300 mb-2">
-                    Amount (ETH)
-                  </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={stakeAmount}
-                      onChange={(e) => setStakeAmount(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
-                      placeholder="Enter ETH amount"
-                    />
+                      <label className="block text-gray-300 mb-2">
+                        Amount (ETH)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={stakeAmount}
+                        onChange={(e) => setStakeAmount(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
+                        placeholder="Enter ETH amount"
+                      />
                     </div>
                   )}
                 </div>
@@ -861,7 +857,7 @@ function DashboardPage() {
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                     <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                      Stake
+                      {loading ? "staking..." : "Stake"}
                     </span>
                   </button>
 
