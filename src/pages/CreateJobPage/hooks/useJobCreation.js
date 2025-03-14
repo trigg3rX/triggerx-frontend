@@ -95,18 +95,25 @@ export function useJobCreation() {
             {
               method: "GET",
               headers: {
-                Accept: "application/json",
-                Origin: "https://app.triggerx.network"
+                "Accept": "application/json",
+                "Content-Type": "application/json",
               },
             }
           );
-          console.log("response",response);
+          console.log("response", response);
 
           if (!response.ok) {
             throw new Error("Failed to get fees");
           }
 
-          const data = await response.json();
+          const data = await response.json(); // Parse the response body
+          console.log("Response data:", data); // Log the response data
+
+          // Check if the response contains an error
+          if (data.error) {
+            throw new Error(data.error); // Handle the error from the response
+          }
+
           totalFeeTG = Number(data.total_fee) * executionCount;
 
           // Calculate stake amount in ETH and convert to Gwei
