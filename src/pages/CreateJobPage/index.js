@@ -14,6 +14,7 @@ import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { Toaster, toast } from "react-hot-toast";
+import ProcessModal from "./components/ProcessModel";
 
 
 const networkIcons = {
@@ -146,6 +147,21 @@ function CreateJobPage() {
       icon: "\u2737",
     },
   ];
+  const [processSteps, setProcessSteps] = useState([
+    { id: 1, text: 'Updating Database', status: 'pending' },
+    { id: 2, text: 'Validating Job', status: 'pending' },
+    { id: 3, text: 'Calculating Fees', status: 'pending' }
+  ]);
+  const [showProcessModal, setShowProcessModal] = useState(false);
+
+  const resetProcessSteps = () => {
+    setProcessSteps([
+      { id: 1, text: 'Updating Database', status: 'pending' },
+      { id: 2, text: 'Validating Job', status: 'pending' },
+      { id: 3, text: 'Calculating Fees', status: 'pending' }
+    ]);
+  };
+  
 
   const handleLinkJob = (jobType) => {
     setLinkedJobs((prevJobs) => {
@@ -217,6 +233,86 @@ function CreateJobPage() {
 
   const handleFormSubmit = async (e, jobType) => {
     e.preventDefault();
+    try {
+      resetProcessSteps(); // Add this line
+      setShowProcessModal(true);
+      
+      // Step 1: Update Database
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 1 ? { ...step, status: 'pending' } : step
+      ));
+      
+      // Wait for 1.5 seconds to simulate database update
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      if (timeframe.years === 0 && timeframe.months === 0 && timeframe.days === 0) {
+        setErrorFrame("Please set a valid timeframe before submitting.");
+        return;
+      }
+  
+      // Mark Database step as completed
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 1 ? { ...step, status: 'completed' } : step
+      ));
+  
+      // Wait for 500ms before starting next step
+      await new Promise(resolve => setTimeout(resolve, 500));
+  
+      // Step 2: Validate Job
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 2 ? { ...step, status: 'pending' } : step
+      ));
+  
+      // Wait for 1.5 seconds to simulate validation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+  
+      if (timeInterval.hours === 0 && timeInterval.minutes === 0 && timeInterval.seconds === 0) {
+        setErrorInterval("Please set a valid timeinterval before submitting.");
+        return;
+      }
+  
+      // Mark Validation step as completed
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 2 ? { ...step, status: 'completed' } : step
+      ));
+  
+      // Wait for 500ms before starting next step
+      await new Promise(resolve => setTimeout(resolve, 500));
+  
+      // Step 3: Calculate Fees
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 3 ? { ...step, status: 'pending' } : step
+      ));
+  
+      // Actual fee calculation
+      await estimateFee(timeframeInSeconds, intervalInSeconds);
+  
+      // Wait for 1 second to ensure UI updates
+      await new Promise(resolve => setTimeout(resolve, 1000));
+  
+      // Mark Fee Calculation step as completed
+      setProcessSteps(prev => prev.map(step => 
+        step.id === 3 ? { ...step, status: 'completed' } : step
+      ));
+  
+      
+  
+     // Wait for final animation and close process modal
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setShowProcessModal(false);
+
+    // Show the estimated fee modal after process modal is closed
+    setJobDetails(jobDetails);
+    setIsModalOpen(true);
+  
+    } catch (error) {
+      console.error("Error during job creation:", error);
+      setProcessSteps(prev => prev.map(step => 
+        step.status === 'pending' ? { ...step, status: 'error' } : step
+      ));
+      toast.error('Failed to create job!');
+    }
+  
 
     // Mapping jobType to corresponding contract interaction
     const contractInteractionMap = {
@@ -369,7 +465,7 @@ function CreateJobPage() {
       await estimateFee(timeframeInSeconds, intervalInSeconds);
 
       setJobDetails(jobDetails);
-      toast.error('Job created successfully !'); // 
+      toast.success('Job created successfully !'); // 
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error during job creation:", error);
@@ -422,6 +518,7 @@ function CreateJobPage() {
             },
           }}
         />
+         <ProcessModal isOpen={showProcessModal} steps={processSteps}  />
     <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
       {/* Background gradients */}
       <div className="fixed inset-0  pointer-events-none" />
@@ -1183,30 +1280,11 @@ function CreateJobPage() {
               >
                 <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                 <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                {isLoading ? (
-                  <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
-                    Estimating Fees
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <ellipse
-                        className="spinner_rXNP"
-                        cx="9"
-                        cy="4"
-                        rx="3"
-                        ry="3"
-                      />
-                    </svg>
-                  </span>
-                ) : (
-                  // Show button text
+               
                   <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
                     Create Job
                   </span>
-                )}
+              
               </button>
               {(linkedJobs[jobType]?.length ?? 0) < 3 && (
                 <button
@@ -1218,7 +1296,7 @@ function CreateJobPage() {
                   <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                   <span
-                    className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
+                    className={` ""
                       }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                   >
                     Link Job
@@ -1235,11 +1313,14 @@ function CreateJobPage() {
         isOpen={isModalOpen}
         onClose={() => {
           console.log("Closing fee modal");
-          setIsModalOpen(false);
+          setIsModalOpen(false)
+          setProcessSteps(false);
+          resetProcessSteps(); // Add this line
+
+          
         }}
         estimatedFee={estimatedFee}
         onStake={() => {
-          toast.success('Job created successfully!');
           console.log("Initiating stake with params:", {
             stakeRegistryImplAddress,
             hasABI: !!stakeRegistryABI,
