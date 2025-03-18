@@ -5,6 +5,11 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
 import WalletModal from "../components/WalletModal";
 import DashboardSkeleton from "../components/DashboardSkeleton";
+import { Tooltip } from "antd";
+import { useBalance, useAccount } from 'wagmi';
+import loader from "../assets/load.gif"
+
+
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -24,6 +29,10 @@ function DashboardPage() {
   const [provider, setProvider] = useState(null);
   const navigate = useNavigate();
   const [isStaking, setIsStaking] = useState(false);
+  const { address } = useAccount();
+  const { data: accountBalance } = useBalance({
+    address: address,
+  });
 
   const data = new Array(15).fill({
     id: 1,
@@ -481,6 +490,18 @@ useEffect(() => {
     }
   }, []);
 
+  const formatBalance = (balance) => {
+    if (!balance) return "0";
+    const num = parseFloat(balance);
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(4) + "M";
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(4) + "K";
+    }
+    return num.toFixed(4);
+  };
+  
+
   return (
     <div>
       <Toaster
@@ -708,9 +729,11 @@ useEffect(() => {
                     <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
                       Total TG Balance
                     </p>
-                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
-                      {tgBalance} TG
-                    </p>
+                    <Tooltip title={`${tgBalance} TG`} placement="top">
+                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
+                    {formatBalance(tgBalance)} TG
+    </p>
+  </Tooltip>
                   </div>
                 </div>
               )}
@@ -851,7 +874,7 @@ useEffect(() => {
                 <div>
                   {isStaking ? (
                     <div className="flex justify-center p-5">
-                      <div className="loader "></div>
+                     <img src={loader} alt=""/>
                     </div>
                   ) : (
                     <div>
@@ -870,13 +893,18 @@ useEffect(() => {
                   )}
                 </div>
                 <div className="flex gap-4 justify-center">
-                  <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
-                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                      {isStaking ? "staking..." : "Stake"}
-                    </span>
-                  </button>
+                <button 
+      disabled={isStaking || !stakeAmount || Number(stakeAmount) > Number(accountBalance?.formatted || 0)}
+      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+    >
+      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+      <span className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
+        isStaking || !stakeAmount || Number(stakeAmount) > Number(accountBalance?.formatted || 0) ? 'opacity-50' : ''
+      }`}>
+        {isStaking ? "Staking..." : Number(stakeAmount) > Number(accountBalance?.formatted || 0) ? "Insufficient ETH" : "Stake"}
+      </span>
+    </button>
 
                   {/* <button
                     onClick={() => setStakeModalVisible(false)}
