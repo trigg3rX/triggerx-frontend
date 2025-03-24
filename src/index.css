@@ -1,0 +1,226 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  --font-heading: "HeadingFont";
+  --font-subheading: "SubHeadingFont";
+  --font-subtext: "SubText";
+  --font-actay: "ActayRegular";
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  background-image: url("assets//grid.png");
+}
+
+h1 {
+  font-family: var(--font-heading);
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+h4,
+li,
+select,
+span,
+p,
+td,
+th {
+  font-family: var(--font-actay);
+}
+
+h2,
+h3,
+label,
+input {
+  font-family: var(--font-subtext);
+}
+input {
+  font-size: small;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@font-face {
+  font-family: "HeadingFont";
+  src: url("../public/fonts/Book23.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "SubHeadingFont";
+  src: url("../public/fonts/ActayCondensed-Thin.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "SubText";
+  src: url("../public/fonts/ActayWide-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "ActayRegular";
+  src: url("../public/fonts/Actay-Regular.otf") format("opentype");
+}
+
+/* 2. Magnetic Corner Effect */
+@keyframes magneticCorner {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+  50% {
+    clip-path: inset(5px 5px 5px 5px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.magnetic-button {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.magnetic-button:hover {
+  animation: magneticCorner 0.8s ease;
+  box-shadow: 0 0 0 2px black;
+}
+
+/* Liquid Fill Effect */
+.liquid-button {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+  border: 2px solid #000; /* Add border to the button */
+  border-radius: 8px; /* Add border-radius to the button */
+}
+
+.liquid-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: #000;
+  transition: height 0.3s ease;
+  z-index: -1;
+  border-radius: 50px; /* Match border-radius of the button */
+}
+
+.liquid-button:hover {
+  color: white;
+}
+
+.liquid-button:hover::before {
+  height: 100%;
+}
+
+/* Liquid Fill Effect */
+.liquid-button2 {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+  border: 2px solid #141414; /* Add border to the button */
+  border-radius: 8px; /* Add border-radius to the button */
+}
+
+.liquid-button2::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: #141414;
+  transition: height 0.3s ease;
+  z-index: -1;
+  border-radius: 50px; /* Match border-radius of the button */
+}
+
+.liquid-button2:hover {
+  color: white;
+}
+
+.liquid-button2:hover::before {
+  height: 100%;
+}
+.headerbg {
+  background-image: url("assets/grid.png");
+}
+
+.spinner_rXNP {
+  animation: spinner_YeBj 0.8s infinite;
+}
+
+@keyframes spinner_YeBj {
+  0% {
+    animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+    cy: 5px;
+  }
+  46.875% {
+    cy: 20px;
+    rx: 4px;
+    ry: 4px;
+  }
+  50% {
+    animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+    cy: 20.5px;
+    rx: 4.8px;
+    ry: 3px;
+  }
+  53.125% {
+    rx: 4px;
+    ry: 4px;
+  }
+  100% {
+    cy: 5px;
+  }
+}
+.loader {
+  display: inline-flex;
+  gap: 10px;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  height: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side, #000 95%, #0000) 35% 35%/6px 6px
+    no-repeat #f8ff7c;
+  animation: l5 3s infinite;
+}
+@keyframes l5 {
+  0%,
+  11% {
+    background-position: 35% 35%;
+  }
+  14%,
+  36% {
+    background-position: 65% 35%;
+  }
+  38%,
+  61% {
+    background-position: 65% 65%;
+  }
+  64%,
+  86% {
+    background-position: 35% 65%;
+  }
+  88%,
+  100% {
+    background-position: 35% 35%;
+  }
+}
