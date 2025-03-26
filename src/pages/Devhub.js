@@ -1,9 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Make sure you have react-router-dom installed
+import { useParams, useNavigate } from 'react-router-dom';
 import devhub from "../assets/devhub.png";
 import { FaArrowUp } from "react-icons/fa"; // Import the arrow-up icon
 
 function Devhub() {
+  const navigate = useNavigate();
+
   const devhubData = [
     {
       id: 1,
@@ -50,6 +52,9 @@ function Devhub() {
     // Add more data objects as needed
   ];
   const totalCount = devhubData.length;
+  const handleItemClick = (id) => {
+    navigate(`/devhub/${id}`);
+  };
 
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
@@ -63,11 +68,11 @@ function Devhub() {
       <div className="max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 mb-40">
           {devhubData.map((item) => (
-            <Link
-              to={item.userGuideLink} // Use to instead of href for react-router-dom
-              key={item.id}
-              className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-[#0F0F0F] p-3 border border-[#5F5F5F] flex flex-col justify-between"
-            >
+           <div
+           key={item.id}
+           onClick={() => handleItemClick(item.id)}
+           className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-[#0F0F0F] p-3 border border-[#5F5F5F] flex flex-col justify-between cursor-pointer"
+         >
               <div className="w-full h-[200px] rounded-2xl border border-[#5F5F5F] relative overflow-hidden">
                 <img
                   src={item.image}
@@ -84,7 +89,7 @@ function Devhub() {
                 Read User Guide
                 <FaArrowUp className="ml-2 transform rotate-[45deg] hover:translate-y-[-2px] transition-transform" />
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

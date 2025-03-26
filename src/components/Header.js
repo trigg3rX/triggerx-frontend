@@ -5,6 +5,7 @@ import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
 import { FiInfo } from "react-icons/fi";
 import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard nav image
+import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -76,8 +77,10 @@ function Header() {
   useEffect(() => {
     if (location.pathname === "/leaderboard") {
       setNavImage(leaderboardNav); // Use leaderboard image
+    } else if (location.pathname === "/devhub") {
+      setNavImage(devhubNav); // Use devhub image
     } else {
-      setNavImage(nav); // Use default image
+      setNavImage(nav);
     }
   }, [location.pathname]);
 

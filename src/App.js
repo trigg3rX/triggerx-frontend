@@ -5,6 +5,8 @@ import CreateJobPage from "./pages/CreateJobPage";
 import DashboardPage from "./pages/DashboardPage";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
+import DevhubItem from './pages/DevhubItem';
+
 import {
   mainnet,
   polygon,
@@ -98,6 +100,7 @@ const App = () => {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/devhub" element={<Devhub />} />
+                <Route path="/devhub/:id" element={<DevhubItem />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

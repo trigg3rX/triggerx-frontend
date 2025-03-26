@@ -112,12 +112,12 @@ const Leaderboard = () => {
                 {item.attested}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                <span className="px-7 py-3 rounded-full text-md border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
-                  {item.points}
+              <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+              {item.points}
                 </span>
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white  flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <button className="px-7 py-2 bg-[#C07AF6] rounded-lg text-md text-white">
+                <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
                   View
                 </button>
               </td>
@@ -209,7 +209,7 @@ const Leaderboard = () => {
                 {item.tasksExecuted}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <span className="px-7 py-3 rounded-full text-md border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
                   {item.points}
                 </span>
               </td>
