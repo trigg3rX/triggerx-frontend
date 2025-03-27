@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../assets/footerLogo.svg";
 import footer1 from "../assets/footer1.svg";
 import footer2 from "../assets/footer2.svg";
@@ -9,6 +9,49 @@ import leaderboardNav from "../assets/leaderboardNav.svg";
 const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState("keeper");
   const [copyStatus, setCopyStatus] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [leaderboardData, setLeaderboardData] = useState({
+    keepers: [],
+    developers: [],
+    contributors: [], // Add this line
+  });
+
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      setLoading(true);
+      try {
+        console.log("Fetching leaderboard data...");
+        const response = await fetch(
+          "http://51.21.200.252:9002/api/leaderboard/user"
+        );
+
+        if (!response.ok) {
+          console.error("API Error:", response.status, response.statusText);
+          throw new Error(
+            `Failed to fetch leaderboard data: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        console.log("Leaderboard data received:", {
+          keepersCount: data.keepers?.length || 0,
+          developersCount: data.developers?.length || 0,
+          contributorsCount: data.contributors?.length || 0,
+        });
+
+        setLeaderboardData(data);
+      } catch (err) {
+        console.error("Error fetching leaderboard data:", err);
+        setError(err.message);
+      } finally {
+        console.log("Fetch operation completed");
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboardData();
+  }, []);
 
   const copyAddressToClipboard = async (address, id) => {
     await navigator.clipboard.writeText(address);
@@ -19,52 +62,11 @@ const Leaderboard = () => {
       setCopyStatus((prev) => ({ ...prev, [id]: false }));
     }, 2000);
   };
-  // Sample data for keeper/operators table
-  const keeperData = [
-    {
-      operator: "Time Base",
-      address: "88808089675746475686797",
-      performed: 858,
-      attested: 56,
-      points: 888,
-    },
-    {
-      operator: "Alpha Node",
-      address: "22345678901234567890123",
-      performed: 742,
-      attested: 48,
-      points: 765,
-    },
-    {
-      operator: "Quantum Keeper",
-      address: "45678901234567890123456",
-      performed: 921,
-      attested: 62,
-      points: 945,
-    },
-  ];
+  // Replace static keeperData with API data
+  const keeperData = leaderboardData.keepers || [];
 
-  // Sample data for developer table
-  const developerData = [
-    {
-      address: "33456789012345678901234",
-      totalJobs: 62,
-      tasksExecuted: 623,
-      points: 652,
-    },
-    {
-      address: "55678901234567890123456",
-      totalJobs: 57,
-      tasksExecuted: 578,
-      points: 595,
-    },
-    {
-      address: "77890123456789012345678",
-      totalJobs: 83,
-      tasksExecuted: 834,
-      points: 864,
-    },
-  ];
+  // Replace static developerData with API data
+  const developerData = leaderboardData.developers || [];
 
   // Render keeper/operators table
   const renderKeeperTable = () => {
@@ -112,8 +114,8 @@ const Leaderboard = () => {
                 {item.attested}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-              <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-              {item.points}
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                  {item.points}
                 </span>
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white  flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
@@ -141,7 +143,7 @@ const Leaderboard = () => {
               Total Jobs
             </th>
             <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-              Task Executed
+              Task Performed
             </th>
             <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
               Points
@@ -220,15 +222,55 @@ const Leaderboard = () => {
     );
   };
 
+  const renderContributorTable = () => {
+    return (
+      <table className="w-full border-separate border-spacing-y-4">
+        <thead className="sticky top-0 bg-[#2A2A2A]">
+          <tr>
+            <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+              Name
+            </th>
+            <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+              Points
+            </th>
+            <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+              Profile
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {(leaderboardData.contributors || []).map((item, index) => (
+            <tr key={index}>
+              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
+                {item.name}
+              </td>
+              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                  {item.points}
+                </span>
+              </td>
+              <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
+                  View
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
   return (
     <>
       <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center">
           Leaderboard
         </h1>
+
         <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-10 bg-[#181818F0] p-2 rounded-lg">
           <button
-            className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
               activeTab === "keeper"
                 ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
                 : "bg-transparent"
@@ -238,7 +280,7 @@ const Leaderboard = () => {
             Keeper
           </button>
           <button
-            className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
               activeTab === "developer"
                 ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
                 : "bg-transparent"
@@ -247,10 +289,20 @@ const Leaderboard = () => {
           >
             Developer
           </button>
+          <button
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
+              activeTab === "contributor"
+                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+                : "bg-transparent"
+            }`}
+            onClick={() => setActiveTab("contributor")}
+          >
+            Contributor
+          </button>
         </div>
         <div className="overflow-x-auto ">
           <div
-            className="max-h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] p-5 rounded-lg"
+            className="h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] p-5 rounded-lg"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -258,7 +310,21 @@ const Leaderboard = () => {
           >
             {activeTab === "keeper"
               ? renderKeeperTable()
-              : renderDeveloperTable()}
+              : activeTab === "developer"
+              ? renderDeveloperTable()
+              : renderContributorTable()}
+
+            {/* Add loading and error states */}
+            <div className="flex justify-center h-[650px] items-center">
+              {loading && (
+                <div className="text-center text-white">
+                  <img src={loading} />
+                </div>
+              )}
+              {error && (
+                <div className="text-center text-red-500">Error: {error}</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
