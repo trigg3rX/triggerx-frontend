@@ -23,7 +23,7 @@ const Leaderboard = () => {
       try {
         console.log("Fetching leaderboard data...");
         const response = await fetch(
-          "http://51.21.200.252:9002/api/leaderboard/user"
+          "http://51.21.200.252:9002/api/leaderboard/keepers"
         );
 
         if (!response.ok) {
@@ -315,7 +315,7 @@ const Leaderboard = () => {
               : renderContributorTable()}
 
             {/* Add loading and error states */}
-            <div className="flex justify-center h-[650px] items-center">
+            <div className="flex justify-center h-[500px] items-center">
               {loading && (
                 <div className="text-center text-white">
                   <img src={loading} />
