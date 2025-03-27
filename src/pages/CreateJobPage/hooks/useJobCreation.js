@@ -89,7 +89,7 @@ export function useJobCreation() {
       if (selectedCodeUrl) {
         try {
           const response = await fetch(
-            `https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(
+            `http://51.21.200.252:9002/api/fees?ipfs_url=${encodeURIComponent(
               selectedCodeUrl
             )}`,
             {
@@ -267,7 +267,7 @@ export function useJobCreation() {
 
       
 
-      const response = await fetch("https://data.triggerx.network/api/jobs", {
+      const response = await fetch("http://51.21.200.252:9002/api/jobs", {
         method: "POST",
         mode: "cors",
         headers: {

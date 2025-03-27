@@ -142,7 +142,7 @@ function DashboardPage() {
 
       // Fetch job details from the ScyllaDB API
       const response = await fetch(
-        `https://data.triggerx.network/api/jobs/user/${userAddress}`
+        `http://51.21.200.252:9002/api/jobs/user/${userAddress}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch job details from the database");
@@ -302,7 +302,7 @@ useEffect(() => {
       // Delete the job from the database
       // console.log("delete job");
       const response = await fetch(
-        `https://data.triggerx.network/api/jobs/delete/${jobId}`,
+        `http://51.21.200.252:9002/api/jobs/delete/${jobId}`,
         {
           method: "PUT",
         }
