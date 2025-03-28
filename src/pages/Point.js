@@ -1,7 +1,11 @@
 import React from "react";
 import point from "../assets/point.svg";
+import { useNavigate } from "react-router-dom";
+
 
 const Point = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
       <div className="md:flex-space-evenly bg-[#141414] rounded-3xl p-8 flex items-center justify-evenly gap-20 md:w-[80%] w-full mx-auto">
@@ -41,7 +45,8 @@ const Point = () => {
          
         </div>
         <div className="flex justify-center mt-20">
-            <button className="bg-[#9747FF]  text-white px-9 py-5 rounded-full text-lg">
+            <button       onClick={() => navigate('/leaderboard')} 
+ className="bg-[#9747FF]  text-white px-9 py-5 rounded-full text-lg">
               Guess Who's Leading?
             </button>
           </div></div>
