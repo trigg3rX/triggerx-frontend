@@ -15,6 +15,7 @@ import {
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
+import Leaderboard from "./pages/Leaderboard";
 
 const myCustomTheme = {
   blurs: {
@@ -94,6 +95,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<CreateJobPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

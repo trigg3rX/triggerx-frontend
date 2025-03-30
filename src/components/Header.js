@@ -4,6 +4,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
 import { FiInfo } from "react-icons/fi";
+import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard nav image
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,6 +16,7 @@ function Header() {
   const isActiveRoute = (path) => location.pathname === path;
   const [isScrolled, setIsScrolled] = useState(false);
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
+  const [navImage, setNavImage] = useState(nav); // State for nav image URL
 
   const handleMouseEnter = (event) => {
     const hoveredElement = event.currentTarget;
@@ -61,6 +63,24 @@ function Header() {
     };
   }, []);
 
+  // Update nav image based on route
+  useEffect(() => {
+    if (location.pathname === "/leaderboard") {
+      setNavImage(leaderboardNav); // Use leaderboard image
+    } else {
+      setNavImage(nav); // Use default image
+    }
+  }, [location.pathname]);
+
+  // Update nav image based on route
+  useEffect(() => {
+    if (location.pathname === "/leaderboard") {
+      setNavImage(leaderboardNav); // Use leaderboard image
+    } else {
+      setNavImage(nav); // Use default image
+    }
+  }, [location.pathname]);
+
   return (
     <div className="fixed top-0 left-0 right-0 w-full headerbg bg-[#0a0a0a]">
       <div className=" xl:w-[90%] md:w-[90%] mx-auto  justify-between my-10 header sm:hidden hidden lg:flex md:hidden items-center ">
@@ -71,8 +91,9 @@ function Header() {
         </div>
         <div className="relative flex flex-col items-center">
           {/* Background Image */}
+          {/* Background Image */}
           <img
-            src={nav}
+            src={navImage}
             alt="Background Design"
             className="absolute z-0 h-auto lg:max-w-min  lg:w-[500px] md:[200px] "
             style={{
@@ -92,16 +113,18 @@ function Header() {
               style={highlightStyle}
             />
             <div className="relative flex gap-3 xl:gap-5  ">
-              <a href="https://www.triggerx.network/" target="blank">
-                <h4
-                  onMouseEnter={handleMouseEnter}
-                  className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
+              <h4
+                onMouseEnter={handleMouseEnter}
+                onClick={() => {
+                  navigate("/devhub");
+                }}
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
                 
               }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
-                >
-                  Home
-                </h4>
-              </a>
+              >
+                Dev Hub
+              </h4>
+
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => {
@@ -127,6 +150,17 @@ function Header() {
                  px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
+              </h4>
+              <h4
+                onMouseEnter={handleMouseEnter}
+                onClick={() => {
+                  navigate("/leaderboard");
+                }}
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
+                
+              }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+              >
+                Leaderboard
               </h4>
             </div>
           </nav>
@@ -193,20 +227,22 @@ function Header() {
             {menuOpen && (
               <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10 min-w-[200px]">
                 <div className="flex flex-col gap-4 text-white ">
-                  <a href="https://www.triggerx.network/" target="blank">
-                    <h4
-                      className={`w-full 
+                  <h4
+                    onClick={() => {
+                      navigate("/devhub");
+                      setMenuOpen(false);
+                    }}
+                    className={`w-full 
                          
                         ${
                           isActiveRoute("https://www.triggerx.network/")
-                         
                             ? "text-white"
                             : "text-gray-400"
                         }  px-7 py-3 rounded-xl cursor-pointer`}
-                    >
-                      Home
-                    </h4>
-                  </a>
+                  >
+                    Dev Hub
+                  </h4>
+
                   <h4
                     onClick={() => {
                       navigate("/");
@@ -219,10 +255,10 @@ function Header() {
                     Create Job
                   </h4>
                   <h4
-                   onClick={() => {
-                    navigate("/dashboard");
-                    setMenuOpen(false);
-                  }}
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setMenuOpen(false);
+                    }}
                     className={` w-full  ${
                       isActiveRoute("/dashboard")
                         ? "text-white"
@@ -230,6 +266,19 @@ function Header() {
                     }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
+                  </h4>
+                  <h4
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setMenuOpen(false);
+                    }}
+                    className={` w-full  ${
+                      isActiveRoute("/leaderboard")
+                        ? "text-white"
+                        : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
+                  >
+                    Leaderboard
                   </h4>
                 </div>
               </div>
