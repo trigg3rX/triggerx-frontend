@@ -5,6 +5,9 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
 import WalletModal from "../components/WalletModal";
 import DashboardSkeleton from "../components/DashboardSkeleton";
+import { Tooltip } from "antd";
+import { useBalance, useAccount } from 'wagmi';
+import loader from "../assets/load.gif"
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -23,6 +26,11 @@ function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
   const navigate = useNavigate();
+  const [isStaking, setIsStaking] = useState(false);
+  const { address } = useAccount();
+  const { data: accountBalance } = useBalance({
+    address: address,
+  });
 
   const data = new Array(15).fill({
     id: 1,
@@ -40,6 +48,7 @@ function DashboardPage() {
   const outsideClick = (e) => {
     if (modelRef.current && !modelRef.current.contains(e.target)) {
       setStakeModalVisible(false);
+      setStakeAmount(""); 
     }
   };
 
@@ -100,7 +109,6 @@ function DashboardPage() {
     fetchTGBalance();
   });
 
-  // const provider = new ethers.BrowserProvider(window.ethereum);
 
   const getJobCreatorContract = async () => {
     if (!provider) {
@@ -121,7 +129,6 @@ function DashboardPage() {
 
   const fetchJobDetails = async () => {
     if (!provider) {
-      // console.log("Web3 provider not initialized");
       return;
     }
 
@@ -133,7 +140,7 @@ function DashboardPage() {
 
       // Fetch job details from the ScyllaDB API
       const response = await fetch(
-        `https://data.triggerx.network/api/jobs/user/${userAddress}`
+        `http://51.21.200.252:9002/api/jobs/user/${userAddress}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch job details from the database");
@@ -186,13 +193,21 @@ function DashboardPage() {
 
       // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
+      if (tempJobs.length === 0 && connected && !loading) {
+        toast("No jobs found. Create a new job to get started!", {
+          icon: 'ℹ️',
+        });
+      }
     } catch (error) {
-      // console.error("Error fetching job details:", error);
-      toast.error("Failed to fetch job details ");
+      if (connected && error.message !== "Failed to fetch") {
+        // Only show error toast for actual server errors, not for no jobs
+        toast.error("Failed to fetch jobs. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
   // Helper function to map job type ID to label
   const mapJobType = (jobTypeId) => {
     // Convert jobTypeId to string to handle both string and number types
@@ -243,26 +258,32 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!window.ethereum) {
-        setConnected(false);
-        return;
-      }
+useEffect(() => {
+  const checkConnection = async () => {
+    if (!window.ethereum) {
+      toast.error("Please install MetaMask to use this application!");
+      setConnected(false);
+      return;
+    }
 
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        setConnected(accounts.length > 0);
-      } catch (error) {
-        toast.error("Please connect your wallet!");
-        setConnected(false);
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      if (accounts.length === 0) {
+        // Clear any existing toasts before showing connection message
+        toast.dismiss();
+        toast.error("Please connect your wallet to continue!");
       }
-    };
+      setConnected(accounts.length > 0);
+    } catch (error) {
+      toast.error("Failed to check wallet connection!");
+      setConnected(false);
+    }
+  };
 
-    checkConnection();
-  }, []);
+  checkConnection();
+}, []);
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -279,7 +300,7 @@ function DashboardPage() {
       // Delete the job from the database
       // console.log("delete job");
       const response = await fetch(
-        `https://data.triggerx.network/api/jobs/delete/${jobId}`,
+        `http://51.21.200.252:9002/api/jobs/delete/${jobId}`,
         {
           method: "PUT",
         }
@@ -417,6 +438,7 @@ function DashboardPage() {
   const handleStake = async (e) => {
     e.preventDefault();
     try {
+      setIsStaking(true);
       if (!isWalletInstalled) {
         throw new Error("Web3 wallet is not installed.");
       }
@@ -447,9 +469,14 @@ function DashboardPage() {
       toast.success("Staking successful!");
       fetchTGBalance();
       setStakeModalVisible(false);
+      setStakeAmount(""); 
     } catch (error) {
       // console.error("Error staking:", error);
       toast.error("Staking failed ");
+      setStakeModalVisible(false);
+      setStakeAmount(""); 
+    } finally {
+      setIsStaking(false);
     }
   };
 
@@ -461,9 +488,32 @@ function DashboardPage() {
     }
   }, []);
 
+  const formatBalance = (balance) => {
+    if (!balance) return "0";
+    const num = parseFloat(balance);
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(4) + "M";
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(4) + "K";
+    }
+    return num.toFixed(4);
+  };
+  
+
   return (
     <div>
-      <Toaster position="center" className="mt-10" />
+      <Toaster
+        position="center"
+        className="mt-10"
+        toastOptions={{
+          style: {
+            background: "#0a0a0a", // Dark background
+            color: "#fff", // White text
+            borderRadius: "8px",
+            border: "1px gray solid",
+          },
+        }}
+      />
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -677,9 +727,11 @@ function DashboardPage() {
                     <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
                       Total TG Balance
                     </p>
-                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] ">
-                      {tgBalance} TG
-                    </p>
+                    <Tooltip title={`${tgBalance} TG`} placement="top">
+                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
+                    {formatBalance(tgBalance)} TG
+    </p>
+  </Tooltip>
                   </div>
                 </div>
               )}
@@ -818,28 +870,41 @@ function DashboardPage() {
               </h2>
               <form onSubmit={handleStake} className="space-y-6">
                 <div>
-                  <label className="block text-gray-300 mb-2">
-                    Amount (ETH)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none  text-white"
-                    placeholder="Enter ETH amount"
-                  />
+                  {isStaking ? (
+                    <div className="flex justify-center p-5">
+                     <img src={loader} alt=""/>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-gray-300 mb-2">
+                        Amount (ETH)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={stakeAmount}
+                        onChange={(e) => setStakeAmount(e.target.value)}
+                        className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
+                        placeholder="Enter ETH amount"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-4 justify-center">
-                  <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
-                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                      Stake
-                    </span>
-                  </button>
+                <button 
+      disabled={isStaking || !stakeAmount || Number(stakeAmount) > Number(accountBalance?.formatted || 0)}
+      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+    >
+      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+      <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+      <span className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
+        isStaking || !stakeAmount || Number(stakeAmount) > Number(accountBalance?.formatted || 0) ? 'opacity-50' : ''
+      }`}>
+        {isStaking ? "Staking..." : Number(stakeAmount) > Number(accountBalance?.formatted || 0) ? "Insufficient ETH" : "Stake"}
+      </span>
+    </button>
 
-                  <button
+                  {/* <button
                     onClick={() => setStakeModalVisible(false)}
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
                   >
@@ -848,7 +913,7 @@ function DashboardPage() {
                     <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
                       Cancel
                     </span>
-                  </button>
+                  </button> */}
                 </div>
               </form>
             </div>

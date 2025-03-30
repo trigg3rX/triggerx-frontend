@@ -20,19 +20,10 @@ export function ContractDetails({
   ipfsCodeUrl,
   setIpfsCodeUrl,
 }) {
-  // const [contractAddress, setContractAddress] = useState("");
-  // const [contractABI, setContractABI] = useState("");
-  // const [functions, setFunctions] = useState([]);
-  // const [targetFunction, setTargetFunction] = useState("");
-  // const [selectedFunction, setSelectedFunction] = useState(null);
-  // const [argumentType, setArgumentType] = useState("static");
-  // const [functionInputs, setFunctionInputs] = useState([]);
-  // const [argsArray, setArgArray] = useState([]);
-  // const [argumentsInBytes, setArgumentsInBytes] = useState([]);
-
   const [isFunctionOpen, setIsFunctionOpen] = useState(false);
   const [isArgumentTypeOpen, setIsArgumentTypeOpen] = useState(false);
   const [addressError, setAddressError] = useState("");
+  const [ipfsCodeUrlError, setIpfsCodeUrlError] = useState("");
 
   const selected = functions.find(
     (f) =>
@@ -220,8 +211,24 @@ export function ContractDetails({
   };
 
   const handleCodeUrlChange = (e) => {
-    const url = e.target.value;
-    setIpfsCodeUrl(url);
+    const value = e.target.value;
+    setIpfsCodeUrl(value);
+
+    // Validation logic:
+    if (!value) {
+      setIpfsCodeUrlError("IPFS URL is required.");
+    } else if (!isValidIpfsUrl(value)) {
+      setIpfsCodeUrlError("Invalid IPFS URL format.");
+    } else {
+      setIpfsCodeUrlError(""); // Clear the error if valid
+    }
+  };
+
+  const isValidIpfsUrl = (url) => {
+    // Implement your IPFS URL validation logic here.
+    // This is a placeholder; replace with a robust check.
+    // Example:  Check if it starts with "ipfs://" or "https://ipfs.io/ipfs/"
+    return url.startsWith("ipfs://") || url.startsWith("https://");
   };
 
   const selectedFunction = functions.find((func) => {
@@ -254,7 +261,7 @@ export function ContractDetails({
             }`}
           />
           {addressError && (
-            <p className="text-red-500 text-xs mt-1">{addressError}</p>
+            <p className="text-red-500 text-xs mt-1 ml-1">{addressError}</p>
           )}
         </div>
       </div>
@@ -330,11 +337,6 @@ export function ContractDetails({
                   })}
                 </div>
               )}
-              {/* {functionError && (
-                <p className="text-red-500 text-xs mt-1">
-                  Please select a function.
-                </p>
-              )} */}
             </div>
           </div>
 
@@ -369,6 +371,11 @@ export function ContractDetails({
                     {argumentType === "static" ? "Static" : "Dynamic"}
                     <ChevronDown className="text-white text-xs" />
                   </div>
+                  <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
+                    {hasArguments
+                      ? "Select how function arguments should be handled during execution"
+                      : "No arguments required for this function"}
+                  </h4>
                   {isArgumentTypeOpen && hasArguments && (
                     <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
                       {["static", "dynamic"].map((type) => (
@@ -389,11 +396,11 @@ export function ContractDetails({
                   )}
                 </div>
               </div>
-              <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs text-gray-400">
+              {/* <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs text-gray-400">
                 {hasArguments
                   ? "Select how function arguments should be handled during execution"
                   : "No arguments required for this function"}
-              </h4>
+              </h4> */}
             </>
           )}
         </>
@@ -442,19 +449,29 @@ export function ContractDetails({
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <label
-          htmlFor="_code_url"
+          htmlFor="ipfsCodeUrl"
           className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
         >
           IPFS Code URL
         </label>
-        <input
-          id="ipfsCodeUrl"
-          value={ipfsCodeUrl}
-          required
-          onChange={(e) => handleCodeUrlChange(e)}
-          className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
-          placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
-        />
+        <div className="w-full md:w-[70%] xl:w-[80%]">
+          <input
+            id="ipfsCodeUrl"
+            value={ipfsCodeUrl}
+            required
+            onChange={(e) => handleCodeUrlChange(e)}
+            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+              ipfsCodeUrlError ? "border-red-500" : "border-white/10"
+            }`}
+            placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+          />
+          {ipfsCodeUrlError && (
+            <p className="text-red-500 text-xs mt-1 ml-1">{ipfsCodeUrlError}</p>
+          )}
+          <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
+            Provide an IPFS URL or CID, where your code is stored.
+          </h4>
+        </div>
       </div>
     </div>
   );

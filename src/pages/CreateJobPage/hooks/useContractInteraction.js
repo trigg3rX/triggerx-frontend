@@ -4,7 +4,6 @@ import { ethers } from "ethers";
 import axios from "axios";
 
 export function useContractInteraction(jobType) {
-  console.log(jobType);
   const [contractAddress, setContractAddress] = useState("");
   const [contractABI, setContractABI] = useState("");
   const [functions, setFunctions] = useState([]);

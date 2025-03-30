@@ -14,21 +14,17 @@ export function useJobCreation() {
   const [scriptFunction, setScriptFunction] = useState("");
   const [userBalance, setUserBalance] = useState(0);
   const [estimatedFeeInGwei, setEstimatedFeeInGwei] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchTGBalance();
   });
-  
+
   const estimateFee = async (
     timeframeInSeconds,
     intervalInSeconds,
     codeUrls
   ) => {
-    // console.log("in est", contractAddress,
-    //   targetFunction,
-    //   argsArray,
-    //   timeframeInSeconds,
-    //   intervalInSeconds)
     try {
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
@@ -60,28 +56,36 @@ export function useJobCreation() {
 
       let totalFeeTG = 0;
       // user TG balance
-      console.log("ipfs",codeUrls);
+      console.log("Ipfs:", codeUrls);
 
       if (codeUrls) {
         try {
           const response = await fetch(
-            `https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(
+            `http://51.21.200.252:9002/api/fees?ipfs_url=${encodeURIComponent(
               codeUrls
             )}`,
-            // {
-            //   method: "GET",
-            //   headers: {
-            //     Accept: "application/json",
-            //     Origin: "https://app.triggerx.network"
-            //   },
-            // }
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
           );
+          console.log("response", response);
 
           if (!response.ok) {
             throw new Error("Failed to get fees");
           }
 
-          const data = await response.json();
+          const data = await response.json(); // Parse the response body
+          console.log("Response data:", data); // Log the response data
+
+          // Check if the response contains an error
+          if (data.error) {
+            throw new Error(data.error); // Handle the error from the response
+          }
+
           totalFeeTG = Number(data.total_fee) * executionCount;
 
           // Calculate stake amount in ETH and convert to Gwei
@@ -134,14 +138,14 @@ export function useJobCreation() {
       toast.error("Failed to fetch TG balance");
     }
   };
-  console.log(userBalance, "my TG ......");
+  // console.log(userBalance, "my TG ......");
 
   const handleSubmit = async (
     stakeRegistryAddress,
     stakeRegistryABI,
-    jobdetails,
+    jobdetails
   ) => {
-    if (!jobType ) {
+    if (!jobType) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -151,11 +155,11 @@ export function useJobCreation() {
         throw new Error("Please install MetaMask to use this feature");
       }
 
-      const updatedJobDetails = jobdetails.map(job => ({
+      const updatedJobDetails = jobdetails.map((job) => ({
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated",updatedJobDetails);
+      console.log("updated", updatedJobDetails);
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -168,7 +172,6 @@ export function useJobCreation() {
           stakeRegistryABI,
           signer
         );
-        
 
         console.log("Staking ETH amount:", requiredEth);
         const tx = await contract.stake(
@@ -185,7 +188,7 @@ export function useJobCreation() {
       // let nextJobId;
       // try {
       //   const latestIdResponse = await fetch(
-      //     "https://data.triggerx.network/api/jobs/latest-id",
+      //     "http://51.21.200.252:9002/api/jobs/latest-id",
       //     {
       //       method: "GET",
       //       mode: "cors",
@@ -233,9 +236,7 @@ export function useJobCreation() {
       //   required_tg: estimatedFee,
       // };
 
-      
-
-      const response = await fetch("https://data.triggerx.network/api/jobs", {
+      const response = await fetch("http://51.21.200.252:9002/api/jobs", {
         method: "POST",
         mode: "cors",
         headers: {
@@ -262,6 +263,7 @@ export function useJobCreation() {
 
   const handleStake = async (estimatedFee) => {
     setIsModalOpen(false);
+    setIsLoading(false);
     await handleSubmit(jobType, estimatedFee);
   };
 
@@ -284,6 +286,8 @@ export function useJobCreation() {
     setJobType: handleJobTypeChange,
     estimatedFee,
     setEstimatedFee,
+    isLoading,
+    setIsLoading,
     isModalOpen,
     argType,
     setIsModalOpen: (value) => {

@@ -2,7 +2,7 @@ import React from 'react';
 
 const WalletModal = ({ onClose }) => {
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center p-4">
             <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                     Wallet Not Detected
