@@ -5,6 +5,7 @@ import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
 import { FiInfo } from "react-icons/fi";
 import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard nav image
+import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -76,8 +77,10 @@ function Header() {
   useEffect(() => {
     if (location.pathname === "/leaderboard") {
       setNavImage(leaderboardNav); // Use leaderboard image
+    } else if (location.pathname === "/devhub") {
+      setNavImage(devhubNav); // Use devhub image
     } else {
-      setNavImage(nav); // Use default image
+      setNavImage(nav);
     }
   }, [location.pathname]);
 
@@ -118,9 +121,11 @@ function Header() {
                 onClick={() => {
                   navigate("/devhub");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
-                
-              }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/devhub")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
                 Dev Hub
               </h4>
@@ -156,7 +161,11 @@ function Header() {
                 onClick={() => {
                   navigate("/leaderboard");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] "
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/leaderboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }
                 
               }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
@@ -269,7 +278,7 @@ function Header() {
                   </h4>
                   <h4
                     onClick={() => {
-                      navigate("/dashboard");
+                      navigate("/leaderboard");
                       setMenuOpen(false);
                     }}
                     className={` w-full  ${

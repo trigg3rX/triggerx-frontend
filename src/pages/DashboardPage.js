@@ -9,6 +9,8 @@ import { Tooltip } from "antd";
 import { useBalance, useAccount } from 'wagmi';
 import loader from "../assets/load.gif"
 
+
+
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
   const [jobDetails, setJobDetails] = useState([]);

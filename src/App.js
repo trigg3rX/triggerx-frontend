@@ -5,6 +5,9 @@ import CreateJobPage from "./pages/CreateJobPage";
 import DashboardPage from "./pages/DashboardPage";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
+import DevhubItem from './pages/DevhubItem';
+import { getSubdomain } from "./utils/subdomain";
+
 import {
   mainnet,
   polygon,
@@ -16,6 +19,9 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
 import Leaderboard from "./pages/Leaderboard";
+import Devhub from "./pages/Devhub";
+import BoostReward from "./pages/BoostReward";
+import Point from "./pages/Point";
 
 const myCustomTheme = {
   blurs: {
@@ -86,6 +92,8 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 const App = () => {
+  const subdomain = getSubdomain();
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -93,10 +101,20 @@ const App = () => {
           <Router>
             <Layout>
               <Routes>
+              {subdomain === 'rewards' ? (
+          <Route path="*" element={<BoostReward />} />
+        ) : (
+          <>
                 <Route path="/" element={<CreateJobPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/devhub" element={<Devhub />} />
+                <Route path="/devhub/:id" element={<DevhubItem />} />
+                <Route path="/rewards" element={<BoostReward />} />
+             
+
                 <Route path="*" element={<NotFound />} />
+                </> )}
               </Routes>
             </Layout>
           </Router>
