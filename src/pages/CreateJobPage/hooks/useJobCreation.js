@@ -54,14 +54,15 @@ export function useJobCreation() {
       // const overallFee = Number(feeInEth) * executionCount;
       // console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
 
-      let totalFeeTG = 2;
+      let totalFeeTG = 0;
       // user TG balance
       console.log("Ipfs:", codeUrls);
 
       if (codeUrls) {
         try {
+          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
           const response = await fetch(
-            `http://51.21.200.252:9002/api/fees?ipfs_url=${encodeURIComponent(
+            `${API_BASE_URL}/api/fees?ipfs_url=${encodeURIComponent(
               codeUrls
             )}`,
             {
@@ -190,7 +191,7 @@ export function useJobCreation() {
       // let nextJobId;
       // try {
       //   const latestIdResponse = await fetch(
-      //     "http://51.21.200.252:9002/api/jobs/latest-id",
+      //     "${API_BASE_URL}/api/jobs/latest-id",
       //     {
       //       method: "GET",
       //       mode: "cors",
@@ -238,7 +239,9 @@ export function useJobCreation() {
       //   required_tg: estimatedFee,
       // };
 
-      const response = await fetch("http://51.21.200.252:9002/api/jobs", {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+      const response = await fetch(`${API_BASE_URL}/api/jobs`, {
         method: "POST",
         mode: "cors",
         headers: {

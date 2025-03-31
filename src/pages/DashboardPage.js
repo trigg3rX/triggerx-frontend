@@ -141,8 +141,10 @@ function DashboardPage() {
       // console.log(userAddress, "address");
 
       // Fetch job details from the ScyllaDB API
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
       const response = await fetch(
-        `http://51.21.200.252:9002/api/jobs/user/${userAddress}`
+        `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch job details from the database");
@@ -301,8 +303,11 @@ useEffect(() => {
     try {
       // Delete the job from the database
       // console.log("delete job");
+
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
       const response = await fetch(
-        `http://51.21.200.252:9002/api/jobs/delete/${jobId}`,
+        `${API_BASE_URL}/api/jobs/delete/${jobId}`,
         {
           method: "PUT",
         }

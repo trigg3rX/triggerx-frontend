@@ -378,27 +378,28 @@ function CreateJobPage() {
       }, 100); // Small delay ensures it happens after state updates
 
       return;
-    } else if (
-      (timeInterval.hours === 0 &&
-        timeInterval.minutes === 0 &&
-        timeInterval.seconds === 0) ||
-      timeInterval.hours * 3600 +
+    }
+    if (jobType === 1) {
+      if (
+        (timeInterval.hours === 0 &&
+          timeInterval.minutes === 0 &&
+          timeInterval.seconds === 0) ||
+        timeInterval.hours * 3600 +
         timeInterval.minutes * 60 +
         timeInterval.seconds <
         30
-    ) {
-      setErrorInterval(
-        "Please set a valid time interval of at least 30 seconds before submitting."
-      );
-
-      setTimeout(() => {
-        errorIntervalRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 100); // Small delay ensures it happens after state updates
-
-      return;
+      ) {
+        setErrorInterval(
+          "Please set a valid time interval of at least 30 seconds before submitting."
+        );
+        setTimeout(() => {
+          errorIntervalRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }, 100);
+        return;
+      }
     }
 
     try {
@@ -412,13 +413,13 @@ function CreateJobPage() {
             ? jobType === 1
               ? 1
               : jobType === 2
-              ? 5
-              : 3
+                ? 5
+                : 3
             : jobType === 1
-            ? 2
-            : jobType === 2
-            ? 6
-            : 4;
+              ? 2
+              : jobType === 2
+                ? 6
+                : 4;
         const argType = mainJobDetails.argumentType === "static" ? 0 : 1;
 
         allJobsDetails.push({
@@ -459,13 +460,13 @@ function CreateJobPage() {
                 ? jobType === 1
                   ? 1
                   : jobType === 2
-                  ? 5
-                  : 3
+                    ? 5
+                    : 3
                 : jobType === 1
-                ? 2
-                : jobType === 2
-                ? 6
-                : 4;
+                  ? 2
+                  : jobType === 2
+                    ? 6
+                    : 4;
             const argType = linkedJobDetails.argumentType === "static" ? 0 : 1;
 
             allJobsDetails.push({
@@ -598,6 +599,11 @@ function CreateJobPage() {
     }
   };
 
+  const handleJobTypeChange = (e, newJobType) => {
+    e.preventDefault();
+    setJobType(Number(newJobType));
+  };
+
   return (
     <div>
       <Toaster
@@ -639,23 +645,21 @@ function CreateJobPage() {
                   {options.map((option) => (
                     <button
                       key={option.value}
-                      onClick={() => {
+                      onClick={(e) => {
                         if (!option.disabled) {
-                          setJobType(Number(option.value));
+                          handleJobTypeChange(e, option.value);
                         }
                       }}
-                      className={`${
-                        Number(option.value) === jobType
+                      className={`${Number(option.value) === jobType
                           ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
                           : "bg-white/5 border border-white/10 "
-                      } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
+                        } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
                     >
                       <div
-                        className={`${
-                          Number(option.value) === jobType
+                        className={`${Number(option.value) === jobType
                             ? "bg-white border border-white/10"
                             : ""
-                        } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                          } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                       ></div>
                       {Number(option.value) === jobType ? (
                         <img
@@ -843,11 +847,10 @@ function CreateJobPage() {
                                   >
                                     {eventContractInteraction.events.map(
                                       (func, index) => {
-                                        const signature = `${
-                                          func.name
-                                        }(${func.inputs
-                                          .map((input) => input.type)
-                                          .join(",")})`;
+                                        const signature = `${func.name
+                                          }(${func.inputs
+                                            .map((input) => input.type)
+                                            .join(",")})`;
                                         return (
                                           <div
                                             key={index}
@@ -1155,9 +1158,8 @@ function CreateJobPage() {
                         <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                         <span
-                          className={`${
-                            isLoading ? "cursor-not-allowed opacity-50 " : ""
-                          }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                          className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
+                            }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                         >
                           Link Job
                         </span>

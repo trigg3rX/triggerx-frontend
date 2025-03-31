@@ -21,9 +21,11 @@ const Leaderboard = () => {
     const fetchLeaderboardData = async () => {
       setLoading(true);
       try {
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
         console.log("Fetching leaderboard data...");
         const response = await fetch(
-          "http://51.21.200.252:9002/api/leaderboard/keepers"
+          `${API_BASE_URL}/api/leaderboard/keepers`
         );
 
         if (!response.ok) {
