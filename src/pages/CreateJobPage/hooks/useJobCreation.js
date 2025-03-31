@@ -54,7 +54,7 @@ export function useJobCreation() {
       // const overallFee = Number(feeInEth) * executionCount;
       // console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
 
-      let totalFeeTG = 0;
+      let totalFeeTG = 2;
       // user TG balance
       console.log("Ipfs:", codeUrls);
 
@@ -67,7 +67,7 @@ export function useJobCreation() {
             {
               method: "GET",
               headers: {
-                Accept: "application/json",
+                "Accept": "application/json",
                 "Content-Type": "application/json",
               },
             }
@@ -143,9 +143,9 @@ export function useJobCreation() {
   const handleSubmit = async (
     stakeRegistryAddress,
     stakeRegistryABI,
-    jobdetails
+    jobdetails,
   ) => {
-    if (!jobType) {
+    if (!jobType ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -155,14 +155,14 @@ export function useJobCreation() {
         throw new Error("Please install MetaMask to use this feature");
       }
 
-      const updatedJobDetails = jobdetails.map((job) => ({
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const updatedJobDetails = jobdetails.map(job => ({
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated", updatedJobDetails);
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      console.log("updated",updatedJobDetails);
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
@@ -172,8 +172,10 @@ export function useJobCreation() {
           stakeRegistryABI,
           signer
         );
+        
 
         console.log("Staking ETH amount:", requiredEth);
+        
         const tx = await contract.stake(
           ethers.parseEther(requiredEth.toString()),
           { value: ethers.parseEther(requiredEth.toString()) }
