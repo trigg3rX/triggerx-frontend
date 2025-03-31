@@ -31,22 +31,21 @@ export function useJobCreation() {
         }
         return { ...prev, [jobType]: urls };
       });
-    
+
       console.log(
-        `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"} changed to:`,
+        `Code URL for ${jobType} ${
+          jobId !== null ? "linked job " + jobId : "main job"
+        } changed to:`,
         url
       );
     }
   };
-  
+
   useEffect(() => {
     fetchTGBalance();
   });
-  
-  const estimateFee = async (
-    timeframeInSeconds,
-    intervalInSeconds
-  ) => {
+
+  const estimateFee = async (timeframeInSeconds, intervalInSeconds) => {
     // console.log("in est", contractAddress,
     //   targetFunction,
     //   argsArray,
@@ -84,7 +83,7 @@ export function useJobCreation() {
       let totalFeeTG = 0;
       // user TG balance
       const selectedCodeUrl = codeUrls[jobType]; // Use jobType-specific URL
-      console.log("ipfs",selectedCodeUrl);
+      console.log("ipfs", selectedCodeUrl);
 
       if (selectedCodeUrl) {
         try {
@@ -95,7 +94,7 @@ export function useJobCreation() {
             {
               method: "GET",
               headers: {
-                "Accept": "application/json",
+                Accept: "application/json",
                 "Content-Type": "application/json",
               },
             }
@@ -171,9 +170,9 @@ export function useJobCreation() {
   const handleSubmit = async (
     stakeRegistryAddress,
     stakeRegistryABI,
-    jobdetails,
+    jobdetails
   ) => {
-    if (!jobType ) {
+    if (!jobType) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -183,11 +182,11 @@ export function useJobCreation() {
         throw new Error("Please install MetaMask to use this feature");
       }
 
-      const updatedJobDetails = jobdetails.map(job => ({
+      const updatedJobDetails = jobdetails.map((job) => ({
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated",updatedJobDetails);
+      console.log("updated", updatedJobDetails);
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -200,7 +199,6 @@ export function useJobCreation() {
           stakeRegistryABI,
           signer
         );
-        
 
         console.log("Staking ETH amount:", requiredEth);
         const tx = await contract.stake(
@@ -264,8 +262,6 @@ export function useJobCreation() {
       //   user_balance: 0.0,
       //   required_tg: estimatedFee,
       // };
-
-      
 
       const response = await fetch("https://data.triggerx.network/api/jobs", {
         method: "POST",
