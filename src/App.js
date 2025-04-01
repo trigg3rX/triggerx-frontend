@@ -8,6 +8,7 @@ import { WagmiProvider } from "wagmi";
 import DevhubItem from './pages/DevhubItem';
 import { getSubdomain } from "./utils/subdomain";
 
+
 import {
   mainnet,
   polygon,
@@ -101,20 +102,17 @@ const App = () => {
           <Router>
             <Layout>
               <Routes>
-              {subdomain === 'rewards' ? (
-          <Route path="*" element={<BoostReward />} />
-        ) : (
-          <>
-                <Route path="/" element={<CreateJobPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/devhub" element={<Devhub />} />
-                <Route path="/devhub/:id" element={<DevhubItem />} />
-                <Route path="/rewards" element={<BoostReward />} />
-             
-
-                <Route path="*" element={<NotFound />} />
-                </> )}
+                {subdomain === 'rewards' ? (
+                  <Route path="*" element={<BoostReward />} />
+                ) : (
+                  <>
+                    <Route path="/" element={<CreateJobPage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/devhub" element={<Devhub />} />
+                    <Route path="/devhub/:id" element={<DevhubItem />} />
+                    <Route path="*" element={<NotFound />} />
+                  </>)}
               </Routes>
             </Layout>
           </Router>

@@ -68,7 +68,7 @@ export function useJobCreation() {
             {
               method: "GET",
               headers: {
-                "Accept": "application/json",
+                Accept: "application/json",
                 "Content-Type": "application/json",
               },
             }
@@ -144,9 +144,9 @@ export function useJobCreation() {
   const handleSubmit = async (
     stakeRegistryAddress,
     stakeRegistryABI,
-    jobdetails,
+    jobdetails
   ) => {
-    if (!jobType ) {
+    if (!jobType) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -159,7 +159,7 @@ export function useJobCreation() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      const updatedJobDetails = jobdetails.map(job => ({
+      const updatedJobDetails = jobdetails.map((job) => ({
         ...job,
         job_cost_prediction: estimatedFee,
       }));
@@ -173,7 +173,6 @@ export function useJobCreation() {
           stakeRegistryABI,
           signer
         );
-        
 
         console.log("Staking ETH amount:", requiredEth);
         

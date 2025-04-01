@@ -5,6 +5,7 @@ import footer1 from "../assets/footer1.svg";
 import footer2 from "../assets/footer2.svg";
 import { Tooltip } from "antd";
 import leaderboardNav from "../assets/leaderboardNav.svg";
+import loading from "../assets/load.gif";
 
 const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState("keeper");
@@ -14,25 +15,22 @@ const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState({
     keepers: [],
     developers: [],
-    contributors: [], // Add this line
+    contributors: [], 
   });
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
       setLoading(true);
       try {
-        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
         console.log("Fetching leaderboard data...");
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
         const response = await fetch(
           `${API_BASE_URL}/api/leaderboard/keepers`
         );
 
         if (!response.ok) {
           console.error("API Error:", response.status, response.statusText);
-          throw new Error(
-            `Failed to fetch leaderboard data: ${response.status}`
-          );
+          throw new Error(`Failed to fetch leaderboard data`);
         }
 
         const data = await response.json();
@@ -44,7 +42,7 @@ const Leaderboard = () => {
 
         setLeaderboardData(data);
       } catch (err) {
-        console.error("Error fetching leaderboard data:", err);
+        console.error("Error fetching leaderboard data:");
         setError(err.message);
       } finally {
         console.log("Fetch operation completed");
@@ -116,12 +114,12 @@ const Leaderboard = () => {
                 {item.attested}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] md:text-md xs:text-[12px] rounded-lg">
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
                   {item.points}
                 </span>
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white  flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
+                <button className="px-5 py-2   text-sm text-white underline decoration-2 decoration-white underline-offset-4">
                   View
                 </button>
               </td>
@@ -213,7 +211,7 @@ const Leaderboard = () => {
                 {item.tasksExecuted}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] md:text-md xs:text-[12px] rounded-lg">
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
                   {item.points}
                 </span>
               </td>
@@ -247,7 +245,7 @@ const Leaderboard = () => {
                 {item.name}
               </td>
               <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] md:text-md xs:text-[12px] rounded-lg">
+                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
                   {item.points}
                 </span>
               </td>
@@ -320,7 +318,7 @@ const Leaderboard = () => {
             <div className="flex justify-center h-[500px] items-center">
               {loading && (
                 <div className="text-center text-white">
-                  <img src={loading} alt="image-loading"/>
+                  <img src={loading} alt="" />
                 </div>
               )}
               {error && (
@@ -333,4 +331,5 @@ const Leaderboard = () => {
     </>
   );
 };
+
 export default Leaderboard;
