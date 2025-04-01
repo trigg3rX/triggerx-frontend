@@ -5,53 +5,79 @@ import footer1 from "../assets/footer1.svg";
 import footer2 from "../assets/footer2.svg";
 import { Tooltip } from "antd";
 import leaderboardNav from "../assets/leaderboardNav.svg";
-import loading from "../assets/load.gif";
+import loadingGif from "../assets/load.gif";
 
 const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState("keeper");
   const [copyStatus, setCopyStatus] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [leaderboardData, setLeaderboardData] = useState({
     keepers: [],
     developers: [],
-    contributors: [], 
+    contributors: [],
   });
 
-  useEffect(() => {
-    const fetchLeaderboardData = async () => {
-      setLoading(true);
-      try {
-        console.log("Fetching leaderboard data...");
-        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-        const response = await fetch(
-          `${API_BASE_URL}/api/leaderboard/keepers`
-        );
 
-        if (!response.ok) {
-          console.error("API Error:", response.status, response.statusText);
-          throw new Error(`Failed to fetch leaderboard data`);
+
+  // Fetch data based on active tab
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        let apiUrl;
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+        if (activeTab === "keeper") {
+          apiUrl = `${API_BASE_URL}/api/leaderboard/keepers`;
+        } else if (activeTab === "developer" || activeTab === "contributor") {
+          apiUrl = `${API_BASE_URL}/api/leaderboard/users`;
         }
 
-        const data = await response.json();
-        console.log("Leaderboard data received:", {
-          keepersCount: data.keepers?.length || 0,
-          developersCount: data.developers?.length || 0,
-          contributorsCount: data.contributors?.length || 0,
-        });
+        const response = await fetch(apiUrl);
 
-        setLeaderboardData(data);
+       
+
+        const data = await response.json();
+        console.log('Raw API response:', data);
+
+        // Transform the data to match the table structure
+        if (activeTab === "keeper") {
+          const transformedKeeperData = Array.isArray(data) ? data.map(keeper => ({
+            operator: keeper.keeper_name,
+            address: keeper.keeper_address,
+            performed: keeper.tasks_executed,
+            attested: keeper.tasks_executed, // If you don't have a separate attested field
+            points: keeper.keeper_points
+          })) : [];
+          
+          setLeaderboardData(prev => ({ ...prev, keepers: transformedKeeperData }));
+        } else if (activeTab === "developer") {
+          const transformedUserData = Array.isArray(data) ? data.map(user => ({
+           
+            UserAddress: user.user_address,
+            TotalJobs: user.total_jobs,
+            TasksCompleted: user.tasks_completed, // If you don't have a separate attested field
+            UserPoints: user.user_points
+          })) : [];
+          
+          setLeaderboardData(prev => ({ ...prev, user: transformedUserData }));
+        } else {
+          setLeaderboardData(prev => ({ ...prev, contributors: data }));
+        }
+        
       } catch (err) {
-        console.error("Error fetching leaderboard data:");
-        setError(err.message);
+        console.error("Error fetching leaderboard data:", err);
+       
       } finally {
-        console.log("Fetch operation completed");
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchLeaderboardData();
-  }, []);
+    fetchData();
+  }, [activeTab]); // Re-fetch when activeTab changes
 
   const copyAddressToClipboard = async (address, id) => {
     await navigator.clipboard.writeText(address);
@@ -62,11 +88,11 @@ const Leaderboard = () => {
       setCopyStatus((prev) => ({ ...prev, [id]: false }));
     }, 2000);
   };
-  // Replace static keeperData with API data
-  const keeperData = leaderboardData.keepers || [];
 
-  // Replace static developerData with API data
+  // Get the appropriate data for the active tab
+  const keeperData = leaderboardData.keepers || [];
   const developerData = leaderboardData.developers || [];
+  const contributorData = leaderboardData.contributors || [];
 
   // Render keeper/operators table
   const renderKeeperTable = () => {
@@ -99,32 +125,43 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {keeperData.map((item, index) => (
-            <tr key={index}>
-              <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                {item.operator}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                {item.address}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                {item.performed}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                {item.attested}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                  {item.points}
-                </span>
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white  flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <button className="px-5 py-2   text-sm text-white underline decoration-2 decoration-white underline-offset-4">
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
+          {keeperData.length > 0
+            ? keeperData.map((item, index) => (
+                <tr key={index}>
+                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                    {item.operator}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                    {item.address}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                    {item.performed}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                    {item.attested}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg font-bold">
+                      {item.points}
+                    </span>
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                  <button 
+    onClick={() => window.open(`https://app.eigenlayer.xyz/operator/${item.address}`, '_blank')}
+    className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+  >
+    View
+  </button>
+                  </td>
+                </tr>
+              ))
+            : !isLoading && (
+                <tr>
+                  <td colSpan="6" className="text-center text-[#A2A2A2] py-5">
+                    No keeper data available
+                  </td>
+                </tr>
+              )}
         </tbody>
       </table>
     );
@@ -151,72 +188,79 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {developerData.map((item, index) => (
-            <tr key={index}>
-              <td
-                key={item.id}
-                className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center"
-              >
-                <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
-                  {item.address}
-                </span>
-                {/* <button
-                  onClick={() => copyAddressToClipboard(item.address, item.id)}
-                  className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
-                  title="Copy address"
-                >
-                  {copyStatus[item.id] ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#A2A2A2"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+          {developerData.length > 0
+            ? developerData.map((item, index) => (
+                <tr key={index}>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
+                    <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
+                      {item.address}
+                    </span>
+                    <button
+                      onClick={() =>
+                        copyAddressToClipboard(item.address, item.id)
+                      }
+                      className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                      title="Copy address"
                     >
-                      <path d="M20 6L9 17l-5-5"></path>
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#A2A2A2"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="9"
-                        y="9"
-                        width="13"
-                        height="13"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                    </svg>
-                  )}
-                </button> */}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                {item.totalJobs}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                {item.tasksExecuted}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                  {item.points}
-                </span>
-              </td>
-            </tr>
-          ))}
+                      {copyStatus[item.id] ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#A2A2A2"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20 6L9 17l-5-5"></path>
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#A2A2A2"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                        </svg>
+                      )}
+                    </button>
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                    {item.totalJobs}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                    {item.tasksExecuted}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                      {item.points}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            : !isLoading && (
+                <tr>
+                  <td colSpan="4" className="text-center text-[#A2A2A2] py-5">
+                    No developer data available
+                  </td>
+                </tr>
+              )}
         </tbody>
       </table>
     );
@@ -239,23 +283,31 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {(leaderboardData.contributors || []).map((item, index) => (
-            <tr key={index}>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
-                {item.name}
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                  {item.points}
-                </span>
-              </td>
-              <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
+          {contributorData.length > 0
+            ? contributorData.map((item, index) => (
+                <tr key={index}>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
+                    {item.name}
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                      {item.points}
+                    </span>
+                  </td>
+                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                    <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            : !isLoading && (
+                <tr>
+                  <td colSpan="3" className="text-center text-[#A2A2A2] py-5">
+                    No contributor data available
+                  </td>
+                </tr>
+              )}
         </tbody>
       </table>
     );
@@ -300,31 +352,36 @@ const Leaderboard = () => {
             Contributor
           </button>
         </div>
-        <div className="overflow-x-auto ">
+        <div className="overflow-x-auto">
           <div
-            className="h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] p-5 rounded-lg"
+            className="h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] px-5 rounded-lg"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
             }}
           >
-            {activeTab === "keeper"
-              ? renderKeeperTable()
-              : activeTab === "developer"
-              ? renderDeveloperTable()
-              : renderContributorTable()}
+            {/* Only render the table when not loading */}
+            {!isLoading &&
+              (activeTab === "keeper"
+                ? renderKeeperTable()
+                : activeTab === "developer"
+                ? renderDeveloperTable()
+                : renderContributorTable())}
 
-            {/* Add loading and error states */}
-            <div className="flex justify-center h-[500px] items-center">
-              {loading && (
+            {/* Display loading or error states */}
+            {isLoading && (
+              <div className="flex justify-center h-[500px] items-center">
                 <div className="text-center text-white">
-                  <img src={loading} alt="" />
+                  <img src={loadingGif} alt="Loading" />
                 </div>
-              )}
-              {error && (
+              </div>
+            )}
+
+            {error && !isLoading && (
+              <div className="flex justify-center h-[500px] items-center">
                 <div className="text-center text-red-500">Error: {error}</div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
