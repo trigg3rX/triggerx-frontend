@@ -18,8 +18,6 @@ const Leaderboard = () => {
     contributors: [],
   });
 
-
-
   // Fetch data based on active tab
   useEffect(() => {
     const fetchData = async () => {
@@ -38,39 +36,58 @@ const Leaderboard = () => {
 
         const response = await fetch(apiUrl);
 
-       
-
         const data = await response.json();
-        console.log('Raw API response:', data);
+        console.log("Raw API response:", data);
 
         // Transform the data to match the table structure
         if (activeTab === "keeper") {
-          const transformedKeeperData = Array.isArray(data) ? data.map(keeper => ({
-            operator: keeper.keeper_name,
-            address: keeper.keeper_address,
-            performed: keeper.tasks_executed,
-            attested: keeper.tasks_executed, // If you don't have a separate attested field
-            points: keeper.keeper_points
-          })) : [];
-          
-          setLeaderboardData(prev => ({ ...prev, keepers: transformedKeeperData }));
+          const transformedKeeperData = Array.isArray(data)
+            ? data.map((keeper) => ({
+                operator: keeper.keeper_name,
+                address: keeper.keeper_address,
+                performed: keeper.tasks_executed,
+                attested: keeper.tasks_executed, // If you don't have a separate attested field
+                points: keeper.keeper_points,
+              }))
+            : [];
+
+          // Sort the keepers by points in descending order
+          transformedKeeperData.sort((a, b) => b.points - a.points);
+
+          setLeaderboardData((prev) => ({
+            ...prev,
+            keepers: transformedKeeperData,
+          }));
         } else if (activeTab === "developer") {
-          const transformedUserData = Array.isArray(data) ? data.map(user => ({
-           
-            UserAddress: user.user_address,
-            TotalJobs: user.total_jobs,
-            TasksCompleted: user.tasks_completed, // If you don't have a separate attested field
-            UserPoints: user.user_points
-          })) : [];
-          
-          setLeaderboardData(prev => ({ ...prev, user: transformedUserData }));
+          const transformedUserData = Array.isArray(data)
+            ? data.map((user) => ({
+                address: user.user_address,
+                totalJobs: user.total_jobs,
+                tasksExecuted: user.tasks_completed, // If you don't have a separate attested field
+                points: user.user_points,
+              }))
+            : [];
+
+          // Sort developers by points in descending order
+          transformedUserData.sort((a, b) => b.points - a.points);
+
+          setLeaderboardData((prev) => ({
+            ...prev,
+            developers: transformedUserData,
+          }));
         } else {
-          setLeaderboardData(prev => ({ ...prev, contributors: data }));
+          // Sort contributors by points in descending order if they exist
+          const sortedContributors = Array.isArray(data)
+            ? [...data].sort((a, b) => b.points - a.points)
+            : [];
+
+          setLeaderboardData((prev) => ({
+            ...prev,
+            contributors: sortedContributors,
+          }));
         }
-        
       } catch (err) {
         console.error("Error fetching leaderboard data:", err);
-       
       } finally {
         setIsLoading(false);
       }
@@ -140,19 +157,26 @@ const Leaderboard = () => {
                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
                     {item.attested}
                   </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg font-bold">
+                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
+                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
                       {item.points}
                     </span>
                   </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                  <button 
-    onClick={() => window.open(`https://app.eigenlayer.xyz/operator/${item.address}`, '_blank')}
-    className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
-  >
-    View
-  </button>
-                  </td>
+                  <Tooltip title="View Profile" color="#2A2A2A">
+                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://app.eigenlayer.xyz/operator/${item.address}`,
+                            "_blank"
+                          )
+                        }
+                        className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </Tooltip>
                 </tr>
               ))
             : !isLoading && (
