@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import reward from "../assets/reward.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import Point from "./Point";
 
 const BoostReward = () => {
   const { isConnected } = useAccount();
@@ -43,6 +44,10 @@ const BoostReward = () => {
 
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
+        {isConnected ? (
+        <Point />
+      ) : (
+         
       <div className="flex p-8 gap-8 text-white max-w-[1600px] mx-auto justify-center">
         {/* Left Content Section */}
         <div className="bg-[#141414] rounded-2xl p-12 w-[60%] ">
@@ -136,6 +141,7 @@ const BoostReward = () => {
   </div>
         </div>
       </div>
+    )}
     </div>
   );
 };
