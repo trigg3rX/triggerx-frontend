@@ -26,11 +26,12 @@ const Leaderboard = () => {
 
       try {
         let apiUrl;
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
         if (activeTab === "keeper") {
-          apiUrl = "https://data.triggerx.network/api/leaderboard/keepers";
+          apiUrl = `${API_BASE_URL}/api/leaderboard/keepers`;
         } else if (activeTab === "developer" || activeTab === "contributor") {
-          apiUrl = "https://data.triggerx.network/api/leaderboard/users";
+          apiUrl = `${API_BASE_URL}/api/leaderboard/users`;
         }
 
         const response = await fetch(apiUrl);

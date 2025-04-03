@@ -13,7 +13,7 @@ import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { Toaster, toast } from "react-hot-toast";
-// import ProcessModal from "./components/ProcessModel";
+import ProcessModal from "./components/ProcessModel";
 
 import timeBasedIcon from "../../assets/time-based.gif";
 import conditionBasedIcon from "../../assets/condition-based.gif";
@@ -124,13 +124,13 @@ function CreateJobPage() {
   const [linkedJobs, setLinkedJobs] = useState({});
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [jobDetails, setJobDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [conditionScript, setConditionScript] = useState("");
   const { address, isConnected } = useAccount(); // Get isConnected from useAccount
   const [connected, setConnected] = useState(false);
   const formRef = useRef(null);
   const { handleKeyDown } = useFormKeyboardNavigation();
   const [contractDetails, setContractDetails] = useState({});
-  const [recurring, setRecurring] = useState(false);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -139,6 +139,7 @@ function CreateJobPage() {
         setConnected(false);
         return;
       }
+
       try {
         const accounts = await window.ethereum.request({
           method: "eth_accounts",
@@ -316,8 +317,6 @@ function CreateJobPage() {
     estimateFee,
     estimatedFee,
     // setEstimatedFee,
-    isLoading,
-    setIsLoading,
     userBalance,
     isModalOpen,
     setIsModalOpen,
@@ -378,29 +377,23 @@ function CreateJobPage() {
       }, 100); // Small delay ensures it happens after state updates
 
       return;
+    } else if (
+      timeInterval.hours === 0 &&
+      timeInterval.minutes === 0 &&
+      timeInterval.seconds === 0
+    ) {
+      setErrorInterval("Please set a valid timeinterval before submitting.");
+
+      setTimeout(() => {
+        errorIntervalRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100); // Small delay ensures it happens after state updates
+
+      return;
     }
-    if (jobType === 1) {
-      if (
-        (timeInterval.hours === 0 &&
-          timeInterval.minutes === 0 &&
-          timeInterval.seconds === 0) ||
-        timeInterval.hours * 3600 +
-        timeInterval.minutes * 60 +
-        timeInterval.seconds <
-        30
-      ) {
-        setErrorInterval(
-          "Please set a valid time interval of at least 30 seconds before submitting."
-        );
-        setTimeout(() => {
-          errorIntervalRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }, 100);
-        return;
-      }
-    }
+    setIsLoading(true);
 
     try {
       const allJobsDetails = [];
@@ -413,13 +406,13 @@ function CreateJobPage() {
             ? jobType === 1
               ? 1
               : jobType === 2
-                ? 5
-                : 3
+              ? 5
+              : 3
             : jobType === 1
-              ? 2
-              : jobType === 2
-                ? 6
-                : 4;
+            ? 2
+            : jobType === 2
+            ? 6
+            : 4;
         const argType = mainJobDetails.argumentType === "static" ? 0 : 1;
 
         allJobsDetails.push({
@@ -432,7 +425,7 @@ function CreateJobPage() {
           security: 0,
           time_frame: timeframeInSeconds,
           time_interval: intervalInSeconds,
-          recurring: recurring, /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+          recurring: false, /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
           trigger_chain_id: triggerChainId.toString(),
           trigger_contract_address: mainJobDetails.contractAddress,
           trigger_event: "NULL",
@@ -460,13 +453,13 @@ function CreateJobPage() {
                 ? jobType === 1
                   ? 1
                   : jobType === 2
-                    ? 5
-                    : 3
+                  ? 5
+                  : 3
                 : jobType === 1
-                  ? 2
-                  : jobType === 2
-                    ? 6
-                    : 4;
+                ? 2
+                : jobType === 2
+                ? 6
+                : 4;
             const argType = linkedJobDetails.argumentType === "static" ? 0 : 1;
 
             allJobsDetails.push({
@@ -497,97 +490,80 @@ function CreateJobPage() {
           }
         });
       }
-      setIsLoading(true);
+
       console.log("Job Details", allJobsDetails);
       setJobDetails(allJobsDetails);
 
       const codeUrls = allJobsDetails.map((job) => job.script_ipfs_url);
 
-      try {
-        resetProcessSteps();
-        setShowProcessModal(true);
+      resetProcessSteps();
+      setShowProcessModal(true);
 
-        // Step 1: Update Database
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 1 ? { ...step, status: "pending" } : step
-          )
-        );
+      // Step 1: Update Database
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 1 ? { ...step, status: "pending" } : step
+        )
+      );
 
-        // Wait for 1.5 seconds to simulate database update
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Wait for 1.5 seconds to simulate database update
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        // Mark Database step as completed
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 1 ? { ...step, status: "completed" } : step
-          )
-        );
+      // Mark Database step as completed
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 1 ? { ...step, status: "completed" } : step
+        )
+      );
 
-        // Wait for 500ms before starting next step
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      // Wait for 500ms before starting next step
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Step 2: Validate Job
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 2 ? { ...step, status: "pending" } : step
-          )
-        );
+      // Step 2: Validate Job
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 2 ? { ...step, status: "pending" } : step
+        )
+      );
 
-        // Wait for 1.5 seconds to simulate validation
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Wait for 1.5 seconds to simulate validation
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        // Mark Validation step as completed
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 2 ? { ...step, status: "completed" } : step
-          )
-        );
+      // Mark Validation step as completed
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 2 ? { ...step, status: "completed" } : step
+        )
+      );
 
-        // Wait for 500ms before starting next step
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      // Wait for 500ms before starting next step
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Step 3: Calculate Fees
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 3 ? { ...step, status: "pending" } : step
-          )
-        );
+      // Step 3: Calculate Fees
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 3 ? { ...step, status: "pending" } : step
+        )
+      );
 
-        // Ensure estimateFee is awaited properly
-        await estimateFee(
-          timeframeInSeconds,
-          intervalInSeconds,
-          codeUrls,
-          processSteps,
-          setProcessSteps
-        );
+      // Actual fee calculation
+      await estimateFee(timeframeInSeconds, intervalInSeconds, codeUrls);
 
-        // Ensure UI updates and animation completes
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Wait for 1 second to ensure UI updates
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Mark Fee Calculation step as completed only after actual calculation
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 3 ? { ...step, status: "completed" } : step
-          )
-        );
+      // Mark Fee Calculation step as completed
+      setProcessSteps((prev) =>
+        prev.map((step) =>
+          step.id === 3 ? { ...step, status: "completed" } : step
+        )
+      );
 
-        // await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (processSteps.every((step) => step.status === "completed")) {
-          setIsModalOpen(true);
-          setShowProcessModal(false);
-          toast.success("Job created successfully !");
-        }
-      } catch (error) {
-        console.error("Error during fee estimation:", error);
-        setProcessSteps((prev) =>
-          prev.map((step) =>
-            step.id === 3 ? { ...step, status: "error" } : step
-          )
-        );
-        toast.error("Failed to estimate fee!");
-      }
+      // Wait for final animation and close process modal
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setShowProcessModal(false);
+      setIsModalOpen(true);
+      toast.success("Job created successfully !");
     } catch (error) {
       console.error("Error during job creation:", error);
       setProcessSteps((prev) =>
@@ -596,12 +572,9 @@ function CreateJobPage() {
         )
       );
       toast.error("Failed to create job!");
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleJobTypeChange = (e, newJobType) => {
-    e.preventDefault();
-    setJobType(Number(newJobType));
   };
 
   return (
@@ -618,9 +591,7 @@ function CreateJobPage() {
           },
         }}
       />
-
-      {/* <ProcessModal isOpen={showProcessModal} steps={processSteps} /> */}
-
+      <ProcessModal isOpen={showProcessModal} steps={processSteps} />
       <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
         {/* Background gradients */}
         <div className="fixed inset-0  pointer-events-none" />
@@ -645,21 +616,23 @@ function CreateJobPage() {
                   {options.map((option) => (
                     <button
                       key={option.value}
-                      onClick={(e) => {
+                      onClick={() => {
                         if (!option.disabled) {
-                          handleJobTypeChange(e, option.value);
+                          setJobType(Number(option.value));
                         }
                       }}
-                      className={`${Number(option.value) === jobType
+                      className={`${
+                        Number(option.value) === jobType
                           ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
                           : "bg-white/5 border border-white/10 "
-                        } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
+                      } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
                     >
                       <div
-                        className={`${Number(option.value) === jobType
+                        className={`${
+                          Number(option.value) === jobType
                             ? "bg-white border border-white/10"
                             : ""
-                          } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                        } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                       ></div>
                       {Number(option.value) === jobType ? (
                         <img
@@ -682,7 +655,7 @@ function CreateJobPage() {
 
               {jobType ? (
                 <>
-                  <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 relative z-50">
+                  <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
                     {/* network */}
                     <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                       <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
@@ -741,38 +714,6 @@ function CreateJobPage() {
                       />
                     )}
 
-                    {(jobType === 2 || jobType === 3) && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Recurring
-                        </label>
-                        <div className="flex space-x-6 w-full md:w-[70%] xl:w-[80%]">
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="radio"
-                              name="recurring"
-                              value="yes"
-                              className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
-                              checked={recurring === true}
-                              onChange={() => setRecurring(true)}
-                            />
-                            <span className="ml-2 text-white">Yes</span>
-                          </label>
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="radio"
-                              name="recurring"
-                              value="no"
-                              className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
-                              checked={recurring === false}
-                              onChange={() => setRecurring(false)}
-                            />
-                            <span className="ml-2 text-white">No</span>
-                          </label>
-                        </div>
-                      </div>
-                    )}
-
                     {jobType === 3 && (
                       <>
                         <div className="relative flex flex-col items-start justify-between gap-6">
@@ -818,7 +759,10 @@ function CreateJobPage() {
                                     <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
                                       Not Available{" "}
                                     </h4>
-                                    <h4 className="text-red-400 mt-[2px]">✕</h4>
+                                    <h4 className="text-red-400 mt-[2px]">
+                                      {" "}
+                                      ✕
+                                    </h4>
                                   </div>
                                 )}
                               </div>
@@ -847,10 +791,11 @@ function CreateJobPage() {
                                   >
                                     {eventContractInteraction.events.map(
                                       (func, index) => {
-                                        const signature = `${func.name
-                                          }(${func.inputs
-                                            .map((input) => input.type)
-                                            .join(",")})`;
+                                        const signature = `${
+                                          func.name
+                                        }(${func.inputs
+                                          .map((input) => input.type)
+                                          .join(",")})`;
                                         return (
                                           <div
                                             key={index}
@@ -969,6 +914,26 @@ function CreateJobPage() {
                       }
                     />
 
+                    {/* <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <label
+                  htmlFor={jobType + "_code_url"}
+                  className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                >
+                  IPFS Code URL
+                </label>
+
+                <input
+                  id={jobType + "_code_url"}
+                  value={codeUrls[jobType]?.[0] || ""}
+                  required
+                  onChange={(e) => {
+                    handleCodeUrlChange(e, jobType);
+                  }}
+                  className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
+                  placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                />
+              </div> */}
+
                     {jobType === 2 && (
                       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <label
@@ -999,10 +964,30 @@ function CreateJobPage() {
                         return (
                           <div
                             key={jobId}
-                            className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 overflow-hidden"
+                            className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8"
                           >
-                            <div className="bg-[#303030] border border-white/10 flex justify-center items-center gap-3 mt-0 w-[110%] ml-[-30px]">
-                              <p className="py-4">Linked Job {jobId}</p>
+                            <div className="flex justify-center items-center gap-3">
+                              <p className="py-4 underline underline-offset-4">
+                                Linked Job {jobId}
+                              </p>
+                              {/* <button
+                          onClick={(e) =>
+                            handleDeleteLinkedJob(e, jobType, jobId)
+                          }
+                          className="fill-white hover:fill-red-700 focus:outline-none w-5 h-5"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            x="0px"
+                            y="0px"
+                            width="100"
+                            height="100"
+                            viewBox="0 0 24 24"
+                            className="w-4 h-4"
+                          >
+                            <path d="M 10 2 L 9 3 L 3 3 L 3 5 L 21 5 L 21 3 L 15 3 L 14 2 L 10 2 z M 4.3652344 7 L 6.0683594 22 L 17.931641 22 L 19.634766 7 L 4.3652344 7 z"></path>
+                          </svg>
+                        </button> */}
                               <DeleteConfirmationButton
                                 jobType={jobType}
                                 jobId={jobId}
@@ -1110,13 +1095,32 @@ function CreateJobPage() {
                                 )
                               }
                             />
+
+                            {/* <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <label
+                          htmlFor={jobType + "_" + jobId + "_code_url"}
+                          className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                        >
+                          IPFS Code URL
+                        </label>
+                        <input
+                          id={jobType + "_" + jobId + "_code_url"}
+                          value={codeUrls[jobType]?.[jobId] || ""}
+                          required
+                          onChange={(e) =>
+                            handleCodeUrlChange(e, jobType, jobId)
+                          }
+                          className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
+                          placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+                        />
+                      </div> */}
                           </div>
                         );
                       })}
                     </div>
                   )}
 
-                  <div className="flex gap-4 justify-center items-center relative z-30">
+                  <div className="flex gap-4 justify-center items-center">
                     <button
                       type="submit"
                       className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
@@ -1158,8 +1162,9 @@ function CreateJobPage() {
                         <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                         <span
-                          className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
-                            }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                          className={`${
+                            isLoading ? "cursor-not-allowed opacity-50 " : ""
+                          }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                         >
                           Link Job
                         </span>
@@ -1178,16 +1183,13 @@ function CreateJobPage() {
             </div>
           </form>
         </div>
+
         {/* Estimated Fee Modal */}
         <EstimatedFeeModal
-          isOpen={isLoading}
-          showProcessing={showProcessModal}
-          showFees={isModalOpen}
-          steps={processSteps}
+          isOpen={isModalOpen}
           onClose={() => {
             console.log("Closing fee modal");
             setIsModalOpen(false);
-            setIsLoading(false);
             setProcessSteps(false);
             resetProcessSteps(); // Add this line
           }}
