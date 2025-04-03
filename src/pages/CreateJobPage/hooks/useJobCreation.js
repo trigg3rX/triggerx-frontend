@@ -6,7 +6,7 @@ import { useStakeRegistry } from "./useStakeRegistry";
 
 export function useJobCreation() {
   const navigate = useNavigate();
-  const [jobType, setJobType] = useState(1);
+  const [jobType, setJobType] = useState();
   const [estimatedFee, setEstimatedFee] = useState(0);
   const [gasUnits, setGasUnits] = useState(0);
   const [argType, setArgType] = useState(0);
@@ -14,6 +14,8 @@ export function useJobCreation() {
   const [scriptFunction, setScriptFunction] = useState("");
   const [userBalance, setUserBalance] = useState(0);
   const [estimatedFeeInGwei, setEstimatedFeeInGwei] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const [codeUrls, setCodeUrls] = useState([]);
 
@@ -45,12 +47,11 @@ export function useJobCreation() {
     fetchTGBalance();
   });
 
-  const estimateFee = async (timeframeInSeconds, intervalInSeconds) => {
-    // console.log("in est", contractAddress,
-    //   targetFunction,
-    //   argsArray,
-    //   timeframeInSeconds,
-    //   intervalInSeconds)
+  const estimateFee = async (
+    timeframeInSeconds,
+    intervalInSeconds,
+    codeUrls
+  ) => {
     try {
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
@@ -82,14 +83,14 @@ export function useJobCreation() {
 
       let totalFeeTG = 0;
       // user TG balance
-      const selectedCodeUrl = codeUrls[jobType]; // Use jobType-specific URL
-      console.log("ipfs", selectedCodeUrl);
+      console.log("Ipfs:", codeUrls);
 
-      if (selectedCodeUrl) {
+      if (codeUrls) {
         try {
+          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
           const response = await fetch(
-            `https://data.triggerx.network/api/fees?ipfs_url=${encodeURIComponent(
-              selectedCodeUrl
+            `${API_BASE_URL}/api/fees?ipfs_url=${encodeURIComponent(
+              codeUrls
             )}`,
             {
               method: "GET",
@@ -165,7 +166,7 @@ export function useJobCreation() {
       toast.error("Failed to fetch TG balance");
     }
   };
-  console.log(userBalance, "my TG ......");
+  // console.log(userBalance, "my TG ......");
 
   const handleSubmit = async (
     stakeRegistryAddress,
@@ -182,14 +183,14 @@ export function useJobCreation() {
         throw new Error("Please install MetaMask to use this feature");
       }
 
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
       const updatedJobDetails = jobdetails.map((job) => ({
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated", updatedJobDetails);
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      console.log("updated",updatedJobDetails);
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
@@ -201,6 +202,7 @@ export function useJobCreation() {
         );
 
         console.log("Staking ETH amount:", requiredEth);
+        
         const tx = await contract.stake(
           ethers.parseEther(requiredEth.toString()),
           { value: ethers.parseEther(requiredEth.toString()) }
@@ -215,7 +217,7 @@ export function useJobCreation() {
       // let nextJobId;
       // try {
       //   const latestIdResponse = await fetch(
-      //     "https://data.triggerx.network/api/jobs/latest-id",
+      //     "${API_BASE_URL}/api/jobs/latest-id",
       //     {
       //       method: "GET",
       //       mode: "cors",
@@ -263,7 +265,9 @@ export function useJobCreation() {
       //   required_tg: estimatedFee,
       // };
 
-      const response = await fetch("https://data.triggerx.network/api/jobs", {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+      const response = await fetch(`${API_BASE_URL}/api/jobs`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -290,6 +294,7 @@ export function useJobCreation() {
 
   const handleStake = async (estimatedFee) => {
     setIsModalOpen(false);
+    setIsLoading(false);
     await handleSubmit(jobType, estimatedFee);
   };
 
@@ -312,14 +317,14 @@ export function useJobCreation() {
     setJobType: handleJobTypeChange,
     estimatedFee,
     setEstimatedFee,
+    isLoading,
+    setIsLoading,
     isModalOpen,
-    codeUrls,
     argType,
     setIsModalOpen: (value) => {
       console.log("Setting modal open:", value);
       setIsModalOpen(value);
     },
-    handleCodeUrlChange,
     estimateFee,
     handleSubmit,
     handleStake,
