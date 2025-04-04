@@ -20,7 +20,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import Devhub from "./pages/Devhub";
-import Devhub from "./pages/Devhub";
 import BoostReward from "./pages/BoostReward";
 import Point from "./pages/Point";
 
