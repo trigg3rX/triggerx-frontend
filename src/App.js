@@ -20,9 +20,9 @@ import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import Devhub from "./pages/Devhub";
-import Devhub from "./pages/Devhub";
 import BoostReward from "./pages/BoostReward";
 import Point from "./pages/Point";
+import ApiCreation from "./pages/Api/ApiCreation"
 
 const myCustomTheme = {
   blurs: {
@@ -108,6 +108,8 @@ const App = () => {
                   <Route path="/leaderboard" element={<Leaderboard />} />
                   <Route path="/devhub" element={<Devhub />} />
                   <Route path="/devhub/:id" element={<DevhubItem />} />
+                  <Route path="/api" element={<ApiCreation />} />
+
                   <Route path="*" element={<NotFound />} />
                 </>
               </Routes>
