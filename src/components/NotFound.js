@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowLeft, Search, Home } from "lucide-react";
-import error from "../assets/error.gif"
+import error from "../assets/error.gif";
 import ghost from "../assets/ghost.svg";
 
 const NotFound = () => {

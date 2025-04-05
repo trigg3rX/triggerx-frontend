@@ -24,6 +24,8 @@ import eventBasedGif from "../../assets/event-based.gif";
 
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
+import { useProxyFactory } from "./hooks/useProxyFactory";
+import { randomBytes } from "ethers";
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -131,6 +133,7 @@ function CreateJobPage() {
   const { handleKeyDown } = useFormKeyboardNavigation();
   const [contractDetails, setContractDetails] = useState({});
   const [recurring, setRecurring] = useState(false);
+  const { deployNewProxy, isDeploying } = useProxyFactory();
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -406,21 +409,33 @@ function CreateJobPage() {
       const allJobsDetails = [];
       const mainJobDetails = contractDetails[jobType]?.["main"];
 
+      // Deploy proxy for main job
+      const { proxyAddress: mainProxyAddress } = await deployNewProxy(
+        mainJobDetails.contractAddress,
+        address
+      );
+
+      // Calculate taskdefinitionid and argType based on job type and argument type
+      const getTaskDefinitionId = (argumentType) => {
+        return argumentType === "static"
+          ? jobType === 1
+            ? 1
+            : jobType === 2
+              ? 5
+              : 3
+          : jobType === 1
+            ? 2
+            : jobType === 2
+              ? 6
+              : 4;
+      };
+
+      const getArgType = (argumentType) => argumentType === "static" ? 0 : 1;
+
       // Add main job details if available
       if (mainJobDetails) {
-        const taskdefinitionid =
-          mainJobDetails.argumentType === "static"
-            ? jobType === 1
-              ? 1
-              : jobType === 2
-                ? 5
-                : 3
-            : jobType === 1
-              ? 2
-              : jobType === 2
-                ? 6
-                : 4;
-        const argType = mainJobDetails.argumentType === "static" ? 0 : 1;
+        const taskdefinitionid = getTaskDefinitionId(mainJobDetails.argumentType);
+        const argType = getArgType(mainJobDetails.argumentType);
 
         allJobsDetails.push({
           jobType: jobType,
@@ -432,9 +447,9 @@ function CreateJobPage() {
           security: 0,
           time_frame: timeframeInSeconds,
           time_interval: intervalInSeconds,
-          recurring: recurring, /////bakiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+          recurring: recurring,
           trigger_chain_id: triggerChainId.toString(),
-          trigger_contract_address: mainJobDetails.contractAddress,
+          trigger_contract_address: mainProxyAddress,
           trigger_event: "NULL",
           script_ipfs_url: mainJobDetails.ipfsCodeUrl || "",
           script_target_function: "trigger",
@@ -446,28 +461,18 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           contractABI: mainJobDetails.contractABI,
+          abstraction_contract: mainProxyAddress,
         });
       }
 
       // Collect details for linked jobs
       if (linkedJobs[jobType]) {
-        linkedJobs[jobType].forEach((jobId) => {
+        for (const jobId of linkedJobs[jobType]) {
           const linkedJobDetails = contractDetails[jobType]?.[jobId];
 
           if (linkedJobDetails) {
-            const taskdefinitionid =
-              linkedJobDetails.argumentType === "static"
-                ? jobType === 1
-                  ? 1
-                  : jobType === 2
-                    ? 5
-                    : 3
-                : jobType === 1
-                  ? 2
-                  : jobType === 2
-                    ? 6
-                    : 4;
-            const argType = linkedJobDetails.argumentType === "static" ? 0 : 1;
+            const taskdefinitionid = getTaskDefinitionId(linkedJobDetails.argumentType);
+            const argType = getArgType(linkedJobDetails.argumentType);
 
             allJobsDetails.push({
               jobType: jobType,
@@ -481,7 +486,7 @@ function CreateJobPage() {
               time_interval: intervalInSeconds,
               recurring: false,
               trigger_chain_id: triggerChainId.toString(),
-              trigger_contract_address: linkedJobDetails.contractAddress,
+              trigger_contract_address: mainProxyAddress,
               trigger_event: "NULL",
               script_ipfs_url: linkedJobDetails.ipfsCodeUrl || "",
               script_target_function: "trigger",
@@ -493,9 +498,10 @@ function CreateJobPage() {
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
               contractABI: linkedJobDetails.contractABI,
+              abstraction_contract: mainProxyAddress,
             });
           }
-        });
+        }
       }
       setIsLoading(true);
       console.log("Job Details", allJobsDetails);
