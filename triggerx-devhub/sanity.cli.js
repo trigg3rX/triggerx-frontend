@@ -5,9 +5,6 @@ export default defineCliConfig({
     projectId: 'i6d7ikl4',
     dataset: 'production'
   },
-  /**
-   * Enable auto-updates for studios.
-   * Learn more at https://www.sanity.io/docs/cli#auto-updates
-   */
+  studioHost: 'triggerx-devhub',
   autoUpdates: true,
 })

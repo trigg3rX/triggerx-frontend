@@ -8,11 +8,9 @@ import { PortableText } from "@portabletext/react";
 // --- Sanity Image URL Builder Setup ---
 const builder = imageUrlBuilder(sanityClient);
 function urlFor(source) {
-  // Check if source or source.asset exists
   if (source?.asset) {
     return builder.image(source);
   }
-  // Return null or a placeholder if no valid source
   return null;
 }
 
