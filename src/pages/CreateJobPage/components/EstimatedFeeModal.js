@@ -217,19 +217,19 @@ export function EstimatedFeeModal({
       ctx.fillStyle = "yellow";
       ctx.font = "18px Arial";
       ctx.fillText(
-        "We're calculating fees, Sit back and play!",
-        canvas.width / 5 - 10,
-        canvas.height / 3
+        "Fee-ding time! Tap to start the token tango",
+        canvas.width / 6 - 10,
+        canvas.height / 3 + 30
       );
       ctx.fillText(
-        "Tap to Start",
-        canvas.width / 3 + 40,
-        canvas.height / 2 + 30
-      );
-      ctx.fillText(
-        "Use Arrow keys and collect tokens",
-        canvas.width / 3 - 50,
+        "while we calculate your job fees.",
+        canvas.width / 6 + 30,
         canvas.height / 3 + 60
+      );
+      ctx.fillText(
+        "Use arrow keys to feast!🍀",
+        canvas.width / 3 - 30,
+        canvas.height / 3 + 100
       );
     }
 
@@ -237,14 +237,19 @@ export function EstimatedFeeModal({
       ctx.fillStyle = "yellow";
       ctx.font = "20px Arial";
       ctx.fillText(
-        "Oops! Game Over!",
-        canvas.width / 3,
-        canvas.height / 2 - 40
+        "Fee-ding frenzy finished!",
+        canvas.width / 4 + 30,
+        canvas.height / 3 + 30
+      );
+      ctx.fillText(
+        "Still brewing up your job fees... almost there!🍀⌛",
+        canvas.width / 10 - 30,
+        canvas.height / 3 + 60
       );
       ctx.fillText(
         `Score: ${score}`,
-        canvas.width / 3 + 40,
-        canvas.height / 2 - 10
+        canvas.width / 3 + 50,
+        canvas.height / 2 + 30
       );
       ctx.fillText(
         "Tap to Restart",
@@ -345,8 +350,8 @@ export function EstimatedFeeModal({
               />
             </>
           ) : (
-            <div className="text-white text-center py-4">
-              {score > 0 ? `Well played! Your score: ${score}` : "Game Over!"}
+            <div className="text-white text-center py-6 px-6">
+              {score > 0 ? "Fees calculated! Your token-grabbing skills have been noted.😉" : "Fees calculated! Your token-grabbing skills have been noted.😉"}
             </div>
           )}
           </div>
