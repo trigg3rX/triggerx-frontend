@@ -151,7 +151,7 @@ function DashboardPage() {
       }
 
       const jobsData = await response.json();
-      // console.log("Fetched jobs data:", jobsData);
+      console.log("Fetched jobs data:", jobsData);
 
       // First, create a lookup for quick access by job_id
       const jobMap = {};
