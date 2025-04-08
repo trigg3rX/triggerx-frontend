@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiCopy, FiCheck } from "react-icons/fi";
+import { FiCopy, FiCheck,FiKey} from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
 import { useAccount } from 'wagmi';
 
@@ -8,18 +8,56 @@ const ApiCreation = () => {
   const [activeTab, setActiveTab] = useState("apikey");
   const [expandedSection, setExpandedSection] = useState(null);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();  // Add address from useAccount
+  // Update the initial state
+  const [apiKeys, setApiKeys] = useState([{
+    key: 'No API key generated yet',
+    created: '-',
+    rateLimit: '20 requests/min',
+    status: 'Inactive'
+  }]);
 
 
+  const generateNewApiKey = async () => {
+    try {
+      const user = process.env.REACT_APP_USER;
+      if (!user) {
+        console.error('Owner is not defined in environment variables');
+        return;
+      }
 
-  const [apiKeys] = useState([
-    {
-      key: "cpi_cb88217d-56b8-40a0-a296-995cffede7ca",
-      created: "4/4/2025, 5:20:56 PM",
-      rateLimit: "20 requests",
-      status: "Active",
-    },
-  ]);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/${user}/api-keys`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          owner: address,  // 使用钱包地址作为 owner
+          rateLimit: 20
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      const newApiKey = {
+        key: data.key || data.apiKey || '',
+        created: new Date().toLocaleString(),
+        rateLimit: "20 requests/min",
+        status: "Active"
+      };
+      
+      setApiKeys([newApiKey]);
+      
+    } catch (error) {
+      console.error('Error generating API key:', error);
+    }
+  };
+
 
   const QuickStartGuide = () => (
     <div className="bg-[#141414] rounded-lg mb-8">
@@ -66,7 +104,7 @@ const ApiCreation = () => {
         <p>
           If you have any questions or need assistance, please don't hesitate to
           contact our support team at{" "}
-          <span className="underline">hello@triggerx.network</span>
+          <a className="underline">hello@triggerx.network</a>
         </p>
       </div>
     </div>
@@ -79,12 +117,13 @@ const ApiCreation = () => {
   };
 
   return (
-    <div className="min-h-screen md:mt-[20rem] mt-[10rem] ">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center">
-        API Documentation & Key Management
-      </h1>
+    <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
+    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
+      API Documentation & Key Management
+    </h1>
 
-      <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-12 bg-[#181818F0] p-2 rounded-lg">
+
+    <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
           className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
             activeTab === "documetation"
@@ -107,17 +146,18 @@ const ApiCreation = () => {
         </button>
       </div>
   
-        <div className=" max-w-[1600px] mx-auto w-[85%]  px-5 rounded-lg ">
+      <div className="max-w-[1600px] mx-auto w-[95%] sm:w-[85%] px-3 sm:px-5 rounded-lg">
           {activeTab === "apikey" ? (
-            <div className="flex gap-8 w-full justify-between">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
               {apiKeys.map((apiKey, index) => (
+                 <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
                 <div
                   key={index}
                   className="bg-[#181818] p-6 rounded-lg mb-4 flex-1 h-[350px] "
                 >
-                  <h2 className="text-2xl font-bold text-[#FBF197] text-center ">
-                    Generate API Key
-                  </h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#FBF197] text-center">
+                Generate API Key
+              </h2>
                   {!isConnected ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <p className="text-gray-400 mb-4">
@@ -130,15 +170,16 @@ const ApiCreation = () => {
                     <>
                     <div>
                      
-                      <button
-                          className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
-                        >
-                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                          Generate New API Key
-                          </span>
-                        </button>
+                    <button
+      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+      onClick={generateNewApiKey}
+    >
+      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+      <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
+      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+      Generate New API Key
+      </span>
+    </button>
                       <div className="flex items-center gap-4 mb-6 bg-[#242424] rounded-lg ">
                         <input
                           type="text"
@@ -163,7 +204,7 @@ const ApiCreation = () => {
                       </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6">
                         <div>
                           <p className="text-gray-400 mb-2">Created</p>
                           <p className="text-white">{apiKey.created}</p>
@@ -182,26 +223,26 @@ const ApiCreation = () => {
                     </>
                   )}
                 </div>
+                </div>
               ))}
-              <div className="w-[450px]">
-                <QuickStartGuide />
+            <div className="w-full lg:w-[700px]">
+            <QuickStartGuide />
               </div>
             </div>
           ) : (
             <div className="text-white ">
-              <div className="flex gap-8">
-                <div className=" flex-1 space-y-4 bg-[#141414] p-8 border border-[#E2E8F0] rounded-xl">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+            <div className="flex-1 space-y-4 bg-[#141414] p-4 sm:p-8 border border-[#E2E8F0] rounded-xl">
                   <div className="mb-8">
-                    <div className="flex item-center justify-between">
-                      <h2 className="text-3xl font-bold ">API Documentation</h2>
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 border border-[#E2E8F0] bg-[#5D5D5D]  rounded-full text-sm">
-                          Operational
-                        </span>
-                        <span className="px-3 py-1 border border-[#E2E8F0] rounded-full text-sm">
-                          v1.0.0
-                        </span>
-                      </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">                     <h2 className="text-2xl sm:text-3xl font-bold">API Documentation</h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-3 py-1 border border-[#E2E8F0] bg-[#5D5D5D] rounded-full text-sm">
+                        Operational
+                      </span>
+                      <span className="px-3 py-1 border border-[#E2E8F0] rounded-full text-sm">
+                        v1.0.0
+                      </span>
+                    </div>
                     </div>
                     <p className="mt-5 text-gray-400">
                       Explore and integrate with our Concentration Power Index
@@ -343,8 +384,8 @@ const ApiCreation = () => {
                     </div>
                   </div>
                 </div>
-                <div className="w-[450px]">
-                  <QuickStartGuide />
+                <div className="w-full lg:w-[500px]">
+                <QuickStartGuide />
                 </div>
               </div>
             </div>
