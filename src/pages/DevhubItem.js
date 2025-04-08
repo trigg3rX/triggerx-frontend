@@ -1,349 +1,486 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { FaGithub, FaExclamationTriangle } from "react-icons/fa";
-import devhub from "../assets/devhub.png"; // Replace with your actual image
+import sanityClient from "../sanityClient";
+import imageUrlBuilder from "@sanity/image-url";
+import { PortableText } from "@portabletext/react";
+
+// --- Sanity Image URL Builder Setup ---
+const builder = imageUrlBuilder(sanityClient);
+function urlFor(source) {
+  if (source?.asset) {
+    return builder.image(source);
+  }
+  return null;
+}
+
+async function getBlog(slug) {
+  const query = `*[_type == "post" && slug.current == $slug][0] {
+    _id,
+    title,
+    subtitle,
+    image, 
+    chainlinkProducts,
+    productVersions,
+    readTime,
+    requires,
+    body, 
+    headingPairs,
+    slug { current }, 
+    githubUrl
+}`;
+
+  return sanityClient.fetch(query, { slug });
+}
 
 function DevhubItem() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [openSteps, setOpenSteps] = useState({});
-  const [activeSection, setActiveSection] = useState("overview"); // Initialize with "overview"
-  const [isScrolling, setIsScrolling] = useState(false); // Add a state to avoid useEffect conflict
-
-  const devhubData = [
-    {
-      id: 1,
-      title: "Automated Portfolio Management",
-      description: "Learn about automated portfolio management.",
-      image: devhub,
-      userGuideLink: "#", // Replace with the actual link
-    },
-    {
-      id: 2,
-      title: "Decentralized Identity Solutions",
-      description: "Explore decentralized identity solutions.",
-      image: devhub,
-      userGuideLink: "#",
-    },
-    {
-      id: 3,
-      title: "On-Chain Governance Mechanisms",
-      description: "Discover on-chain governance mechanisms.",
-      image: devhub,
-      userGuideLink: "#",
-    },
-    {
-      id: 4,
-      title: "Data Oracles and Their Applications",
-      description: "Understand data oracles and their applications.",
-      image: devhub,
-      userGuideLink: "#",
-    },
-    {
-      id: 5,
-      title: "Cross-Chain Interoperability Protocols",
-      description: "Learn about cross-chain interoperability protocols.",
-      image: devhub,
-      userGuideLink: "#",
-    },
-    {
-      id: 6,
-      title: "Tokenization of Real-World Assets",
-      description: "Explore the tokenization of real-world assets.",
-      image: devhub,
-      userGuideLink: "#",
-    },
-    // Add more data objects as needed
-  ];
+  const { slug } = useParams();
+  const [postData, setPostData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeHeading, setActiveHeading] = useState("");
 
   useEffect(() => {
-    scrollToSection(activeSection);
-  }, [activeSection]);
+    async function fetchData() {
+      if (!slug) {
+        return;
+      }
 
-  const item = devhubData.find((item) => item.id === parseInt(id));
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getBlog(slug);
+        console.log("dataaaa", data);
 
-  if (!item) {
-    return <div>Item not found</div>;
+        if (data) {
+          setPostData(data); // Store fetched data in state
+        } else {
+          setError("Failed to load post data.");
+        }
+      } catch (err) {
+        console.error("Error fetching post from Sanity:", err);
+        setError("Failed to load post data.");
+      } finally {
+        setIsLoading(false); // Ensure loading is set to false
+      }
+    }
+
+    fetchData();
+  }, [slug]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const headings = document.querySelectorAll("h2");
+      let currentActive = "";
+
+      for (let i = 0; i < headings.length; i++) {
+        const rect = headings[i].getBoundingClientRect();
+
+        // If heading is above 120px, set it as active
+        if (rect.top <= 250) {
+          currentActive = headings[i].innerText;
+        } else {
+          break; // Stop checking further, as the next heading hasn't reached 120px yet
+        }
+      }
+
+      setActiveHeading(currentActive);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  if (isLoading) {
+    return <div className="text-center text-white py-40">Loading...</div>; // Basic loading state
   }
 
-  // Function to toggle the collapse state of a step
-  const toggleStep = (stepNumber) => {
-    setOpenSteps((prevOpenSteps) => ({
-      ...prevOpenSteps,
-      [stepNumber]: !prevOpenSteps[stepNumber],
-    }));
-  };
+  // --- Get Image URL Safely ---
+  const headerImageUrl = urlFor(postData.image)
+    ?.width(1200)
+    .auto("format")
+    .url();
 
-  // Function to handle section click and update activeSection state
-  const handleSectionClick = (sectionId) => {
-    setActiveSection(sectionId);
-    scrollToSection(sectionId); // Call the scroll function
-  };
+  // --- Format Read Time (Example: assuming postData.readTime is minutes) ---
+  const readTimeDisplay = postData.readTime
+    ? `${postData.readTime} MINUTES`
+    : "N/A";
 
-  const scrollToSection = (sectionId) => {
-    setIsScrolling(true); // Set scrolling state
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+  // ButtonLink Component
+  const ButtonLink = ({ value }) => {
+    if (!value?.url || !value?.text) {
+      return null;
     }
-    setIsScrolling(false); // Reset scrolling state after scroll
+    return (
+      <div className="my-8 flex justify-start relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max">
+        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+        <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+        <a
+          href={value.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative z-10 text-black font-semibold text-lg"
+        >
+          {value.text}
+        </a>
+      </div>
+    );
+  };
+
+  // Disclaimer Component
+  const Disclaimer = ({ value }) => {
+    if (!value?.text) {
+      return null;
+    }
+    return (
+      <div className="rounded-2xl bg-[#F9FFE1] p-6 my-8 text-black shadow">
+        <div className="flex items-center mb-3">
+          <FaExclamationTriangle className="text-red-500 mr-3 text-xl flex-shrink-0" />
+          <h3 className="font-bold text-lg text-black">
+            {value.title || "Disclaimer"}
+          </h3>
+        </div>
+        <p className="text-base text-gray-800 leading-relaxed whitespace-pre-wrap">
+          {value.text}
+        </p>
+      </div>
+    );
+  };
+
+  // StepsAccordion Component (with internal state for toggling)
+  const StepsAccordion = ({ value }) => {
+    const [openSteps, setOpenSteps] = React.useState({}); 
+
+    if (!value?.steps || value.steps.length === 0) {
+      return null;
+    }
+
+    const toggleStep = (index) => {
+      setOpenSteps((prev) => ({
+        ...prev,
+        [index]: !prev[index],
+      }));
+    };
+
+    return (
+      <div className="my-10">
+          <h2 id={value.heading} className="text-xl font-bold text-white mb-6 uppercase tracking-widest">
+          {value.heading}
+        </h2>
+        <div className="space-y-3">
+          {value.steps.map((step, index) => (
+            <div
+              key={step._key || index}
+              className="bg-[#242323] rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300"
+            >
+              <button
+                onClick={() => toggleStep(index)}
+                className="w-full flex justify-between items-center px-5 py-4 text-left text-white" // Added focus styles
+                aria-expanded={!!openSteps[index]}
+                aria-controls={`step-content-${index}`}
+              >
+                <span className="font-medium text-base md:text-lg flex items-center">
+                  <span className="mr-3 text-gray-400">{index + 1}</span>{" "}
+                  {step.title || `Step ${index + 1}`}
+                </span>
+                <svg
+                  className={`w-5 h-5 transform transition-transform duration-300 text-gray-400 ${openSteps[index] ? "rotate-180" : "rotate-0"}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </button>
+              <div
+                id={`step-content-${index}`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSteps[index] ? "max-h-screen" : "max-h-0"}`} 
+              >
+                <div className="px-5 pb-5 pt-2 bg-[#242323]">
+                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                    {step.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-            Automation Station
-          </h1>
-          <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed">
-            Use FlashLiquidity's Automation Station to manage your upkeeps.
-          </h4>
-        </div>
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen md:mt-[17rem] mt-[10rem]">
+      <div className="max-w-4xl mx-auto text-center mb-16">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+          {postData.title}
+        </h1>
+        <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed">
+          {postData.subtitle}
+        </h4>
+      </div>
 
-        {/* Main Content Area */}
-        <div className="rounded-3xl border border-gray-700 p-6 w-[80%] mx-auto">
-          {/* Top Section */}
-          <div className="mb-8">
-            <div className="rounded-2xl  items-center justify-center w-[100%]">
+      {/* Main Content Area */}
+      <div className="bg-[#131313] rounded-3xl border border-gray-700 p-6 w-[90%] mx-auto">
+        {/* Top Section */}
+        <div className="mb-8">
+          {headerImageUrl ? (
+            <div className="w-[95%] mx-auto rounded-3xl overflow-hidden h-max">
               <img
-                src={devhub} // Use the imported image here
-                alt="Automation"
-                className=" object-cover  w-[100%] p-5"
+                src={headerImageUrl}
+                alt={postData.title || "Header image"}
+                className="!relative w-full h-auto" // Added max-h
               />
             </div>
+          ) : (
+            <div className="rounded-2xl bg-gray-800 h-60 flex items-center justify-center w-full mb-8 text-gray-500">
+              No Image Available
+            </div>
+          )}
 
-            {/* Info Grid */}
-            <div className="flex text-md md:text-sm text-white justify-evenly gap-9 my-5 md:flex-row flex-col text-xs">
-              <div className="">
-                <h3 className="mb-3">
+          {/* Info Grid */}
+          <div className="flex text-md md:text-sm text-white justify-evenly gap-9 my-5 md:flex-row flex-col text-xs">
+            <div className="">
+              <h3 className="mb-3 text-start flex items-center">
+                <span className="w-[145px] flex font-bold">
                   Chainlink Products :
-                  <span className="text-white ml-3 md:text-sm text-xs">
-                    AUTOMATION
-                  </span>
-                </h3>
-                <h3>
+                </span>
+                <span className="text-white ml-3 text-left md:text-sm text-xs">
+                  {postData.chainlinkProducts || "N/A"}
+                </span>
+              </h3>
+              <h3 className="text-start flex items-center">
+                <span className="w-[145px] flex font-bold">
                   Product Versions :
-                  <span className="text-white ml-3 md:text-sm text-xs">
-                    AUTOMATION
-                  </span>
-                </h3>
-              </div>
-              <div>
-                {" "}
-                <h3 className="mb-3">
-                  Required Time :{" "}
-                  <span className="text-white ml-3 md:text-sm text-xs">
-                    180 MINUTES
-                  </span>
-                </h3>
-                <h3>
-                  Requires :
-                  <span className="text-white ml-3 md:text-sm text-xs">
-                    WALLET WITH GAS TOKEN & ERC-677 LINK
-                  </span>
-                </h3>
-              </div>
+                </span>
+                <span className="text-white ml-3 text-left md:text-sm text-xs">
+                  {postData.productVersions || "N/A"}
+                </span>
+              </h3>
             </div>
+            <div>
+              <h3 className="mb-3 text-start flex items-center">
+                <span className="w-[145px] flex font-bold">
+                  Required Time :
+                </span>
+                <span className="text-white ml-3 text-left md:text-sm text-xs">
+                  {readTimeDisplay}
+                </span>
+              </h3>
+              <h3 className="text-start flex items-center">
+                <span className="w-[145px] flex font-bold">Requires :</span>
+                <span className="text-white ml-3 text-left md:text-sm text-xs">
+                  {postData.requires || "N/A"}
+                </span>
+              </h3>
+            </div>
+          </div>
 
-            {/* Buttons */}
-            <div className="flex justify-center space-x-4 mt-6">
-              <a
-                href="#"
-                className="bg-[#F8FF7C] text-black font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline flex items-center"
-              >
-                <FaGithub className="mr-2" />
-                Open Github
-              </a>
-            </div>
+          {/* Buttons */}
+          <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max mx-auto flex items-center justify-center">
+            <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+            <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+            <a
+              href={postData.githubUrl || "#"}
+              className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+            >
+              <FaGithub className="mr-2" />
+              Open Github
+            </a>
           </div>
         </div>
+      </div>
 
-        {/* Bottom Grid Layout */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-5 gap-8 w-[80%] mx-auto my-10 ">
-          <div className="md:col-span-1 hidden  sm:hidden md:hidden lg:block">
-            <div className="sticky top-32">
-              <h2 className="text-white font-bold mb-4 text-lg">
-                On this page
-              </h2>
-              <ul className="space-y-2 text-gray-300">
-                <li>
-                  <a
-                    href="#overview"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSectionClick("overview");
-                    }}
-                    className={`hover:text-white transition-colors block py-1 px-2 ${
-                      activeSection === "overview" ? "text-[#82FBD0]" : ""
-                    }`}
-                  >
-                    [1] OVERVIEW
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#objective"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSectionClick("objective");
-                    }}
-                    className={`hover:text-white transition-colors block py-1 px-2 ${
-                      activeSection === "objective" ? "text-[#82FBD0]" : ""
-                    }`}
-                  >
-                    [2] OBJECTIVE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#before-you-begin"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSectionClick("before-you-begin");
-                    }}
-                    className={`hover:text-white transition-colors block py-1 px-2 ${
-                      activeSection === "before-you-begin"
-                        ? "text-[#82FBD0]"
-                        : ""
-                    }`}
-                  >
-                    [3] BEFORE YOU BEGIN
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#steps-to-implement"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSectionClick("steps-to-implement");
-                    }}
-                    className={`hover:text-white transition-colors block py-1 px-2 ${
-                      activeSection === "steps-to-implement"
-                        ? "text-[#82FBD0]"
-                        : ""
-                    }`}
-                  >
-                    [4] STEPS TO IMPLEMENT
-                  </a>
-                </li>
+      <div className="flex flex-col md:flex-row gap-2 md:gap-8 w-[87%] mx-auto">
+        {/* Table of Content */}
+        <aside className="w-full md:w-1/4 min-w-[230px] md:sticky top-24 h-full">
+          {/* Mobile Dropdown */}
+          <div className="md:hidden relative my-4">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="w-full flex justify-between items-center px-4 py-2 bg-[#141313] text-white rounded-lg border border-[#5F5F5F] text-xs font-actayWide"
+            >
+              Table Of Content
+              <span
+                className={`transform transition ${isOpen ? "rotate-180" : ""}`}
+              >
+                {/* <img src={arrow} alt="arrow"></Image> */}
+              </span>
+            </button>
+
+            {isOpen && (
+              <ul className="absolute w-full bg-[#141313] text-white rounded-lg border border-[#5F5F5F] mt-2 shadow-lg z-10 text-xs font-actay">
+                {postData.headingPairs?.map((pair, index) => (
+                  <li key={index} className="py-2 px-2">
+                    <a
+                      href={`#${pair.h2Heading}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const targetElement = document.getElementById(
+                          pair.h2Heading
+                        );
+                        if (targetElement) {
+                          const yOffset = -160; // Adjust the offset (200px from top)
+                          const y =
+                            targetElement.getBoundingClientRect().top +
+                            window.scrollY +
+                            yOffset;
+                          window.scrollTo({ top: y, behavior: "smooth" });
+                        }
+                      }}
+                      className={`text-xs hover:underline ${
+                        activeHeading === pair.h2Heading
+                          ? "text-green-400 font-bold"
+                          : "text-gray-300"
+                      }`}
+                    >
+                      [ {index + 1} ] {pair.displayHeading}
+                    </a>
+                  </li>
+                ))}
               </ul>
-            </div>
+            )}
           </div>
 
-          <div className="md:col-span-4 ">
-            <section id="overview" className="mb-12">
-              <h2 className="text-3xl font-bold text-white tracking-wider mb-4">
-                OVERVIEW
-              </h2>
-              <p className="tracking-wide md:text-lg mb-4 sm:text-sm ">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur.
-              </p>
-              <button className="bg-white text-black font-bold py-4 px-8 rounded-full mt-4  ">
-                See the Code
-              </button>
-            </section>
+          <h2 className="hidden md:block font-actayWide text-sm lg:text-lg font-extrabold my-10">
+            Table of Content
+          </h2>
+          <ul className="hidden md:block space-y-2 font-actay">
+            {postData.headingPairs?.map((pair, index) => (
+              <li key={index}>
+                <a
+                  href={`#${pair.h2Heading}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const targetElement = document.getElementById(
+                      pair.h2Heading
+                    );
+                    if (targetElement) {
+                      const yOffset = -160; // Adjust the offset (200px from top)
+                      const y =
+                        targetElement.getBoundingClientRect().top +
+                        window.scrollY +
+                        yOffset;
+                      window.scrollTo({ top: y, behavior: "smooth" });
+                    }
+                  }}
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
+                    activeHeading === pair.h2Heading
+                      ? "text-green-400 font-bold"
+                      : "text-gray-300"
+                  }`}
+                >
+                  [ {index + 1} ] {pair.displayHeading}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-            <section id="objective" className="mb-12">
-              <h2 className="text-3xl font-bold text-white tracking-wider mb-4">
-                OBJECTIVE
-              </h2>
-              <p className="text-white mb-4 md:text-lg   sm:text-sm">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur.
-              </p>
-              <div className="rounded-2xl bg-white p-8 mt-5">
-                <div className="flex items-center mb-4">
-                  <FaExclamationTriangle className="text-red-700 mr-2" />
-                  <h3 className="text-black font-bold">Disclaimer</h3>
-                </div>
-                <p className="text-black md:text-lg  sm:text-sm">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur.
-                </p>
-              </div>
-            </section>
-
-            <section id="before-you-begin" className="mb-12">
-              <h2 className="text-3xl font-bold text-white tracking-wider mb-4">
-                BEFORE YOU BEGIN
-              </h2>
-              <p className="text-white md:text-lg   sm:text-sm mb-3">
-                Before you start this tutorial, complete the following items:
-              </p>
-              <ul className="list-disc list-inside text-white md:text-lg   sm:text-sm ml-4">
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                </li>
-              </ul>
-            </section>
-
-            <section id="steps-to-implement" className="mb-12">
-              <h2 className="text-3xl font-bold text-white tracking-wider mb-4">
-                STEPS TO IMPLEMENT
-              </h2>
-              <div className="space-y-4">
-                {[1, 2, 3, 4].map((stepNumber) => (
-                  <div
-                    key={stepNumber}
-                    className="bg-[#242323] rounded-md overflow-hidden"
-                  >
-                    <button
-                      className="flex items-start justify-between w-full p-4 text-white gap-1"
-                      onClick={() => toggleStep(stepNumber)}
-                    >
-                      <div>
-                        {stepNumber}{" "}
-                        <span className="ml-3 md:text-lg   sm:text-sm">
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit
-                        </span>
-                      </div>
-                      <span
-                        className={`transition-transform duration-200 ${
-                          openSteps[stepNumber] ? "rotate-180" : ""
-                        }`}
-                      >
-                        ▼
-                      </span>
-                      {/* Up/Down Arrow */}
-                    </button>
-                    {openSteps[stepNumber] && (
-                      <p className="p-4 text-white md:text-lg   sm:text-sm">
-                        {/* Content for the step */}
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua.
-                      </p>
+        {/* Blog Content */}
+        <article className="w-full md:w-3/4 mt-0">
+          <PortableText
+            value={postData.body}
+            components={{
+              types: {
+                image: ({ value }) => (
+                  <div className="my-10 w-full h-auto">
+                    {value?.asset?.url && (
+                      <img
+                        src={value.asset.url}
+                        alt={value.alt || "Blog Image"}
+                        width={2500}
+                        height={2000}
+                        className="rounded-2xl !relative w-full h-auto"
+                      />
                     )}
                   </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </div>
+                ),
+                youtube: ({ value }) => (
+                  <div className="my-4 aspect-w-16 aspect-h-9">
+                    <iframe
+                      className="w-full h-full rounded-lg"
+                      src={`https://www.youtube.com/embed/${value?.url?.split("v=")[1]}`}
+                      title="YouTube video player"
+                      style={{ border: "none" }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                ),
+
+                buttonLink: ({ value }) => <ButtonLink value={value} />,
+                disclaimer: ({ value }) => <Disclaimer value={value} />,
+                stepsAccordion: ({ value }) => <StepsAccordion value={value} />,
+              },
+              marks: {
+                strong: ({ children }) => (
+                  <strong className="font-bold">{children}</strong>
+                ),
+                em: ({ children }) => <em className="italic">{children}</em>,
+                code: ({ children }) => (
+                  <code className="bg-gray-200 px-1 py-0.5 rounded">
+                    {children}
+                  </code>
+                ),
+                link: ({ value, children }) => (
+                  <a
+                    href={value?.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    {children}
+                  </a>
+                ),
+              },
+              list: {
+                bullet: ({ children }) => (
+                  <ul className="list-disc pl-6 my-2">{children}</ul>
+                ),
+                number: ({ children }) => (
+                  <ol className="list-decimal pl-6 my-2">{children}</ol>
+                ),
+              },
+              block: {
+                h2: ({ children }) => {
+                  const text = children?.[0]; // Extract text from children array
+                  return (
+                    <h2
+                      id={text}
+                      className="font-actayWide text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-bold mt-10 mb-4"
+                    >
+                      {text}
+                    </h2>
+                  );
+                },
+                h3: ({ children }) => {
+                  const text = children?.[0];
+                  return (
+                    <h3
+                      id={text}
+                      className="text-sm sm:text-lg xl:text-xl 2xl:text-2xl mt-4"
+                    >
+                      {text}
+                    </h3>
+                  );
+                },
+                normal: ({ children }) => (
+                  <p className="my-2 text-xs sm:text-sm xl:text-base 2xl:text-lg">
+                    {children}
+                  </p>
+                ),
+              },
+            }}
+          />
+        </article>
       </div>
     </div>
   );

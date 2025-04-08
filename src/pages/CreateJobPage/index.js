@@ -1165,7 +1165,7 @@ function CreateJobPage() {
 
                         <span
                           className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
-                            }font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                            } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                         >
                           Link Job
                         </span>
