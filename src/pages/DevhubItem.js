@@ -4,6 +4,7 @@ import { FaGithub, FaExclamationTriangle } from "react-icons/fa";
 import sanityClient from "../sanityClient";
 import imageUrlBuilder from "@sanity/image-url";
 import { PortableText } from "@portabletext/react";
+import DevhubItemSkeleton from "./DevhubItemSkeleton";
 
 // --- Sanity Image URL Builder Setup ---
 const builder = imageUrlBuilder(sanityClient);
@@ -44,10 +45,13 @@ function DevhubItem() {
   useEffect(() => {
     async function fetchData() {
       if (!slug) {
+        setIsLoading(false);
+        setError("No post specified.");
         return;
       }
 
       setIsLoading(true);
+      setPostData(null);
       setError(null);
       try {
         const data = await getBlog(slug);
@@ -56,7 +60,7 @@ function DevhubItem() {
         if (data) {
           setPostData(data); // Store fetched data in state
         } else {
-          setError("Failed to load post data.");
+          setError("Post not found.");
         }
       } catch (err) {
         console.error("Error fetching post from Sanity:", err);
@@ -70,6 +74,11 @@ function DevhubItem() {
   }, [slug]);
 
   useEffect(() => {
+
+    if (!postData || isLoading || error) {
+      return; // Don't run if no data, loading, or error
+   }
+
     const handleScroll = () => {
       const headings = document.querySelectorAll("h2");
       let currentActive = "";
@@ -93,7 +102,23 @@ function DevhubItem() {
   }, []);
 
   if (isLoading) {
-    return <div className="text-center text-white py-40">Loading...</div>; // Basic loading state
+    return <DevhubItemSkeleton />; // <--- Use the skeleton component here
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-500">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!postData) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Post not found.</p>
+      </div>
+    );
   }
 
   // --- Get Image URL Safely ---
@@ -150,7 +175,7 @@ function DevhubItem() {
 
   // StepsAccordion Component (with internal state for toggling)
   const StepsAccordion = ({ value }) => {
-    const [openSteps, setOpenSteps] = React.useState({}); 
+    const [openSteps, setOpenSteps] = React.useState({});
 
     if (!value?.steps || value.steps.length === 0) {
       return null;
@@ -165,7 +190,10 @@ function DevhubItem() {
 
     return (
       <div className="my-10">
-          <h2 id={value.heading} className="text-xl font-bold text-white mb-6 uppercase tracking-widest">
+        <h2
+          id={value.heading}
+          className="text-xl font-bold text-white mb-6 uppercase tracking-widest"
+        >
           {value.heading}
         </h2>
         <div className="space-y-3">
@@ -201,7 +229,7 @@ function DevhubItem() {
               </button>
               <div
                 id={`step-content-${index}`}
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSteps[index] ? "max-h-screen" : "max-h-0"}`} 
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openSteps[index] ? "max-h-screen" : "max-h-0"}`}
               >
                 <div className="px-5 pb-5 pt-2 bg-[#242323]">
                   <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
