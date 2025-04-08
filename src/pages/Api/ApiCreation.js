@@ -52,10 +52,10 @@ const ApiCreation = () => {
 
   // Update the initial state
   const [apiKeys, setApiKeys] = useState([{
-    key: '',
-    created: '',
-    rateLimit: '',
-    status: ''
+    key: 'No API key generated yet',
+    created: '-',
+    rateLimit: '20 requests/min',
+    status: 'Inactive'
   }]);
 
 
@@ -104,7 +104,7 @@ const ApiCreation = () => {
         <p>
           If you have any questions or need assistance, please don't hesitate to
           contact our support team at{" "}
-          <span className="underline">hello@triggerx.network</span>
+          <a className="underline">hello@triggerx.network</a>
         </p>
       </div>
     </div>
