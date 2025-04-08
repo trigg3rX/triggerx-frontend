@@ -10,16 +10,54 @@ const ApiCreation = () => {
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
   const { isConnected } = useAccount();
 
+  const generateNewApiKey = async () => {
+    try {
+      const owner = process.env.REACT_APP_OWNER;
+      if (!owner) {
+        console.error('Owner is not defined in environment variables');
+        return;
+      }
 
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/${owner}/api-keys`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          owner: owner,
+          rateLimit: 20
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  const [apiKeys] = useState([
-    {
-      key: "cpi_cb88217d-56b8-40a0-a296-995cffede7ca",
-      created: "4/4/2025, 5:20:56 PM",
-      rateLimit: "20 requests",
-      status: "Active",
-    },
-  ]);
+      const data = await response.json();
+      console.log('API Response:', data); // Debug log
+
+      const newApiKey = {
+        key: data.key || data.apiKey || '', // Handle different possible response structures
+        created: new Date().toLocaleString(),
+        rateLimit: "20 requests/min",
+        status: "Active"
+      };
+      
+      setApiKeys([newApiKey]);
+      
+    } catch (error) {
+      console.error('Error generating API key:', error);
+    }
+  };
+
+  // Update the initial state
+  const [apiKeys, setApiKeys] = useState([{
+    key: '',
+    created: '',
+    rateLimit: '',
+    status: ''
+  }]);
+
 
   const QuickStartGuide = () => (
     <div className="bg-[#141414] rounded-lg mb-8">
@@ -130,15 +168,16 @@ const ApiCreation = () => {
                     <>
                     <div>
                      
-                      <button
-                          className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
-                        >
-                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                          Generate New API Key
-                          </span>
-                        </button>
+                    <button
+      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+      onClick={generateNewApiKey}
+    >
+      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+      <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
+      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+        Generate New API Key
+      </span>
+    </button>
                       <div className="flex items-center gap-4 mb-6 bg-[#242424] rounded-lg ">
                         <input
                           type="text"
