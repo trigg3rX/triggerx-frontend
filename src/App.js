@@ -20,9 +20,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import Devhub from "./pages/Devhub";
-import BoostReward from "./pages/BoostReward";
-import Point from "./pages/Point";
-import ApiCreation from "./pages/Api/ApiCreation"
+import ApiCreation from "./pages/Api/ApiCreation";
 
 const myCustomTheme = {
   blurs: {
