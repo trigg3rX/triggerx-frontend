@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiCopy, FiCheck } from "react-icons/fi";
+import { FiCopy, FiCheck,FiKey} from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
 import { useAccount } from 'wagmi';
 
@@ -175,7 +175,7 @@ const ApiCreation = () => {
       <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
       <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
       <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-        Generate New API Key
+      Generate New API Key
       </span>
     </button>
                       <div className="flex items-center gap-4 mb-6 bg-[#242424] rounded-lg ">
