@@ -105,7 +105,7 @@ const App = () => {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
                   <Route path="/devhub" element={<Devhub />} />
-                  <Route path="/devhub/:id" element={<DevhubItem />} />
+                  <Route path="/devhub/:slug" element={<DevhubItem />} />
                   <Route path="/api" element={<ApiCreation />} />
 
                   <Route path="*" element={<NotFound />} />
