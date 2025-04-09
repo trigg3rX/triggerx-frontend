@@ -7,7 +7,7 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import DevhubItem from "./pages/DevhubItem";
 import { getSubdomain } from "./utils/subdomain";
-
+import { HelmetProvider } from 'react-helmet-async';
 import {
   mainnet,
   polygon,
@@ -97,22 +97,24 @@ const App = () => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-          <Router>
-            <Layout>
-              <Routes>
-                <>
-                  <Route path="/" element={<CreateJobPage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/leaderboard" element={<Leaderboard />} />
-                  <Route path="/devhub" element={<Devhub />} />
-                  <Route path="/devhub/:slug" element={<DevhubItem />} />
-                  <Route path="/api" element={<ApiCreation />} />
+          <HelmetProvider>
+            <Router>
+              <Layout>
+                <Routes>
+                  <>
+                    <Route path="/" element={<CreateJobPage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/devhub" element={<Devhub />} />
+                    <Route path="/devhub/:slug" element={<DevhubItem />} />
+                    <Route path="/api" element={<ApiCreation />} />
 
-                  <Route path="*" element={<NotFound />} />
-                </>
-              </Routes>
-            </Layout>
-          </Router>
+                    <Route path="*" element={<NotFound />} />
+                  </>
+                </Routes>
+              </Layout>
+            </Router>
+          </HelmetProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
