@@ -8,8 +8,6 @@ import DashboardSkeleton from "../components/DashboardSkeleton";
 import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import loader from "../assets/load.gif";
-import { Helmet } from 'react-helmet-async';
-
 
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -33,11 +31,6 @@ function DashboardPage() {
   const { data: accountBalance } = useBalance({
     address: address,
   });
-
-  const pageTitle = 'Dashboard';
-  const pageDescription = 'Dashboard | Triggerx';
-  const ogImageUrl = 'https://yourdomain.com/default-og-image.jpg'; 
-
   const data = new Array(15).fill({
     id: 1,
     type: "Condition-based",
@@ -508,18 +501,6 @@ function DashboardPage() {
 
   return (
     <div>
-
-<Helmet>
-        {/* --- Standard SEO --- */}
-        <title>{`${pageTitle} | Your Blog Name`}</title>
-        <meta name="description" content={pageDescription} />
-
-        {/* --- Open Graph (Facebook, LinkedIn, etc.) --- */}
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:type" content="article" />
-        <meta property="og:image" content={ogImageUrl} />
-      </Helmet>
       <Toaster
         position="center"
         className="mt-10"
