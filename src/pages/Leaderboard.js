@@ -6,6 +6,7 @@ import footer2 from "../assets/footer2.svg";
 import { Tooltip } from "antd";
 import leaderboardNav from "../assets/leaderboardNav.svg";
 import loadingGif from "../assets/load.gif";
+import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 
 const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState("keeper");
@@ -393,13 +394,8 @@ const Leaderboard = () => {
                 : renderContributorTable())}
 
             {/* Display loading or error states */}
-            {isLoading && (
-              <div className="flex justify-center h-[500px] items-center">
-                <div className="text-center text-white">
-                  <img src={loadingGif} alt="Loading" />
-                </div>
-              </div>
-            )}
+            {isLoading && <LeaderboardSkeleton activeTab={activeTab} />}
+
 
             {error && !isLoading && (
               <div className="flex justify-center h-[500px] items-center">
