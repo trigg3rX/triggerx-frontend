@@ -10,11 +10,11 @@ export const postType = defineType({
       type: 'string',
       validation: (rule) => rule.required(),
     }),
-    defineField({
-      name: 'subtitle',
-      type: 'string',
-      validation: (rule) => rule.required(),
-    }),
+    // defineField({
+    //   name: 'subtitle',
+    //   type: 'string',
+    //   // validation: (rule) => rule.required(),
+    // }),
     defineField({
       name: 'slug',
       type: 'slug',
@@ -31,12 +31,12 @@ export const postType = defineType({
     //   type: 'string',
     //   validation: (Rule) => Rule.required(),
     // }),
-    defineField({
-      name: 'readTime',
-      title: 'Read Time (in minutes)',
-      type: 'number',
-      validation: (Rule) => Rule.required().min(1),
-    }),
+    // defineField({
+    //   name: 'readTime',
+    //   title: 'Read Time (in minutes)',
+    //   type: 'number',
+    //   validation: (Rule) => Rule.required().min(1),
+    // }),
     // defineField({
     //   name: 'productVersions',
     //   type: 'string',
