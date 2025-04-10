@@ -74,10 +74,9 @@ function DevhubItem() {
   }, [slug]);
 
   useEffect(() => {
-
     if (!postData || isLoading || error) {
       return; // Don't run if no data, loading, or error
-   }
+    }
 
     const handleScroll = () => {
       const headings = document.querySelectorAll("h2");
@@ -275,40 +274,18 @@ function DevhubItem() {
 
           {/* Info Grid */}
           <div className="flex text-md md:text-sm text-white justify-evenly gap-9 my-5 md:flex-row flex-col text-xs">
-            <div className="">
-              <h3 className="mb-3 text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Chainlink Products :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.chainlinkProducts || "N/A"}
-                </span>
-              </h3>
-              <h3 className="text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Product Versions :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.productVersions || "N/A"}
-                </span>
-              </h3>
-            </div>
-            <div>
-              <h3 className="mb-3 text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Required Time :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {readTimeDisplay}
-                </span>
-              </h3>
-              <h3 className="text-start flex items-center">
-                <span className="w-[145px] flex font-bold">Requires :</span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.requires || "N/A"}
-                </span>
-              </h3>
-            </div>
+            <h3 className="mb-3 text-start flex items-center">
+              <span className="w-[110px] flex font-bold">Required Time :</span>
+              <span className="text-white ml-3 text-left md:text-sm text-xs">
+                {readTimeDisplay}
+              </span>
+            </h3>
+            <h3 className="text-start flex items-center">
+              <span className="w-[110px] flex font-bold">Requires :</span>
+              <span className="text-white ml-3 text-left md:text-sm text-xs">
+                {postData.requires || "N/A"}
+              </span>
+            </h3>
           </div>
 
           {/* Buttons */}

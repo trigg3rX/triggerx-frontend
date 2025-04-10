@@ -65,24 +65,24 @@ function Header() {
   }, []);
 
   // Update nav image based on route
-  useEffect(() => {
-    if (location.pathname === "/leaderboard") {
-      setNavImage(leaderboardNav); // Use leaderboard image
-    } else {
-      setNavImage(nav); // Use default image
-    }
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   if (location.pathname === "/leaderboard") {
+  //     setNavImage(leaderboardNav); // Use leaderboard image
+  //   } else {
+  //     setNavImage(nav); // Use default image
+  //   }
+  // }, [location.pathname]);
 
   // Update nav image based on route
-  useEffect(() => {
-    if (location.pathname === "/leaderboard") {
-      setNavImage(leaderboardNav); // Use leaderboard image
-    } else if (location.pathname === "/devhub") {
-      setNavImage(devhubNav); // Use devhub image
-    } else {
-      setNavImage(nav);
-    }
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   if (location.pathname === "/leaderboard") {
+  //     setNavImage(leaderboardNav); // Use leaderboard image
+  //   } else if (location.pathname === "/devhub") {
+  //     setNavImage(devhubNav); // Use devhub image
+  //   } else {
+  //     setNavImage(nav);
+  //   }
+  // }, [location.pathname]);
 
   return (
     <div className="fixed top-0 left-0 right-0 w-full headerbg bg-[#0a0a0a]">
