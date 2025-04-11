@@ -26,8 +26,10 @@ async function getBlog(slug) {
     readTime,
     requires,
     body, 
-    headingPairs,
-    slug { current }, 
+    headingPairs[] {
+      displayHeading, 
+      h2Heading      
+    },    slug { current }, 
     githubUrl
 }`;
 
@@ -55,7 +57,7 @@ function DevhubItem() {
       setError(null);
       try {
         const data = await getBlog(slug);
-        console.log("dataaaa", data);
+        console.log("data", data);
 
         if (data) {
           setPostData(data); // Store fetched data in state
@@ -74,10 +76,9 @@ function DevhubItem() {
   }, [slug]);
 
   useEffect(() => {
-
     if (!postData || isLoading || error) {
       return; // Don't run if no data, loading, or error
-   }
+    }
 
     const handleScroll = () => {
       const headings = document.querySelectorAll("h2");
@@ -93,13 +94,12 @@ function DevhubItem() {
           break; // Stop checking further, as the next heading hasn't reached 120px yet
         }
       }
-
       setActiveHeading(currentActive);
     };
-
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [error, isLoading, postData]);
 
   if (isLoading) {
     return <DevhubItemSkeleton />; // <--- Use the skeleton component here
@@ -247,12 +247,14 @@ function DevhubItem() {
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen md:mt-[17rem] mt-[10rem]">
       <div className="max-w-4xl mx-auto text-center mb-16">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white !leading-[60px]">
           {postData.title}
         </h1>
-        <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed">
-          {postData.subtitle}
-        </h4>
+        {/* {postData.subtitle && (
+          <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed">
+            {postData.subtitle}
+          </h4>
+        )} */}
       </div>
 
       {/* Main Content Area */}
@@ -264,7 +266,7 @@ function DevhubItem() {
               <img
                 src={headerImageUrl}
                 alt={postData.title || "Header image"}
-                className="!relative w-full h-auto" // Added max-h
+                className="!relative w-full h-auto"
               />
             </div>
           ) : (
@@ -275,40 +277,18 @@ function DevhubItem() {
 
           {/* Info Grid */}
           <div className="flex text-md md:text-sm text-white justify-evenly gap-9 my-5 md:flex-row flex-col text-xs">
-            <div className="">
-              <h3 className="mb-3 text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Chainlink Products :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.chainlinkProducts || "N/A"}
-                </span>
-              </h3>
-              <h3 className="text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Product Versions :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.productVersions || "N/A"}
-                </span>
-              </h3>
-            </div>
-            <div>
-              <h3 className="mb-3 text-start flex items-center">
-                <span className="w-[145px] flex font-bold">
-                  Required Time :
-                </span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {readTimeDisplay}
-                </span>
-              </h3>
-              <h3 className="text-start flex items-center">
-                <span className="w-[145px] flex font-bold">Requires :</span>
-                <span className="text-white ml-3 text-left md:text-sm text-xs">
-                  {postData.requires || "N/A"}
-                </span>
-              </h3>
-            </div>
+            {/* <h3 className="mb-3 text-start flex items-center">
+              <span className="w-[110px] flex font-bold">Required Time :</span>
+              <span className="text-white ml-3 text-left md:text-sm text-xs">
+                {readTimeDisplay}
+              </span>
+            </h3> */}
+            <h3 className="text-start flex items-center">
+              <span className="w-[110px] flex font-bold">Requires :</span>
+              <span className="text-white ml-3 text-left md:text-sm text-xs">
+                {postData.requires || "N/A"}
+              </span>
+            </h3>
           </div>
 
           {/* Buttons */}
