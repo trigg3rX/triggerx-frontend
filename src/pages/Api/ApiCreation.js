@@ -1,63 +1,64 @@
 import React, { useState } from "react";
-import { FiCopy, FiCheck,FiKey} from "react-icons/fi";
+import { FiCopy, FiCheck, FiKey } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAccount } from 'wagmi';
-
+import { useAccount } from "wagmi";
 
 const ApiCreation = () => {
   const [activeTab, setActiveTab] = useState("apikey");
   const [expandedSection, setExpandedSection] = useState(null);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
-  const { isConnected, address } = useAccount();  // Add address from useAccount
+  const { isConnected, address } = useAccount(); // Add address from useAccount
   // Update the initial state
-  const [apiKeys, setApiKeys] = useState([{
-    key: 'No API key generated yet',
-    created: '-',
-    rateLimit: '20 requests/min',
-    status: 'Inactive'
-  }]);
-
+  const [apiKeys, setApiKeys] = useState([
+    {
+      key: "No API key generated yet",
+      created: "-",
+      rateLimit: "20 requests/min",
+      status: "Inactive",
+    },
+  ]);
 
   const generateNewApiKey = async () => {
     try {
       const user = process.env.REACT_APP_USER;
       if (!user) {
-        console.error('Owner is not defined in environment variables');
+        console.error("Owner is not defined in environment variables");
         return;
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/${user}/api-keys`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          owner: address,  // 使用钱包地址作为 owner
-          rateLimit: 20
-        })
-      });
-      
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/${user}/api-keys`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            owner: address, // 使用钱包地址作为 owner
+            rateLimit: 20,
+          }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      console.log("API Response:", data);
 
       const newApiKey = {
-        key: data.key || data.apiKey || '',
+        key: data.key || data.apiKey || "",
         created: new Date().toLocaleString(),
         rateLimit: "20 requests/min",
-        status: "Active"
+        status: "Active",
       };
-      
+
       setApiKeys([newApiKey]);
-      
     } catch (error) {
-      console.error('Error generating API key:', error);
+      console.error("Error generating API key:", error);
     }
   };
-
 
   const QuickStartGuide = () => (
     <div className="bg-[#141414] rounded-lg mb-8">
@@ -118,12 +119,11 @@ const ApiCreation = () => {
 
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
-    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
-      API Documentation & Key Management
-    </h1>
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
+        API Documentation & Key Management
+      </h1>
 
-
-    <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
+      <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
           className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
             activeTab === "documetation"
@@ -145,63 +145,59 @@ const ApiCreation = () => {
           API key Generator
         </button>
       </div>
-  
+
       <div className="max-w-[1600px] mx-auto w-[95%] sm:w-[85%] px-3 sm:px-5 rounded-lg">
-          {activeTab === "apikey" ? (
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
-              {apiKeys.map((apiKey, index) => (
-                 <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
+        {activeTab === "apikey" ? (
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
+            {apiKeys.map((apiKey, index) => (
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
                 <div
                   key={index}
                   className="bg-[#181818] p-6 rounded-lg mb-4 flex-1 h-[350px] "
                 >
                   <h2 className="text-xl sm:text-2xl font-bold text-[#FBF197] text-center">
-                Generate API Key
-              </h2>
+                    Generate API Key
+                  </h2>
                   {!isConnected ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <p className="text-gray-400 mb-4">
                         Please connect your wallet to generate and manage API
                         keys
                       </p>
-                     
                     </div>
                   ) : (
                     <>
-                    <div>
-                     
-                    <button
-      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
-      onClick={generateNewApiKey}
-    >
-      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-      <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
-      <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-      Generate New API Key
-      </span>
-    </button>
-                      <div className="flex items-center gap-4 mb-6 bg-[#242424] rounded-lg ">
-                        <input
-                          type="text"
-                          value={apiKey.key}
-                          readOnly
-                          className="flex-1  bg-[#242424]  p-3  text-sm"
-                        />
+                      <div>
                         <button
-                          onClick={() => copyToClipboard(apiKey.key)}
-                        
-                          className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                            copiedEndpoint ? "text-green-500" : ""
-                          }`}
-                          
+                          className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 my-8 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                          onClick={generateNewApiKey}
                         >
-                       {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
+                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-lg scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-lg scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                            Generate New API Key
+                          </span>
                         </button>
-                      </div>
+                        <div className="flex items-center gap-4 mb-6 bg-[#242424] rounded-lg ">
+                          <input
+                            type="text"
+                            value={apiKey.key}
+                            readOnly
+                            className="flex-1  bg-[#242424]  p-3  text-sm"
+                          />
+                          <button
+                            onClick={() => copyToClipboard(apiKey.key)}
+                            className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                              copiedEndpoint ? "text-green-500" : ""
+                            }`}
+                          >
+                            {copiedEndpoint ? (
+                              <FiCheck size={20} />
+                            ) : (
+                              <FiCopy size={20} />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6">
@@ -223,19 +219,23 @@ const ApiCreation = () => {
                     </>
                   )}
                 </div>
-                </div>
-              ))}
-            <div className="w-full lg:w-[700px]">
-            <QuickStartGuide />
               </div>
+            ))}
+            <div className="w-full lg:w-[700px]">
+              <QuickStartGuide />
             </div>
-          ) : (
-            <div className="text-white ">
+          </div>
+        ) : (
+          <div className="text-white ">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
-            <div className="flex-1 space-y-4 bg-[#141414] p-4 sm:p-8 border border-[#E2E8F0] rounded-xl">
-                  <div className="mb-8">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">                     <h2 className="text-2xl sm:text-3xl font-bold">API Documentation</h2>
-                  <div className="flex flex-wrap items-center gap-2">
+              <div className="flex-1 space-y-4 bg-[#141414] p-4 sm:p-8 border border-[#E2E8F0] rounded-xl">
+                <div className="mb-8">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    {" "}
+                    <h2 className="text-2xl sm:text-3xl font-bold">
+                      API Documentation
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="px-3 py-1 border border-[#E2E8F0] bg-[#5D5D5D] rounded-full text-sm">
                         Operational
                       </span>
@@ -243,1147 +243,771 @@ const ApiCreation = () => {
                         v1.0.0
                       </span>
                     </div>
-                    </div>
-                    <p className="mt-5 text-gray-400">
-                      Explore and integrate with our Concentration Power Index
-                      (CPI) calculation APIs.
-                    </p>
                   </div>
-                  {/* Get Calculated CPI Value */}
-                  <div
-                    className="max-h-[500px] overflow-y-auto space-y-4"
-                    style={{
-                      scrollbarWidth: "none",
-                      msOverflowStyle: "none",
-                    }}
-                  >
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "job" ? null : "job"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Create Automation Job
-
-</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "job" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          POST
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "job" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                                <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/jobs"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Create Automation Job                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                    200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "getjob" ? null : "getjob"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Retrieve Jobdata
-
-</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "getjob" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "getjob" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/{'{'}id{'}'}
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/jobs/{id}"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Retrieve GetJobData                          </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                    200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "LastExecutedAt" ? null : "LastExecutedAt"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">LastExecuted job details</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "LastExecutedAt" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          PUT
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "LastExecutedAt" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/{'{'}id{'}'}/LastExecutedAt
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/jobs{id}/LastExecutedAt"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                                Retrieve LastExecuted Job Data
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "GetJobsByUserAddress" ? null : "GetJobsByUserAddress"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">GetJobs By UserAddress</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "GetJobsByUserAddress" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                         GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "GetJobsByUserAddress" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/user/{'{'}user_address{'}'}
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/jobs/user/{user_address}"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                               GetJobs By UserAddress
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "DeleteJobData" ? null : "DeleteJobData"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Delete JobData</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "DeleteJobData" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          PUT
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "DeleteJobData" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/delete/{'{'}id{'}'}
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/jobs/delete/{id}"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Delete JobData
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "GetWalletPoints" ? null : "GetWalletPoints"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Get Wallet Points</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "GetWalletPoints" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "GetWalletPoints" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/wallet/points/{'{'}wallet_address{'}'}
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/wallet/points/{wallet_address}"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              GetWallet Points
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "GetAllKeepers" ? null : "GetAllKeepers"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Get All Keepers</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "GetAllKeepers" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "GetAllKeepers" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/keepers/all
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/keepers/all"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Retrieve All Keeper Data
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "GetKeeperLeaderboard" ? null : "GetKeeperLeaderboard"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Get Leaderboard Keepers</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "GetKeeperLeaderboard" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "GetKeeperLeaderboard" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/leaderboard/keepers
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/leaderboard/keepers"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Retrieve Leaderboard Keepers
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                      <button
-                        className="w-full mb-2 flex items-center justify-between"
-                        onClick={() =>
-                          setExpandedSection(
-                            expandedSection === "GetUserLeaderboard" ? null : "GetUserLeaderboard"
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg ">Get Leaderboard Users</h4>
-                        </div>
-                        <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                          <IoIosArrowDown
-                            className={`transform transition-transform ${
-                              expandedSection === "GetUserLeaderboard" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                      <div>
-                        {" "}
-                        <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                          GET
-                        </span>{" "}
-                        <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                          Auth Required
-                        </span>
-                      </div>
-
-                      {expandedSection === "GetUserLeaderboard" && (
-                        <div className="p-6 border-t border-[#242424] mt-6">
-                          <div className="space-y-6">
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Endpoint
-                              </h4>
-                              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/leaderboard/user
-                                </code>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      "https://data.triggerx.network/api/leaderboard/user"
-                                    )
-                                  }
-                                  className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                    copiedEndpoint ? "text-green-500" : ""
-                                  }`}
-                                >
-                                  {copiedEndpoint ? (
-                                    <FiCheck size={20} />
-                                  ) : (
-                                    <FiCopy size={20} />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Description
-                              </h4>
-                              <p className="text-sm">
-                              Retrieve Leaderboard Users
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Status Codes
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  <span>
-                                  200 - Successful response with data
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    400 - Bad request - Invalid parameters
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>
-                                    401 - Unauthorized - Invalid or missing API
-                                    key
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  <span>500 - Internal server error</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="text-sm text-gray-400 mb-2">
-                                Response Example
-                              </h4>
-                              <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                                {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <p className="mt-5 text-gray-400">
+                    Explore and integrate with our Concentration Power Index
+                    (CPI) calculation APIs.
+                  </p>
                 </div>
-                <div className="w-full lg:w-[500px]">
-                <QuickStartGuide />
+                {/* Get Calculated CPI Value */}
+                <div
+                  className="max-h-[500px] overflow-y-auto space-y-4"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                >
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "job" ? null : "job"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">Create Automation Job</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "job" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        POST
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "job" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/jobs
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/jobs"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">Create Automation Job </p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "getjob" ? null : "getjob"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">Retrieve Jobdata</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "getjob" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        GET
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "getjob" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/jobs/{"{"}id
+                                {"}"}
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/jobs/{id}"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">Retrieve GetJobData </p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "LastExecutedAt"
+                            ? null
+                            : "LastExecutedAt"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">LastExecuted job details</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "LastExecutedAt"
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        PUT
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "LastExecutedAt" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/jobs/{"{"}id
+                                {"}"}/LastExecutedAt
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/jobs{id}/LastExecutedAt"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">
+                              Retrieve LastExecuted Job Data
+                            </p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "GetJobsByUserAddress"
+                            ? null
+                            : "GetJobsByUserAddress"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">GetJobs By UserAddress</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "GetJobsByUserAddress"
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        GET
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "GetJobsByUserAddress" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/jobs/user/
+                                {"{"}user_address{"}"}
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/jobs/user/{user_address}"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">GetJobs By UserAddress</p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "DeleteJobData"
+                            ? null
+                            : "DeleteJobData"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">Delete JobData</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "DeleteJobData"
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        PUT
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "DeleteJobData" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/jobs/delete/
+                                {"{"}id{"}"}
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/jobs/delete/{id}"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">Delete JobData</p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                    <button
+                      className="w-full mb-2 flex items-center justify-between"
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === "GetWalletPoints"
+                            ? null
+                            : "GetWalletPoints"
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg ">Get Wallet Points</h4>
+                      </div>
+                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
+                        <IoIosArrowDown
+                          className={`transform transition-transform ${
+                            expandedSection === "GetWalletPoints"
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+                    <div>
+                      {" "}
+                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
+                        GET
+                      </span>{" "}
+                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
+                        Auth Required
+                      </span>
+                    </div>
+
+                    {expandedSection === "GetWalletPoints" && (
+                      <div className="p-6 border-t border-[#242424] mt-6">
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Endpoint
+                            </h4>
+                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                              <code className="flex-1  p-3 rounded-lg text-sm">
+                                https://data.triggerx.network/api/wallet/points/
+                                {"{"}wallet_address{"}"}
+                              </code>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    "https://data.triggerx.network/api/wallet/points/{wallet_address}"
+                                  )
+                                }
+                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
+                                  copiedEndpoint ? "text-green-500" : ""
+                                }`}
+                              >
+                                {copiedEndpoint ? (
+                                  <FiCheck size={20} />
+                                ) : (
+                                  <FiCopy size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Description
+                            </h4>
+                            <p className="text-sm">GetWallet Points</p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Status Codes
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>200 - Successful response with data</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  400 - Bad request - Invalid parameters
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>
+                                  401 - Unauthorized - Invalid or missing API
+                                  key
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span>500 - Internal server error</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm text-gray-400 mb-2">
+                              Response Example
+                            </h4>
+                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
+                              {`{
+          "results": [
+            {
+              "date": "2024-03-15",
+              "cpi": 0.123456,
+              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
+              "councilPercentages": {
+                "active": 77.07,
+                "inactive": 22.93
+              }
+            }
+          ]
+        }`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div className="w-full lg:w-[500px]">
+                <QuickStartGuide />
+              </div>
             </div>
-          )}
-      
+          </div>
+        )}
       </div>
     </div>
   );
