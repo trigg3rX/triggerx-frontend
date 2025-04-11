@@ -1,11 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import logo from "../assets/footerLogo.svg";
-import footer1 from "../assets/footer1.svg";
-import footer2 from "../assets/footer2.svg";
 import { Tooltip } from "antd";
-import leaderboardNav from "../assets/leaderboardNav.svg";
-import loadingGif from "../assets/load.gif";
 import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 
 const Leaderboard = () => {
