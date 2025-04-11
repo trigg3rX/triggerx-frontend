@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Tooltip } from "antd";
+
 import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 
 const Leaderboard = () => {
@@ -110,7 +111,7 @@ const Leaderboard = () => {
   // Render keeper/operators table
   const renderKeeperTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4">
+      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-5 py-5 text-left text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
@@ -190,7 +191,7 @@ const Leaderboard = () => {
   // Render developer table with different columns
   const renderDeveloperTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4">
+      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
@@ -288,7 +289,7 @@ const Leaderboard = () => {
 
   const renderContributorTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4">
+      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
