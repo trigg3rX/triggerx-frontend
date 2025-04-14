@@ -135,6 +135,27 @@ function CreateJobPage() {
   const [recurring, setRecurring] = useState(false);
   const { deployNewProxy, isDeploying } = useProxyFactory();
 
+
+  const baseUrl = 'http://localhost:3000';
+
+  useEffect(() => {
+    // Update meta tags when activeTab changes
+    document.title = 'TriggerX | Build';
+    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    
+    // Update Open Graph meta tags
+    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Build');
+    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}`);
+    
+    // Update Twitter Card meta tags
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Build');
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
+  }, [ baseUrl]);
+
+
   useEffect(() => {
     const checkConnection = async () => {
       if (!window.ethereum) {
