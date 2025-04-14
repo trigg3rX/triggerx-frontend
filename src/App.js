@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+
 import CreateJobPage from "./pages/CreateJobPage";
 import DashboardPage from "./pages/DashboardPage";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import DevhubItem from "./pages/DevhubItem";
 import { getSubdomain } from "./utils/subdomain";
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider,Helmet } from 'react-helmet-async';
 import {
   mainnet,
   polygon,
@@ -100,6 +101,11 @@ const App = () => {
           <HelmetProvider>
             <Router>
               <Layout>
+              <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
+                  <meta name="description" content="TriggerX - Web3 Automation Platform" />
+                  <meta property="og:type" content="website" />
+                  <meta property="og:site_name" content="TriggerX" />
+                </Helmet>
                 <Routes>
                   <>
                     <Route path="/" element={<CreateJobPage />} />

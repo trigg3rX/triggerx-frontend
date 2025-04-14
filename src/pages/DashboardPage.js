@@ -51,6 +51,26 @@ function DashboardPage() {
     }
   };
 
+  const baseUrl = 'http://localhost:3000';
+
+
+  useEffect(() => {
+    // Update meta tags when activeTab changes
+    document.title = 'TriggerX | Dashboard';
+    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    
+    // Update Open Graph meta tags
+    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Dashboard');
+    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
+    
+    // Update Twitter Card meta tags
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Dashboard');
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
+  }, [ baseUrl]);
+
   useEffect(() => {
     const initializeProvider = async () => {
       // console.log("Initializing provider...");

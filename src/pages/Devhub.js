@@ -22,6 +22,26 @@ function Devhub() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const baseUrl = 'http://localhost:3000';
+
+
+  useEffect(() => {
+    // Update meta tags when activeTab changes
+    document.title = 'TriggerX | Devhub';
+    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    
+    // Update Open Graph meta tags
+    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Devhub');
+    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/devhub-og.png`);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/devhub`);
+    
+    // Update Twitter Card meta tags
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Devhub');
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/devhub-og.png`);
+  }, [ baseUrl]);
+
 
   useEffect(() => {
     async function fetchPosts() {
