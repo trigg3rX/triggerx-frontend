@@ -22,7 +22,7 @@ function Devhub() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://app.triggerx.network';
 
 
   useEffect(() => {
