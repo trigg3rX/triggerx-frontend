@@ -134,9 +134,7 @@ function CreateJobPage() {
   const [contractDetails, setContractDetails] = useState({});
   const [recurring, setRecurring] = useState(false);
   const { deployNewProxy, isDeploying } = useProxyFactory();
-
-
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://app.triggerx.network';
 
   useEffect(() => {
     // Update meta tags when activeTab changes

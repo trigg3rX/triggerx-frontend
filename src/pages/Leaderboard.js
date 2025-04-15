@@ -15,7 +15,7 @@ const Leaderboard = () => {
     developers: [],
     contributors: [],
   });
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://app.triggerx.network';
 
 
   useEffect(() => {
