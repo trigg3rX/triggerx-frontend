@@ -104,13 +104,23 @@ function Devhub() {
 
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem] w-[90%] mx-auto">
-      <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-left max-w-[1600px] mx-auto px-4 mb-8 flex items-center gap-3">
-        Total{" "}
-        <span className="text-[#FBF197] text-[25px]">
-          {" "}
-          {` { ${posts.length} } `}
-        </span>
-      </h4>{" "}
+     <div className="w-full flex items-center justify-between">
+        <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-left px-4 mb-8 flex items-center gap-3">
+          Total{" "}
+          <span className="text-[#FBF197] text-[25px]">
+            {" "}
+            {` { ${posts.length} } `}
+          </span>
+        </h4>
+
+        <button onClick={() => navigate('/api')} className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform">
+          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+          <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+          API Services
+          </span>
+        </button>
+      </div>
       <div className="max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 mb-40">
           {posts.map((item) => {
