@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Tooltip } from "antd";
-import { Helmet } from 'react-helmet-async';x
+import { Helmet } from 'react-helmet-async';
 import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 
 const Leaderboard = () => {

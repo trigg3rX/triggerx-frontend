@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaGithub, FaExclamationTriangle } from "react-icons/fa";
 import sanityClient from "../sanityClient";
 import imageUrlBuilder from "@sanity/image-url";
@@ -74,6 +74,8 @@ function DevhubItem() {
 
     fetchData();
   }, [slug]);
+
+const navigate=useNavigate()
 
   useEffect(() => {
     if (!postData || isLoading || error) {
@@ -489,6 +491,14 @@ function DevhubItem() {
             }}
           />
         </article>
+
+      </div>
+      <div className="flex items-center justify-center">
+        <button onClick={() => navigate('/devhub')} 
+          className="bg-white rounded-full my-16 px-4 sm:px-6 lg:px-8 py-3 lg:py-4 text-black mx-auto text-xs sm:text-sm lg:text-base"
+        >
+          Go Back to DevHub
+        </button>
       </div>
     </div>
   );
