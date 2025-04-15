@@ -61,7 +61,7 @@ const ApiCreation = () => {
   };
 
   const QuickStartGuide = () => (
-    <div className="bg-[#141414] rounded-lg mb-8">
+    <div className="bg-[#141414] rounded-lg mb-8  border border-[#4B4A4A]">
       <div className="p-8 ">
         <h2 className="text-xl font-semibold mb-4">Quick Start Guide</h2>
         <ol className="space-y-4">
@@ -148,12 +148,12 @@ const ApiCreation = () => {
 
       <div className="max-w-[1600px] mx-auto w-[95%] sm:w-[85%] px-3 sm:px-5 rounded-lg">
         {activeTab === "apikey" ? (
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between ">
             {apiKeys.map((apiKey, index) => (
-              <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full justify-between ">
                 <div
                   key={index}
-                  className="bg-[#181818] p-6 rounded-lg mb-4 flex-1 h-[350px] "
+                  className="bg-[#181818] p-6 rounded-lg mb-4 flex-1 h-[350px]  border border-[#4B4A4A]"
                 >
                   <h2 className="text-xl sm:text-2xl font-bold text-[#FBF197] text-center">
                     Generate API Key
@@ -183,7 +183,7 @@ const ApiCreation = () => {
                             type="text"
                             value={apiKey.key}
                             readOnly
-                            className="flex-1  bg-[#242424]  p-3  text-sm"
+                            className="flex-1  bg-[#242424]  p-3  text-sm rounded"
                           />
                           <button
                             onClick={() => copyToClipboard(apiKey.key)}
@@ -227,27 +227,28 @@ const ApiCreation = () => {
           </div>
         ) : (
           <div className="text-white ">
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
-              <div className="flex-1 space-y-4 bg-[#141414] p-4 sm:p-8 border border-[#E2E8F0] rounded-xl">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 bg-[#141414] p-4 sm:p-8  border border-[#4B4A4A] rounded-xl">
+              <div className="flex-1 space-y-4 ">
                 <div className="mb-8">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-col items-start sm:items-start justify-between gap-2 p-4">
                     {" "}
                     <h2 className="text-2xl sm:text-3xl font-bold">
                       API Documentation
                     </h2>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <p className="mt-5 text-gray-400">
+                    Explore and integrate with our Concentration Power Index
+                    (CPI) calculation APIs.
+                  </p>
+                    {/* <div className="flex flex-wrap items-center gap-2">
                       <span className="px-3 py-1 border border-[#E2E8F0] bg-[#5D5D5D] rounded-full text-sm">
                         Operational
                       </span>
                       <span className="px-3 py-1 border border-[#E2E8F0] rounded-full text-sm">
                         v1.0.0
                       </span>
-                    </div>
+                    </div> */}
                   </div>
-                  <p className="mt-5 text-gray-400">
-                    Explore and integrate with our Concentration Power Index
-                    (CPI) calculation APIs.
-                  </p>
+                
                 </div>
                 {/* Get Calculated CPI Value */}
                 <div
@@ -257,27 +258,9 @@ const ApiCreation = () => {
                     msOverflowStyle: "none",
                   }}
                 >
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "job" ? null : "job"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">Create Automation Job</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "job" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
+                  <div className=" flex-1 space-y-4  p-4 rounded-xl">
+                   
+                    {/* <div>
                       {" "}
                       <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
                         POST
@@ -285,99 +268,118 @@ const ApiCreation = () => {
                       <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
                         Auth Required
                       </span>
-                    </div>
+                    </div> */}
 
-                    {expandedSection === "job" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/jobs"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
 
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">Create Automation Job </p>
-                          </div>
 
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
+{activeTab === "documetation" && (
+  <div >
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 ">
+      {/* Column 1: API List */}
+      <div className="w-full lg:w-1/5 py-4">
+  <h3 className="text-xl font-bold mb-4">Present APIs</h3>
+  <div className="space-y-2">
+    {[
+      { name: 'Create Automation Job', method: 'POST' },
+      { name: 'Retrieve Job Data', method: 'GET' },
+      { name: 'Last Executed Job', method: 'PUT' },
+      { name: 'Get Jobs By User', method: 'GET' },
+      { name: 'Delete Job Data', method: 'DELETE' }
+    ].map((api) => (
+      <button
+        key={api.name}
+        className={`w-full text-left p-3 rounded-lg transition-colors ${
+          expandedSection === api.name.toLowerCase().replace(/\s+/g, '')
+            ? 'bg-[#242424] '
+            : 'hover:bg-[#242424]'
         }`}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+        onClick={() => setExpandedSection(api.name.toLowerCase().replace(/\s+/g, ''))}
+      >
+        <div className="flex items-center justify-start gap-5 ">
+        <span className={`px-2 py-1 rounded-full text-xs text-center min-w-[60px] ${
+            api.method === 'GET' ? 'bg-green-500' :
+            api.method === 'POST' ? 'bg-[#FFFFFF] text-black' :
+            api.method === 'PUT' ? 'bg-yellow-500' :
+            'bg-red-500'
+          }`}>
+            {api.method}
+          </span>
+          <span className="text-sm">{api.name}</span>
+         
+        </div>
+      </button>
+    ))}
+  </div>
+</div>
+
+      {/* Column 2: API Details */}
+      <div className="w-full lg:w-2/5  py-4">
+        {expandedSection && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold">API Details</h3>
+             
+            </div>
+            
+            <div>
+              <h4 className="text-sm text-gray-400 mb-2">Endpoint</h4>
+              <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                <code className="flex-1 p-3 rounded-lg text-sm">
+                  https://data.triggerx.network/api/jobs
+                </code>
+                <button
+                  onClick={() => copyToClipboard("https://data.triggerx.network/api/jobs")}
+                  className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                >
+                  {copiedEndpoint ? <FiCheck size={20} /> : <FiCopy size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm text-gray-400 mb-2">Parameters</h4>
+              <div className="bg-[#242424] p-3 rounded-lg">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="py-2 text-gray-400">owner</td>
+                      <td>Wallet address of the job owner</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 text-gray-400">rateLimit</td>
+                      <td>Maximum requests per minute</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Column 3: Response Preview */}
+      <div className="w-full lg:w-1/3  py-4 ">
+        <h3 className="text-xl font-bold mb-4">Response Preview</h3>
+        <div className="bg-[#242424] p-4 rounded-lg">
+          <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+            {JSON.stringify({
+              success: true,
+              data: {
+                jobId: "job_123xyz",
+                status: "created",
+                timestamp: "2024-03-15T10:30:00Z"
+              }
+            }, null, 2)}
+          </pre>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
                   </div>
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
+                  {/* <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
                     <button
                       className="w-full mb-2 flex items-center justify-between"
                       onClick={() =>
@@ -883,6 +885,7 @@ const ApiCreation = () => {
                           expandedSection === "GetWalletPoints"
                             ? null
                             : "GetWalletPoints"
+
                         )
                       }
                     >
@@ -999,12 +1002,10 @@ const ApiCreation = () => {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </div>
-              <div className="w-full lg:w-[500px]">
-                <QuickStartGuide />
-              </div>
+             
             </div>
           </div>
         )}
