@@ -95,10 +95,11 @@ const App = () => {
   const subdomain = getSubdomain();
 
   return (
+    <HelmetProvider>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-          <HelmetProvider>
+         
             <Router>
               <Layout>
               <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
@@ -120,10 +121,11 @@ const App = () => {
                 </Routes>
               </Layout>
             </Router>
-          </HelmetProvider>
+  
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
+    </HelmetProvider>
   );
 };
 

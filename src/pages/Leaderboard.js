@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Tooltip } from "antd";
-
-
+import { Helmet } from 'react-helmet-async';x
 import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 
 const Leaderboard = () => {
@@ -18,22 +17,22 @@ const Leaderboard = () => {
   const baseUrl = 'https://app.triggerx.network';
 
 
-  useEffect(() => {
-    // Update meta tags when activeTab changes
-    document.title = 'TriggerX | Leaderboard';
-    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+  // useEffect(() => {
+  //   // Update meta tags when activeTab changes
+  //   document.title = 'TriggerX | Leaderboard';
+  //   document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
     
-    // Update Open Graph meta tags
-    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Leaderboard');
-    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/leaderboard-og.png`);
-    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
+  //   // Update Open Graph meta tags
+  //   document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Leaderboard');
+  //   document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+  //   document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/leaderboard-og.png`);
+  //   document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
     
-    // Update Twitter Card meta tags
-    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Leaderboard');
-    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/leaderboard-og.png`);
-  }, [activeTab, baseUrl]);
+  //   // Update Twitter Card meta tags
+  //   document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Leaderboard');
+  //   document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+  //   document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/leaderboard-og.png`);
+  // }, [activeTab, baseUrl]);
 
   // Fetch data based on active tab
   useEffect(() => {
@@ -356,7 +355,23 @@ const Leaderboard = () => {
 
   return (
     <>
-    
+    <Helmet>
+        <title>TriggerX | Leaderboard</title>
+        <meta name="description" content="View real-time rankings and performance metrics for TriggerX operators, developers, and contributors" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={`TriggerX | ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Leaderboard`} />
+        <meta property="og:description" content="View real-time rankings and performance metrics for TriggerX operators, developers, and contributors" />
+        <meta property="og:image" content={`${baseUrl}/images/${activeTab}-og.png`} />
+        <meta property="og:url" content={`${baseUrl}/leaderboard`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`TriggerX | ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Leaderboard`} />
+        <meta name="twitter:description" content="View real-time rankings and performance metrics for TriggerX operators, developers, and contributors" />
+        <meta name="twitter:image" content={`${baseUrl}/images/${activeTab}-og.png`} />
+      </Helmet>
       <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center">
           Leaderboard
