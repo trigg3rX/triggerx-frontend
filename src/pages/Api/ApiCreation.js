@@ -5,10 +5,11 @@ import { useAccount } from "wagmi";
 
 const ApiCreation = () => {
   const [activeTab, setActiveTab] = useState("apikey");
-  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedSection, setExpandedSection] = useState("Create Automation Job");
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
   const { isConnected, address } = useAccount(); // Add address from useAccount
-  // Update the initial state
+  const [activeLanguage, setActiveLanguage] = useState('cURL');
+  const [activeStatus, setActiveStatus] = useState('200');
   const [apiKeys, setApiKeys] = useState([
     {
       key: "No API key generated yet",
@@ -227,7 +228,7 @@ const ApiCreation = () => {
           </div>
         ) : (
           <div className="text-white ">
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 bg-[#141414] p-4 sm:p-8  border border-[#4B4A4A] rounded-xl">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 bg-[#141414] p-4 sm:p-4  border border-[#4B4A4A] rounded-xl">
               <div className="flex-1 space-y-4 ">
                 <div className="mb-8">
                   <div className="flex flex-col sm:flex-col items-start sm:items-start justify-between gap-2 p-4">
@@ -276,7 +277,7 @@ const ApiCreation = () => {
   <div >
     <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 ">
       {/* Column 1: API List */}
-      <div className="w-full lg:w-1/5 py-4">
+        <div className="w-full lg:w-[30%] py-4 sticky top-0 h-fit">
   <h3 className="text-xl font-bold mb-4">Present APIs</h3>
   <div className="space-y-2">
     {[
@@ -297,8 +298,8 @@ const ApiCreation = () => {
       >
         <div className="flex items-center justify-start gap-5 ">
         <span className={`px-2 py-1 rounded-full text-xs text-center min-w-[60px] ${
-            api.method === 'GET' ? 'bg-green-500' :
-            api.method === 'POST' ? 'bg-[#FFFFFF] text-black' :
+            api.method === 'GET' ? 'bg-blue-500' :
+            api.method === 'POST' ? 'bg-green-500' :
             api.method === 'PUT' ? 'bg-yellow-500' :
             'bg-red-500'
           }`}>
@@ -313,18 +314,24 @@ const ApiCreation = () => {
 </div>
 
       {/* Column 2: API Details */}
-      <div className="w-full lg:w-2/5  py-4">
+      <div className="w-full py-4">
         {expandedSection && (
-          <div className="space-y-6">
+          <div className="space-y-6 w-[80%]">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold">API Details</h3>
-             
+              <h3 className="text-xl font-bold">Create Automation Job</h3>
+             <p>
+
+              
+             </p>
             </div>
-            
+           
             <div>
               <h4 className="text-sm text-gray-400 mb-2">Endpoint</h4>
               <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                <code className="flex-1 p-3 rounded-lg text-sm">
+              
+
+                <code className="flex-1 p-3 rounded-lg text-sm   ">
+                <span className="px-3 py-2 bg-green-500 text-xs rounded-full mr-3">POST</span>
                   https://data.triggerx.network/api/jobs
                 </code>
                 <button
@@ -355,24 +362,174 @@ const ApiCreation = () => {
             </div>
           </div>
         )}
+         <div className="w-full py-4">
+        {/* Request Data Section */}
+        <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+            <h3 className="text-xl font-bold">API Request</h3>
+            <div className="flex gap-2">
+              <span className="px-2 py-1 bg-[#FFFFFF] text-black text-xs rounded-full">POST</span>
+              <span className="px-2 py-1 bg-[#5047FF] text-xs rounded-full">Auth</span>
+            </div>
+          </div>
+
+          {/* Language Tabs */}
+          <div className="flex border-b border-[#333333]">
+            {['cURL'].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setActiveLanguage(`cURL`)}
+                className={`px-4 py-2 text-sm font-medium ${
+                  activeLanguage === lang
+                    ? 'bg-[#242424] text-white border-b-2 border-[#5047FF]'
+                    : 'text-gray-400 hover:text-white hover:bg-[#242424]/50'
+                }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4 bg-[#242424]">
+            {activeLanguage === 'cURL' && (
+          <pre className="text-sm overflow-x-auto whitespace-pre-wrap" style={{
+            scrollbarWidth: "thin",
+            "&::-webkit-scrollbar": {
+              width: "4px",
+              height: "4px"
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#1A1A1A"
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#333333",
+              borderRadius: "4px"
+            }
+          }}>
+          {JSON.stringify({
+                  "user_address": "0x...",
+                  "stake_amount": "1000000000000000000",
+                  "token_amount": "1000000000000000000",
+                  "task_definition_id": 1,
+                  "priority": 2,
+                  "security": 1,
+                  "time_frame": 3600,
+                  "recurring": true,
+                  "time_interval": 300,
+                  "trigger_chain_id": "1",
+                  "trigger_contract_address": "0x...",
+                  "trigger_event": "Transfer",
+                  "script_ipfs_url": "ipfs://...",
+                  "script_trigger_function": "checkCondition",
+                  "target_chain_id": "1",
+                  "target_contract_address": "0x...",
+                  "target_function": "execute",
+                  "arg_type": 1,
+                  "arguments": ["arg1", "arg2"],
+                  "script_target_function": "executeAction",
+                  "job_cost_prediction": 0.05
+                
+                }, null, 2)}
+        </pre>
+            )}
+          
+            {/* Add other language examples similarly */}
+          </div>
+        </div>
+
+        {/* Response Section */}
+        <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+            <h3 className="text-xl font-bold">Response</h3>
+          </div>
+
+          {/* Status Code Tabs */}
+          <div className="flex border-b border-[#333333]">
+            {[
+              { code: '200', color: 'bg-green-500' },
+              { code: '400', color: 'bg-yellow-500' },
+              { code: '401', color: 'bg-red-500' },
+              { code: '403', color: 'bg-red-500' },
+              { code: '500', color: 'bg-red-500' }
+            ].map((status) => (
+              <button
+                key={status.code}
+                onClick={() => setActiveStatus(status.code)}
+                className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                  activeStatus === status.code
+                    ? 'bg-[#242424] text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-[#242424]/50'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${status.color}`}></span>
+                {status.code}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4 bg-[#242424]">
+            {activeStatus === '200' && (
+                           <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                           {JSON.stringify({
+                              "user_id": 123,
+                              "account_balance": "2000000000000000000",
+                              "token_balance": "1000000000000000000",
+                              "job_ids": [1, 2, 3],
+                              "task_definition_ids": [1, 2],
+                              "time_frames": [3600, 7200]
+                            
+                           }, null, 2)}
+                         </pre>
+            )}
+            {activeStatus === '400' && (
+              <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                {JSON.stringify({
+                 
+                  "Bad Request": "nvalid input data",
+
+                
+                }, null, 2)}
+              </pre>
+            )}
+             {activeStatus === '401' && (
+              <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                {JSON.stringify({
+                 
+                 "Unauthorized": "Invalid or missing API key"
+
+                
+                }, null, 2)}
+              </pre>
+            )}
+              {activeStatus === '403' && (
+              <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                {JSON.stringify({
+                 
+                 "Not Found": "Resource not found"
+
+                
+                }, null, 2)}
+              </pre>
+            )}
+              {activeStatus === '500' && (
+              <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                {JSON.stringify({
+                 
+                 "Internal Server Error": "Server-side error"
+
+                
+                }, null, 2)}
+              </pre>
+            )}
+            {/* Add other status responses similarly */}
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Column 3: Response Preview */}
-      <div className="w-full lg:w-1/3  py-4 ">
-        <h3 className="text-xl font-bold mb-4">Response Preview</h3>
-        <div className="bg-[#242424] p-4 rounded-lg">
-          <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
-            {JSON.stringify({
-              success: true,
-              data: {
-                jobId: "job_123xyz",
-                status: "created",
-                timestamp: "2024-03-15T10:30:00Z"
-              }
-            }, null, 2)}
-          </pre>
-        </div>
-      </div>
+     
+      
     </div>
   </div>
 )}
