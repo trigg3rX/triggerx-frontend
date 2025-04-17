@@ -326,7 +326,6 @@ const ApiCreation = () => {
             </div>
            
             <div>
-              <h4 className="text-sm text-gray-400 mb-2">Endpoint</h4>
               <div className="flex items-center gap-2 bg-[#242424] rounded-md">
               
 
@@ -342,6 +341,55 @@ const ApiCreation = () => {
                 </button>
               </div>
             </div>
+               {/* Headers Section */}
+               <div>
+              <h4 className="text-sm text-gray-400 mb-2">Headers</h4>
+              <div className="bg-[#242424] p-3 rounded-lg">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="py-2 text-gray-400 w-1/3">X-Dune-Api-Key</td>
+                      <td className="text-[#C3E88D]">string</td>
+                      <td className="text-red-400 pl-4">required</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 text-gray-400">Content-Type</td>
+                      <td className="text-[#C3E88D]">application/json</td>
+                      <td className="text-red-400 pl-4">required</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Query Parameters */}
+            <div>
+              <h4 className="text-sm text-gray-400 mb-2">Query Parameters</h4>
+              <div className="bg-[#242424] p-3 rounded-lg">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="text-left py-2 text-gray-400">Parameter</th>
+                      <th className="text-left py-2 text-gray-400">Type</th>
+                      <th className="text-left py-2 text-gray-400">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-2 text-gray-400">allow_partial_results</td>
+                      <td className="text-[#C3E88D]">boolean</td>
+                      <td>Enable partial results if query is too large</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 text-gray-400">columns</td>
+                      <td className="text-[#C3E88D]">string</td>
+                      <td>Comma-separated list of columns to return</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
 
             <div>
               <h4 className="text-sm text-gray-400 mb-2">Parameters</h4>
