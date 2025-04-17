@@ -5,9 +5,8 @@ import { useAccount } from "wagmi";
 
 const ApiCreation = () => {
   const [activeTab, setActiveTab] = useState("apikey");
-  const [expandedSection, setExpandedSection] = useState(
-    "Create Automation Job"
-  );
+  const [expandedSection, setExpandedSection] = useState("createautomationjob");
+  const [selectedApi, setSelectedApi] = useState(null);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
   const { isConnected, address } = useAccount(); // Add address from useAccount
   const [activeLanguage, setActiveLanguage] = useState("cURL");
@@ -242,7 +241,6 @@ const ApiCreation = () => {
                       Explore and integrate with our Concentration Power Index
                       (CPI) calculation APIs.
                     </p>
-                    
                   </div>
                 </div>
                 {/* Get Calculated CPI Value */}
@@ -254,8 +252,6 @@ const ApiCreation = () => {
                   }}
                 >
                   <div className=" flex-1 space-y-4  p-4 rounded-xl">
-                    
-
                     {activeTab === "documetation" && (
                       <div>
                         <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 ">
@@ -313,7 +309,7 @@ const ApiCreation = () => {
                           {/* Column 2: API Details */}
                           {/* {create job api} */}
                           <div className="w-full py-4">
-                            {expandedSection && (
+                            {expandedSection === "createautomationjob" && (
                               <div className="space-y-6 w-[80%]">
                                 <div className="">
                                   <h3 className="text-xl font-bold pb-4">
@@ -667,1035 +663,1093 @@ const ApiCreation = () => {
                                     </div>
                                   </div>
                                 </div>
+                                <div className="w-full py-4">
+                                  {/* Request Data Section */}
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                      <div className="flex gap-2">
+                                        <span className="px-2 py-1 bg-green-500 text-xs rounded-full">
+                                          POST
+                                        </span>
+                                       
+                                      </div>
+                                    </div>
+
+                                    {/* Language Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {["cURL"].map((lang) => (
+                                        <button
+                                          key={lang}
+                                          onClick={() =>
+                                            setActiveLanguage(`cURL`)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium ${
+                                            activeLanguage === lang
+                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeLanguage === "cURL" && (
+                                        <pre
+                                          className="text-sm overflow-x-auto whitespace-pre-wrap"
+                                          style={{
+                                            scrollbarWidth: "thin",
+                                            "&::-webkit-scrollbar": {
+                                              width: "4px",
+                                              height: "4px",
+                                            },
+                                            "&::-webkit-scrollbar-track": {
+                                              backgroundColor: "#1A1A1A",
+                                            },
+                                            "&::-webkit-scrollbar-thumb": {
+                                              backgroundColor: "#333333",
+                                              borderRadius: "4px",
+                                            },
+                                          }}
+                                        >
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "user_address"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "0x..."
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "stake_amount"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1000000000000000000"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "token_amount"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1000000000000000000"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "task_definition_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                1
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "priority"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                2
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "security"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                1
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_frame"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                3600
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "recurring"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                true
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_interval"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                300
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "trigger_chain_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "trigger_contract_address"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "0x..."
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "trigger_event"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "Transfer"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "script_ipfs_url"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "ipfs://..."
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "script_trigger_function"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "checkCondition"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "target_chain_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "target_contract_address"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "0x..."
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "target_function"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "execute"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "arg_type"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                1
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "arguments"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                ["arg1", "arg2"]
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "script_target_function"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "executeAction"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_cost_prediction"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                0.05
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+
+                                      {/* Add other language examples similarly */}
+                                    </div>
+                                  </div>
+
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        Response
+                                      </h3>
+                                    </div>
+
+                                    {/* Status Code Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {[
+                                        { code: "200", color: "bg-green-500" },
+                                        { code: "400", color: "bg-yellow-500" },
+                                        { code: "401", color: "bg-red-500" },
+                                        { code: "403", color: "bg-red-500" },
+                                        { code: "500", color: "bg-red-500" },
+                                      ].map((status) => (
+                                        <button
+                                          key={status.code}
+                                          onClick={() =>
+                                            setActiveStatus(status.code)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-2 h-2 rounded-full ${status.color}`}
+                                          ></span>
+                                          {status.code}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "user_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                123
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "account_balance"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "2000000000000000000"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "token_balance"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1000000000000000000"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_ids"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                [1, 2, 3]
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "task_definition_ids"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                [1, 2]
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_frames"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                [3600, 7200]
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "403" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             )}
-                            <div className="w-full py-4">
-                              {/* Request Data Section */}
-                              <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
-                                <div className="flex items-center justify-between p-4 border-b border-[#333333]">
-                                  <h3 className="text-xl font-bold">
-                                    API Request
+                            {expandedSection === "retrievejobdata" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Retrive Job Data
                                   </h3>
-                                  <div className="flex gap-2">
-                                    <span className="px-2 py-1 bg-[#FFFFFF] text-black text-xs rounded-full">
-                                      POST
-                                    </span>
-                                    <span className="px-2 py-1 bg-[#5047FF] text-xs rounded-full">
-                                      Auth
-                                    </span>
+                                  <p className=" text-gray-400 text-md">
+                                    Number of rows to return from the result by
+                                    sampling the data. This is useful when you
+                                    want to get a uniform sample instead of the
+                                    entire result. If the result has less than
+                                    the sample count, the entire result is
+                                    returned
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-3 py-2 bg-blue-500 text-xs rounded-full mr-3">
+                                        GET
+                                      </span>
+                                      https://data.triggerx.network/api/jobs/
+                                      <span>{"{id}"}</span>
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/jobs/{id}"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md  mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                   </div>
                                 </div>
 
-                                {/* Language Tabs */}
-                                <div className="flex border-b border-[#333333]">
-                                  {["cURL"].map((lang) => (
-                                    <button
-                                      key={lang}
-                                      onClick={() => setActiveLanguage(`cURL`)}
-                                      className={`px-4 py-2 text-sm font-medium ${
-                                        activeLanguage === lang
-                                          ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
-                                          : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                      }`}
-                                    >
-                                      {lang}
-                                    </button>
-                                  ))}
+                                {/* Query Parameters */}
+                                <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                          api_key
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Alternative to using the X-Api-Key
+                                        header
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          allow_partial_results
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          boolean
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Enable returning partial results for
+                                        large queries
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          columns
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Comma-separated list of column names to
+                                        return (e.g., "job_id,status,priority")
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          filters
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        SQL-like WHERE clause to filter results
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
 
-                                <div className="p-4 bg-[#242424]">
-                                  {activeLanguage === "cURL" && (
-                                    <pre
-                                      className="text-sm overflow-x-auto whitespace-pre-wrap"
-                                      style={{
-                                        scrollbarWidth: "thin",
-                                        "&::-webkit-scrollbar": {
-                                          width: "4px",
-                                          height: "4px",
-                                        },
-                                        "&::-webkit-scrollbar-track": {
-                                          backgroundColor: "#1A1A1A",
-                                        },
-                                        "&::-webkit-scrollbar-thumb": {
-                                          backgroundColor: "#333333",
-                                          borderRadius: "4px",
-                                        },
-                                      }}
-                                    >
-                                      <div className="text-sm">
-                                        {"{"}
-                                        <div className="ml-4">
-                                          <span className="text-[#FF616D]">
-                                            "user_address"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "0x..."
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "stake_amount"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "1000000000000000000"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "token_amount"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "1000000000000000000"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "task_definition_id"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            1
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "priority"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            2
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "security"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            1
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "time_frame"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            3600
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "recurring"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            true
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "time_interval"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            300
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "trigger_chain_id"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "1"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "trigger_contract_address"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "0x..."
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "trigger_event"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "Transfer"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "script_ipfs_url"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "ipfs://..."
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "script_trigger_function"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "checkCondition"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "target_chain_id"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "1"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "target_contract_address"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "0x..."
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "target_function"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "execute"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "arg_type"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            1
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "arguments"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            ["arg1", "arg2"]
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "script_target_function"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "executeAction"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "job_cost_prediction"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            0.05
-                                          </span>
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md ">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400 </option>
+                                        <option value="401">401 </option>
+                                        <option value="404">404 </option>
+                                        <option value="500">500 </option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              time_frame
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return_balance
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              last_executed_at
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              task_definition_id
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              chain_status
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              recurring
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              job_cost_prediction
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                              created_at
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                        </>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Bad Request
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid input data"
+                                          </pre>
                                         </div>
-                                        {"}"}
-                                      </div>
-                                    </pre>
-                                  )}
-
-                                  {/* Add other language examples similarly */}
-                                </div>
-                              </div>
-
-                              {/* Response Section */}
-                              <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
-                                <div className="flex items-center justify-between p-4 border-b border-[#333333]">
-                                  <h3 className="text-xl font-bold">
-                                    Response
-                                  </h3>
-                                </div>
-
-                                {/* Status Code Tabs */}
-                                <div className="flex border-b border-[#333333]">
-                                  {[
-                                    { code: "200", color: "bg-green-500" },
-                                    { code: "400", color: "bg-yellow-500" },
-                                    { code: "401", color: "bg-red-500" },
-                                    { code: "403", color: "bg-red-500" },
-                                    { code: "500", color: "bg-red-500" },
-                                  ].map((status) => (
-                                    <button
-                                      key={status.code}
-                                      onClick={() =>
-                                        setActiveStatus(status.code)
-                                      }
-                                      className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                        activeStatus === status.code
-                                          ? "bg-[#242424] text-white"
-                                          : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                      }`}
-                                    >
-                                      <span
-                                        className={`w-2 h-2 rounded-full ${status.color}`}
-                                      ></span>
-                                      {status.code}
-                                    </button>
-                                  ))}
-                                </div>
-
-                                <div className="p-4 bg-[#242424]">
-                                  {activeStatus === "200" && (
-                                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
-                                      <div className="text-sm">
-                                        {"{"}
-                                        <div className="ml-4">
-                                          <span className="text-[#FF616D]">
-                                            "user_id"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            123
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "account_balance"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "2000000000000000000"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "token_balance"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            "1000000000000000000"
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "job_ids"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            [1, 2, 3]
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "task_definition_ids"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            [1, 2]
-                                          </span>
-                                          ,<br />
-                                          <span className="text-[#FF616D]">
-                                            "time_frames"
-                                          </span>
-                                          :{" "}
-                                          <span className="text-[#C3E88D]">
-                                            [3600, 7200]
-                                          </span>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Unauthorized
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid or missing API key" "
+                                          </pre>
                                         </div>
-                                        {"}"}
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Not Found
+                                          </p>
+
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Resource not found"
+                                          </pre>
+                                        </div>
+                                      )}
+
+                                      {activeStatus === "500" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Internal Server Error
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Server-side error"
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="w-full py-4">
+                                  {/* Request Data Section */}
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                      <div className="flex gap-2">
+                                        <span className="px-5 py-2 bg-blue-500  text-xs rounded-full">
+                                          GET
+                                        </span>
                                       </div>
-                                    </pre>
-                                  )}
-                                  {activeStatus === "400" && (
-                                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                      {"{"}{" "}
-                                      <div className="ml-4">
-                                        <span className="text-[#FF616D]">
-                                          "Bad Request"
-                                        </span>
-                                        :{" "}
-                                        <span className="text-[#C3E88D]">
-                                          Invalid input data
-                                        </span>
-                                        ,<br />
-                                      </div>
-                                      {"}"}
-                                    </pre>
-                                  )}
-                                  {activeStatus === "401" && (
-                                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                      {"{"}{" "}
-                                      <div className="ml-4">
-                                        <span className="text-[#FF616D]">
-                                          "Unauthorized"
-                                        </span>
-                                        :{" "}
-                                        <span className="text-[#C3E88D]">
-                                          Invalid or missing API key
-                                        </span>
-                                        ,<br />
-                                      </div>
-                                      {"}"}
-                                    </pre>
-                                  )}
-                                  {activeStatus === "403" && (
-                                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                      {"{"}{" "}
-                                      <div className="ml-4">
-                                        <span className="text-[#FF616D]">
-                                          "Not Found"
-                                        </span>
-                                        :{" "}
-                                        <span className="text-[#C3E88D]">
-                                          Resource not found
-                                        </span>
-                                        ,<br />
-                                      </div>
-                                      {"}"}
-                                    </pre>
-                                  )}
-                                  {activeStatus === "500" && (
-                                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                      {"{"}{" "}
-                                      <div className="ml-4">
-                                        <span className="text-[#FF616D]">
-                                          "Internal Server Error"
-                                        </span>
-                                        :{" "}
-                                        <span className="text-[#C3E88D]">
-                                          Server-side error
-                                        </span>
-                                        ,<br />
-                                      </div>
-                                      {"}"}
-                                    </pre>
-                                  )}
-                                  {/* Add other status responses similarly */}
+                                    </div>
+
+                                    {/* Language Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {["cURL"].map((lang) => (
+                                        <button
+                                          key={lang}
+                                          onClick={() =>
+                                            setActiveLanguage(`cURL`)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium ${
+                                            activeLanguage === lang
+                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeLanguage === "cURL" && (
+                                        <pre
+                                          className="text-sm overflow-x-auto whitespace-pre-wrap"
+                                          style={{
+                                            scrollbarWidth: "thin",
+                                            "&::-webkit-scrollbar": {
+                                              width: "4px",
+                                              height: "4px",
+                                            },
+                                            "&::-webkit-scrollbar-track": {
+                                              backgroundColor: "#1A1A1A",
+                                            },
+                                            "&::-webkit-scrollbar-thumb": {
+                                              backgroundColor: "#333333",
+                                              borderRadius: "4px",
+                                            },
+                                          }}
+                                        >
+                                          <div>
+                                            
+                                            curl --request GET \ </div>
+                                            <div>
+                                              {" "}
+                                              --url
+                                              https://data.triggerx.network/api/jobs/1
+                                              \
+                                            </div>
+                                            <div>
+                                              --header 'X-Api-Key:
+                                              {"<your-api-key>"}'
+                                           
+                                          </div>
+                                          <div>-data</div>
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "api_key"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "-"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "allow_partial_results"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "-"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "columns"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "-"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "filters"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                -
+                                              </span>
+                                              ,<br />
+                                            
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+
+                                      {/* Add other language examples similarly */}
+                                    </div>
+                                  </div>
+
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        Response
+                                      </h3>
+                                    </div>
+
+                                    {/* Status Code Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {[
+                                        { code: "200", color: "bg-green-500" },
+                                        { code: "400", color: "bg-yellow-500" },
+                                        { code: "401", color: "bg-red-500" },
+                                        { code: "403", color: "bg-red-500" },
+                                        { code: "500", color: "bg-red-500" },
+                                      ].map((status) => (
+                                        <button
+                                          key={status.code}
+                                          onClick={() =>
+                                            setActiveStatus(status.code)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-2 h-2 rounded-full ${status.color}`}
+                                          ></span>
+                                          {status.code}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "task_definition_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "user_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "123"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "link_job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                456
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "priority"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                2
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "security"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                1
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "chain_status"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                0
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "recurring"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                true
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_cost_prediction"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                0.05
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_frame"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "3600"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "created_at"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "2024-03-20T10:00:00Z"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "last_executed_at"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "2024-03-20T11:00:00Z"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "task_ids"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "[1, 2, 3]"
+                                              </span>
+                                             
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "403" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>
-
-            
-              
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {/* <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "getjob" ? null : "getjob"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">Retrieve Jobdata</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "getjob" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
-                      {" "}
-                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        GET
-                      </span>{" "}
-                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                        Auth Required
-                      </span>
-                    </div>
-
-                    {expandedSection === "getjob" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/{"{"}id
-                                {"}"}
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/jobs/{id}"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">Retrieve GetJobData </p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                            </pre>
+                            )}
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "LastExecutedAt"
-                            ? null
-                            : "LastExecutedAt"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">LastExecuted job details</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "LastExecutedAt"
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
-                      {" "}
-                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        PUT
-                      </span>{" "}
-                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                        Auth Required
-                      </span>
-                    </div>
-
-                    {expandedSection === "LastExecutedAt" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/{"{"}id
-                                {"}"}/LastExecutedAt
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/jobs{id}/LastExecutedAt"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">
-                              Retrieve LastExecuted Job Data
-                            </p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "GetJobsByUserAddress"
-                            ? null
-                            : "GetJobsByUserAddress"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">GetJobs By UserAddress</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "GetJobsByUserAddress"
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
-                      {" "}
-                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        GET
-                      </span>{" "}
-                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                        Auth Required
-                      </span>
-                    </div>
-
-                    {expandedSection === "GetJobsByUserAddress" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/user/
-                                {"{"}user_address{"}"}
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/jobs/user/{user_address}"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">GetJobs By UserAddress</p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "DeleteJobData"
-                            ? null
-                            : "DeleteJobData"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">Delete JobData</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "DeleteJobData"
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
-                      {" "}
-                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        PUT
-                      </span>{" "}
-                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                        Auth Required
-                      </span>
-                    </div>
-
-                    {expandedSection === "DeleteJobData" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/jobs/delete/
-                                {"{"}id{"}"}
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/jobs/delete/{id}"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">Delete JobData</p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className=" flex-1 space-y-4 bg-[#141414] p-4 border border-[#E2E8F0] rounded-xl">
-                    <button
-                      className="w-full mb-2 flex items-center justify-between"
-                      onClick={() =>
-                        setExpandedSection(
-                          expandedSection === "GetWalletPoints"
-                            ? null
-                            : "GetWalletPoints"
-
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg ">Get Wallet Points</h4>
-                      </div>
-                      <div className="bg-[#F8FF7C] text-black rounded-full p-1">
-                        <IoIosArrowDown
-                          className={`transform transition-transform ${
-                            expandedSection === "GetWalletPoints"
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
-                    <div>
-                      {" "}
-                      <span className="px-4 py-2 bg-[#FFFFFF] rounded-full text-xs text-black mr-2">
-                        GET
-                      </span>{" "}
-                      <span className="px-3 py-2 bg-[#5047FF] rounded-full text-xs">
-                        Auth Required
-                      </span>
-                    </div>
-
-                    {expandedSection === "GetWalletPoints" && (
-                      <div className="p-6 border-t border-[#242424] mt-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Endpoint
-                            </h4>
-                            <div className="flex items-center gap-2 bg-[#242424] rounded-md">
-                              <code className="flex-1  p-3 rounded-lg text-sm">
-                                https://data.triggerx.network/api/wallet/points/
-                                {"{"}wallet_address{"}"}
-                              </code>
-                              <button
-                                onClick={() =>
-                                  copyToClipboard(
-                                    "https://data.triggerx.network/api/wallet/points/{wallet_address}"
-                                  )
-                                }
-                                className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                                  copiedEndpoint ? "text-green-500" : ""
-                                }`}
-                              >
-                                {copiedEndpoint ? (
-                                  <FiCheck size={20} />
-                                ) : (
-                                  <FiCopy size={20} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Description
-                            </h4>
-                            <p className="text-sm">GetWallet Points</p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Status Codes
-                            </h4>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span>200 - Successful response with data</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  400 - Bad request - Invalid parameters
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>
-                                  401 - Unauthorized - Invalid or missing API
-                                  key
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span>500 - Internal server error</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm text-gray-400 mb-2">
-                              Response Example
-                            </h4>
-                            <pre className="bg-[#242424] p-3 rounded-lg text-sm overflow-x-auto">
-                              {`{
-          "results": [
-            {
-              "date": "2024-03-15",
-              "cpi": 0.123456,
-              "activeCouncils": ["th_vp", "ch_vp_r6", "gc_vp_56"],
-              "councilPercentages": {
-                "active": 77.07,
-                "inactive": 22.93
-              }
-            }
-          ]
-        }`}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div> */}
                 </div>
               </div>
             </div>
