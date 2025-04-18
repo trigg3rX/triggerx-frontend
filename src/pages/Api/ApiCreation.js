@@ -267,9 +267,20 @@ const ApiCreation = () => {
                                   method: "POST",
                                 },
                                 { name: "Retrieve Job Data", method: "GET" },
-                                { name: "Last Executed Job", method: "PUT" },
-                                { name: "Get Jobs By User", method: "GET" },
-                                { name: "Delete Job Data", method: "DELETE" },
+                                { name: "Update Job Data", method: "PUT" },
+                                {
+                                  name: "Job Last Executed Time API",
+                                  method: "PUT",
+                                },
+                                {
+                                  name: "Get Jobs By User address API",
+                                  method: "GET",
+                                },
+                                {
+                                  name: "Delete Job API",
+                                  method: "PUT",
+                                },
+                                { name: "Get User API", method: "GET" },
                               ].map((api) => (
                                 <button
                                   key={api.name}
@@ -316,12 +327,7 @@ const ApiCreation = () => {
                                     Create Automation Job
                                   </h3>
                                   <p className=" text-gray-400 text-md">
-                                    Number of rows to return from the result by
-                                    sampling the data. This is useful when you
-                                    want to get a uniform sample instead of the
-                                    entire result. If the result has less than
-                                    the sample count, the entire result is
-                                    returned
+                                  Creates a new blockchain automation job with specified parameters. Define trigger conditions, target actions, security levels, and scheduling options. Supports both one-time and recurring executions with customizable time intervals.
                                   </p>
                                 </div>
 
@@ -674,7 +680,6 @@ const ApiCreation = () => {
                                         <span className="px-2 py-1 bg-green-500 text-xs rounded-full">
                                           POST
                                         </span>
-                                       
                                       </div>
                                     </div>
 
@@ -1067,12 +1072,7 @@ const ApiCreation = () => {
                                     Retrive Job Data
                                   </h3>
                                   <p className=" text-gray-400 text-md">
-                                    Number of rows to return from the result by
-                                    sampling the data. This is useful when you
-                                    want to get a uniform sample instead of the
-                                    entire result. If the result has less than
-                                    the sample count, the entire result is
-                                    returned
+                                  Fetches detailed information about a specific automation job using its unique ID. Returns comprehensive data including job status, configuration, execution history, and associated parameters.
                                   </p>
                                 </div>
 
@@ -1233,7 +1233,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              time_frame
+                                                time_frame
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1247,7 +1247,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              last_executed_at
+                                                last_executed_at
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1261,7 +1261,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              task_definition_id
+                                                task_definition_id
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1275,7 +1275,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              chain_status
+                                                chain_status
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1289,7 +1289,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              recurring
+                                                recurring
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1303,7 +1303,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              job_cost_prediction
+                                                job_cost_prediction
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1317,7 +1317,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              created_at
+                                                created_at
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -1463,19 +1463,16 @@ const ApiCreation = () => {
                                             },
                                           }}
                                         >
+                                          <div>curl --request GET \ </div>
                                           <div>
-                                            
-                                            curl --request GET \ </div>
-                                            <div>
-                                              {" "}
-                                              --url
-                                              https://data.triggerx.network/api/jobs/1
-                                              \
-                                            </div>
-                                            <div>
-                                              --header 'X-Api-Key:
-                                              {"<your-api-key>"}'
-                                           
+                                            {" "}
+                                            --url
+                                            https://data.triggerx.network/api/jobs/1
+                                            \
+                                          </div>
+                                          <div>
+                                            --header 'X-Api-Key:
+                                            {"<your-api-key>"}'
                                           </div>
                                           <div>-data</div>
                                           <div className="text-sm">
@@ -1513,7 +1510,6 @@ const ApiCreation = () => {
                                                 -
                                               </span>
                                               ,<br />
-                                            
                                             </div>
                                             {"}"}
                                           </div>
@@ -1669,7 +1665,6 @@ const ApiCreation = () => {
                                               <span className="text-[#C3E88D]">
                                                 "[1, 2, 3]"
                                               </span>
-                                             
                                             </div>
                                             {"}"}
                                           </div>
@@ -1740,6 +1735,1929 @@ const ApiCreation = () => {
                                         </pre>
                                       )}
                                       {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {expandedSection === "updatejobdata" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Update Job Data
+                                  </h3>
+                                  <p className=" text-gray-400 text-md">
+                                  Updates the configuration and parameters of an existing automation job. This endpoint allows you to modify job settings such as recurring status and time frame.
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-3 py-2 bg-green-500 text-xs rounded-full mr-3">
+                                        PUT
+                                      </span>
+                                      https://data.triggerx.network/api/jobs/
+                                      <span>{"{id}"}</span>
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/jobs/{id}"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md  mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Query Parameters */}
+                                <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                          job_id
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Alternative to using the X-Api-Key
+                                        header
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          recurring
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          boolean
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Enable returning partial results for
+                                        large queries
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          time_frame
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Comma-separated list of column names to
+                                        return (e.g., "job_id,status,priority")
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md ">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400 </option>
+                                        <option value="401">401 </option>
+                                        <option value="404">404 </option>
+                                        <option value="500">500 </option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <pre className="text-sm text-red-400">
+                                              <span className="text-white">
+                                                message :{" "}
+                                              </span>
+                                              "Job updated successfully"
+                                            </pre>
+                                          </div>
+                                        </>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Bad Request
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid input data"
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Unauthorized
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid or missing API key" "
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Not Found
+                                          </p>
+
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Resource not found"
+                                          </pre>
+                                        </div>
+                                      )}
+
+                                      {activeStatus === "500" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Internal Server Error
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Server-side error"
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="w-full py-4">
+                                  {/* Request Data Section */}
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                      <div className="flex gap-2">
+                                        <span className="px-5 py-2 bg-blue-500  text-xs rounded-full">
+                                          GET
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Language Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {["cURL"].map((lang) => (
+                                        <button
+                                          key={lang}
+                                          onClick={() =>
+                                            setActiveLanguage(`cURL`)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium ${
+                                            activeLanguage === lang
+                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeLanguage === "cURL" && (
+                                        <pre
+                                          className="text-sm overflow-x-auto whitespace-pre-wrap"
+                                          style={{
+                                            scrollbarWidth: "thin",
+                                            "&::-webkit-scrollbar": {
+                                              width: "4px",
+                                              height: "4px",
+                                            },
+                                            "&::-webkit-scrollbar-track": {
+                                              backgroundColor: "#1A1A1A",
+                                            },
+                                            "&::-webkit-scrollbar-thumb": {
+                                              backgroundColor: "#333333",
+                                              borderRadius: "4px",
+                                            },
+                                          }}
+                                        >
+                                          <div>curl --request PUT \ </div>
+                                          <div>
+                                            {" "}
+                                            --url
+                                            https://data.triggerx.network/api/jobs/123
+                                            \
+                                          </div>
+                                          <div>
+                                            --header 'X-Api-Key:
+                                            {"<your-api-key>"}'
+                                          </div>
+                                          <div>
+                                            --header 'Content-Type:
+                                            application/json' \
+                                          </div>
+                                          <div>--data</div>
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "123"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "recurring"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "false"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_frame"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "7200"
+                                              </span>
+                                              ,<br />
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+
+                                      {/* Add other language examples similarly */}
+                                    </div>
+                                  </div>
+
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        Response
+                                      </h3>
+                                    </div>
+
+                                    {/* Status Code Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {[
+                                        { code: "200", color: "bg-green-500" },
+                                        { code: "400", color: "bg-yellow-500" },
+                                        { code: "401", color: "bg-red-500" },
+                                        { code: "403", color: "bg-red-500" },
+                                        { code: "500", color: "bg-red-500" },
+                                      ].map((status) => (
+                                        <button
+                                          key={status.code}
+                                          onClick={() =>
+                                            setActiveStatus(status.code)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-2 h-2 rounded-full ${status.color}`}
+                                          ></span>
+                                          {status.code}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "message"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "Job updated successfully"
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "403" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {expandedSection === "joblastexecutedtimeapi" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Job Last Executed Time API
+                                  </h3>
+                                  <p className=" text-gray-400 text-md">
+                                  Updates the last execution timestamp for a specific automation job. This is used to track when the job was last run and manage scheduling for recurring tasks.
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-3 py-2 bg-green-500 text-xs rounded-full mr-3">
+                                        PUT
+                                      </span>
+                                      https://data.triggerx.network/api/jobs/
+                                      <span>{"{id}"}</span>/lastexecuted
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/jobs/{id}/lastexecuted"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md  mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Query Parameters */}
+                                <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                          job_id
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Alternative to using the X-Api-Key
+                                        header
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          recurring
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          boolean
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Enable returning partial results for
+                                        large queries
+                                      </p>
+                                    </div>
+
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[#FF616D]">
+                                          time_frame
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Comma-separated list of column names to
+                                        return (e.g., "job_id,status,priority")
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md ">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400 </option>
+                                        <option value="401">401 </option>
+                                        <option value="404">404 </option>
+                                        <option value="500">500 </option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <pre className="text-sm text-red-400">
+                                              <span className="text-white">
+                                                message :{" "}
+                                              </span>
+                                              "Job updated successfully"
+                                            </pre>
+                                          </div>
+                                        </>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Bad Request
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid input data"
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Unauthorized
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid or missing API key" "
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Not Found
+                                          </p>
+
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Resource not found"
+                                          </pre>
+                                        </div>
+                                      )}
+
+                                      {activeStatus === "500" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Internal Server Error
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Server-side error"
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="w-full py-4">
+                                  {/* Request Data Section */}
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                      <div className="flex gap-2">
+                                        <span className="px-5 py-2 bg-blue-500  text-xs rounded-full">
+                                          GET
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Language Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {["cURL"].map((lang) => (
+                                        <button
+                                          key={lang}
+                                          onClick={() =>
+                                            setActiveLanguage(`cURL`)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium ${
+                                            activeLanguage === lang
+                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeLanguage === "cURL" && (
+                                        <pre
+                                          className="text-sm overflow-x-auto whitespace-pre-wrap"
+                                          style={{
+                                            scrollbarWidth: "thin",
+                                            "&::-webkit-scrollbar": {
+                                              width: "4px",
+                                              height: "4px",
+                                            },
+                                            "&::-webkit-scrollbar-track": {
+                                              backgroundColor: "#1A1A1A",
+                                            },
+                                            "&::-webkit-scrollbar-thumb": {
+                                              backgroundColor: "#333333",
+                                              borderRadius: "4px",
+                                            },
+                                          }}
+                                        >
+                                          <div>curl --request PUT \ </div>
+                                          <div>
+                                            {" "}
+                                            --url
+                                            https://data.triggerx.network/api/jobs/123/lastexecuted
+                                            \
+                                          </div>
+                                          <div>
+                                            --header 'X-Api-Key:
+                                            {"<your-api-key>"}'
+                                          </div>
+                                          <div>
+                                            --header 'Content-Type:
+                                            application/json' \
+                                          </div>
+                                          <div>--data</div>
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "123"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "recurring"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "false"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "time_frame"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "7200"
+                                              </span>
+                                              ,<br />
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+
+                                      {/* Add other language examples similarly */}
+                                    </div>
+                                  </div>
+
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        Response
+                                      </h3>
+                                    </div>
+
+                                    {/* Status Code Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {[
+                                        { code: "200", color: "bg-green-500" },
+                                        { code: "400", color: "bg-yellow-500" },
+                                        { code: "401", color: "bg-red-500" },
+                                        { code: "403", color: "bg-red-500" },
+                                        { code: "500", color: "bg-red-500" },
+                                      ].map((status) => (
+                                        <button
+                                          key={status.code}
+                                          onClick={() =>
+                                            setActiveStatus(status.code)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-2 h-2 rounded-full ${status.color}`}
+                                          ></span>
+                                          {status.code}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "message"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "Last execution time updated
+                                                successfully"
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "403" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {expandedSection === "getjobsbyuseraddressapi" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Get Jobs By User Address API
+                                  </h3>
+                                  <p className=" text-gray-400 text-md">
+                                    Retrieve all automation jobs associated with
+                                    a specific user's Ethereum wallet address.
+                                    This endpoint returns detailed information
+                                    about each job owned by the user.
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-3 py-2 bg-blue-500 text-xs rounded-full mr-3">
+                                        GET
+                                      </span>
+                                      https://data.triggerx.network/api/jobs/user/
+                                      {"{user_address}"}
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/jobs/user/{user_address }"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md  mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Query Parameters */}
+                                <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                          user_address
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                        Ethereum wallet address of the user
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md ">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400 </option>
+                                        <option value="401">401 </option>
+                                        <option value="404">404 </option>
+                                        <option value="500">500 </option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                job_id{" "}
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              ""
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                job_type
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              ""
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                status
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                boolean
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                chain_status
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                link_job_id
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              Comma-separated list of columns to
+                                              return
+                                            </p>
+                                          </div>
+                                        </>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="w-full py-4">
+                                  {/* Request Data Section */}
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                      <div className="flex gap-2">
+                                        <span className="px-5 py-2 bg-blue-500  text-xs rounded-full">
+                                          GET
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Language Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {["cURL"].map((lang) => (
+                                        <button
+                                          key={lang}
+                                          onClick={() =>
+                                            setActiveLanguage(`cURL`)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium ${
+                                            activeLanguage === lang
+                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeLanguage === "cURL" && (
+                                        <pre
+                                          className="text-sm overflow-x-auto whitespace-pre-wrap"
+                                          style={{
+                                            scrollbarWidth: "thin",
+                                            "&::-webkit-scrollbar": {
+                                              width: "4px",
+                                              height: "4px",
+                                            },
+                                            "&::-webkit-scrollbar-track": {
+                                              backgroundColor: "#1A1A1A",
+                                            },
+                                            "&::-webkit-scrollbar-thumb": {
+                                              backgroundColor: "#333333",
+                                              borderRadius: "4px",
+                                            },
+                                          }}
+                                        >
+                                          <div>curl --request PUT \ </div>
+                                          <div>
+                                            {" "}
+                                            --url
+                                            https://data.triggerx.network/api/jobs/0x123..\
+                                          </div>
+                                          <div>
+                                            --header 'X-Api-Key:
+                                            {"<your-api-key>"}'
+                                          </div>
+
+                                          <div>--data</div>
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "user_address (string)"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "Ethereum wallet address of the
+                                                user "
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+
+                                      {/* Add other language examples similarly */}
+                                    </div>
+                                  </div>
+
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        Response
+                                      </h3>
+                                    </div>
+
+                                    {/* Status Code Tabs */}
+                                    <div className="flex border-b border-[#333333]">
+                                      {[
+                                        { code: "200", color: "bg-green-500" },
+                                        { code: "400", color: "bg-yellow-500" },
+                                        { code: "401", color: "bg-red-500" },
+                                        { code: "403", color: "bg-red-500" },
+                                        { code: "500", color: "bg-red-500" },
+                                      ].map((status) => (
+                                        <button
+                                          key={status.code}
+                                          onClick={() =>
+                                            setActiveStatus(status.code)
+                                          }
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-2 h-2 rounded-full ${status.color}`}
+                                          ></span>
+                                          {status.code}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                123
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_type"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "status"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "true"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "chain_status"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                0
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "link_job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                124
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                124
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_type"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "2"
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "chain_status"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                true
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "link_job_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                -1
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Bad Request"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid input data
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Unauthorized"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Invalid or missing API key
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "403" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Not Found"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Resource not found
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {activeStatus === "500" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                          {"{"}{" "}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "Internal Server Error"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              Server-side error
+                                            </span>
+                                            ,<br />
+                                          </div>
+                                          {"}"}
+                                        </pre>
+                                      )}
+                                      {/* Add other status responses similarly */}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {expandedSection === "deletejobapi" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Delete Job API
+                                  </h3>
+                                  <p className="text-gray-400 text-md">
+                                    Delete an existing automation job by its ID.
+                                    This action cannot be undone.
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-4 py-2 bg-yellow-500 text-xs rounded-full mr-3">
+                                        PUT
+                                      </span>
+                                      https://data.triggerx.network/api/jobs/delete/
+                                      <span>{"{id}"}</span>
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/jobs/delete/{id}"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5 border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400</option>
+                                        <option value="401">401</option>
+                                        <option value="404">404</option>
+                                        <option value="500">500</option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "message"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "Job deleted successfully"
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Bad Request
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid input data"
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Unauthorized
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid or missing API key" "
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Not Found
+                                          </p>
+
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Resource not found"
+                                          </pre>
+                                        </div>
+                                      )}
+
+                                      {activeStatus === "500" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Internal Server Error
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Server-side error"
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* cURL Example */}
+                                <div className="w-full py-4">
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                    </div>
+
+                                    <div className="p-4 bg-[#242424]">
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                        <div>curl --request DELETE \ </div>
+                                        <div>
+                                          --url
+                                          https://data.triggerx.network/api/jobs/delete/123
+                                          \
+                                        </div>
+                                        <div>
+                                          --header 'X-Api-Key:{" "}
+                                          {"<your-api-key>"}' \
+                                        </div>
+                                      </pre>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {expandedSection === "getuserapi" && (
+                              <div className="space-y-6 w-[80%]">
+                                <div className="">
+                                  <h3 className="text-xl font-bold pb-4">
+                                    Get User API
+                                  </h3>
+                                  <p className="text-gray-400 text-md">
+                                    Retrieve user information including their
+                                    job IDs and account balance.
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2 bg-[#242424] rounded-md">
+                                    <code className="flex-1 p-3 rounded-lg text-sm">
+                                      <span className="px-3 py-2 bg-blue-500 text-xs rounded-full mr-3">
+                                        GET
+                                      </span>
+                                      https://data.triggerx.network/api/users/
+                                      <span>{"{id}"}</span>
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          "https://data.triggerx.network/api/users/{id}"
+                                        )
+                                      }
+                                      className="p-2 rounded text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      {copiedEndpoint ? (
+                                        <FiCheck size={20} />
+                                      ) : (
+                                        <FiCopy size={20} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Headers Section */}
+                                <div>
+                                  <h4 className="text-md mb-2">Headers</h4>
+                                  <div className="bg-[#242424] p-3 rounded-lg">
+                                    <table className="w-full text-sm">
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 text-gray-400 w-1/3">
+                                            TriggerX-Api-Key
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            string
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+
+                                {/* Response Section */}
+                                <div>
+                                  <div className="flex items-center gap-2 justify-between my-5 border-[#4B4A4A] border-b pb-4 mb-4">
+                                    <div>
+                                      <h4 className="text-md">Response</h4>
+                                    </div>
+                                    <div>
+                                      <select
+                                        value={activeStatus}
+                                        onChange={(e) =>
+                                          setActiveStatus(e.target.value)
+                                        }
+                                        className="bg-[#1A1A1A] text-gray-400 px-3 py-2 rounded-md border border-[#333333] focus:outline-none focus:border-[#5047FF]"
+                                      >
+                                        <option value="200">200</option>
+                                        <option value="400">400</option>
+                                        <option value="401">401</option>
+                                        <option value="404">404</option>
+                                        <option value="500">500</option>
+                                      </select>
+                                      <span className="text-[#C3E88D] ml-3">
+                                        application/json
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="rounded-lg">
+                                    <div className="">
+                                      {activeStatus === "200" && (
+                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                          <div className="text-sm">
+                                            {"{"}
+                                            <div className="ml-4">
+                                              <span className="text-[#FF616D]">
+                                                "user_id"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                123
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "user_address"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "0x..."
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "job_ids"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                [1, 2, 3]
+                                              </span>
+                                              ,<br />
+                                              <span className="text-[#FF616D]">
+                                                "account_balance"
+                                              </span>
+                                              :{" "}
+                                              <span className="text-[#C3E88D]">
+                                                "1000000000000000000"
+                                              </span>
+                                            </div>
+                                            {"}"}
+                                          </div>
+                                        </pre>
+                                      )}
+                                      {activeStatus === "400" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Bad Request
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid input data"
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "401" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Unauthorized
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Invalid or missing API key" "
+                                          </pre>
+                                        </div>
+                                      )}
+                                      {activeStatus === "404" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Not Found
+                                          </p>
+
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Resource not found"
+                                          </pre>
+                                        </div>
+                                      )}
+
+                                      {activeStatus === "500" && (
+                                        <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                          <p className="text-gray-400 mb-2">
+                                            Internal Server Error
+                                          </p>
+                                          <pre className=" mb-2">
+                                            Error{" "}
+                                            <span className="text-[#C3E88D]">
+                                              String
+                                            </span>
+                                          </pre>
+                                          <pre className="text-sm text-red-400">
+                                            <span className="text-white">
+                                              Example :{" "}
+                                            </span>
+                                            "Server-side error"
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* cURL Example */}
+                                <div className="w-full py-4">
+                                  <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                      <h3 className="text-xl font-bold">
+                                        API Request
+                                      </h3>
+                                    </div>
+                                    <div className="p-4 bg-[#242424]">
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                        <div>curl --request GET \ </div>
+                                        <div>
+                                          {" "}
+                                          --url
+                                          https://data.triggerx.network/api/users/123
+                                          \
+                                        </div>
+                                        <div>
+                                          {" "}
+                                          --header 'X-Api-Key:{" "}
+                                          {"<your-api-key>"}'
+                                        </div>
+                                      </pre>
                                     </div>
                                   </div>
                                 </div>

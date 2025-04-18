@@ -8,6 +8,7 @@ import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard
 import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
 
 function Header() {
+  const hiddenPaths = ['/dashboard', '/leaderboard','/devhub'];
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,6 +64,9 @@ function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const shouldShowConnectButton = !hiddenPaths.some(path => location.pathname.includes(path));
+
 
   // Update nav image based on route
   // useEffect(() => {
@@ -175,8 +179,8 @@ function Header() {
           </nav>
         </div>
         <div className="flex items-center">
-          {" "}
-          <ConnectButton chainStatus="icon" accountStatus="address" />
+        {shouldShowConnectButton &&   <ConnectButton chainStatus="icon" accountStatus="address" />}
+      
           {/* <div className="relative">
             <FiInfo
               className="text-gray-400 hover:text-white cursor-pointer ml-2"
