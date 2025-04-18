@@ -446,33 +446,36 @@ export function ContractDetails({
             ))}
         </div>
       )}
-
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <label
-          htmlFor="ipfsCodeUrl"
-          className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
-        >
-          IPFS Code URL
-        </label>
-        <div className="w-full md:w-[70%] xl:w-[80%]">
-          <input
-            id="ipfsCodeUrl"
-            value={ipfsCodeUrl}
-            required
-            onChange={(e) => handleCodeUrlChange(e)}
-            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
-              ipfsCodeUrlError ? "border-red-500" : "border-white/10"
-            }`}
-            placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
-          />
-          {ipfsCodeUrlError && (
-            <p className="text-red-500 text-xs mt-1 ml-1">{ipfsCodeUrlError}</p>
-          )}
-          <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
-            Provide an IPFS URL or CID, where your code is stored.
-          </h4>
+      {argumentType !== "static" && (
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <label
+            htmlFor="ipfsCodeUrl"
+            className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+          >
+            IPFS Code URL
+          </label>
+          <div className="w-full md:w-[70%] xl:w-[80%]">
+            <input
+              id="ipfsCodeUrl"
+              value={ipfsCodeUrl}
+              required
+              onChange={(e) => handleCodeUrlChange(e)}
+              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                ipfsCodeUrlError ? "border-red-500" : "border-white/10"
+              }`}
+              placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
+            />
+            {ipfsCodeUrlError && (
+              <p className="text-red-500 text-xs mt-1 ml-1">
+                {ipfsCodeUrlError}
+              </p>
+            )}
+            <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
+              Provide an IPFS URL or CID, where your code is stored.
+            </h4>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
