@@ -389,7 +389,7 @@ const ApiCreation = () => {
                                 </div>
 
                                 {/* Query Parameters */}
-                                <div>
+                                {/* <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -496,6 +496,58 @@ const ApiCreation = () => {
                                       <p className="text-gray-400 text-sm">
                                         Comma-separated list of columns to
                                         return
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div> */}
+
+                                  {/* Query Parameters */}
+                                  <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        api_key 
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Alternative to using the X-Api-Key header for authentication
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        columns  
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Comma-separated list of column names to return specific fields
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        filters   
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -1134,8 +1186,8 @@ const ApiCreation = () => {
                                   </div>
                                 </div>
 
-                                {/* Query Parameters */}
-                                <div>
+                           {/* Query Parameters */}
+                           <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -1143,59 +1195,44 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                          api_key
+                                        api_key 
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key
-                                        header
+                                      Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
-
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
-                                      <div className="flex items-center gap-2 mb-1">
+                                      <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                          allow_partial_results
-                                        </span>
-                                        <span className="text-[#C3E88D]">
-                                          boolean
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-400 text-sm">
-                                        Enable returning partial results for
-                                        large queries
-                                      </p>
-                                    </div>
-
-                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#FF616D]">
-                                          columns
+                                        columns  
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to
-                                        return (e.g., "job_id,status,priority")
+                                      Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
-
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
-                                      <div className="flex items-center gap-2 mb-1">
+                                      <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                          filters
+                                        filters   
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        SQL-like WHERE clause to filter results
+                                      SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -1794,13 +1831,24 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
+                                        <tr >
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]  ">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
                                       </tbody>
                                     </table>
                                   </div>
                                 </div>
 
                                 {/* Query Parameters */}
-                                <div>
+                                {/* <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -1850,8 +1898,58 @@ const ApiCreation = () => {
                                       </p>
                                     </div>
                                   </div>
+                                </div> */}
+  {/* Query Parameters */}
+  <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        api_key 
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Alternative to using the X-Api-Key header for authentication
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        columns  
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Comma-separated list of column names to return specific fields
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        filters   
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      SQL-like WHERE clause to filter results
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
-
                                
                                 <div className="w-full py-4">
                                   {/* Request Data Section */}
@@ -2139,13 +2237,24 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
+                                        <tr >
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]  ">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
                                       </tbody>
                                     </table>
                                   </div>
                                 </div>
 
                                 {/* Query Parameters */}
-                                <div>
+                                {/* <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -2161,6 +2270,58 @@ const ApiCreation = () => {
                                       </div>
                                       <p className="text-gray-400 text-sm">
                                         Ethereum wallet address of the user
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div> */}
+
+                                  {/* Query Parameters */}
+                                  <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        api_key 
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Alternative to using the X-Api-Key header for authentication
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        columns  
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Comma-separated list of column names to return specific fields
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        filters   
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -2665,11 +2826,72 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
+                                        <tr >
+                                          <td className="py-2 text-gray-400">
+                                            Content-Type
+                                          </td>
+                                          <td className="text-[#C3E88D]  ">
+                                            application/json
+                                          </td>
+                                          <td className="text-red-400 pl-4">
+                                            required
+                                          </td>
+                                        </tr>
                                       </tbody>
                                     </table>
                                   </div>
                                 </div>
-
+  {/* Query Parameters */}
+  <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        api_key 
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Alternative to using the X-Api-Key header for authentication
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        columns  
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Comma-separated list of column names to return specific fields
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        filters   
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      SQL-like WHERE clause to filter results
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
                                
                                 {/* cURL Example */}
                                 <div className="w-full py-4">
@@ -2906,7 +3128,7 @@ const ApiCreation = () => {
                                   </div>
                                 </div>
                                 {/* Query Parameters */}
-                                <div>
+                                {/* <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -2922,6 +3144,57 @@ const ApiCreation = () => {
                                       </div>
                                       <p className="text-gray-400 text-sm">
                                       The ID of the user to retrieve 
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div> */}
+                                     {/* Query Parameters */}
+                                <div>
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                    Query Parameters
+                                  </h4>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        api_key 
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Alternative to using the X-Api-Key header for authentication
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        columns  
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      Comma-separated list of column names to return specific fields
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className=" rounded-lg space-y-6">
+                                    <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[#FF616D]">
+                                        filters   
+                                        </span>
+                                        <span className="text-[#C3E88D]">
+                                          string
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-400 text-sm">
+                                      SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
