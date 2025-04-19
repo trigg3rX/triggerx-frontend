@@ -8,7 +8,7 @@ import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard
 import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
 
 function Header() {
-  const hiddenPaths = ['/dashboard', '/leaderboard','/devhub'];
+  const hiddenPaths = ['/dashboard', '/leaderboard','/devhub','/api'];
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
