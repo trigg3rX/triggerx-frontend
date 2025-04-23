@@ -121,7 +121,7 @@ const ApiCreation = () => {
 
   return (
     <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4 ">
         API Documentation & Key Management
       </h1>
 

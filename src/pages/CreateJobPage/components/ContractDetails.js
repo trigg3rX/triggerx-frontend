@@ -24,6 +24,8 @@ export function ContractDetails({
   const [isArgumentTypeOpen, setIsArgumentTypeOpen] = useState(false);
   const [addressError, setAddressError] = useState("");
   const [ipfsCodeUrlError, setIpfsCodeUrlError] = useState("");
+  const [manualABI, setManualABI] = useState("");
+  const [showManualABIInput, setShowManualABIInput] = useState(false);
 
   const selected = functions.find(
     (f) =>
@@ -127,23 +129,44 @@ export function ContractDetails({
           );
           console.log("Setting writable functions:", writableFunctions);
           setFunctions(writableFunctions);
-
-          // Extract and set events
-          // const contractEvents = extractEvents(data.result);
-          // console.log("Setting contract events:", contractEvents);
-          // setEvents(contractEvents);
-
           setContractABI(data.result);
+          setShowManualABIInput(false);
         } else {
-          throw new Error(`Failed to fetch ABI: ${data.message}`);
+          setShowManualABIInput(true);
+          setContractABI("");
+          setFunctions([]);
         }
       } catch (error) {
         console.error("Error fetching ABI:", error.message);
-        throw error;
+        setShowManualABIInput(true);
+        setContractABI("");
+        setFunctions([]);
       }
     } else {
       console.log("Invalid address, clearing ABI");
       setContractABI("");
+      setShowManualABIInput(false);
+    }
+  };
+
+  const handleManualABIChange = (e) => {
+    const abi = e.target.value;
+    setManualABI(abi);
+    try {
+      const writableFunctions = extractFunctions(abi).filter(
+        (func) =>
+          func.stateMutability === "nonpayable" ||
+          func.stateMutability === "payable"
+      );
+      setFunctions(writableFunctions);
+      setContractABI(abi);
+      // Reset target function when ABI changes
+      setTargetFunction("");
+    } catch (error) {
+      console.error("Error processing manual ABI:", error);
+      setFunctions([]);
+      setContractABI("");
+      setTargetFunction("");
     }
   };
 
@@ -297,7 +320,30 @@ export function ContractDetails({
         </div>
       )}
 
-      {contractAddress && !addressError && (
+      {showManualABIInput && (
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <label
+            htmlFor="manualABI"
+            className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+          >
+            Manual ABI Input
+          </label>
+          <div className="w-full md:w-[70%] xl:w-[80%]">
+            <textarea
+              id="manualABI"
+              value={manualABI}
+              onChange={handleManualABIChange}
+              placeholder="Enter contract ABI manually (JSON format)"
+              className="text-xs xs:text-sm sm:text-base w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none min-h-[100px]"
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              Enter the contract ABI in JSON format if automatic fetch fails
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(contractAddress || manualABI) && !addressError && (
         <>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <label

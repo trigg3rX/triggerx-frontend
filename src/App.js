@@ -22,6 +22,7 @@ import NotFound from "./components/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import Devhub from "./pages/Devhub";
 import ApiCreation from "./pages/Api/ApiCreation";
+import BalanceMaintainer from "./components/BalanceMaintainer";
 
 const myCustomTheme = {
   blurs: {
@@ -115,6 +116,7 @@ const App = () => {
                     <Route path="/devhub" element={<Devhub />} />
                     <Route path="/devhub/:slug" element={<DevhubItem />} />
                     <Route path="/api" element={<ApiCreation />} />
+                    <Route path="/main" element={<BalanceMaintainer />} />
 
                     <Route path="*" element={<NotFound />} />
                   </>
