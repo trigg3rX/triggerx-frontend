@@ -52,6 +52,10 @@ export const postType = defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: 'redirect',
+      type: 'string',
+    }),
 
     defineField({
       name: 'body',
