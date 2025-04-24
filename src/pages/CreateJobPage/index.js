@@ -13,6 +13,7 @@ import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { Toaster, toast } from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 
 import timeBasedIcon from "../../assets/time-based.gif";
@@ -117,6 +118,7 @@ const options = [
 ];
 
 function CreateJobPage() {
+  const location = useLocation();
   const [selectedNetwork, setSelectedNetwork] = useState(
     supportedNetworks[0].name
   );
@@ -126,7 +128,7 @@ function CreateJobPage() {
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [jobDetails, setJobDetails] = useState([]);
   const [conditionScript, setConditionScript] = useState("");
-  const { address, isConnected } = useAccount(); // Get isConnected from useAccount
+  const { address, isConnected } = useAccount();
   const [connected, setConnected] = useState(false);
   const formRef = useRef(null);
   const { handleKeyDown } = useFormKeyboardNavigation();
@@ -134,22 +136,50 @@ function CreateJobPage() {
   const [recurring, setRecurring] = useState(false);
   const baseUrl = 'https://app.triggerx.network';
 
+  // Add location state logging and set values
+  useEffect(() => {
+    if (location.state) {
+      console.log('State passed from BalanceMaintainer:', {
+        jobType: location.state.jobType,
+        contractAddress: location.state.contractAddress,
+        abi: location.state.abi,
+        timeframe: location.state.timeframe,
+        timeInterval: location.state.timeInterval
+      });
+
+      // Set job type if passed
+      if (location.state.jobType) {
+        setJobType(Number(location.state.jobType));
+      }
+        setContractDetails(prev => ({
+          ...prev,
+          [location.state.jobType]: {
+            main: {
+              ...prev[location.state.jobType]?.main,
+              contractAddress: location.state.contractAddress,
+              contractABI: location.state.abi
+            }
+          }
+        }));
+    }
+  }, [location.state]);
+
   useEffect(() => {
     // Update meta tags when activeTab changes
     document.title = 'TriggerX | Build';
     document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    
+
     // Update Open Graph meta tags
     document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Build');
     document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
     document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
     document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}`);
-    
+
     // Update Twitter Card meta tags
     document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Build');
     document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
     document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
-  }, [ baseUrl]);
+  }, [baseUrl]);
 
 
   useEffect(() => {
@@ -317,16 +347,20 @@ function CreateJobPage() {
 
   const {
     timeframe,
-    handleTimeframeChange,
+    setTimeframe,
     timeframeInSeconds,
+    setTimeframeInSeconds,
     timeInterval,
+    setTimeInterval,
     intervalInSeconds,
+    setIntervalInSeconds,
     errorFrame,
     setErrorFrame,
     errorInterval,
     setErrorInterval,
     errorFrameRef,
     errorIntervalRef,
+    handleTimeframeChange,
     handleTimeIntervalChange,
   } = useTimeManagement();
 
@@ -336,6 +370,8 @@ function CreateJobPage() {
     estimateFee,
     estimatedFee,
     // setEstimatedFee,
+    argType,
+    setArgType,
     isLoading,
     setIsLoading,
     userBalance,
@@ -362,6 +398,7 @@ function CreateJobPage() {
 
   // Ensure jobType exists in contractDetails on jobType change
   useEffect(() => {
+
     setContractDetails((prevDetails) => ({
       ...prevDetails,
       [jobType]: prevDetails[jobType] || {
@@ -575,7 +612,7 @@ function CreateJobPage() {
           intervalInSeconds,
           codeUrls,
           processSteps,
-          setProcessSteps
+          setProcessSteps,
         );
 
         // Ensure UI updates and animation completes
@@ -618,6 +655,18 @@ function CreateJobPage() {
     e.preventDefault();
     setJobType(Number(newJobType));
   };
+
+  // Set timeframe and timeInterval when passed from state
+  useEffect(() => {
+    if (location.state?.timeframe) {
+      const { years, months, days } = location.state.timeframe;
+      handleTimeframeChange('years', years);
+      handleTimeframeChange('months', months);
+      handleTimeframeChange('days', days);
+    }
+  }, []);
+
+  
 
   return (
     <div>
@@ -666,14 +715,14 @@ function CreateJobPage() {
                         }
                       }}
                       className={`${Number(option.value) === jobType
-                          ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
-                          : "bg-white/5 border border-white/10 "
+                        ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
+                        : "bg-white/5 border border-white/10 "
                         } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
                     >
                       <div
                         className={`${Number(option.value) === jobType
-                            ? "bg-white border border-white/10"
-                            : ""
+                          ? "bg-white border border-white/10"
+                          : ""
                           } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                       ></div>
                       {Number(option.value) === jobType ? (
