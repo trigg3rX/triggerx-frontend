@@ -10,9 +10,7 @@ import DevhubItem from "./pages/DevhubItem";
 import { getSubdomain } from "./utils/subdomain";
 import { HelmetProvider,Helmet } from 'react-helmet-async';
 import {
-  mainnet,
-  polygon,
-  arbitrum,
+  
   baseSepolia,
   optimismSepolia,
 } from "wagmi/chains";
@@ -86,7 +84,7 @@ const myCustomTheme = {
 const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "f8a6524307e28135845a9fe5811fcaa2",
-  chains: [mainnet, polygon, arbitrum, baseSepolia, optimismSepolia],
+  chains: [baseSepolia, optimismSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
