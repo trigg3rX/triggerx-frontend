@@ -35,8 +35,7 @@ export function useJobCreation() {
       });
 
       console.log(
-        `Code URL for ${jobType} ${
-          jobId !== null ? "linked job " + jobId : "main job"
+        `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"
         } changed to:`,
         url
       );
@@ -50,8 +49,10 @@ export function useJobCreation() {
   const estimateFee = async (
     timeframeInSeconds,
     intervalInSeconds,
-    codeUrls
+    codeUrls,
+    
   ) => {
+    console.log("argType", argType);
     try {
       // const provider = new ethers.BrowserProvider(window.ethereum);
       // const contract = new ethers.Contract(contractAddress, contractABI, provider);
@@ -83,56 +84,61 @@ export function useJobCreation() {
 
       let totalFeeTG = 0;
       // user TG balance
-      console.log("Ipfs:", codeUrls);
+      if (argType === 1) {
+        console.log("argType", argType);
+        if (codeUrls) {
+          console.log("codeUrls", codeUrls);
+          try {
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+            const response = await fetch(
+              `${API_BASE_URL}/api/fees?ipfs_url=${encodeURIComponent(
+                codeUrls
+              )}`,
+              {
+                method: "GET",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            console.log("response", response);
 
-      if (codeUrls) {
-        try {
-          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-          const response = await fetch(
-            `${API_BASE_URL}/api/fees?ipfs_url=${encodeURIComponent(
-              codeUrls
-            )}`,
-            {
-              method: "GET",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
+            if (!response.ok) {
+              throw new Error("Failed to get fees");
             }
-          );
-          console.log("response", response);
 
-          if (!response.ok) {
-            throw new Error("Failed to get fees");
+            const data = await response.json(); // Parse the response body
+            console.log("Response data:", data); // Log the response data
+
+            // Check if the response contains an error
+            if (data.error) {
+              throw new Error(data.error); // Handle the error from the response
+            }
+
+            totalFeeTG = Number(data.total_fee) * executionCount;
+
+            // Calculate stake amount in ETH and convert to Gwei
+            const stakeAmountEth = totalFeeTG * 0.001;
+
+            console.log("Total TG fee required:", totalFeeTG.toFixed(18), "TG");
+
+            const stakeAmountGwei = ethers.parseUnits(
+              (stakeAmountEth * 1e9).toFixed(0),
+              "gwei"
+            );
+            const estimatedFeeInGwei = stakeAmountGwei;
+            console.log("Stake amount in Gwei:", estimatedFeeInGwei);
+
+            setEstimatedFeeInGwei(estimatedFeeInGwei);
+          } catch (error) {
+            console.error("Error getting task fees:", error);
+            toast.warning("Failed to get task fees. Using base fee estimation.");
           }
-
-          const data = await response.json(); // Parse the response body
-          console.log("Response data:", data); // Log the response data
-
-          // Check if the response contains an error
-          if (data.error) {
-            throw new Error(data.error); // Handle the error from the response
-          }
-
-          totalFeeTG = Number(data.total_fee) * executionCount;
-
-          // Calculate stake amount in ETH and convert to Gwei
-          const stakeAmountEth = totalFeeTG * 0.001;
-
-          console.log("Total TG fee required:", totalFeeTG.toFixed(18), "TG");
-
-          const stakeAmountGwei = ethers.parseUnits(
-            (stakeAmountEth * 1e9).toFixed(0),
-            "gwei"
-          );
-          const estimatedFeeInGwei = stakeAmountGwei;
-          console.log("Stake amount in Gwei:", estimatedFeeInGwei);
-
-          setEstimatedFeeInGwei(estimatedFeeInGwei);
-        } catch (error) {
-          console.error("Error getting task fees:", error);
-          toast.warning("Failed to get task fees. Using base fee estimation.");
         }
+      }
+      else {
+        totalFeeTG = 0.1 * executionCount;
       }
 
       setEstimatedFee(totalFeeTG);
@@ -190,7 +196,7 @@ export function useJobCreation() {
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated",updatedJobDetails);
+      console.log("updated", updatedJobDetails);
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
@@ -202,7 +208,7 @@ export function useJobCreation() {
         );
 
         console.log("Staking ETH amount:", requiredEth);
-        
+
         const tx = await contract.stake(
           ethers.parseEther(requiredEth.toString()),
           { value: ethers.parseEther(requiredEth.toString()) }
@@ -325,6 +331,7 @@ export function useJobCreation() {
       console.log("Setting modal open:", value);
       setIsModalOpen(value);
     },
+    setArgType,
     estimateFee,
     handleSubmit,
     handleStake,

@@ -70,6 +70,7 @@ export function ContractDetails({
   };
 
   function extractFunctions(abi) {
+    console.log("Extracting functions from ABI:", abi);
     try {
       let abiArray;
       if (typeof abi === "string") {
@@ -110,6 +111,7 @@ export function ContractDetails({
   }
 
   const handleContractAddressChange = async (e) => {
+    
     const address = e.target.value;
     validateAddress(address);
 
@@ -279,15 +281,15 @@ export function ContractDetails({
             value={contractAddress}
             onChange={handleContractAddressChange}
             placeholder="Your Contract address"
-            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
-              addressError ? "border-red-500" : "border-white/10"
-            }`}
+            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${addressError ? "border-red-500" : "border-white/10"
+              }`}
           />
           {addressError && (
             <p className="text-red-500 text-xs mt-1 ml-1">{addressError}</p>
           )}
         </div>
       </div>
+
       {contractAddress && (
         <div className="flex items-center justify-between gap-6">
           <h4 className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
@@ -386,10 +388,10 @@ export function ContractDetails({
             </div>
           </div>
 
-          {functions.length === 0 && contractAddress && (
+          {functions.length === 0 && (contractAddress || manualABI) && (
             <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs xs:text-sm text-yellow-400">
               No writable functions found. Make sure the contract is verified on
-              Blockscout / Etherscan.
+              Blockscout / Etherscan or the ABI is valid.
             </h4>
           )}
 
@@ -407,9 +409,8 @@ export function ContractDetails({
                   className="relative w-full md:w-[70%] xl:w-[80%] z-30"
                 >
                   <div
-                    className={`text-xs xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${
-                      !hasArguments ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`text-xs xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${!hasArguments ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     onClick={() =>
                       hasArguments && setIsArgumentTypeOpen(!isArgumentTypeOpen)
                     }
@@ -442,11 +443,6 @@ export function ContractDetails({
                   )}
                 </div>
               </div>
-              {/* <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs text-gray-400">
-                {hasArguments
-                  ? "Select how function arguments should be handled during execution"
-                  : "No arguments required for this function"}
-              </h4> */}
             </>
           )}
         </>
@@ -478,11 +474,8 @@ export function ContractDetails({
                   type="text"
                   value={argsArray[index] || ""}
                   onChange={(e) => handleInputChange(index, e.target.value)}
-                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none  ${
-                    isDisabled
-                      ? "opacity-50 cursor-not-allowed bg-gray-800"
-                      : ""
-                  }`}
+                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${isDisabled ? "opacity-50 cursor-not-allowed bg-gray-800" : ""
+                    }`}
                   placeholder={`Enter ${input.type}`}
                   disabled={isDisabled}
                   readOnly={isDisabled}
@@ -492,6 +485,7 @@ export function ContractDetails({
             ))}
         </div>
       )}
+
       {argumentType !== "static" && (
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <label
@@ -506,15 +500,12 @@ export function ContractDetails({
               value={ipfsCodeUrl}
               required
               onChange={(e) => handleCodeUrlChange(e)}
-              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
-                ipfsCodeUrlError ? "border-red-500" : "border-white/10"
-              }`}
+              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${ipfsCodeUrlError ? "border-red-500" : "border-white/10"
+                }`}
               placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
             />
             {ipfsCodeUrlError && (
-              <p className="text-red-500 text-xs mt-1 ml-1">
-                {ipfsCodeUrlError}
-              </p>
+              <p className="text-red-500 text-xs mt-1 ml-1">{ipfsCodeUrlError}</p>
             )}
             <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
               Provide an IPFS URL or CID, where your code is stored.
