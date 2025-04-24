@@ -204,7 +204,7 @@ function CreateJobPage() {
   const formRef = useRef(null);
   const { handleKeyDown } = useFormKeyboardNavigation();
   const [contractDetails, setContractDetails] = useState({});
-  const [recurring, setRecurring] = useState(false);
+  const [recurring, setRecurring] = useState(true);
   const baseUrl = 'https://app.triggerx.network';
 
 
@@ -415,6 +415,7 @@ function CreateJobPage() {
     estimateFee,
     estimatedFee,
     // setEstimatedFee,
+    isSubmitting,
     argType,
     setArgType,
     isLoading,
@@ -645,19 +646,19 @@ function CreateJobPage() {
           stake_amount: 0,
           token_amount: 0,
           task_definition_id: taskdefinitionid,
-          priority: 0,
-          security: 0,
+          priority: 1,
+          security: 1,
           time_frame: timeframeInSeconds,
           time_interval: intervalInSeconds,
           recurring: recurring,
           trigger_chain_id: triggerChainId.toString(),
-          trigger_contract_address: mainJobDetails.contractAddress,
+          trigger_contract_address: eventContractInteraction.contractAddress || "NULL",
           trigger_event: "NULL",
           script_ipfs_url: mainJobDetails.ipfsCodeUrl || "",
           script_target_function: "trigger",
           target_chain_id: triggerChainId.toString(),
-          target_contract_address: "NULL",
-          target_function: mainJobDetails.targetFunction,
+          target_contract_address: mainJobDetails.contractAddress,
+          target_function: mainJobDetails.targetFunction?.split('(')[0],
           arg_type: argType,
           arguments: mainJobDetails.argsArray,
           script_trigger_function: "action",
@@ -681,18 +682,18 @@ function CreateJobPage() {
               stake_amount: 0,
               token_amount: 0,
               task_definition_id: taskdefinitionid,
-              priority: 0,
-              security: 0,
+              priority: 1,
+              security: 1,
               time_frame: timeframeInSeconds,
               time_interval: intervalInSeconds,
-              recurring: false,
+              recurring: recurring,
               trigger_chain_id: triggerChainId.toString(),
-              trigger_contract_address: linkedJobDetails.contractAddress,
+              trigger_contract_address: eventContractInteraction.contractAddress || "NULL",
               trigger_event: "NULL",
               script_ipfs_url: linkedJobDetails.ipfsCodeUrl || "",
               script_target_function: "trigger",
               target_chain_id: triggerChainId.toString(),
-              target_contract_address: "NULL",
+              target_contract_address: linkedJobDetails.contractAddress,
               target_function: linkedJobDetails.targetFunction,
               arg_type: argType,
               arguments: linkedJobDetails.argsArray,
@@ -1411,6 +1412,7 @@ function CreateJobPage() {
             handleSubmit(stakeRegistryAddress, stakeRegistryABI, jobDetails);
           }}
           userBalance={userBalance}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

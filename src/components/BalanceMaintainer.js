@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ethers } from 'ethers';
 import BalanceMaintainerFactory from '../artifacts/BalanceMaintainerFactory.json';
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
-import axios from 'axios';
 
 const FACTORY_ADDRESS = '0x734794fCB7f52e945DE37F07d414Cfb05fCd38D5';
 
@@ -21,7 +20,6 @@ const BalanceMaintainerExample = () => {
   const [contractBalance, setContractBalance] = useState("0");
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -274,9 +272,6 @@ const BalanceMaintainerExample = () => {
         setContractAddress(deployedAddress);
         setIsDeployed(true);
 
-        // Verify contract
-        await verifyContract(currentChainId, deployedAddress);
-
         // Set initial balance for owner
         await setInitialBalance(deployedAddress);
       } else {
@@ -287,92 +282,6 @@ const BalanceMaintainerExample = () => {
       setError(err.message || "Failed to deploy contract. Please check your network connection and try again.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const verifyContract = async (chainId, deployedAddress) => {
-    try {
-      const apiKey = chainId === 11155111 ? process.env.REACT_APP_ETHERSCAN_API_KEY : process.env.REACT_APP_POLYGONSCAN_API_KEY;
-      if (!apiKey) {
-        console.error(`No API key found for chain ${chainId}`);
-        return;
-      }
-
-      const verificationUrl = chainId === 11155111
-        ? 'https://api-sepolia.etherscan.io/api'
-        : 'https://api.polygonscan.com/api';
-
-      console.log('Verifying contract...', {
-        chainId,
-        hasApiKey: !!apiKey,
-        verificationUrl,
-        deployedAddress
-      });
-
-      // Read both contract source files
-      const factorySource = await fetch('/contracts/BalanceMaintainerFactory.sol').then(res => res.text());
-      const maintainerSource = await fetch('/contracts/BalanceMaintainer.sol').then(res => res.text());
-
-      // Encode constructor arguments using ethers v6
-      const abiCoder = new ethers.AbiCoder();
-      const constructorArgs = abiCoder.encode(['address'], [signer.address]).slice(2);
-
-      const verificationData = {
-        apikey: apiKey,
-        module: 'contract',
-        action: 'verifysourcecode',
-        contractaddress: deployedAddress,
-        sourceCode: JSON.stringify({
-          language: "Solidity",
-          sources: {
-            "BalanceMaintainerFactory.sol": {
-              content: factorySource
-            },
-            "BalanceMaintainer.sol": {
-              content: maintainerSource
-            }
-          },
-          settings: {
-            optimizer: {
-              enabled: false,
-              runs: 200
-            },
-            evmVersion: "paris",
-            libraries: {},
-            outputSelection: {
-              "*": {
-                "*": [
-                  "evm.bytecode.object",
-                  "evm.bytecode.sourceMap",
-                  "evm.deployedBytecode.object",
-                  "evm.deployedBytecode.sourceMap",
-                  "abi"
-                ]
-              }
-            }
-          }
-        }),
-        codeformat: 'solidity-standard-json-input',
-        contractname: 'BalanceMaintainerFactory',
-        compilerversion: 'v0.8.20+commit.a1b79de6',
-        optimizationUsed: 0,
-        runs: 200,
-        constructorArguments: constructorArgs
-      };
-
-      const response = await axios.post(verificationUrl, verificationData);
-      console.log('Verification response:', response.data);
-
-      if (response.data.status === '1') {
-        console.log('Contract verified successfully!');
-        // You can add a success notification here
-      } else {
-        console.error('Contract verification failed:', response.data);
-        // You can add an error notification here
-      }
-    } catch (error) {
-      console.error('Error verifying contract:', error);
-      // You can add an error notification here
     }
   };
 
@@ -424,7 +333,7 @@ const BalanceMaintainerExample = () => {
               </>
             ) : (
               <>
-                <p>Status: {isVerifying ? 'Verifying...' : 'Deployed Successfully'}</p>
+                <p>Status: Deployed Successfully</p>
                 <p>Owner: {address}</p>
                 <p>Balance: {contractBalance} ETH</p>
                 <p className="text-green-400">
@@ -526,16 +435,19 @@ const BalanceMaintainerExample = () => {
                 isDeployed,
                 isLoading,
                 hasSigner: !!signer,
-                isVerifying,
                 isInitialized,
-                canDeploy: !isLoading && !!signer && !isVerifying && isInitialized
+                canDeploy: !isLoading && !!signer && isInitialized
               })}
               <button
                 onClick={handleDeploy}
-                disabled={isLoading || !signer || isVerifying || !isInitialized}
-                className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg ${(isLoading || !signer || isVerifying || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
+                disabled={isLoading || !signer || !isInitialized}
+                className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
               >
-                {isLoading ? 'Deploying...' : isVerifying ? 'Verifying...' : !isInitialized ? 'Initializing...' : 'Deploy Contract'}
+                {isLoading
+                  ? 'Deploying…'
+                  : !isInitialized
+                    ? 'Initializing…'
+                    : 'Deploy Contract'}
               </button>
             </>
           ) : (
