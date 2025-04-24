@@ -1,0 +1,142 @@
+{
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "previousValue",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "newValue",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "incrementAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "CounterIncremented",
+    "type": "event"
+},
+{
+    "inputs": [],
+    "name": "getCount",
+    "outputs": [
+        {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "increment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+        }
+    ],
+    "name": "incrementBy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}
+
+\"user_address\": \"0x6D9f7A4E3B2C1a8F5e0D6B9c4A3E8d2F1B5c7D9E\",
+\"stake_amount\": 101,
+\"token_amount\": 111,
+\"task_definition_id\": 1,
+\"priority\": 1,
+\"security\": 1,
+\"time_frame\": 300,
+\"recurring\": false,
+\"time_interval\": 60,
+\"trigger_chain_id\": \"11155420\",
+\"trigger_contract_address\": \"0x49a81A591afdDEF973e6e49aaEa7d76943ef234C\",
+\"trigger_event\": \"CounterIncremented(uint256,uint256,uint256)\",
+\"script_ipfs_url\": \"https://aquamarine-urgent-limpet-846.mypinata.cloud/ipfs/bafkreicimunflmfgplxovjaghko5moubvzacoedhu3bqbcs37ox2ypzgbe\",
+\"script_trigger_function\": \"https://teal-random-koala-993.mypinata.cloud/ipfs/bafkreif426p7t7takzhw3g6we2h6wsvf27p5jxj3gaiynqf22p3jvhx4la\",
+\"target_chain_id\": \"11155420\",
+\"target_contract_address\": \"0x49a81A591afdDEF973e6e49aaEa7d76943ef234C\",
+\"target_function\": \"increment\",
+\"arg_type\": 1,
+\"arguments\": [\"19\"],
+\"script_target_function\": \"checker\",
+\"job_cost_prediction\": 2530
+: 
+arg_type
+: 0
+arguments
+: []
+contractABI
+: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"previousValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"incrementAmount\",\"type\":\"uint256\"}],\"name\":\"CounterIncremented\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"increment\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"incrementBy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+hasABI
+: true
+jobType
+: 1
+job_cost_prediction
+: 144
+priority
+: 1
+recurring
+: true
+script_ipfs_url
+: ""
+script_target_function
+: "trigger"
+script_trigger_function
+: "action"
+security
+: 1
+stake_amount
+: 0
+target_chain_id
+: "11155420"
+target_contract_address
+: "0x49a81A591afdDEF973e6e49aaEa7d76943ef234C"
+target_function
+: "increment()"
+task_definition_id
+: 1
+time_frame
+: 86400
+time_interval
+: 60
+token_amount
+: 0
+trigger_chain_id
+: "11155420"
+trigger_contract_address
+: "NULL"
+trigger_event
+: "NULL"
+user_address
+: "0x28C8568C73E62E42246dFa4a6aAbeCF4Ef497bE3"[
+    [Prototype
+    ]
+]
+: 
+Object
+length
+: 1
+[
+    [Prototype
+    ]
+]
+: 
+Array(0)
