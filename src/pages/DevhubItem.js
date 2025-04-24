@@ -249,9 +249,9 @@ const navigate=useNavigate()
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen md:mt-[17rem] mt-[10rem]">
       <div className="max-w-4xl mx-auto text-center mb-16">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white !leading-[60px]">
+        {/* <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white !leading-[60px]">
           {postData.title}
-        </h1>
+        </h1> */}
         {/* {postData.subtitle && (
           <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed">
             {postData.subtitle}
@@ -409,7 +409,7 @@ const navigate=useNavigate()
         </aside>
 
         {/* Blog Content */}
-        <article className="w-full md:w-3/4 mt-0">
+        <article className="w-full md:w-3/4 mt-2">
           <PortableText
             value={postData.body}
             components={{
