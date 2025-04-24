@@ -552,7 +552,7 @@ const BalanceMaintainerExample = () => {
                     "type": "function"
                   }]),
                   timeframe: { years: 0, months: 0, days: 1 },
-                  timeInterval: { hours: 0, minutes: 1, seconds: 0 }
+                  timeInterval: { hours: 1, minutes: 0, seconds: 0 }
                 }
               })}
               className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"

@@ -57,9 +57,13 @@ export function useTimeManagement() {
 
   return {
     timeframe,
+    setTimeframe,
     timeframeInSeconds,
+    setTimeframeInSeconds,
     timeInterval,
+    setTimeInterval,
     intervalInSeconds,
+    setIntervalInSeconds,
     errorFrame,
     setErrorFrame,
     errorInterval,

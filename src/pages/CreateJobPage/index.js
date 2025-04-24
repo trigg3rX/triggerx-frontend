@@ -13,7 +13,7 @@ import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { Toaster, toast } from "react-hot-toast";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 
 import timeBasedIcon from "../../assets/time-based.gif";
@@ -117,8 +117,79 @@ const options = [
   },
 ];
 
+function extractFunctions(abi) {
+  // console.log("Extracting functions from ABI:", abi); // Optional logging
+  try {
+    let abiArray;
+    if (typeof abi === "string") {
+      try {
+        abiArray = JSON.parse(abi);
+      } catch (e) {
+        // console.error("Invalid ABI string format for extraction:", e); // Optional logging
+        // If parsing fails but it's a non-empty string, maybe it's just bad JSON?
+        // Return empty for safety if parsing fails.
+        return [];
+        // throw new Error("Invalid ABI string format");
+      }
+    } else if (Array.isArray(abi)) {
+      abiArray = abi;
+    } else if (abi && typeof abi === 'object' && !Array.isArray(abi)) {
+       // Handle cases where ABI might be passed as a single object instead of array
+       // This might happen if the JSON string was just '{}'
+       // Or if the location.state accidentally passed an object directly
+       // Check if it looks like an ABI entry
+       if (abi.type && abi.name) {
+         abiArray = [abi];
+       } else {
+          // console.warn("Received non-array, non-string ABI object, attempting to treat as array:", abi);
+          // Try to be lenient if possible, otherwise return empty
+          abiArray = Array.isArray(Object.values(abi)) ? Object.values(abi) : [];
+       }
+    }
+     else {
+       // console.warn("ABI is not an array, object, or valid JSON string:", abi);
+      // throw new Error("ABI must be an array, object, or valid JSON string");
+      return []; // Return empty if type is unexpected
+    }
+
+    // Ensure abiArray is actually an array before filtering
+    if (!Array.isArray(abiArray)) {
+       // console.error("Processed ABI is not an array:", abiArray);
+      // throw new Error("Processed ABI is not an array");
+       return [];
+    }
+
+    const functions = abiArray
+      .filter(
+        (item) =>
+          item && // Check if item exists
+          item.type === "function" &&
+          (item.stateMutability === "nonpayable" || // Filter for writable
+           item.stateMutability === "payable")
+      )
+      .map((func) => ({
+        name: func.name || "unnamed",
+        // Ensure inputs/outputs are arrays even if missing in source ABI
+        inputs: Array.isArray(func.inputs) ? func.inputs : [],
+        outputs: Array.isArray(func.outputs) ? func.outputs : [],
+        stateMutability: func.stateMutability || "nonpayable", // Default stateMut.
+        // Optional fields, provide defaults if needed
+        payable: func.payable === true, // Ensure boolean
+        constant: func.constant === true, // Ensure boolean
+      }));
+
+    // console.log("Extracted writable functions:", functions); // Optional logging
+    return functions;
+  } catch (error) {
+    console.error("Error processing ABI:", error, "Input ABI:", abi);
+    return []; // Return empty array on error
+  }
+}
+
+
 function CreateJobPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedNetwork, setSelectedNetwork] = useState(
     supportedNetworks[0].name
   );
@@ -136,33 +207,7 @@ function CreateJobPage() {
   const [recurring, setRecurring] = useState(false);
   const baseUrl = 'https://app.triggerx.network';
 
-  // Add location state logging and set values
-  useEffect(() => {
-    if (location.state) {
-      console.log('State passed from BalanceMaintainer:', {
-        jobType: location.state.jobType,
-        contractAddress: location.state.contractAddress,
-        abi: location.state.abi,
-        timeframe: location.state.timeframe,
-        timeInterval: location.state.timeInterval
-      });
 
-      // Set job type if passed
-      if (location.state.jobType) {
-        setJobType(Number(location.state.jobType));
-      }
-        setContractDetails(prev => ({
-          ...prev,
-          [location.state.jobType]: {
-            main: {
-              ...prev[location.state.jobType]?.main,
-              contractAddress: location.state.contractAddress,
-              contractABI: location.state.abi
-            }
-          }
-        }));
-    }
-  }, [location.state]);
 
   useEffect(() => {
     // Update meta tags when activeTab changes
@@ -383,6 +428,107 @@ function CreateJobPage() {
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
 
+  useEffect(() => {
+    if (location.state) {
+      console.log('Received state from previous page:', location.state);
+
+      const {
+        jobType: incomingJobType,
+        contractAddress: incomingContractAddress,
+        abi: incomingAbiString,
+        timeframe: incomingTimeframe,
+        timeInterval: incomingTimeInterval
+      } = location.state;
+
+      // 1. Set Job Type
+      if (incomingJobType !== undefined) {
+        setJobType(Number(incomingJobType)); // Ensure it's a number
+      }
+
+      // 2. Set Timeframe and recalculate seconds
+      if (incomingTimeframe) {
+        setTimeframe(incomingTimeframe);
+        const tfSeconds = (incomingTimeframe.years * 31536000) +
+                          (incomingTimeframe.months * 2592000) + 
+                          (incomingTimeframe.days * 86400);
+        setTimeframeInSeconds(tfSeconds);
+        setErrorFrame(""); // Clear any previous errors
+      }
+
+      // 3. Set Time Interval (only if jobType is 1) and recalculate seconds
+      // Check the actual incomingJobType value
+      if (Number(incomingJobType) === 1 && incomingTimeInterval) {
+        setTimeInterval(incomingTimeInterval);
+        // Recalculate intervalInSeconds based on the incoming object
+        const tiSeconds = (incomingTimeInterval.hours * 3600) +
+                          (incomingTimeInterval.minutes * 60) +
+                          incomingTimeInterval.seconds;
+        setIntervalInSeconds(tiSeconds);
+        setErrorInterval(""); // Clear any previous errors
+      } else {
+          // If job type is not 1, reset time interval (optional, depends on desired behavior)
+          // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
+          // setIntervalInSeconds(0);
+      }
+
+      // 4. Set Contract Details (Address and ABI) for the 'main' job
+      // We use the incomingJobType directly here to ensure the key is correct
+      if (incomingContractAddress && incomingAbiString && incomingJobType !== undefined) {
+
+        const extractedFunctions = extractFunctions(incomingAbiString);
+
+        // Update the contractDetails state for the specific job type's 'main' entry
+        // Using functional update ensures we're working with the latest state
+        setContractDetails(prevDetails => {
+            const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
+
+            // Prepare the 'main' details object
+            const newMainDetails = {
+              // Keep existing 'main' details if any, and overwrite specific fields
+              ...(prevDetails[currentJobTypeKey]?.main || {}),
+              contractAddress: incomingContractAddress,
+              contractABI: incomingAbiString,
+              // Reset functions/target as ABI/Address is new
+              // The ContractDetails component should re-evaluate based on these changes
+              functions: extractedFunctions,
+              targetFunction: "",
+              // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
+              // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
+              argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
+              argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
+              ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
+            };
+
+            // Return the updated state object
+            return {
+              ...prevDetails,
+              [currentJobTypeKey]: {
+                // Preserve other potential keys (like linked jobs) if they exist
+                ...(prevDetails[currentJobTypeKey] || {}),
+                main: newMainDetails, // Set the updated 'main' details
+              },
+            };
+        });
+      }
+
+      // This prevents the form from being re-filled if the user navigates back and forth
+      // or refreshes the page. Use with caution if you need the state for other purposes.
+      navigate('.', { replace: true, state: null });
+
+    }
+  }, [
+      location.state,
+      setJobType,
+      setTimeframe,
+      setTimeframeInSeconds, // Add dependency
+      setTimeInterval,
+      setIntervalInSeconds, // Add dependency
+      setContractDetails,
+      setErrorFrame, // Add dependency
+      setErrorInterval, // Add dependency
+      navigate // Add dependency if using navigate to clear state
+  ]);
+
   const handleContractDetailChange = (jobType, jobKey, field, value) => {
     setContractDetails((prevDetails) => ({
       ...prevDetails,
@@ -396,23 +542,31 @@ function CreateJobPage() {
     }));
   };
 
-  // Ensure jobType exists in contractDetails on jobType change
-  useEffect(() => {
 
-    setContractDetails((prevDetails) => ({
-      ...prevDetails,
-      [jobType]: prevDetails[jobType] || {
-        main: {
-          contractAddress: "",
-          contractABI: "",
-          functions: [],
-          targetFunction: "",
-          argumentType: "static",
-          argsArray: [],
-          ipfsCodeUrl: "",
-        },
-      },
-    }));
+
+  useEffect(() => {
+    setContractDetails((prevDetails) => {
+      // Only initialize if the entry for the *current* jobType doesn't exist yet.
+      // The location.state useEffect might have already created it.
+      if (!prevDetails[jobType]) {
+        return {
+          ...prevDetails,
+          [jobType]: {
+            main: {
+              contractAddress: "",
+              contractABI: "",
+              functions: [],
+              targetFunction: "",
+              argumentType: "static",
+              argsArray: [],
+              ipfsCodeUrl: "",
+            },
+          },
+        };
+      }
+      // If it already exists (potentially from location.state), just return the previous details.
+      return prevDetails;
+    });
   }, [jobType]);
 
   const eventContractInteraction = useContractInteraction("job-3");
@@ -656,15 +810,7 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
-  // Set timeframe and timeInterval when passed from state
-  useEffect(() => {
-    if (location.state?.timeframe) {
-      const { years, months, days } = location.state.timeframe;
-      handleTimeframeChange('years', years);
-      handleTimeframeChange('months', months);
-      handleTimeframeChange('days', days);
-    }
-  }, []);
+  
 
   
 
