@@ -15,6 +15,7 @@ export function useJobCreation() {
   const [userBalance, setUserBalance] = useState(0);
   const [estimatedFeeInGwei, setEstimatedFeeInGwei] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const [codeUrls, setCodeUrls] = useState([]);
@@ -179,6 +180,7 @@ export function useJobCreation() {
     stakeRegistryABI,
     jobdetails
   ) => {
+    setIsSubmitting(true);
     if (!jobType) {
       toast.error("Please fill in all required fields");
       return;
@@ -295,6 +297,8 @@ export function useJobCreation() {
     } catch (error) {
       console.error("Error creating job:", error);
       toast.error("Error creating job: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -335,6 +339,7 @@ export function useJobCreation() {
     estimateFee,
     handleSubmit,
     handleStake,
+    isSubmitting,
     scriptFunction,
     handleScriptFunctionChange,
     userBalance,
