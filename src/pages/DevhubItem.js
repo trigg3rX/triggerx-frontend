@@ -294,8 +294,8 @@ const navigate=useNavigate()
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-around">
-          <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max mx-auto flex items-center justify-center">
+          <div className="flex justify-center gap-4">
+          <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
             <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
             <a
@@ -307,15 +307,19 @@ const navigate=useNavigate()
               Open Github
             </a>
           </div>
-          <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max mx-auto flex items-center justify-center">
+          <div  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
             <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
             <div
               
               className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
             >
-              <FaGithub className="mr-2" />
-             Deploy contract
+              <a
+              href={'/main'}
+              target="blank"
+              className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+            >
+             🛠️ In Progress</a>
             </div>
           </div>
           </div>
