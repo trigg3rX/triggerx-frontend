@@ -335,8 +335,17 @@ export function ContractDetails({
               id="manualABI"
               value={manualABI}
               onChange={handleManualABIChange}
-              placeholder="Enter contract ABI manually (JSON format)"
-              className="text-xs xs:text-sm sm:text-base w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none min-h-[100px]"
+              placeholder={`Enter contract ABI manually (JSON format), e.g.
+[
+  {
+    "inputs": [],
+    "name": "functionName",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]`}
+              className="text-xs xs:text-sm sm:text-base w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none min-h-[260px]"
             />
             <p className="text-xs text-gray-400 mt-2">
               Enter the contract ABI in JSON format if automatic fetch fails

@@ -522,6 +522,15 @@ const BalanceMaintainerExample = () => {
             {!isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed   </p>
+                {console.log('Button State:', {
+                isDeployed,
+                isLoading,
+                hasSigner: !!signer,
+                isVerifying,
+                isInitialized,
+                canDeploy: !isLoading && !!signer && !isVerifying && isInitialized
+              })}
+             
                 <button
                 onClick={handleDeploy}
                 disabled={isLoading || !signer || isVerifying || !isInitialized}
@@ -596,8 +605,8 @@ const BalanceMaintainerExample = () => {
         <div className=" p-4 rounded-lg mb-6 min-h-[40vh]">
           <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
           <div className="overflow-x-auto w-full">
-  <table className="w-full min-w-full">
-    <thead className="bg-[#303030]">
+          <table className="w-full min-w-full border-separate border-spacing-y-2 md:border-spacing-y-4">
+          <thead className="bg-[#303030]">
       <tr>
         <th className="px-2 sm:px-4 md:px-6 py-3 text-left text-white rounded-tl-lg rounded-bl-lg w-3/5">Address</th>
         <th className="px-2 sm:px-4 md:px-6 py-3 text-left text-white w-1/5">Current Balance</th>
@@ -618,7 +627,7 @@ const BalanceMaintainerExample = () => {
               <span className="block truncate">{item.address}</span>
             </td>
             <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
-              <span className="px-2 sm:px-4 py-1 bg-[#4CAF50] text-white rounded whitespace-nowrap">
+              <span className="px-2 sm:px-4 py-2 bg-[#4CAF50] text-white rounded whitespace-nowrap text-sm">
                 {item.currentBalance} ETH
               </span>
             </td>
@@ -635,31 +644,31 @@ const BalanceMaintainerExample = () => {
 </div>
         </div>
 
-        {/* Deploy Button */}
-        <div className="flex justify-center">
-        {isDeployed && (
-  <button
-    onClick={() => navigate('/', {
-      state: {
-        jobType: 1, // Time-based trigger
-        contractAddress: contractAddress,
-        abi: JSON.stringify([{
-          "inputs": [],
-          "name": "maintainBalances",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }]),
-        timeframe: { years: 0, months: 0, days: 1 },
-        timeInterval: { hours: 0, minutes: 1, seconds: 0 }
-      }
-    })}
-    className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
-  >
-    Create Job
-  </button>
-)}
-        </div>
+       {/* Deploy Button */}
+<div className="flex justify-center">
+  {isDeployed && (
+    <button
+      onClick={() => navigate('/', {
+        state: {
+          jobType: 1, // Time-based trigger
+          contractAddress: contractAddress,
+          abi: JSON.stringify([{
+            "inputs": [],
+            "name": "maintainBalances",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }]),
+          timeframe: { years: 0, months: 0, days: 1 },
+          timeInterval: { hours: 1, minutes: 0, seconds: 0 }
+        }
+      })}
+      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
+    >
+      Create Job
+    </button>
+  )}
+</div>
       </div>
     </div>
   );
