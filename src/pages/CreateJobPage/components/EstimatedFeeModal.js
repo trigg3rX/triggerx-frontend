@@ -16,6 +16,7 @@ export function EstimatedFeeModal({
   steps,
   onClose,
   estimatedFee,
+  isSubmitting,
   userBalance,
   onStake,
 }) {
@@ -295,6 +296,10 @@ export function EstimatedFeeModal({
     onStake();
   };
 
+  const isFeeInvalid = !estimatedFee || estimatedFee <= 0;
+
+  const isDisabled = isSubmitting || isFeeInvalid;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -441,14 +446,15 @@ export function EstimatedFeeModal({
             {hasEnoughBalance ? (
               <button
                 onClick={handleStake} // Use handleStake
+                disabled={isDisabled}
                 // disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
                 className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  !estimatedFee || estimatedFee <= 0
+                  isDisabled
                     ? "bg-gray-400 text-gray-700 " // Disabled styles
                     : "bg-white text-black" // Enabled styles
                 }`}
               >
-                Next
+                {isSubmitting ? "Processing..." : "Next"}
               </button>
             ) : (
               <button
