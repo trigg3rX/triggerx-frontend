@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from 'ethers';
 import Modal from "react-modal";
+// import dotenv from 'dotenv';
 
-import BalanceMaintainerFactory from '../artifacts/BalanceMaintainerFactory.json';
+// dotenv.config();
+
+import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 
-const FACTORY_ADDRESS = '0x734794fCB7f52e945DE37F07d414Cfb05fCd38D5';
+const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
+const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 // transaction modal
 
@@ -16,9 +20,9 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
   const { amount, networkFee, speed, contractAddress, contractMethod } = transactionDetails;
   
   return (
-<Modal
+    <Modal
       isOpen={isOpen}
-      onRequestClose={onClose} // Use handleClose
+      onRequestClose={onClose}
       contentLabel="Estimate Fee"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
@@ -27,32 +31,25 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
         
         <div className="space-y-6">
           <div className="bg-[#1E1E1E] p-4 rounded-lg">
-            
-            
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <span>Interacting with</span>
-                
               </div>
               <div className="flex items-center">
-                
                 <span className="text-sm truncate max-w-[180px]">{contractAddress}</span>
               </div>
             </div>
           </div>
           
-          
-          
           <div className="bg-[#1E1E1E] p-4 rounded-lg">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center">
                 <span>Network fee</span>
-                
               </div>
               <div className="flex justify-between items-center">
-              <span>Amount</span>
-              <span>{amount} ETH</span>
-            </div>
+                <span>Amount:&nbsp;</span>
+                <span>{amount} ETH</span>
+              </div>
             </div>
             
             <div className="flex justify-between items-center">
@@ -70,7 +67,7 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
           <div className="bg-[#1E1E1E] p-4 rounded-lg">
             <div className="flex justify-between items-center">
               <span>Contract Method</span>
-              <span className="text-gray-300">{contractMethod}</span>
+              <span className="text-gray-300 text-right">{contractMethod}</span>
             </div>
           </div>
         </div>
@@ -79,12 +76,13 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
           <button 
             onClick={onClose}
             className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
-            >
+          >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}          >
+            className="flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black"
+          >
             Confirm
           </button>
         </div>
@@ -92,32 +90,33 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
   );
 };
 
-const BalanceMaintainerExample = () => {
-  const navigate = useNavigate();
-  const [address, setAddress] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const BalanceMaintainerExample = () => {
+    const navigate = useNavigate();
+    const [address, setAddress] = useState("");
+    const [showModal, setShowModal] = useState(false);
 
-  const [chainId, setChainId] = useState(null);
-  const [isDeployed, setIsDeployed] = useState(false);
-  const [contractAddress, setContractAddress] = useState("");
-  const [newAddress, setNewAddress] = useState("");
-  const [newBalance, setNewBalance] = useState("");
-  const [addresses, setAddresses] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [contractBalance, setContractBalance] = useState("0");
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
-  const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+    const [chainId, setChainId] = useState(null);
+    const [isDeployed, setIsDeployed] = useState(false);
+    const [contractAddress, setContractAddress] = useState("");
+    const [newAddress, setNewAddress] = useState("");
+    const [newBalance, setNewBalance] = useState("");
+    const [addresses, setAddresses] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [contractBalance, setContractBalance] = useState("0");
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
-  const transactionDetails = {
-    amount: "0.02",
-    networkFee: "$0.01",
-    speed: "2 sec",
-    contractAddress: "0x73479...d38D5",
-    contractMethod: "maintainBalances()"
-  };
+    // Remove the static transaction details and make it dynamic
+    const [transactionDetails, setTransactionDetails] = useState({
+      amount: "",
+      networkFee: "",
+      speed: "",
+      contractAddress: "",
+      contractMethod: ""
+    });
 
   // Initialize provider and signer
   useEffect(() => {
@@ -215,23 +214,36 @@ const BalanceMaintainerExample = () => {
     if (!provider || !userAddress) return;
 
     try {
+      // Create factory contract instance
       const factoryContract = new ethers.Contract(
         FACTORY_ADDRESS,
-        BalanceMaintainerFactory.abi,
+        TriggerXTemplateFactory.abi,
         provider
       );
 
-      const userContracts = await factoryContract.getUserContracts(userAddress);
-      if (userContracts && userContracts.length > 0) {
-        setContractAddress(userContracts[0]);
-        setIsDeployed(true);
-        fetchContractData(provider, userContracts[0]);
-      } else {
-        setIsDeployed(false);
-        setContractAddress("");
+      // Get proxy address for the user and implementation
+      const proxyAddress = await factoryContract.getProxyAddress(
+        userAddress,
+        BALANCEMAINTAINER_IMPLEMENTATION
+      );
+
+      // Check if proxy exists and is not zero address
+      if (proxyAddress && proxyAddress !== ethers.ZeroAddress) {
+        // Verify the proxy contract exists
+        const proxyCode = await provider.getCode(proxyAddress);
+        if (proxyCode !== '0x') {
+          setContractAddress(proxyAddress);
+          setIsDeployed(true);
+          await fetchContractData(provider, proxyAddress);
+          return;
+        }
       }
+
+      // If we get here, no valid proxy exists
+      setIsDeployed(false);
+      setContractAddress("");
     } catch (error) {
-      console.error("Error checking user contracts:", error);
+      console.error("Error checking existing contract:", error);
       setIsDeployed(false);
       setContractAddress("");
     }
@@ -307,11 +319,91 @@ const BalanceMaintainerExample = () => {
     }
   };
 
-  const handleDeploy = () => {
-    setShowModal(true);
+  const handleDeploy = async () => {
+    if (!signer || !provider) {
+      setError("Please connect your wallet first");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // First check if a proxy already exists
+      const factoryContract = new ethers.Contract(
+        FACTORY_ADDRESS,
+        TriggerXTemplateFactory.abi,
+        provider
+      );
+
+      const existingProxy = await factoryContract.getProxyAddress(
+        address,
+        BALANCEMAINTAINER_IMPLEMENTATION
+      );
+
+      if (existingProxy && existingProxy !== ethers.ZeroAddress) {
+        const proxyCode = await provider.getCode(existingProxy);
+        if (proxyCode !== '0x') {
+          setError("A proxy contract already exists for this address");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // If no existing proxy, proceed with deployment
+      const code = await provider.getCode(FACTORY_ADDRESS);
+      if (code === '0x') {
+        throw new Error(`Factory contract not found at ${FACTORY_ADDRESS}`);
+      }
+
+      // Get current gas price
+      const feeData = await provider.getFeeData();
+      if (!feeData || !feeData.gasPrice) {
+        throw new Error("Could not estimate gas price");
+      }
+
+      // Estimate gas for the deployment
+      const gasEstimate = await factoryContract.createProxy.estimateGas(
+        BALANCEMAINTAINER_IMPLEMENTATION,
+        { value: ethers.parseEther('0.02') }
+      );
+
+      // Calculate total cost
+      const deploymentCost = ethers.parseEther('0.02');
+      const gasCost = feeData.gasPrice * gasEstimate;
+      const totalCost = deploymentCost + gasCost;
+
+      // Check if user has enough balance
+      const userBalance = await provider.getBalance(address);
+      if (userBalance < totalCost) {
+        throw new Error(`Insufficient balance. Required: ${ethers.formatEther(totalCost)} ETH`);
+      }
+
+      // Update transaction details with actual values
+      setTransactionDetails({
+        amount: ethers.formatEther(deploymentCost),
+        networkFee: ethers.formatEther(gasCost),
+        speed: "~15 seconds",
+        contractAddress: FACTORY_ADDRESS,
+        contractMethod: "createProxy(address implementation)"
+      });
+
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error preparing deployment:", error);
+      if (error.message.includes("insufficient funds")) {
+        setError("Insufficient funds to deploy contract");
+      } else if (error.message.includes("Factory contract not found")) {
+        setError("Factory contract not found on this network");
+      } else if (error.code === 'NETWORK_ERROR') {
+        setError("Network error. Please check your connection");
+      } else {
+        setError(error.message || "Failed to prepare deployment. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleConfirm  = async () => {
+  const handleConfirm = async () => {
     setShowModal(false);
 
     if (!signer || !address) return;
@@ -330,7 +422,7 @@ const BalanceMaintainerExample = () => {
       // Create factory contract instance
       const factoryContract = new ethers.Contract(
         FACTORY_ADDRESS,
-        BalanceMaintainerFactory.abi,
+        TriggerXTemplateFactory.abi,
         signer
       );
 
@@ -351,18 +443,18 @@ const BalanceMaintainerExample = () => {
         throw new Error(`Insufficient balance. Required: ${ethers.formatEther(requiredBalance)} ETH, Current: ${ethers.formatEther(balance)} ETH`);
       }
 
-      // Attempt deployment
-      const tx = await factoryContract.createBalanceMaintainer({
+      // Deploy proxy through factory
+      const tx = await factoryContract.createProxy(BALANCEMAINTAINER_IMPLEMENTATION, {
         value: ethers.parseEther('0.02')
       });
 
       const receipt = await tx.wait();
 
-      // Get the deployed contract address from the event
+      // Get the deployed proxy address from the event
       const event = receipt.logs.find(log => {
         try {
           const parsedLog = factoryContract.interface.parseLog(log);
-          return parsedLog && parsedLog.name === 'BalanceMaintainerDeployed';
+          return parsedLog && parsedLog.name === 'ProxyDeployed';
         } catch (e) {
           return false;
         }
@@ -370,12 +462,12 @@ const BalanceMaintainerExample = () => {
 
       if (event) {
         const parsedLog = factoryContract.interface.parseLog(event);
-        const deployedAddress = parsedLog.args.balanceMaintainer;
-        setContractAddress(deployedAddress);
+        const proxyAddress = parsedLog.args.proxy;
+        setContractAddress(proxyAddress);
         setIsDeployed(true);
 
         // Set initial balance for owner
-        await setInitialBalance(deployedAddress);
+        await setInitialBalance(proxyAddress);
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
@@ -430,24 +522,22 @@ const BalanceMaintainerExample = () => {
           <div className="text-[#A2A2A2] space-y-2">
             {!isDeployed ? (
               <>
-                <p className="pb-2">Status: Not Deployed   </p>
-                {console.log('Button State:', {
-                isDeployed,
-                isLoading,
-                hasSigner: !!signer,  
-                isInitialized,
-                canDeploy: !isLoading && !!signer && !isInitialized
-              })}
-             
+                <p className="pb-2">Status: Not Deployed</p>
+                {error && (
+                  <p className="text-red-500 mb-4">
+                    {error}
+                  </p>
+                )}
                 <button
-                onClick={handleDeploy}
-                disabled={isLoading || !signer || !isInitialized}
-                className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg  transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
-              >
-                {isLoading ? 'Deploying...' : '   🛠️ Deploy Contract'}
-              </button>
-             
-          </>
+                  onClick={handleDeploy}
+                  disabled={isLoading || !signer || !isInitialized}
+                  className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${
+                    (isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  {isLoading ? 'Preparing Deployment...' : '🛠️ Deploy Contract'}
+                </button>
+              </>
             ) : (
               <>
                 <p className="text-white">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
@@ -560,20 +650,16 @@ const BalanceMaintainerExample = () => {
         state: {
           jobType: 1, // Time-based trigger
           contractAddress: contractAddress,
-          abi: JSON.stringify([{
-            "inputs": [],
-            "name": "maintainBalances",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          }]),
           timeframe: { years: 0, months: 0, days: 1 },
           timeInterval: { hours: 1, minutes: 0, seconds: 0 }
         }
       })}
-      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
+      disabled={addresses.length === 0}
+      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg ${
+        addresses.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
     >
-      Create Job
+      {addresses.length === 0 ? 'Add Addresses First' : 'Create Job'}
     </button>
   )}
 </div>
