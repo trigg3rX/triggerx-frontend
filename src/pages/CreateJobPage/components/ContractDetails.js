@@ -111,7 +111,7 @@ export function ContractDetails({
   }
 
   const handleContractAddressChange = async (e) => {
-    
+
     const address = e.target.value;
     validateAddress(address);
 
