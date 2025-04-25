@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from 'ethers';
 import Modal from "react-modal";
-
+import toast from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
 import BalanceMaintainerFactory from '../artifacts/BalanceMaintainerFactory.json';
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 
@@ -10,15 +11,13 @@ const FACTORY_ADDRESS = '0x734794fCB7f52e945DE37F07d414Cfb05fCd38D5';
 
 // transaction modal
 
-const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) => {
+const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
   if (!isOpen) return null;
-
-  const { amount, networkFee, speed, contractAddress, contractMethod } = transactionDetails;
 
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onClose} // Use handleClose
+      onRequestClose={onClose}
       contentLabel="Estimate Fee"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
@@ -27,32 +26,25 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
 
       <div className="space-y-6">
         <div className="bg-[#1E1E1E] p-4 rounded-lg">
-
-
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <span>Interacting with</span>
-
             </div>
             <div className="flex items-center">
-
-              <span className="text-sm truncate max-w-[180px]">{contractAddress}</span>
+              <span className="text-sm truncate max-w-[180px]">{modalData.contractAddress}</span>
             </div>
           </div>
         </div>
 
-
-
         <div className="bg-[#1E1E1E] p-4 rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center">
-              <span>Network fee</span>
+            <span>Amount</span>
+            <span className="text-white font-medium">{modalData.amount} ETH</span>
+          </div>
 
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Amount</span>
-              <span>{amount} ETH</span>
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <span>Network fee</span>
+            <span className="text-gray-300">{modalData.networkFee}</span>
           </div>
 
           <div className="flex justify-between items-center">
@@ -62,15 +54,15 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
                 <span className="mr-1">🦊</span>
                 <span>Market</span>
               </div>
-              <span>~{speed}</span>
+              <span>~{modalData.speed}</span>
             </div>
           </div>
         </div>
 
         <div className="bg-[#1E1E1E] p-4 rounded-lg">
           <div className="flex justify-between items-center">
-            <span>Contract Method</span>
-            <span className="text-gray-300">{contractMethod}</span>
+            <span> Method</span>
+            <span className="text-gray-300">{modalData.contractMethod}</span>
           </div>
         </div>
       </div>
@@ -84,7 +76,8 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) =>
         </button>
         <button
           onClick={onConfirm}
-          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}          >
+          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}
+        >
           Confirm
         </button>
       </div>
@@ -96,6 +89,14 @@ const BalanceMaintainerExample = () => {
   const navigate = useNavigate();
   const [address, setAddress] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
+  const [modalData, setModalData] = useState({
+    amount: "0.00",
+    networkFee: "$0.00",
+    speed: "0 sec",
+    contractAddress: "",
+    contractMethod: ""
+  });
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
@@ -111,13 +112,7 @@ const BalanceMaintainerExample = () => {
   const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const transactionDetails = {
-    amount: "0.02",
-    networkFee: "$0.01",
-    speed: "2 sec",
-    contractAddress: "0x73479...d38D5",
-    contractMethod: "maintainBalances()"
-  };
+
 
   // Initialize provider and signer
   useEffect(() => {
@@ -307,16 +302,46 @@ const BalanceMaintainerExample = () => {
     }
   };
 
-  const handleDeploy = () => {
+  const showDeployModal = () => {
+    setModalType("deploy");
+    setModalData({
+      amount: "0.02",
+      networkFee: "$0.01",
+      speed: "2 sec",
+      contractAddress: FACTORY_ADDRESS.substring(0, 7) + "..." + FACTORY_ADDRESS.substring(FACTORY_ADDRESS.length - 5),
+      contractMethod: "createBalanceMaintainer()"
+    });
     setShowModal(true);
   };
 
-  const handleConfirm = async () => {
+  const showAddAddressModal = () => {
+    if (!newAddress || !newBalance) return;
+
+    setModalType("addAddress");
+    setModalData({
+      amount: newBalance,
+      networkFee: "$0.01",
+      speed: "2 sec",
+      contractAddress: contractAddress.substring(0, 7) + "..." + contractAddress.substring(contractAddress.length - 5),
+      contractMethod: "setMultipleAddressesWithBalance()"
+    });
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
     setShowModal(false);
 
+    if (modalType === "deploy") {
+      handleDeploy();
+    } else if (modalType === "addAddress") {
+      handleAddAddress();
+    }
+  };
+
+  const handleDeploy = async () => {
     if (!signer || !address) return;
     setIsLoading(true);
-    setError(null);
+
 
     try {
       // Get current network from provider
@@ -373,6 +398,7 @@ const BalanceMaintainerExample = () => {
         const deployedAddress = parsedLog.args.balanceMaintainer;
         setContractAddress(deployedAddress);
         setIsDeployed(true);
+        toast.success("Contract deployed successfully!");
 
         // Set initial balance for owner
         await setInitialBalance(deployedAddress);
@@ -381,7 +407,17 @@ const BalanceMaintainerExample = () => {
       }
     } catch (err) {
       console.error("Deployment error:", err);
-      setError(err.message || "Failed to deploy contract. Please check your network connection and try again.");
+
+      // Check for user rejection
+      if (err.code === 'ACTION_REJECTED' ||
+        err.code === 4001 ||
+        err.message?.includes("rejected") ||
+        err.message?.includes("denied") ||
+        err.message?.includes("user rejected")) {
+        toast.error("Transaction rejected by user");
+      } else {
+        toast.error("Deployment failed: " + (err.message || "Unknown error"));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -389,6 +425,9 @@ const BalanceMaintainerExample = () => {
 
   const handleAddAddress = async () => {
     if (!signer || !newAddress || !newBalance) return;
+
+    setIsLoading(true);
+
 
     try {
       const contract = new ethers.Contract(
@@ -406,8 +445,22 @@ const BalanceMaintainerExample = () => {
       await fetchContractData(provider, contractAddress);
       setNewAddress("");
       setNewBalance("");
+      toast.success("Address added successfully!");
     } catch (error) {
       console.error("Error adding address:", error);
+
+      // Check for user rejection
+      if (error.code === 'ACTION_REJECTED' ||
+        error.code === 4001 ||
+        error.message?.includes("rejected") ||
+        error.message?.includes("denied") ||
+        error.message?.includes("user rejected")) {
+        toast.error("Transaction rejected by user");
+      } else {
+        toast.error("Failed to add address: " + (error.message || "Unknown error"));
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -420,6 +473,18 @@ const BalanceMaintainerExample = () => {
 
   return (
     <div className="min-h-[90vh] md:mt-[20rem] mt-[10rem]">
+      <Toaster
+        position="center"
+        className="mt-10"
+        toastOptions={{
+          style: {
+            background: "#0a0a0a", // Dark background
+            color: "#fff", // White text
+            borderRadius: "8px",
+            border: "1px gray solid",
+          },
+        }}
+      />
       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
         Deploy Balance Maintainer
       </h1>
@@ -440,11 +505,11 @@ const BalanceMaintainerExample = () => {
                 })}
 
                 <button
-                  onClick={handleDeploy}
+                  onClick={showDeployModal}
                   disabled={isLoading || !signer || !isInitialized}
                   className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg  transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
                 >
-                  {isLoading ? 'Deploying...' : '   🛠️ Deploy Contract'}
+                  {isLoading && modalType === "deploy" ? 'Deploying...' : '   🛠️ Deploy Contract'}
                 </button>
 
               </>
@@ -475,7 +540,8 @@ const BalanceMaintainerExample = () => {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onConfirm={handleConfirm}
-          transactionDetails={transactionDetails}
+          modalType={modalType}
+          modalData={modalData}
         />
 
         <div className="bg-[#303030] p-4 rounded-lg mb-6">
@@ -487,7 +553,7 @@ const BalanceMaintainerExample = () => {
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="Enter wallet address"
               className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg flex-1 ${(!isDeployed) && ' cursor-not-allowed'}`}
-              disabled={!isDeployed || isSettingInitialBalance}
+              disabled={!isDeployed || isSettingInitialBalance || isLoading}
             />
             <input
               type="number"
@@ -497,16 +563,21 @@ const BalanceMaintainerExample = () => {
               className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
               step="0.1"
               min="0"
-              disabled={!isDeployed || isSettingInitialBalance}
+              disabled={!isDeployed || isSettingInitialBalance || isLoading}
             />
             <button
-              onClick={handleAddAddress}
-              disabled={!isDeployed || isSettingInitialBalance}
-              className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg  transition-colors whitespace-nowrap ${(!isDeployed || isSettingInitialBalance) && 'opacity-0.9 cursor-not-allowed'}`}
+              onClick={showAddAddressModal}
+              disabled={!isDeployed || isSettingInitialBalance || isLoading || !newAddress || !newBalance}
+              className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg transition-colors whitespace-nowrap ${(!isDeployed || isSettingInitialBalance || isLoading || !newAddress || !newBalance) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Add Address
+              {isLoading && modalType === "addAddress" ? 'Adding...' : 'Add Address'}
             </button>
           </div>
+          {error && (
+            <div className="mt-4 p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200">
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Addresses Table */}
