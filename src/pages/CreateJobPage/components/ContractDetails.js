@@ -322,7 +322,7 @@ export function ContractDetails({
         </div>
       )}
 
-      {showManualABIInput && (
+      {/* {showManualABIInput && (
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <label
             htmlFor="manualABI"
@@ -352,7 +352,7 @@ export function ContractDetails({
             </p>
           </div>
         </div>
-      )}
+      )} */}
 
       {(contractAddress || manualABI) && !addressError && (
         <>
