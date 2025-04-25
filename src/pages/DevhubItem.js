@@ -315,7 +315,7 @@ function DevhubItem() {
                 className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
               >
                 <a
-                  href={'/main'}
+                  href={'/balance-maintainer'}
                   className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
                 >
                   🛠️ In Progress</a>
@@ -363,8 +363,8 @@ function DevhubItem() {
                         }
                       }}
                       className={`text-xs hover:underline ${activeHeading === pair.h2Heading
-                          ? "text-green-400 font-bold"
-                          : "text-gray-300"
+                        ? "text-green-400 font-bold"
+                        : "text-gray-300"
                         }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
@@ -398,8 +398,8 @@ function DevhubItem() {
                     }
                   }}
                   className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
-                      ? "text-green-400 font-bold"
-                      : "text-gray-300"
+                    ? "text-green-400 font-bold"
+                    : "text-gray-300"
                     }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}

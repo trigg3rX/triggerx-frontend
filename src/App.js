@@ -114,7 +114,7 @@ const App = () => {
                     <Route path="/devhub" element={<Devhub />} />
                     <Route path="/devhub/:slug" element={<DevhubItem />} />
                     <Route path="/api" element={<ApiCreation />} />
-                    <Route path="/main" element={<BalanceMaintainer />} />
+                    <Route path="/balance-maintainer" element={<BalanceMaintainer />} />
 
                     <Route path="*" element={<NotFound />} />
                   </>
