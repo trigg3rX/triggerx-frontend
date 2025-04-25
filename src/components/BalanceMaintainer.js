@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Toaster } from "react-hot-toast";
 import confetti from 'canvas-confetti';
 import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
+import { Tooltip } from "antd";
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
@@ -91,6 +92,7 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
 const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkName }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
   const confettiCanvasRef = React.useRef(null);
 
   // Function to play confetti inside modal
@@ -142,6 +144,24 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
     }
   };
 
+  // Function to truncate address
+  const truncateAddress = (addr) => {
+    if (!addr) return "";
+    return `${addr.substring(0, 7)}...${addr.substring(addr.length - 15)}`;
+  };
+
+  // Function to copy address and update icon
+  const copyAddressToClipboard = () => {
+    navigator.clipboard.writeText(address)
+      .then(() => {
+        toast.success("Address copied to clipboard!");
+        setCopied(true);
+        // Reset the copied state after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => toast.error("Failed to copy address"));
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -189,8 +209,23 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
 
               <div className="mb-4">
                 <span className="text-gray-400">Your Address</span>
-                <div className="mt-1 flex items-center">
-                  <span className="text-white font-medium break-all">{address}</span>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-white font-medium">{truncateAddress(address)}</span>
+                  <button
+                    onClick={copyAddressToClipboard}
+                    className="text-white bg-[#303030] hover:bg-[#404040] p-1 rounded-md"
+                    title="Copy address"
+                  >
+                    {copied ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -202,12 +237,7 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
               </div>
             </div>
 
-            <div className="bg-[#1E1E1E] p-4 rounded-lg">
-              <div className="text-gray-300 text-sm">
-                <p>Note: This will open your wallet to confirm the transaction.</p>
-                <p className="mt-2">These tokens are for testing purposes only and have no real value.</p>
-              </div>
-            </div>
+
           </div>
 
           <div className="mt-8 flex justify-between gap-5">
@@ -275,97 +305,7 @@ const BalanceMaintainerExample = () => {
 
 
 
-  // Initialize provider and signer
-  useEffect(() => {
-    const initProvider = async () => {
-      if (window.ethereum) {
-        try {
-          // Request account access if needed
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-          const provider = new ethers.BrowserProvider(window.ethereum);
-          const signer = await provider.getSigner();
-          const address = await signer.getAddress();
-
-          // Get network with error handling
-          let network;
-          try {
-            network = await provider.getNetwork();
-          } catch (error) {
-            console.warn("Error getting network:", error);
-            // Default to Optimism Sepolia if network fetch fails
-            network = { chainId: 11155420 };
-          }
-
-          setProvider(provider);
-          setSigner(signer);
-          setAddress(address);
-          setChainId(network.chainId);
-          setIsInitialized(true);
-
-          // Listen for account changes
-          window.ethereum.on('accountsChanged', async (accounts) => {
-            if (accounts.length === 0) {
-              setAddress("");
-              setSigner(null);
-              setIsDeployed(false);
-              setContractAddress("");
-            } else {
-              try {
-                const signer = await provider.getSigner();
-                setSigner(signer);
-                setAddress(accounts[0]);
-                // Check for existing contract when account changes
-                checkExistingContract(provider, accounts[0]);
-              } catch (error) {
-                console.error("Error handling account change:", error);
-              }
-            }
-          });
-
-          // Listen for chain changes
-          window.ethereum.on('chainChanged', async (chainId) => {
-            try {
-              // Convert chainId from hex to decimal
-              const newChainId = parseInt(chainId, 16);
-              setChainId(newChainId);
-
-              // Wait a bit for the network to stabilize
-              await new Promise(resolve => setTimeout(resolve, 1000));
-
-              // Check for existing contract when chain changes
-              if (address) {
-                checkExistingContract(provider, address);
-              }
-            } catch (error) {
-              console.error("Error handling chain change:", error);
-            }
-          });
-        } catch (error) {
-          console.error("Error initializing provider:", error);
-          // Reset states if initialization fails
-          setProvider(null);
-          setSigner(null);
-          setAddress("");
-          setChainId(null);
-          setIsInitialized(false);
-        }
-      } else {
-        console.error("MetaMask not found");
-        setIsInitialized(false);
-      }
-    };
-
-    initProvider();
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeAllListeners('accountsChanged');
-        window.ethereum.removeAllListeners('chainChanged');
-      }
-    };
-  }, []);
-
+ 
   // Check for existing contract
   const checkExistingContract = async (provider, userAddress) => {
     if (!provider || !userAddress) return;
@@ -712,31 +652,35 @@ const BalanceMaintainerExample = () => {
 
   // Modified confirmClaim function
   const confirmClaim = async () => {
-    // For testing confetti, just return true without doing the transaction
-    return true;
-
-    // Comment out the real implementation below for testing
-    /*
     try {
-      if (!signer || !address) {
-        return toast.error('Wallet not connected. Please connect your wallet first.');
+      // Check if wallet is connected
+      if (!address) {
+        toast.error('Wallet not connected. Please connect your wallet first.');
+        throw new Error('Wallet not connected');
       }
 
-      // This simulates a MetaMask popup by sending a small transaction
-      // In a real application, this would come from a faucet contract or backend
-      const tx = await signer.sendTransaction({
-        to: address,
-        // Send a very small amount just to trigger MetaMask
-        // In a real faucet app, this would send the full claim amount
-        value: ethers.parseEther('0.0001'),
-        // Adding data to make it look like a faucet transaction
-        data: ethers.toUtf8Bytes('Claim ETH from TriggerX Faucet')
+      // Call the backend API to send ETH to the user's wallet
+      const response = await fetch('https://api.triggerx.xyz/claim-eth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address: address,
+          amount: claimAmount,
+          network: chainId ? chainId.toString() : '11155420'
+        }),
       });
 
-      // Wait for the transaction to be mined
-      await tx.wait();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to claim ETH');
+      }
 
-      // Refresh balance after claiming
+      const data = await response.json();
+      console.log('Claim successful:', data);
+
+      // Update balance after claiming
       setTimeout(() => {
         if (provider && address) {
           checkBalanceSufficiency();
@@ -747,20 +691,16 @@ const BalanceMaintainerExample = () => {
     } catch (error) {
       console.error('Claim error:', error);
 
-      // Check for user rejection
-      if (error.code === 'ACTION_REJECTED' ||
-        error.code === 4001 ||
-        error.message?.includes("rejected") ||
-        error.message?.includes("denied") ||
-        error.message?.includes("user rejected")) {
-        toast.error('Transaction was rejected in your wallet');
+      // Check if it's a user rejection from the API
+      if (error.message?.includes("rejected") ||
+        error.message?.includes("denied")) {
+        toast.error('Transaction was rejected');
       } else {
-        toast.error('Failed to claim ETH');
+        toast.error(error.message || 'Failed to claim ETH');
       }
 
       throw error; // propagate error to modal
     }
-    */
   };
 
   // Get network name for display
@@ -788,9 +728,13 @@ const BalanceMaintainerExample = () => {
           },
         }}
       />
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4 mb-6 ">
         Deploy Balance Maintainer
       </h1>
+      <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed text-center">
+        Set up your automated blockchain tasks with precise conditions and
+        parameters.
+      </h4>
       <div className="bg-[#141414] rounded-lg max-w-[1600px] mx-auto w-[95%] sm:w-[85%] px-3 sm:px-5 py-6 mt-4 my-8 sm:my-12">
         {/* Contract Info Section */}
         <div className="p-4 rounded-lg mb-6">
@@ -809,22 +753,37 @@ const BalanceMaintainerExample = () => {
                 })}
 
                 <div className="flex flex-wrap gap-4">
-                  <button
-                    onClick={showDeployModal}
-                    disabled={isLoading || !signer || !isInitialized}
-                    className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
-                  >
-                    {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
-                  </button>
+                  <Tooltip color="#2A2A2A"
+                    title={
 
-                  {!hasSufficientBalance && (
+                      !hasSufficientBalance ? " Insufficient ETH balance" :
+                        ""}
+                    open={(isLoading || !signer || !isInitialized || !hasSufficientBalance) ? undefined : false}
+                  >
+                    <button
+                      onClick={showDeployModal}
+                      disabled={isLoading || !signer || !isInitialized || !hasSufficientBalance}
+                      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
+                    >
+                      {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
+                    </button>
+                  </Tooltip>
+
+
+                  <Tooltip
+                    color="#2A2A2A"
+                    title={hasSufficientBalance ? " Sufficient ETH balance" : ""}
+                    open={hasSufficientBalance ? undefined : false}
+                  >
                     <button
                       onClick={handleClaim}
-                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
+                      disabled={isLoading}
+                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance && 'opacity-50 cursor-not-allowed'}`}
                     >
                       💰 Claim ETH
                     </button>
-                  )}
+                  </Tooltip>
+
                 </div>
               </>
             ) : (
@@ -875,7 +834,7 @@ const BalanceMaintainerExample = () => {
               type="text"
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
-              placeholder="Enter wallet address"
+              placeholder="Enter wallet address where you maintain your funds"
               className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg flex-1 ${(!isDeployed) && ' cursor-not-allowed'}`}
               disabled={!isDeployed || isSettingInitialBalance || isLoading}
             />
@@ -935,7 +894,7 @@ const BalanceMaintainerExample = () => {
                         </span>
                       </td>
                       <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5 rounded-tr-lg rounded-br-lg">
-                        <span className="px-2 sm:px-4 py-1 bg-[#F8FF7C] text-black rounded whitespace-nowrap">
+                        <span className="px-2 sm:px-4 py-2 bg-[#C07AF6] text-white rounded whitespace-nowrap text-sm">
                           {item.minimumBalance} ETH
                         </span>
                       </td>
@@ -950,27 +909,29 @@ const BalanceMaintainerExample = () => {
         {/* Deploy Button */}
         <div className="flex justify-center">
           {isDeployed && (
-            <button
-              onClick={() => navigate('/', {
-                state: {
-                  jobType: 1, // Time-based trigger
-                  contractAddress: contractAddress,
-                  abi: JSON.stringify([{
-                    "inputs": [],
-                    "name": "maintainBalances",
-                    "outputs": [],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                  }]),
-                  timeframe: { years: 0, months: 0, days: 1 },
-                  timeInterval: { hours: 1, minutes: 0, seconds: 0 }
-                }
-              })}
-              className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
-            >
-              Create Job
+            <button onClick={() => navigate('/', {
+              state: {
+                jobType: 1, // Time-based trigger
+                contractAddress: contractAddress,
+                abi: JSON.stringify([{
+                  "inputs": [],
+                  "name": "maintainBalances",
+                  "outputs": [],
+                  "stateMutability": "nonpayable",
+                  "type": "function"
+                }]),
+                timeframe: { years: 0, months: 0, days: 1 },
+                timeInterval: { hours: 1, minutes: 0, seconds: 0 }
+              }
+            })} className="relative bg-[#F8FF7C] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
+              <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+              <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+              <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                Create Job            </span>
             </button>
+
           )}
+
         </div>
       </div>
     </div>
