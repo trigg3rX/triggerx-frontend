@@ -8,9 +8,9 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import DevhubItem from "./pages/DevhubItem";
 import { getSubdomain } from "./utils/subdomain";
-import { HelmetProvider,Helmet } from 'react-helmet-async';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import {
-  
+
   baseSepolia,
   optimismSepolia,
 } from "wagmi/chains";
@@ -95,13 +95,13 @@ const App = () => {
 
   return (
     <HelmetProvider>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-         
+      <WagmiProvider config={config} >
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
+
             <Router>
               <Layout>
-              <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
+                <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
                   <meta name="description" content="TriggerX - Web3 Automation Platform" />
                   <meta property="og:type" content="website" />
                   <meta property="og:site_name" content="TriggerX" />
@@ -114,17 +114,17 @@ const App = () => {
                     <Route path="/devhub" element={<Devhub />} />
                     <Route path="/devhub/:slug" element={<DevhubItem />} />
                     <Route path="/api" element={<ApiCreation />} />
-                    <Route path="/main" element={<BalanceMaintainer />} />
+                    <Route path="/balance-maintainer" element={<BalanceMaintainer />} />
 
                     <Route path="*" element={<NotFound />} />
                   </>
                 </Routes>
               </Layout>
             </Router>
-  
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </HelmetProvider>
   );
 };
