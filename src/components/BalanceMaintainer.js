@@ -289,19 +289,19 @@ const BalanceMaintainerExample = () => {
   const [userBalance, setUserBalance] = useState("0");
   const [claimAmount, setClaimAmount] = useState("0.05");
 
-    const [chainId, setChainId] = useState(null);
-    const [isDeployed, setIsDeployed] = useState(false);
-    const [contractAddress, setContractAddress] = useState("");
-    const [newAddress, setNewAddress] = useState("");
-    const [newBalance, setNewBalance] = useState("");
-    const [addresses, setAddresses] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [contractBalance, setContractBalance] = useState("0");
-    const [provider, setProvider] = useState(null);
-    const [signer, setSigner] = useState(null);
-    const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
-    const [isInitialized, setIsInitialized] = useState(false);
+  const [chainId, setChainId] = useState(null);
+  const [isDeployed, setIsDeployed] = useState(false);
+  const [contractAddress, setContractAddress] = useState("");
+  const [newAddress, setNewAddress] = useState("");
+  const [newBalance, setNewBalance] = useState("");
+  const [addresses, setAddresses] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [contractBalance, setContractBalance] = useState("0");
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
 
 
@@ -491,7 +491,7 @@ const BalanceMaintainerExample = () => {
         BalanceMaintainer.abi,
         signer
       );
-      console.log("balance of contract",await contract.getContractBalance());
+      console.log("balance of contract", await contract.getContractBalance());
       const tx = await contract.setMultipleAddressesWithBalance(
         [address],
         [ethers.parseEther('0.01')]
@@ -602,7 +602,7 @@ const BalanceMaintainerExample = () => {
         setContractAddress(proxyAddress);
         setIsDeployed(true);
         toast.success("Contract deployed successfully!");
-        
+
         // Set initial balance for owner
         await setInitialBalance(proxyAddress);
       } else {
@@ -638,8 +638,8 @@ const BalanceMaintainerExample = () => {
         signer
       );
       console.log("tryying to add address...");
-      console.log("contract",contract);
-    
+      console.log("contract", contract);
+
 
       const tx = await contract.setMultipleAddressesWithBalance(
         [newAddress],
@@ -750,17 +750,21 @@ const BalanceMaintainerExample = () => {
       }
 
       // Call the backend API to send ETH to the user's wallet
-      const response = await fetch('https://api.triggerx.xyz/claim-eth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          address: address,
-          amount: claimAmount,
-          network: chainId ? chainId.toString() : '11155420'
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/claim-eth`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            address: address,
+            amount: claimAmount,
+            network: chainId ? chainId.toString() : '11155420'
+          }),
+        }
+      );
+
 
       if (!response.ok) {
         const errorData = await response.json();
