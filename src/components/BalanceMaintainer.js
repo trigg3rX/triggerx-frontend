@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import Modal from "react-modal";
 import toast from 'react-hot-toast';
 import { Toaster } from "react-hot-toast";
+import confetti from 'canvas-confetti';
 import BalanceMaintainerFactory from '../artifacts/BalanceMaintainerFactory.json';
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 
@@ -85,10 +86,166 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
   );
 };
 
+// Add ClaimModal component with internal confetti
+const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkName }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const confettiCanvasRef = React.useRef(null);
+
+  // Function to play confetti inside modal
+  const playModalConfetti = () => {
+    const canvas = confettiCanvasRef.current;
+    if (!canvas) return;
+
+    const myConfetti = confetti.create(canvas, { resize: true });
+
+    // Create a 3-second animation
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      // Release confetti from random positions
+      myConfetti({
+        particleCount: 30,
+        spread: 100,
+        origin: { y: 0.6, x: Math.random() },
+        colors: ['#FFD700', '#FFA500', '#F8FF7C'],
+        shapes: ['circle'],
+        scalar: 1.2
+      });
+    }, 250);
+  };
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await onConfirm();
+      setIsLoading(false);
+      setIsSuccess(true);
+      playModalConfetti();
+
+      // Close modal with a delay after success
+      setTimeout(() => {
+        setIsSuccess(false);
+        onClose();
+      }, 4000);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Claim error in modal:", error);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={!isLoading ? onClose : undefined}
+      contentLabel="Claim ETH"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000] overflow-hidden"
+      overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+    >
+      {/* Confetti canvas overlay */}
+      <canvas
+        ref={confettiCanvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+      />
+
+      {isSuccess ? (
+        <div className="flex flex-col items-center justify-center text-center h-full py-8 z-20 relative">
+          <div className="text-3xl font-bold mb-6 text-white">
+            Woohoo!
+          </div>
+          <div className="text-xl text-[#F8FF7C] font-bold mb-6">
+            You claimed successfully!
+          </div>
+          <div className="text-lg mb-6">
+            <span className="text-green-400 font-bold">{claimAmount} ETH</span> has been added to your wallet
+          </div>
+          <button
+            onClick={onClose}
+            className="px-8 py-3 rounded-lg bg-white text-black font-semibold transition-all duration-300 hover:bg-gray-100 mt-4"
+          >
+            Close
+          </button>
+        </div>
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold mb-6 z-20 relative">Claim ETH</h2>
+
+          <div className="space-y-6 z-20 relative">
+            <div className="bg-[#1E1E1E] p-4 rounded-lg">
+              <div className="mb-4">
+                <span className="text-gray-400">Network</span>
+                <div className="mt-1 text-white font-medium">{networkName}</div>
+              </div>
+
+              <div className="mb-4">
+                <span className="text-gray-400">Your Address</span>
+                <div className="mt-1 flex items-center">
+                  <span className="text-white font-medium break-all">{address}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-gray-400">Claim Amount</span>
+                <div className="mt-1 text-[#F8FF7C] font-bold text-xl">
+                  {claimAmount} ETH
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1E1E1E] p-4 rounded-lg">
+              <div className="text-gray-300 text-sm">
+                <p>Note: This will open your wallet to confirm the transaction.</p>
+                <p className="mt-2">These tokens are for testing purposes only and have no real value.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-between gap-5">
+            <button
+              onClick={onClose}
+              disabled={isLoading}
+              className={`flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={isLoading}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Claiming...
+                </span>
+              ) : (
+                'Claim'
+              )}
+            </button>
+          </div>
+        </>
+      )}
+    </Modal>
+  );
+};
+
 const BalanceMaintainerExample = () => {
   const navigate = useNavigate();
   const [address, setAddress] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
   const [modalData, setModalData] = useState({
     amount: "0.00",
@@ -97,6 +254,9 @@ const BalanceMaintainerExample = () => {
     contractAddress: "",
     contractMethod: ""
   });
+  const [hasSufficientBalance, setHasSufficientBalance] = useState(true);
+  const [userBalance, setUserBalance] = useState("0");
+  const [claimAmount, setClaimAmount] = useState("0.05");
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
@@ -471,6 +631,134 @@ const BalanceMaintainerExample = () => {
     }
   }, [isInitialized, provider, address]);
 
+  // Add function to check balance sufficiency
+  const checkBalanceSufficiency = async () => {
+    if (!provider || !address) return;
+
+    try {
+      const balance = await provider.getBalance(address);
+      const requiredBalance = ethers.parseEther('0.02');
+      const formattedBalance = ethers.formatEther(balance);
+
+      setUserBalance(Number(formattedBalance).toFixed(4));
+      setHasSufficientBalance(balance >= requiredBalance);
+    } catch (error) {
+      console.error("Error checking balance:", error);
+      setHasSufficientBalance(false);
+    }
+  };
+
+  // Call checkBalanceSufficiency when provider or address changes
+  useEffect(() => {
+    if (provider && address) {
+      checkBalanceSufficiency();
+
+      // Set up periodic balance check
+      const interval = setInterval(checkBalanceSufficiency, 15000); // Check every 15 seconds
+      return () => clearInterval(interval);
+    }
+  }, [provider, address]);
+
+  // Create a function to trigger confetti
+  const triggerConfetti = () => {
+    // Create coin-like confetti
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function () {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Gold coins
+      confetti(Object.assign({}, defaults, {
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
+        colors: ['#FFD700', '#FFA500', '#F8FF7C'],
+        shapes: ['circle'],
+        scalar: randomInRange(0.8, 1.2)
+      }));
+    }, 250);
+  };
+
+  // Modified handleClaim function
+  const handleClaim = () => {
+    setShowClaimModal(true);
+  };
+
+  // Modified confirmClaim function
+  const confirmClaim = async () => {
+    // For testing confetti, just return true without doing the transaction
+    return true;
+
+    // Comment out the real implementation below for testing
+    /*
+    try {
+      if (!signer || !address) {
+        return toast.error('Wallet not connected. Please connect your wallet first.');
+      }
+
+      // This simulates a MetaMask popup by sending a small transaction
+      // In a real application, this would come from a faucet contract or backend
+      const tx = await signer.sendTransaction({
+        to: address,
+        // Send a very small amount just to trigger MetaMask
+        // In a real faucet app, this would send the full claim amount
+        value: ethers.parseEther('0.0001'),
+        // Adding data to make it look like a faucet transaction
+        data: ethers.toUtf8Bytes('Claim ETH from TriggerX Faucet')
+      });
+
+      // Wait for the transaction to be mined
+      await tx.wait();
+
+      // Refresh balance after claiming
+      setTimeout(() => {
+        if (provider && address) {
+          checkBalanceSufficiency();
+        }
+      }, 2000);
+
+      return true; // indicate success to the modal
+    } catch (error) {
+      console.error('Claim error:', error);
+
+      // Check for user rejection
+      if (error.code === 'ACTION_REJECTED' ||
+        error.code === 4001 ||
+        error.message?.includes("rejected") ||
+        error.message?.includes("denied") ||
+        error.message?.includes("user rejected")) {
+        toast.error('Transaction was rejected in your wallet');
+      } else {
+        toast.error('Failed to claim ETH');
+      }
+
+      throw error; // propagate error to modal
+    }
+    */
+  };
+
+  // Get network name for display
+  const getNetworkName = () => {
+    if (chainId === 11155420n) {
+      return "Optimism Sepolia";
+    } else if (chainId === 84532n) {
+      return "Base Sepolia";
+    } else {
+      return "Test Network";
+    }
+  };
+
   return (
     <div className="min-h-[90vh] md:mt-[20rem] mt-[10rem]">
       <Toaster
@@ -495,7 +783,8 @@ const BalanceMaintainerExample = () => {
           <div className="text-[#A2A2A2] space-y-2">
             {!isDeployed ? (
               <>
-                <p className="pb-2">Status: Not Deployed   </p>
+                <p className="pb-2">Status: Not Deployed</p>
+
                 {console.log('Button State:', {
                   isDeployed,
                   isLoading,
@@ -504,14 +793,24 @@ const BalanceMaintainerExample = () => {
                   canDeploy: !isLoading && !!signer && !isInitialized
                 })}
 
-                <button
-                  onClick={showDeployModal}
-                  disabled={isLoading || !signer || !isInitialized}
-                  className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg  transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
-                >
-                  {isLoading && modalType === "deploy" ? 'Deploying...' : '   🛠️ Deploy Contract'}
-                </button>
+                <div className="flex flex-wrap gap-4">
+                  <button
+                    onClick={showDeployModal}
+                    disabled={isLoading || !signer || !isInitialized}
+                    className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
+                  >
+                    {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
+                  </button>
 
+                  {!hasSufficientBalance && (
+                    <button
+                      onClick={handleClaim}
+                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
+                    >
+                      💰 Claim ETH
+                    </button>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -542,6 +841,16 @@ const BalanceMaintainerExample = () => {
           onConfirm={handleConfirm}
           modalType={modalType}
           modalData={modalData}
+        />
+
+        {/* Claim Modal */}
+        <ClaimModal
+          isOpen={showClaimModal}
+          onClose={() => setShowClaimModal(false)}
+          onConfirm={confirmClaim}
+          address={address}
+          claimAmount={claimAmount}
+          networkName={getNetworkName()}
         />
 
         <div className="bg-[#303030] p-4 rounded-lg mb-6">
