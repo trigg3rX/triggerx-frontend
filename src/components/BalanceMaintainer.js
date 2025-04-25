@@ -5,11 +5,12 @@ import Modal from "react-modal";
 import toast from 'react-hot-toast';
 import { Toaster } from "react-hot-toast";
 import confetti from 'canvas-confetti';
+import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
 import { Tooltip } from "antd";
-import BalanceMaintainerFactory from '../artifacts/BalanceMaintainerFactory.json';
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 
-const FACTORY_ADDRESS = '0x734794fCB7f52e945DE37F07d414Cfb05fCd38D5';
+const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
+const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 // transaction modal
 
@@ -288,19 +289,19 @@ const BalanceMaintainerExample = () => {
   const [userBalance, setUserBalance] = useState("0");
   const [claimAmount, setClaimAmount] = useState("0.05");
 
-  const [chainId, setChainId] = useState(null);
-  const [isDeployed, setIsDeployed] = useState(false);
-  const [contractAddress, setContractAddress] = useState("");
-  const [newAddress, setNewAddress] = useState("");
-  const [newBalance, setNewBalance] = useState("");
-  const [addresses, setAddresses] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [contractBalance, setContractBalance] = useState("0");
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
-  const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+    const [chainId, setChainId] = useState(null);
+    const [isDeployed, setIsDeployed] = useState(false);
+    const [contractAddress, setContractAddress] = useState("");
+    const [newAddress, setNewAddress] = useState("");
+    const [newBalance, setNewBalance] = useState("");
+    const [addresses, setAddresses] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [contractBalance, setContractBalance] = useState("0");
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
 
 
@@ -400,23 +401,36 @@ const BalanceMaintainerExample = () => {
     if (!provider || !userAddress) return;
 
     try {
+      // Create factory contract instance
       const factoryContract = new ethers.Contract(
         FACTORY_ADDRESS,
-        BalanceMaintainerFactory.abi,
+        TriggerXTemplateFactory.abi,
         provider
       );
 
-      const userContracts = await factoryContract.getUserContracts(userAddress);
-      if (userContracts && userContracts.length > 0) {
-        setContractAddress(userContracts[0]);
-        setIsDeployed(true);
-        fetchContractData(provider, userContracts[0]);
-      } else {
-        setIsDeployed(false);
-        setContractAddress("");
+      // Get proxy address for the user and implementation
+      const proxyAddress = await factoryContract.getProxyAddress(
+        userAddress,
+        BALANCEMAINTAINER_IMPLEMENTATION
+      );
+
+      // Check if proxy exists and is not zero address
+      if (proxyAddress && proxyAddress !== ethers.ZeroAddress) {
+        // Verify the proxy contract exists
+        const proxyCode = await provider.getCode(proxyAddress);
+        if (proxyCode !== '0x') {
+          setContractAddress(proxyAddress);
+          setIsDeployed(true);
+          await fetchContractData(provider, proxyAddress);
+          return;
+        }
       }
+
+      // If we get here, no valid proxy exists
+      setIsDeployed(false);
+      setContractAddress("");
     } catch (error) {
-      console.error("Error checking user contracts:", error);
+      console.error("Error checking existing contract:", error);
       setIsDeployed(false);
       setContractAddress("");
     }
@@ -477,7 +491,7 @@ const BalanceMaintainerExample = () => {
         BalanceMaintainer.abi,
         signer
       );
-
+      console.log("balance of contract",await contract.getContractBalance());
       const tx = await contract.setMultipleAddressesWithBalance(
         [address],
         [ethers.parseEther('0.01')]
@@ -499,7 +513,7 @@ const BalanceMaintainerExample = () => {
       networkFee: "$0.01",
       speed: "2 sec",
       contractAddress: FACTORY_ADDRESS.substring(0, 7) + "..." + FACTORY_ADDRESS.substring(FACTORY_ADDRESS.length - 5),
-      contractMethod: "createBalanceMaintainer()"
+      contractMethod: "createProxy()"
     });
     setShowModal(true);
   };
@@ -518,7 +532,7 @@ const BalanceMaintainerExample = () => {
     setShowModal(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowModal(false);
 
     if (modalType === "deploy") {
@@ -532,7 +546,6 @@ const BalanceMaintainerExample = () => {
     if (!signer || !address) return;
     setIsLoading(true);
 
-
     try {
       // Get current network from provider
       const network = await signer.provider.getNetwork();
@@ -545,7 +558,7 @@ const BalanceMaintainerExample = () => {
       // Create factory contract instance
       const factoryContract = new ethers.Contract(
         FACTORY_ADDRESS,
-        BalanceMaintainerFactory.abi,
+        TriggerXTemplateFactory.abi,
         signer
       );
 
@@ -566,18 +579,18 @@ const BalanceMaintainerExample = () => {
         throw new Error(`Insufficient balance. Required: ${ethers.formatEther(requiredBalance)} ETH, Current: ${ethers.formatEther(balance)} ETH`);
       }
 
-      // Attempt deployment
-      const tx = await factoryContract.createBalanceMaintainer({
+      // Deploy proxy through factory
+      const tx = await factoryContract.createProxy(BALANCEMAINTAINER_IMPLEMENTATION, {
         value: ethers.parseEther('0.02')
       });
 
       const receipt = await tx.wait();
 
-      // Get the deployed contract address from the event
+      // Get the deployed proxy address from the event
       const event = receipt.logs.find(log => {
         try {
           const parsedLog = factoryContract.interface.parseLog(log);
-          return parsedLog && parsedLog.name === 'BalanceMaintainerDeployed';
+          return parsedLog && parsedLog.name === 'ProxyDeployed';
         } catch (e) {
           return false;
         }
@@ -585,13 +598,13 @@ const BalanceMaintainerExample = () => {
 
       if (event) {
         const parsedLog = factoryContract.interface.parseLog(event);
-        const deployedAddress = parsedLog.args.balanceMaintainer;
-        setContractAddress(deployedAddress);
+        const proxyAddress = parsedLog.args.proxy;
+        setContractAddress(proxyAddress);
         setIsDeployed(true);
         toast.success("Contract deployed successfully!");
-
+        
         // Set initial balance for owner
-        await setInitialBalance(deployedAddress);
+        await setInitialBalance(proxyAddress);
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
@@ -618,13 +631,15 @@ const BalanceMaintainerExample = () => {
 
     setIsLoading(true);
 
-
     try {
       const contract = new ethers.Contract(
         contractAddress,
         BalanceMaintainer.abi,
         signer
       );
+      console.log("tryying to add address...");
+      console.log("contract",contract);
+    
 
       const tx = await contract.setMultipleAddressesWithBalance(
         [newAddress],

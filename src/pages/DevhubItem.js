@@ -5,6 +5,7 @@ import sanityClient from "../sanityClient";
 import imageUrlBuilder from "@sanity/image-url";
 import { PortableText } from "@portabletext/react";
 import DevhubItemSkeleton from "./DevhubItemSkeleton";
+import Modal from "react-modal";
 
 // --- Sanity Image URL Builder Setup ---
 const builder = imageUrlBuilder(sanityClient);
@@ -44,7 +45,9 @@ function DevhubItem() {
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeHeading, setActiveHeading] = useState("");
-  const [showLink, setShowLink] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -313,26 +316,52 @@ function DevhubItem() {
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <div className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center">
-                {postData.redirect ? (
-                  <a
-                    href={postData.redirect}
+                <a
+                  href={postData.redirect || "#"}
+                  onClick={(e) => {
+                    if (!postData.redirect) {
+                      e.preventDefault();
+                      handleOpen();
+                    }
+                  }}
+                  target={postData.redirect ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
+                >
+                  ⚡ Try Now
+                </a>
 
-                    rel="noopener noreferrer"
-                    className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
+                <Modal
+                  isOpen={isModalOpen}
+                  onRequestClose={handleClose}
+                  contentLabel="Try Template"
+                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] px-8 py-6 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
+                  overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+                >
+                  <button
+                    onClick={handleClose}
+                    className="absolute top-2.5 right-6 text-gray-400 hover:text-white text-2xl font-bold focus:outline-none"
                   >
-                    ⚡ Try Now
-                  </a>
-                ) : (
-                  <a
-                    href="/eth-top-ups-example"
-                    className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
-                  >
-                    <span className="group-hover:hidden">🛠️ In Progress</span>
-                    <span className="hidden group-hover:inline">
-                      👉 Try our template here
-                    </span>
-                  </a>
-                )}
+                    ×
+                  </button>
+                  <div className="text-white p-6 text-center">
+                    <h2 className="text-[20px] text-center font-semibold my-4">
+                      🛠️ In Progress
+                    </h2>
+                    <p>Try our ready-to-use template here</p>
+                    <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max mx-auto flex items-center justify-center mt-5">
+                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                      <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                      <a
+                        href="/eth-top-ups-example"
+                        target="blank"
+                        className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+                      >
+                        Go to Template
+                      </a>
+                    </div>
+                  </div>
+                </Modal>
               </div>
             </div>
           </div>
@@ -376,10 +405,11 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
-                        ? "text-green-400 font-bold"
-                        : "text-gray-300"
-                        }`}
+                      className={`text-xs hover:underline ${
+                        activeHeading === pair.h2Heading
+                          ? "text-green-400 font-bold"
+                          : "text-gray-300"
+                      }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -411,10 +441,11 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
-                    ? "text-green-400 font-bold"
-                    : "text-gray-300"
-                    }`}
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
+                    activeHeading === pair.h2Heading
+                      ? "text-green-400 font-bold"
+                      : "text-gray-300"
+                  }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
