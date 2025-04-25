@@ -161,31 +161,9 @@ export function useJobCreation() {
         return;
       }
 
-      // Check if already connected first to avoid duplicate requests
-      let accounts = [];
-      try {
-        accounts = await window.ethereum.request({
-          method: 'eth_accounts'
-        });
-      } catch (err) {
-        console.warn("Failed to get existing accounts:", err);
-      }
-
-      // Only request accounts if not already connected
-      if (!accounts || accounts.length === 0) {
-        try {
-          accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-          });
-        } catch (err) {
-          console.warn("User denied account access or request pending");
-          // Don't throw error, just quietly return
-          return;
-        }
-      }
-
-      // If we have accounts, continue with the rest of the logic
-      if (accounts && accounts.length > 0) {
+      // Use this to only check for existing connections without prompting:
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
