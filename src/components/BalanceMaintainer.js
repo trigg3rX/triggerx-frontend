@@ -854,11 +854,11 @@ const BalanceMaintainerExample = () => {
 
                       !hasSufficientBalance ? " Insufficient ETH balance" :
                         ""}
-                    open={(isLoading || !signer || !isInitialized || !hasSufficientBalance) ? undefined : false}
+                    open={(!hasSufficientBalance) ? undefined : false}
                   >
                     <button
                       onClick={showDeployModal}
-                      disabled={isLoading || !signer || !isInitialized || !hasSufficientBalance}
+                      disabled={!hasSufficientBalance}
                       className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
