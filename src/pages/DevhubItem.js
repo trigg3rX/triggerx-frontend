@@ -316,7 +316,7 @@ function DevhubItem() {
                 {postData.redirect ? (
                   <a
                     href={postData.redirect}
-                    target="_blank"
+
                     rel="noopener noreferrer"
                     className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
                   >
