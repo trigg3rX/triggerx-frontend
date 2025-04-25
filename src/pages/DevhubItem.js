@@ -376,11 +376,10 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${
-                        activeHeading === pair.h2Heading
-                          ? "text-green-400 font-bold"
-                          : "text-gray-300"
-                      }`}
+                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
+                        ? "text-green-400 font-bold"
+                        : "text-gray-300"
+                        }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -412,11 +411,10 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
-                    activeHeading === pair.h2Heading
-                      ? "text-green-400 font-bold"
-                      : "text-gray-300"
-                  }`}
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
+                    ? "text-green-400 font-bold"
+                    : "text-gray-300"
+                    }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
