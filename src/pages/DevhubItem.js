@@ -30,7 +30,8 @@ async function getBlog(slug) {
       displayHeading, 
       h2Heading      
     },    slug { current }, 
-    githubUrl
+    githubUrl,
+    redirect
 }`;
 
   return sanityClient.fetch(query, { slug });
@@ -43,6 +44,7 @@ function DevhubItem() {
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeHeading, setActiveHeading] = useState("");
+  const [showLink, setShowLink] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,7 +77,7 @@ function DevhubItem() {
     fetchData();
   }, [slug]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!postData || isLoading || error) {
@@ -130,9 +132,9 @@ function DevhubItem() {
     .url();
 
   // --- Format Read Time (Example: assuming postData.readTime is minutes) ---
-  const readTimeDisplay = postData.readTime
-    ? `${postData.readTime} MINUTES`
-    : "N/A";
+  // const readTimeDisplay = postData.readTime
+  //   ? `${postData.readTime} MINUTES`
+  //   : "N/A";
 
   // ButtonLink Component
   const ButtonLink = ({ value }) => {
@@ -310,15 +312,27 @@ function DevhubItem() {
             <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-              <div
-
-                className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
-              >
-                <a
-                  href={'/balance-maintainer'}
-                  className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
-                >
-                  🛠️ In Progress</a>
+              <div className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center">
+                {postData.redirect ? (
+                  <a
+                    href={postData.redirect}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
+                  >
+                    ⚡ Try Now
+                  </a>
+                ) : (
+                  <a
+                    href="/eth-top-ups-example"
+                    className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
+                  >
+                    <span className="group-hover:hidden">🛠️ In Progress</span>
+                    <span className="hidden group-hover:inline">
+                      👉 Try our ready-to-use template here
+                    </span>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -410,7 +424,7 @@ function DevhubItem() {
         </aside>
 
         {/* Blog Content */}
-        <article className="w-full md:w-3/4 mt-2">
+        <article className="w-full md:w-3/4 mt-10">
           <PortableText
             value={postData.body}
             components={{
@@ -506,10 +520,10 @@ function DevhubItem() {
             }}
           />
         </article>
-
       </div>
       <div className="flex items-center justify-center">
-        <button onClick={() => navigate('/devhub')}
+        <button
+          onClick={() => navigate("/devhub")}
           className="bg-white rounded-full my-16 px-4 sm:px-6 lg:px-8 py-3 lg:py-4 text-black mx-auto text-xs sm:text-sm lg:text-base"
         >
           Go Back to DevHub
