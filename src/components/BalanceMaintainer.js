@@ -748,19 +748,21 @@ const BalanceMaintainerExample = () => {
         toast.error('Wallet not connected. Please connect your wallet first.');
         throw new Error('Wallet not connected');
       }
-
+      let networkName = "op_sepolia"; // Default
+      if (chainId === 84532n) {
+        networkName = "base_sepolia";
+      }
       // Call the backend API to send ETH to the user's wallet
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/claim-eth`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            address: address,
-            amount: claimAmount,
-            network: chainId ? chainId.toString() : '11155420'
+            wallet_address: address,
+            network: networkName
           }),
         }
       );
