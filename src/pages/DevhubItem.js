@@ -329,7 +329,7 @@ function DevhubItem() {
                   >
                     <span className="group-hover:hidden">🛠️ In Progress</span>
                     <span className="hidden group-hover:inline">
-                      👉 Try our ready-to-use template here
+                      👉 Try our template here
                     </span>
                   </a>
                 )}
