@@ -21,13 +21,13 @@ const Leaderboard = () => {
   //   // Update meta tags when activeTab changes
   //   document.title = 'TriggerX | Leaderboard';
   //   document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    
+
   //   // Update Open Graph meta tags
   //   document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Leaderboard');
   //   document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
   //   document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/leaderboard-og.png`);
   //   document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
-    
+
   //   // Update Twitter Card meta tags
   //   document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Leaderboard');
   //   document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
@@ -59,12 +59,12 @@ const Leaderboard = () => {
         if (activeTab === "keeper") {
           const transformedKeeperData = Array.isArray(data)
             ? data.map((keeper) => ({
-                operator: keeper.keeper_name,
-                address: keeper.keeper_address,
-                performed: keeper.tasks_executed,
-                attested: keeper.tasks_executed, // If you don't have a separate attested field
-                points: keeper.keeper_points,
-              }))
+              operator: keeper.keeper_name,
+              address: keeper.keeper_address,
+              performed: keeper.tasks_executed,
+              attested: keeper.tasks_executed, // If you don't have a separate attested field
+              points: keeper.keeper_points,
+            }))
             : [];
 
           // Sort the keepers by points in descending order
@@ -77,11 +77,11 @@ const Leaderboard = () => {
         } else if (activeTab === "developer") {
           const transformedUserData = Array.isArray(data)
             ? data.map((user) => ({
-                address: user.user_address,
-                totalJobs: user.total_jobs,
-                tasksExecuted: user.tasks_completed, // If you don't have a separate attested field
-                points: user.user_points,
-              }))
+              address: user.user_address,
+              totalJobs: user.total_jobs,
+              tasksExecuted: user.tasks_completed, // If you don't have a separate attested field
+              points: user.user_points,
+            }))
             : [];
 
           // Sort developers by points in descending order
@@ -130,7 +130,7 @@ const Leaderboard = () => {
   // Render keeper/operators table
   const renderKeeperTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
+      <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-5 py-5 text-left text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
@@ -160,48 +160,95 @@ const Leaderboard = () => {
         <tbody>
           {keeperData.length > 0
             ? keeperData.map((item, index) => (
-                <tr key={index}>
-                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                    {item.operator}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.address}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.performed}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.attested}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
-                      {item.points}
-                    </span>
-                  </td>
-                  <Tooltip title="View Profile" color="#2A2A2A">
-                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `https://app.eigenlayer.xyz/operator/${item.address}`,
-                            "_blank"
-                          )
-                        }
-                        className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+              <tr key={index}>
+                <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                  {item.operator}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+
+
+                  {item.address ? `${item.address.substring(0, 8)}...${item.address.substring(item.address.length - 7)}` : ""}
+                  <button
+                    onClick={() =>
+                      copyAddressToClipboard(item.address, item.id)
+                    }
+                    className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                    title="Copy address"
+                  >
+                    {copyStatus[item.id] ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        View
-                      </button>
-                    </td>
-                  </Tooltip>
-                </tr>
-              ))
-            : !isLoading && (
-                <tr>
-                  <td colSpan="6" className="text-center text-[#A2A2A2] py-5">
-                    No keeper data available
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect
+                          x="9"
+                          y="9"
+                          width="13"
+                          height="13"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                      </svg>
+                    )}
+                  </button>
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                  {item.performed}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                  {item.attested}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
+                  <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
+                    {Number(item.points).toFixed(5)}
+                  </span>
+                </td>
+                <Tooltip title="View Profile" color="#2A2A2A">
+                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://app.eigenlayer.xyz/operator/${item.address}`,
+                          "_blank"
+                        )
+                      }
+                      className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                    >
+                      View
+                    </button>
                   </td>
-                </tr>
-              )}
+                </Tooltip>
+              </tr>
+            ))
+            : !isLoading && (
+              <tr>
+                <td colSpan="6" className="text-center text-[#A2A2A2] py-5 h-[650px] ">
+                  No keeper data available
+                </td>
+              </tr>
+            )}
         </tbody>
       </table>
     );
@@ -210,7 +257,7 @@ const Leaderboard = () => {
   // Render developer table with different columns
   const renderDeveloperTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
+      <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
@@ -230,77 +277,77 @@ const Leaderboard = () => {
         <tbody>
           {developerData.length > 0
             ? developerData.map((item, index) => (
-                <tr key={index}>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
-                    <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
-                      {item.address}
-                    </span>
-                    <button
-                      onClick={() =>
-                        copyAddressToClipboard(item.address, item.id)
-                      }
-                      className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
-                      title="Copy address"
-                    >
-                      {copyStatus[item.id] ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 6L9 17l-5-5"></path>
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect
-                            x="9"
-                            y="9"
-                            width="13"
-                            height="13"
-                            rx="2"
-                            ry="2"
-                          ></rect>
-                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                        </svg>
-                      )}
-                    </button>
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.totalJobs}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.tasksExecuted}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {item.points}
-                    </span>
-                  </td>
-                </tr>
-              ))
+              <tr key={index}>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
+                  <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
+                    {item.address ? `${item.address.substring(0, 5)}...${item.address.substring(item.address.length - 4)}` : ""}
+                  </span>
+                  <button
+                    onClick={() =>
+                      copyAddressToClipboard(item.address, item.id)
+                    }
+                    className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                    title="Copy address"
+                  >
+                    {copyStatus[item.id] ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect
+                          x="9"
+                          y="9"
+                          width="13"
+                          height="13"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                      </svg>
+                    )}
+                  </button>
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                  {item.totalJobs}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                  {item.tasksExecuted}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                  <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                    {Number(item.points).toFixed(5)}
+                  </span>
+                </td>
+              </tr>
+            ))
             : !isLoading && (
-                <tr>
-                  <td colSpan="4" className="text-center text-[#A2A2A2] py-5">
-                    No developer data available
-                  </td>
-                </tr>
-              )}
+              <tr>
+                <td colSpan="4" className="text-center text-[#A2A2A2] py-5 h-[650px] ">
+                  No developer data available
+                </td>
+              </tr>
+            )}
         </tbody>
       </table>
     );
@@ -308,7 +355,7 @@ const Leaderboard = () => {
 
   const renderContributorTable = () => {
     return (
-      <table className="w-full border-separate border-spacing-y-4 h-[650px]">
+      <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
         <thead className="sticky top-0 bg-[#2A2A2A]">
           <tr>
             <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
@@ -325,29 +372,29 @@ const Leaderboard = () => {
         <tbody>
           {contributorData.length > 0
             ? contributorData.map((item, index) => (
-                <tr key={index}>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
-                    {item.name}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {item.points}
-                    </span>
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                    <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
+              <tr key={index}>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
+                  {item.name}
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                  <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                    {Number(item.points).toFixed(5)}
+                  </span>
+                </td>
+                <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                  <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
+                    View
+                  </button>
+                </td>
+              </tr>
+            ))
             : !isLoading && (
-                <tr>
-                  <td colSpan="3" className="text-center text-[#A2A2A2] py-5">
-                    No contributor data available
-                  </td>
-                </tr>
-              )}
+              <tr>
+                <td colSpan="3" className="text-center text-[#A2A2A2] py-5 h-[650px] ">
+                  No contributor data available
+                </td>
+              </tr>
+            )}
         </tbody>
       </table>
     );
@@ -355,17 +402,17 @@ const Leaderboard = () => {
 
   return (
     <>
-    <Helmet>
+      <Helmet>
         <title>TriggerX | Leaderboard</title>
         <meta name="description" content="View real-time rankings and performance metrics for TriggerX operators, developers, and contributors" />
-        
+
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={`TriggerX | ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Leaderboard`} />
         <meta property="og:description" content="View real-time rankings and performance metrics for TriggerX operators, developers, and contributors" />
         <meta property="og:image" content={`${baseUrl}/images/${activeTab}-og.png`} />
         <meta property="og:url" content={`${baseUrl}/leaderboard`} />
-        
+
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`TriggerX | ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Leaderboard`} />
@@ -379,31 +426,28 @@ const Leaderboard = () => {
 
         <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-10 bg-[#181818F0] p-2 rounded-lg">
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-              activeTab === "keeper"
-                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-                : "bg-transparent"
-            }`}
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "keeper"
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+              : "bg-transparent"
+              }`}
             onClick={() => setActiveTab("keeper")}
           >
             Keeper
           </button>
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-              activeTab === "developer"
-                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-                : "bg-transparent"
-            }`}
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "developer"
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+              : "bg-transparent"
+              }`}
             onClick={() => setActiveTab("developer")}
           >
             Developer
           </button>
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-              activeTab === "contributor"
-                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-                : "bg-transparent"
-            }`}
+            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "contributor"
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+              : "bg-transparent"
+              }`}
             onClick={() => setActiveTab("contributor")}
           >
             Contributor
@@ -411,7 +455,7 @@ const Leaderboard = () => {
         </div>
         <div className="overflow-x-auto">
           <div
-            className="h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] px-5 rounded-lg"
+            className="h-[650px]  overflow-y-auto max-w-[1600px] mx-auto w-[85%] bg-[#141414] px-5 rounded-lg"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -422,8 +466,8 @@ const Leaderboard = () => {
               (activeTab === "keeper"
                 ? renderKeeperTable()
                 : activeTab === "developer"
-                ? renderDeveloperTable()
-                : renderContributorTable())}
+                  ? renderDeveloperTable()
+                  : renderContributorTable())}
 
             {/* Display loading or error states */}
             {isLoading && <LeaderboardSkeleton activeTab={activeTab} />}
