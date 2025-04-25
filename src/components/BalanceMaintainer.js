@@ -12,82 +12,82 @@ const FACTORY_ADDRESS = '0x734794fCB7f52e945DE37F07d414Cfb05fCd38D5';
 
 const TransactionModal = ({ isOpen, onClose, onConfirm, transactionDetails }) => {
   if (!isOpen) return null;
-  
+
   const { amount, networkFee, speed, contractAddress, contractMethod } = transactionDetails;
-  
+
   return (
-<Modal
+    <Modal
       isOpen={isOpen}
       onRequestClose={onClose} // Use handleClose
       contentLabel="Estimate Fee"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
-    >      
-        <h2 className="text-2xl font-bold mb-6">Transaction request</h2>
-        
-        <div className="space-y-6">
-          <div className="bg-[#1E1E1E] p-4 rounded-lg">
-            
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <span>Interacting with</span>
-                
-              </div>
-              <div className="flex items-center">
-                
-                <span className="text-sm truncate max-w-[180px]">{contractAddress}</span>
-              </div>
+    >
+      <h2 className="text-2xl font-bold mb-6">Transaction request</h2>
+
+      <div className="space-y-6">
+        <div className="bg-[#1E1E1E] p-4 rounded-lg">
+
+
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <span>Interacting with</span>
+
+            </div>
+            <div className="flex items-center">
+
+              <span className="text-sm truncate max-w-[180px]">{contractAddress}</span>
             </div>
           </div>
-          
-          
-          
-          <div className="bg-[#1E1E1E] p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center">
-                <span>Network fee</span>
-                
-              </div>
-              <div className="flex justify-between items-center">
+        </div>
+
+
+
+        <div className="bg-[#1E1E1E] p-4 rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center">
+              <span>Network fee</span>
+
+            </div>
+            <div className="flex justify-between items-center">
               <span>Amount</span>
               <span>{amount} ETH</span>
             </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span>Speed</span>
-              <div className="flex items-center">
-                <div className="text-orange-400 mr-2">
-                  <span className="mr-1">🦊</span>
-                  <span>Market</span>
-                </div>
-                <span>~{speed}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span>Speed</span>
+            <div className="flex items-center">
+              <div className="text-orange-400 mr-2">
+                <span className="mr-1">🦊</span>
+                <span>Market</span>
               </div>
-            </div>
-          </div>
-          
-          <div className="bg-[#1E1E1E] p-4 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span>Contract Method</span>
-              <span className="text-gray-300">{contractMethod}</span>
+              <span>~{speed}</span>
             </div>
           </div>
         </div>
-        
-        <div className="mt-8 flex justify-between gap-5">
-          <button 
-            onClick={onClose}
-            className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
-            >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}          >
-            Confirm
-          </button>
+
+        <div className="bg-[#1E1E1E] p-4 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span>Contract Method</span>
+            <span className="text-gray-300">{contractMethod}</span>
+          </div>
         </div>
+      </div>
+
+      <div className="mt-8 flex justify-between gap-5">
+        <button
+          onClick={onClose}
+          className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onConfirm}
+          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}          >
+          Confirm
+        </button>
+      </div>
     </Modal>
   );
 };
@@ -311,7 +311,7 @@ const BalanceMaintainerExample = () => {
     setShowModal(true);
   };
 
-  const handleConfirm  = async () => {
+  const handleConfirm = async () => {
     setShowModal(false);
 
     if (!signer || !address) return;
@@ -432,22 +432,22 @@ const BalanceMaintainerExample = () => {
               <>
                 <p className="pb-2">Status: Not Deployed   </p>
                 {console.log('Button State:', {
-                isDeployed,
-                isLoading,
-                hasSigner: !!signer,  
-                isInitialized,
-                canDeploy: !isLoading && !!signer && !isInitialized
-              })}
-             
+                  isDeployed,
+                  isLoading,
+                  hasSigner: !!signer,
+                  isInitialized,
+                  canDeploy: !isLoading && !!signer && !isInitialized
+                })}
+
                 <button
-                onClick={handleDeploy}
-                disabled={isLoading || !signer || !isInitialized}
-                className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg  transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
-              >
-                {isLoading ? 'Deploying...' : '   🛠️ Deploy Contract'}
-              </button>
-             
-          </>
+                  onClick={handleDeploy}
+                  disabled={isLoading || !signer || !isInitialized}
+                  className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg  transition-colors text-lg ${(isLoading || !signer || !isInitialized) && 'opacity-50 cursor-not-allowed'}`}
+                >
+                  {isLoading ? 'Deploying...' : '   🛠️ Deploy Contract'}
+                </button>
+
+              </>
             ) : (
               <>
                 <p className="text-white">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
@@ -472,11 +472,11 @@ const BalanceMaintainerExample = () => {
           </div>
         </div>
         <TransactionModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={handleConfirm}
-        transactionDetails={transactionDetails}
-      />
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onConfirm={handleConfirm}
+          transactionDetails={transactionDetails}
+        />
 
         <div className="bg-[#303030] p-4 rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Add Addresses</h2>
@@ -486,7 +486,7 @@ const BalanceMaintainerExample = () => {
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="Enter wallet address"
-              className={`bg-[#1A1B1E] text-white px-4 py-2 rounded-lg flex-1 ${( !isDeployed) && ' cursor-not-allowed'}`}
+              className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg flex-1 ${(!isDeployed) && ' cursor-not-allowed'}`}
               disabled={!isDeployed || isSettingInitialBalance}
             />
             <input
@@ -494,7 +494,7 @@ const BalanceMaintainerExample = () => {
               value={newBalance}
               onChange={(e) => setNewBalance(e.target.value)}
               placeholder="Minimum balance (ETH)"
-              className={`bg-[#1A1B1E] text-white px-4 py-2 rounded-lg w-48 ${( !isDeployed) && ' cursor-not-allowed'}`}
+              className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
               step="0.1"
               min="0"
               disabled={!isDeployed || isSettingInitialBalance}
@@ -513,70 +513,70 @@ const BalanceMaintainerExample = () => {
         <div className=" p-4 rounded-lg mb-6 min-h-[40vh]">
           <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
           <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-full border-separate border-spacing-y-2 md:border-spacing-y-4">
-          <thead className="bg-[#303030]">
-      <tr>
-        <th className="px-2 sm:px-4 md:px-6 py-3 text-left text-white rounded-tl-lg rounded-bl-lg w-3/5">Address</th>
-        <th className="px-2 sm:px-4 md:px-6 py-3 text-left text-white w-1/5">Current Balance</th>
-        <th className="px-2 sm:px-4 md:px-6 py-3 text-left text-white rounded-tr-lg rounded-br-lg w-1/5">Min Balance (ETH)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {!isDeployed ? (
-        <tr>
-          <td colSpan="3" className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]">
-            Please deploy the contract first to configure addresses
-          </td>
-        </tr>
-      ) : (
-        addresses.map((item) => (
-          <tr key={item.key} className=" bg-[#1A1A1A]">
-            <td className="px-2 sm:px-4 md:px-6 py-3 text-[#A2A2A2] w-3/5 truncate rounded-tl-lg rounded-bl-lg">
-              <span className="block truncate">{item.address}</span>
-            </td>
-            <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
-              <span className="px-2 sm:px-4 py-2 bg-[#4CAF50] text-white rounded whitespace-nowrap text-sm">
-                {item.currentBalance} ETH
-              </span>
-            </td>
-            <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5 rounded-tr-lg rounded-br-lg">
-              <span className="px-2 sm:px-4 py-1 bg-[#F8FF7C] text-black rounded whitespace-nowrap">
-                {item.minimumBalance} ETH
-              </span>
-            </td>
-          </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-</div>
+            <table className="w-full min-w-full border-separate border-spacing-y-2 md:border-spacing-y-4">
+              <thead className="bg-[#303030]">
+                <tr>
+                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white rounded-tl-lg rounded-bl-lg w-3/5">Address</th>
+                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Current Balance</th>
+                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white rounded-tr-lg rounded-br-lg w-1/5">Min Balance (ETH)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!isDeployed ? (
+                  <tr>
+                    <td colSpan="3" className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]">
+                      Please deploy the contract first to configure addresses
+                    </td>
+                  </tr>
+                ) : (
+                  addresses.map((item) => (
+                    <tr key={item.key} className=" bg-[#1A1A1A]">
+                      <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 truncate rounded-tl-lg rounded-bl-lg">
+                        <span className="block truncate">{item.address}</span>
+                      </td>
+                      <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
+                        <span className="px-2 sm:px-4 py-2 bg-[#4CAF50] text-white rounded whitespace-nowrap text-sm">
+                          {item.currentBalance} ETH
+                        </span>
+                      </td>
+                      <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5 rounded-tr-lg rounded-br-lg">
+                        <span className="px-2 sm:px-4 py-1 bg-[#F8FF7C] text-black rounded whitespace-nowrap">
+                          {item.minimumBalance} ETH
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-       {/* Deploy Button */}
-<div className="flex justify-center">
-  {isDeployed && (
-    <button
-      onClick={() => navigate('/', {
-        state: {
-          jobType: 1, // Time-based trigger
-          contractAddress: contractAddress,
-          abi: JSON.stringify([{
-            "inputs": [],
-            "name": "maintainBalances",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          }]),
-          timeframe: { years: 0, months: 0, days: 1 },
-          timeInterval: { hours: 1, minutes: 0, seconds: 0 }
-        }
-      })}
-      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
-    >
-      Create Job
-    </button>
-  )}
-</div>
+        {/* Deploy Button */}
+        <div className="flex justify-center">
+          {isDeployed && (
+            <button
+              onClick={() => navigate('/', {
+                state: {
+                  jobType: 1, // Time-based trigger
+                  contractAddress: contractAddress,
+                  abi: JSON.stringify([{
+                    "inputs": [],
+                    "name": "maintainBalances",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                  }]),
+                  timeframe: { years: 0, months: 0, days: 1 },
+                  timeInterval: { hours: 1, minutes: 0, seconds: 0 }
+                }
+              })}
+              className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg hover:bg-[#9B4EDB] transition-colors text-lg"
+            >
+              Create Job
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

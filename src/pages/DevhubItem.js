@@ -75,7 +75,7 @@ function DevhubItem() {
     fetchData();
   }, [slug]);
 
-const navigate=useNavigate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!postData || isLoading || error) {
@@ -295,33 +295,32 @@ const navigate=useNavigate()
 
           {/* Buttons */}
           <div className="flex justify-center gap-4">
-          <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
-            <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-            <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-            <a
-              href={postData.githubUrl || "#"}
-              target="blank"
-              className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
-            >
-              <FaGithub className="mr-2" />
-              Open Github
-            </a>
-          </div>
-          <div  className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
-            <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-            <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-            <div
-              
-              className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
-            >
+            <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
+              <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+              <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <a
-              href={'/main'}
-              target="blank"
-              className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
-            >
-             🛠️ In Progress</a>
+                href={postData.githubUrl || "#"}
+                target="blank"
+                className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+              >
+                <FaGithub className="mr-2" />
+                Open Github
+              </a>
             </div>
-          </div>
+            <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
+              <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+              <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+              <div
+
+                className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+              >
+                <a
+                  href={'/main'}
+                  className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
+                >
+                  🛠️ In Progress</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -363,11 +362,10 @@ const navigate=useNavigate()
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${
-                        activeHeading === pair.h2Heading
+                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
                           ? "text-green-400 font-bold"
                           : "text-gray-300"
-                      }`}
+                        }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -399,11 +397,10 @@ const navigate=useNavigate()
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
-                    activeHeading === pair.h2Heading
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
                       ? "text-green-400 font-bold"
                       : "text-gray-300"
-                  }`}
+                    }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
@@ -512,7 +509,7 @@ const navigate=useNavigate()
 
       </div>
       <div className="flex items-center justify-center">
-        <button onClick={() => navigate('/devhub')} 
+        <button onClick={() => navigate('/devhub')}
           className="bg-white rounded-full my-16 px-4 sm:px-6 lg:px-8 py-3 lg:py-4 text-black mx-auto text-xs sm:text-sm lg:text-base"
         >
           Go Back to DevHub

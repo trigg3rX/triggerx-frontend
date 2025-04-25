@@ -192,7 +192,7 @@ const Footer = () => {
                 Docs
               </a>
               <a
-                href="https://t.me/triggerxnetwork"
+                href="https://app.triggerx.network/devhub"
                 className="hover:text-gray-400"
                 target="blank"
               >
