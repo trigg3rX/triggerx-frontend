@@ -278,32 +278,7 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!window.ethereum) {
-        toast.error("Please install MetaMask to use this application!");
-        setConnected(false);
-        return;
-      }
 
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        if (accounts.length === 0) {
-          // Clear any existing toasts before showing connection message
-          toast.dismiss();
-          toast.error("Please connect your wallet to continue!");
-        }
-        setConnected(accounts.length > 0);
-      } catch (error) {
-        toast.error("Failed to check wallet connection!");
-        setConnected(false);
-      }
-    };
-
-    checkConnection();
-  }, []);
 
   const handleUpdateJob = (id) => {
     setJobs(

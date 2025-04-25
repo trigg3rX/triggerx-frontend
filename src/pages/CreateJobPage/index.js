@@ -134,29 +134,29 @@ function extractFunctions(abi) {
     } else if (Array.isArray(abi)) {
       abiArray = abi;
     } else if (abi && typeof abi === 'object' && !Array.isArray(abi)) {
-       // Handle cases where ABI might be passed as a single object instead of array
-       // This might happen if the JSON string was just '{}'
-       // Or if the location.state accidentally passed an object directly
-       // Check if it looks like an ABI entry
-       if (abi.type && abi.name) {
-         abiArray = [abi];
-       } else {
-          // console.warn("Received non-array, non-string ABI object, attempting to treat as array:", abi);
-          // Try to be lenient if possible, otherwise return empty
-          abiArray = Array.isArray(Object.values(abi)) ? Object.values(abi) : [];
-       }
+      // Handle cases where ABI might be passed as a single object instead of array
+      // This might happen if the JSON string was just '{}'
+      // Or if the location.state accidentally passed an object directly
+      // Check if it looks like an ABI entry
+      if (abi.type && abi.name) {
+        abiArray = [abi];
+      } else {
+        // console.warn("Received non-array, non-string ABI object, attempting to treat as array:", abi);
+        // Try to be lenient if possible, otherwise return empty
+        abiArray = Array.isArray(Object.values(abi)) ? Object.values(abi) : [];
+      }
     }
-     else {
-       // console.warn("ABI is not an array, object, or valid JSON string:", abi);
+    else {
+      // console.warn("ABI is not an array, object, or valid JSON string:", abi);
       // throw new Error("ABI must be an array, object, or valid JSON string");
       return []; // Return empty if type is unexpected
     }
 
     // Ensure abiArray is actually an array before filtering
     if (!Array.isArray(abiArray)) {
-       // console.error("Processed ABI is not an array:", abiArray);
+      // console.error("Processed ABI is not an array:", abiArray);
       // throw new Error("Processed ABI is not an array");
-       return [];
+      return [];
     }
 
     const functions = abiArray
@@ -165,7 +165,7 @@ function extractFunctions(abi) {
           item && // Check if item exists
           item.type === "function" &&
           (item.stateMutability === "nonpayable" || // Filter for writable
-           item.stateMutability === "payable")
+            item.stateMutability === "payable")
       )
       .map((func) => ({
         name: func.name || "unnamed",
@@ -227,31 +227,7 @@ function CreateJobPage() {
   }, [baseUrl]);
 
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!window.ethereum) {
-        toast.error("Please install MetaMask to use this application!");
-        setConnected(false);
-        return;
-      }
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        if (accounts.length === 0) {
-          // Clear any existing toasts before showing connection message
-          toast.dismiss();
-          toast.error("Please connect your wallet to continue!");
-        }
-        setConnected(accounts.length > 0);
-      } catch (error) {
-        toast.error("Failed to check wallet connection!");
-        setConnected(false);
-      }
-    };
 
-    checkConnection();
-  }, []);
 
   const eventdropdownRef = useRef(null);
   // Close dropdown when clicking outside
@@ -450,8 +426,8 @@ function CreateJobPage() {
       if (incomingTimeframe) {
         setTimeframe(incomingTimeframe);
         const tfSeconds = (incomingTimeframe.years * 31536000) +
-                          (incomingTimeframe.months * 2592000) + 
-                          (incomingTimeframe.days * 86400);
+          (incomingTimeframe.months * 2592000) +
+          (incomingTimeframe.days * 86400);
         setTimeframeInSeconds(tfSeconds);
         setErrorFrame(""); // Clear any previous errors
       }
@@ -462,14 +438,14 @@ function CreateJobPage() {
         setTimeInterval(incomingTimeInterval);
         // Recalculate intervalInSeconds based on the incoming object
         const tiSeconds = (incomingTimeInterval.hours * 3600) +
-                          (incomingTimeInterval.minutes * 60) +
-                          incomingTimeInterval.seconds;
+          (incomingTimeInterval.minutes * 60) +
+          incomingTimeInterval.seconds;
         setIntervalInSeconds(tiSeconds);
         setErrorInterval(""); // Clear any previous errors
       } else {
-          // If job type is not 1, reset time interval (optional, depends on desired behavior)
-          // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
-          // setIntervalInSeconds(0);
+        // If job type is not 1, reset time interval (optional, depends on desired behavior)
+        // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
+        // setIntervalInSeconds(0);
       }
 
       // 4. Set Contract Details (Address and ABI) for the 'main' job
@@ -481,34 +457,34 @@ function CreateJobPage() {
         // Update the contractDetails state for the specific job type's 'main' entry
         // Using functional update ensures we're working with the latest state
         setContractDetails(prevDetails => {
-            const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
+          const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
 
-            // Prepare the 'main' details object
-            const newMainDetails = {
-              // Keep existing 'main' details if any, and overwrite specific fields
-              ...(prevDetails[currentJobTypeKey]?.main || {}),
-              contractAddress: incomingContractAddress,
-              contractABI: incomingAbiString,
-              // Reset functions/target as ABI/Address is new
-              // The ContractDetails component should re-evaluate based on these changes
-              functions: extractedFunctions,
-              targetFunction: "",
-              // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
-              // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
-              argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
-              argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
-              ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
-            };
+          // Prepare the 'main' details object
+          const newMainDetails = {
+            // Keep existing 'main' details if any, and overwrite specific fields
+            ...(prevDetails[currentJobTypeKey]?.main || {}),
+            contractAddress: incomingContractAddress,
+            contractABI: incomingAbiString,
+            // Reset functions/target as ABI/Address is new
+            // The ContractDetails component should re-evaluate based on these changes
+            functions: extractedFunctions,
+            targetFunction: "",
+            // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
+            // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
+            argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
+            argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
+            ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
+          };
 
-            // Return the updated state object
-            return {
-              ...prevDetails,
-              [currentJobTypeKey]: {
-                // Preserve other potential keys (like linked jobs) if they exist
-                ...(prevDetails[currentJobTypeKey] || {}),
-                main: newMainDetails, // Set the updated 'main' details
-              },
-            };
+          // Return the updated state object
+          return {
+            ...prevDetails,
+            [currentJobTypeKey]: {
+              // Preserve other potential keys (like linked jobs) if they exist
+              ...(prevDetails[currentJobTypeKey] || {}),
+              main: newMainDetails, // Set the updated 'main' details
+            },
+          };
         });
       }
 
@@ -518,16 +494,16 @@ function CreateJobPage() {
 
     }
   }, [
-      location.state,
-      setJobType,
-      setTimeframe,
-      setTimeframeInSeconds, // Add dependency
-      setTimeInterval,
-      setIntervalInSeconds, // Add dependency
-      setContractDetails,
-      setErrorFrame, // Add dependency
-      setErrorInterval, // Add dependency
-      navigate // Add dependency if using navigate to clear state
+    location.state,
+    setJobType,
+    setTimeframe,
+    setTimeframeInSeconds, // Add dependency
+    setTimeInterval,
+    setIntervalInSeconds, // Add dependency
+    setContractDetails,
+    setErrorFrame, // Add dependency
+    setErrorInterval, // Add dependency
+    navigate // Add dependency if using navigate to clear state
   ]);
 
   const handleContractDetailChange = (jobType, jobKey, field, value) => {
@@ -811,9 +787,9 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
-  
 
-  
+
+
 
   return (
     <div>

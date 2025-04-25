@@ -45,13 +45,13 @@ export function useJobCreation() {
 
   useEffect(() => {
     fetchTGBalance();
-  });
+  }, []);
 
   const estimateFee = async (
     timeframeInSeconds,
     intervalInSeconds,
     codeUrls,
-    
+
   ) => {
     console.log("argType", argType);
     try {
@@ -155,25 +155,38 @@ export function useJobCreation() {
 
   const fetchTGBalance = async () => {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
+      // Check if ethereum provider exists
+      if (!window.ethereum) {
+        console.warn("No Ethereum provider found. Please install MetaMask.");
+        return;
+      }
 
-      const stakeRegistryContract = new ethers.Contract(
-        stakeRegistryAddress,
-        ["function getStake(address) view returns (uint256, uint256)"], // Assuming getStake returns (TG balance, other value)
-        provider
-      );
+      // Use this to only check for existing connections without prompting:
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
 
-      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      console.log("Raw TG Balance:", tgBalance.toString());
-      setUserBalance(ethers.formatEther(tgBalance));
+        const stakeRegistryContract = new ethers.Contract(
+          stakeRegistryAddress,
+          ["function getStake(address) view returns (uint256, uint256)"],
+          provider
+        );
+
+        const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
+        console.log("Raw TG Balance:", tgBalance.toString());
+        setUserBalance(ethers.formatEther(tgBalance));
+      }
     } catch (error) {
       console.error("Error fetching TG balance:", error);
-      toast.error("Failed to fetch TG balance");
+      // Don't show toast for wallet connection errors as they can be expected
+      if (!error.message.includes("eth_requestAccounts")) {
+        toast.error("Failed to fetch TG balance");
+      }
     }
   };
-  // console.log(userBalance, "my TG ......");
+
 
   const handleSubmit = async (
     stakeRegistryAddress,

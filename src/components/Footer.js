@@ -169,6 +169,28 @@ const Footer = () => {
                   </svg>
                 </a>
               </Tooltip>
+              <Tooltip
+                title="Youtube"
+                styles={{
+                  body: { background: "#141414" },
+                }}
+              >
+                <a
+                  href="https://www.youtube.com/@triggerxnetwork"
+                  className="hover:text-gray-300"
+                  target="blank"
+                  aria-label="TriggerX on Youtube"
+                >
+                  <div className="border border-white rounded-full group hover:bg-white p-2">
+
+                    <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:fill-black transition-colors duration-300 w-3 h-3  lg:w-6 lg:h-6"
+                    >
+                      <path d="M37.7232 12.5947C37.5243 11.8536 37.134 11.1778 36.5913 10.6352C36.0487 10.0926 35.373 9.70222 34.6318 9.50331C32.6071 8.72106 12.9913 8.33781 7.30034 9.52519C6.5591 9.72417 5.88326 10.1147 5.34064 10.6574C4.79803 11.2002 4.40774 11.8761 4.20896 12.6174C3.29459 16.6276 3.22546 25.2971 4.23171 29.3973C4.43063 30.1384 4.82097 30.8142 5.36358 31.3568C5.90618 31.8994 6.58196 32.2898 7.32309 32.4887C11.3332 33.4118 30.3977 33.5413 34.6546 32.4887C35.3957 32.2898 36.0715 31.8994 36.6141 31.3568C37.1567 30.8142 37.547 30.1384 37.746 29.3973C38.7207 25.0284 38.7898 16.8962 37.7232 12.5947Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M26.7466 20.996L17.6055 15.7539V26.2382L26.7466 20.996Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                </a>
+              </Tooltip>
             </div>
             <h4 className="text-start text-[2.5vw] xs:text-xs lg:text-[1vw] 2xl:text-[15px] text-nowrap">
               © {currentYear} TriggerX. All rights reserved.
