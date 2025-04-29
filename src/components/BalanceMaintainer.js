@@ -851,15 +851,13 @@ const BalanceMaintainerExample = () => {
                 <div className="flex flex-wrap gap-4">
                   <Tooltip color="#2A2A2A"
                     title={
-
                       !hasSufficientBalance ? " Insufficient ETH balance" :
                         ""}
                     open={(!hasSufficientBalance) ? undefined : false}
                   >
                     <button
                       onClick={showDeployModal}
-                      disabled={!hasSufficientBalance}
-                      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
+                      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg"
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
@@ -873,8 +871,7 @@ const BalanceMaintainerExample = () => {
                   >
                     <button
                       onClick={handleClaim}
-                      disabled={isLoading}
-                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance && 'opacity-50 cursor-not-allowed'}`}
+                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
                     >
                       💰 Claim ETH
                     </button>
