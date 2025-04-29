@@ -1,5 +1,25 @@
 import {defineField, defineType, defineArrayMember} from 'sanity'
 
+const codeBlockDefinition = defineArrayMember({
+  type: 'code',
+  name: 'codeBlock', // Keep consistent name if needed, though 'type' is primary
+  title: 'Code Block',
+  options: {
+    language: 'javascript', // Default language
+    languageAlternatives: [
+      {title: 'JavaScript', value: 'javascript'},
+      {title: 'TypeScript', value: 'typescript'},
+      {title: 'Python', value: 'python'},
+      {title: 'Solidity', value: 'solidity'},
+      {title: 'Bash', value: 'bash'},
+      {title: 'JSON', value: 'json'},
+      {title: 'Markdown', value: 'markdown'},
+      // Add more languages if needed
+    ],
+    withFilename: true, // Allows adding a filename
+  },
+})
+
 export const postType = defineType({
   name: 'post',
   title: 'Post',
@@ -178,8 +198,11 @@ export const postType = defineType({
                       name: 'content',
                       title: 'Step Content',
                       description: 'The detailed content shown when the step is expanded.',
-                      type: 'text',
-                      validation: (Rule) => Rule.required(),
+                      type: 'array',
+                      of: [
+                        defineArrayMember({type: 'block'}), // Allow standard text blocks
+                        codeBlockDefinition,
+                      ],
                     },
                   ],
                   preview: {
@@ -204,6 +227,7 @@ export const postType = defineType({
             },
           },
         }),
+        codeBlockDefinition
       ],
     }),
     defineField({
