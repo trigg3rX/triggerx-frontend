@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
-
+import StakingRewards from "./components/StakingRewards";
+import PriceOracle from "./components/PriceOracle";
 import CreateJobPage from "./pages/CreateJobPage";
 import DashboardPage from "./pages/DashboardPage";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -115,7 +116,8 @@ const App = () => {
                     <Route path="/devhub/:slug" element={<DevhubItem />} />
                     <Route path="/api" element={<ApiCreation />} />
                     <Route path="/eth-top-ups-example" element={<BalanceMaintainer />} />
-
+                    <Route path="/staking-rewards" element={<StakingRewards />} />
+                    <Route path="/price-oracle" element={<PriceOracle />} />
                     <Route path="*" element={<NotFound />} />
                   </>
                 </Routes>
