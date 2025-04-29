@@ -546,7 +546,7 @@ function DevhubItem() {
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <div className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center">
-                <a
+                {/* <a
                   href={postData.redirect || "#"}
                   onClick={(e) => {
                     if (!postData.redirect) {
@@ -554,6 +554,14 @@ function DevhubItem() {
                       handleOpen();
                     }
                   }}
+                  target={postData.redirect ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
+                >
+                  ⚡ Try Now
+                </a> */}
+                <a
+                  href={"/eth-top-ups-example"}
                   target={postData.redirect ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
@@ -584,7 +592,7 @@ function DevhubItem() {
                       <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                       <a
                         href="/eth-top-ups-example"
-                        target="blank"
+
                         className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center"
                       >
                         Go to Template
@@ -635,11 +643,10 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${
-                        activeHeading === pair.h2Heading
-                          ? "text-green-400 font-bold"
-                          : "text-gray-300"
-                      }`}
+                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
+                        ? "text-green-400 font-bold"
+                        : "text-gray-300"
+                        }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -671,11 +678,10 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
-                    activeHeading === pair.h2Heading
-                      ? "text-green-400 font-bold"
-                      : "text-gray-300"
-                  }`}
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
+                    ? "text-green-400 font-bold"
+                    : "text-gray-300"
+                    }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
