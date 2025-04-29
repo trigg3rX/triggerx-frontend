@@ -323,30 +323,60 @@ const BalanceMaintainerExample = () => {
             network = await provider.getNetwork();
           } catch (error) {
             console.warn("Error getting network:", error);
-            // Default to Optimism Sepolia if network fetch fails
             network = { chainId: 11155420 };
           }
 
-          setProvider(provider);
-          setSigner(signer);
-          setAddress(address);
-          setChainId(network.chainId);
-          setIsInitialized(true);
+          // Batch state updates for initialization
+          const initialState = {
+            provider,
+            signer,
+            address,
+            chainId: network.chainId,
+            isInitialized: true
+          };
+
+          // Update all states at once
+          setProvider(initialState.provider);
+          setSigner(initialState.signer);
+          setAddress(initialState.address);
+          setChainId(initialState.chainId);
+          setIsInitialized(initialState.isInitialized);
 
           // Listen for account changes
           window.ethereum.on('accountsChanged', async (accounts) => {
             if (accounts.length === 0) {
-              setAddress("");
-              setSigner(null);
-              setIsDeployed(false);
-              setContractAddress("");
+              // Batch reset all states for disconnection
+              const resetState = {
+                address: "",
+                signer: null,
+                isDeployed: false,
+                contractAddress: "",
+                isInitialized: false,
+                provider: null,
+                chainId: null
+              };
+
+              // Update all states at once
+              setAddress(resetState.address);
+              setSigner(resetState.signer);
+              setIsDeployed(resetState.isDeployed);
+              setContractAddress(resetState.contractAddress);
+              setIsInitialized(resetState.isInitialized);
+              setProvider(resetState.provider);
+              setChainId(resetState.chainId);
+
+              toast.error("Wallet disconnected");
             } else {
               try {
-                const signer = await provider.getSigner();
-                setSigner(signer);
-                setAddress(accounts[0]);
+                const newSigner = await provider.getSigner();
+                const newAddress = accounts[0];
+
+                // Batch update states for account change
+                setSigner(newSigner);
+                setAddress(newAddress);
+
                 // Check for existing contract when account changes
-                checkExistingContract(provider, accounts[0]);
+                checkExistingContract(provider, newAddress);
               } catch (error) {
                 console.error("Error handling account change:", error);
               }
@@ -356,7 +386,6 @@ const BalanceMaintainerExample = () => {
           // Listen for chain changes
           window.ethereum.on('chainChanged', async (chainId) => {
             try {
-              // Convert chainId from hex to decimal
               const newChainId = parseInt(chainId, 16);
               setChainId(newChainId);
 
@@ -373,16 +402,47 @@ const BalanceMaintainerExample = () => {
           });
         } catch (error) {
           console.error("Error initializing provider:", error);
-          // Reset states if initialization fails
-          setProvider(null);
-          setSigner(null);
-          setAddress("");
-          setChainId(null);
-          setIsInitialized(false);
+          // Batch reset all states for error
+          const errorState = {
+            provider: null,
+            signer: null,
+            address: "",
+            chainId: null,
+            isInitialized: false,
+            isDeployed: false,
+            contractAddress: ""
+          };
+
+          // Update all states at once
+          setProvider(errorState.provider);
+          setSigner(errorState.signer);
+          setAddress(errorState.address);
+          setChainId(errorState.chainId);
+          setIsInitialized(errorState.isInitialized);
+          setIsDeployed(errorState.isDeployed);
+          setContractAddress(errorState.contractAddress);
         }
       } else {
         console.error("MetaMask not found");
-        setIsInitialized(false);
+        // Batch reset all states for no MetaMask
+        const noMetaMaskState = {
+          isInitialized: false,
+          provider: null,
+          signer: null,
+          address: "",
+          chainId: null,
+          isDeployed: false,
+          contractAddress: ""
+        };
+
+        // Update all states at once
+        setIsInitialized(noMetaMaskState.isInitialized);
+        setProvider(noMetaMaskState.provider);
+        setSigner(noMetaMaskState.signer);
+        setAddress(noMetaMaskState.address);
+        setChainId(noMetaMaskState.chainId);
+        setIsDeployed(noMetaMaskState.isDeployed);
+        setContractAddress(noMetaMaskState.contractAddress);
       }
     };
 
@@ -394,7 +454,7 @@ const BalanceMaintainerExample = () => {
         window.ethereum.removeAllListeners('chainChanged');
       }
     };
-  }, []);
+  }, []); // Keep empty dependency array as this should only run once on mount
 
   // Check for existing contract
   const checkExistingContract = async (provider, userAddress) => {
@@ -746,12 +806,10 @@ const BalanceMaintainerExample = () => {
       // Check if wallet is connected
       if (!address) {
         toast.error('Wallet not connected. Please connect your wallet first.');
-        throw new Error('Wallet not connected');
+
       }
       let networkName = "op_sepolia"; // Default
-      if (chainId === 84532n) {
-        networkName = "base_sepolia";
-      }
+
       // Call the backend API to send ETH to the user's wallet
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
@@ -766,7 +824,6 @@ const BalanceMaintainerExample = () => {
           }),
         }
       );
-
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -817,8 +874,8 @@ const BalanceMaintainerExample = () => {
         className="mt-10"
         toastOptions={{
           style: {
-            background: "#0a0a0a", // Dark background
-            color: "#fff", // White text
+            background: "#0a0a0a",
+            color: "#fff",
             borderRadius: "8px",
             border: "1px gray solid",
           },
@@ -836,39 +893,30 @@ const BalanceMaintainerExample = () => {
         <div className="p-4 rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
           <div className="text-[#A2A2A2] space-y-2">
-            {!isDeployed ? (
+            {!isInitialized ? (
+              <div className="text-center py-2">
+                <p className="text-[#A2A2A2] mb-2 text-start">Please connect your wallet to continue</p>
+
+              </div>
+            ) : !isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed</p>
-
-                {console.log('Button State:', {
-                  isDeployed,
-                  isLoading,
-                  hasSigner: !!signer,
-                  isInitialized,
-                  canDeploy: !isLoading && !!signer && !isInitialized
-                })}
-
                 <div className="flex flex-wrap gap-4">
                   <Tooltip color="#2A2A2A"
-                    title={
-
-                      !hasSufficientBalance ? " Insufficient ETH balance" :
-                        ""}
-                    open={(!hasSufficientBalance) ? undefined : false}
+                    title={!hasSufficientBalance ? "Insufficient ETH balance" : ""}
+                    open={(isLoading || !signer || !isInitialized || !hasSufficientBalance) ? undefined : false}
                   >
                     <button
                       onClick={showDeployModal}
-                      disabled={!hasSufficientBalance}
+                      disabled={isLoading || !signer || !isInitialized || !hasSufficientBalance}
                       className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
                   </Tooltip>
-
-
                   <Tooltip
                     color="#2A2A2A"
-                    title={hasSufficientBalance ? " Sufficient ETH balance" : ""}
+                    title={hasSufficientBalance ? "Sufficient ETH balance" : ""}
                     open={hasSufficientBalance ? undefined : false}
                   >
                     <button
@@ -879,7 +927,6 @@ const BalanceMaintainerExample = () => {
                       💰 Claim ETH
                     </button>
                   </Tooltip>
-
                 </div>
               </>
             ) : (
