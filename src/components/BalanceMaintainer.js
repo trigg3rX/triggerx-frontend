@@ -1054,7 +1054,7 @@ const BalanceMaintainerExample = () => {
           {isDeployed && (
             <button onClick={() => navigate('/', {
               state: {
-                jobType: 1, // Time-based trigger
+                jobType: 1,
                 contractAddress: contractAddress,
                 abi: JSON.stringify([{
                   "inputs": [],
