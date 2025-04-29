@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaGithub, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaGithub,
+  FaExclamationTriangle,
+  FaCopy,
+  FaCheck,
+} from "react-icons/fa";
 import sanityClient from "../sanityClient";
 import imageUrlBuilder from "@sanity/image-url";
 import { PortableText } from "@portabletext/react";
 import DevhubItemSkeleton from "./DevhubItemSkeleton";
 import Modal from "react-modal";
+
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // --- Sanity Image URL Builder Setup ---
 const builder = imageUrlBuilder(sanityClient);
@@ -26,16 +34,143 @@ async function getBlog(slug) {
     productVersions,
     readTime,
     requires,
-    body, 
+    body[]{
+     ..., 
+      _type == 'image' => {
+        ..., 
+        asset-> { 
+          _id,
+          url,
+          metadata { 
+            dimensions,
+            lqip 
+          }
+        }
+      },
+       _type == 'stepsAccordion' => {
+        _key, 
+        _type, 
+        heading,
+        steps[] {
+          _key,
+          title,
+          content[]{ 
+            ...,     
+            markDefs[]{
+              ...,
+              _type == 'link' => { ..., href } 
+            },
+            children[]{...}
+          }
+        }
+      },
+      _type == 'youtube' => { ..., url },
+      _type == 'buttonLink' => { ..., url, text },
+      _type == 'disclaimer' => { ..., title, text }
+    },
     headingPairs[] {
       displayHeading, 
       h2Heading      
-    },    slug { current }, 
+    },    
+    slug { current }, 
     githubUrl,
     redirect
 }`;
 
   return sanityClient.fetch(query, { slug });
+}
+
+function CodeBlock({ value }) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  if (!value?.code) {
+    return null;
+  }
+
+  const language = value.language || "text";
+  const codeString = String(value.code).trim();
+  const filename = value.filename;
+
+  const handleCopy = () => {
+    if (!codeString) return;
+    navigator.clipboard
+      .writeText(codeString)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+      });
+  };
+
+  return (
+    <div className="relative group my-6 rounded-lg overflow-hidden bg-[#2d2d2d] shadow-md border border-gray-700/50">
+      {filename && (
+        <div className="bg-gray-700/50 px-4 py-1.5 text-xs text-gray-300 font-mono border-b border-gray-600/80 flex justify-between items-center">
+          <span>{filename}</span>
+          <button
+            onClick={handleCopy}
+            className="p-1 bg-gray-600 hover:bg-gray-500 rounded text-gray-200 text-xs transition-all duration-150 opacity-70 group-hover:opacity-100"
+            aria-label="Copy code to clipboard"
+            title={isCopied ? "Copied!" : "Copy code"}
+          >
+            {isCopied ? (
+              <FaCheck className="w-3 h-3 text-green-400" />
+            ) : (
+              <FaCopy className="w-3 h-3" />
+            )}
+          </button>
+        </div>
+      )}
+
+      {!filename && (
+        <button
+          onClick={handleCopy}
+          className="absolute top-2 right-2 p-1.5 bg-gray-600 hover:bg-gray-500 rounded text-gray-200 text-xs transition-all duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100"
+          aria-label="Copy code to clipboard"
+          title={isCopied ? "Copied!" : "Copy code"}
+        >
+          {isCopied ? (
+            <FaCheck className="w-3 h-3 text-green-400" />
+          ) : (
+            <FaCopy className="w-3 h-3" />
+          )}
+        </button>
+      )}
+
+      <SyntaxHighlighter
+        language={language}
+        style={atomDark}
+        customStyle={{
+          padding: "1.25rem",
+          paddingTop: filename ? "0.75rem" : "1.50rem",
+          margin: 0,
+          borderRadius: filename ? "0" : "0 0 0.5rem 0.5rem",
+          fontSize: "0.875rem",
+        }}
+        wrapLines={true}
+        // showLineNumbers={true}
+        // lineNumberStyle={{
+        //   minWidth: "2.5em",
+        //   paddingRight: "1em",
+        //   textAlign: "right",
+        //   opacity: 0.4,
+        //   userSelect: "none",
+        //   display: "inline-block",
+        // }}
+        codeTagProps={{
+          style: {
+            fontFamily: '"Fira Code", "Source Code Pro", monospace',
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+          },
+        }}
+      >
+        {codeString}
+      </SyntaxHighlighter>
+    </div>
+  );
 }
 
 function DevhubItem() {
@@ -197,12 +332,13 @@ function DevhubItem() {
 
     return (
       <div className="my-10">
-        <h2
-          id={value.heading}
-          className="text-xl font-bold text-white mb-6 uppercase tracking-widest"
-        >
-          {value.heading}
-        </h2>
+        {value.heading && (
+           <h2
+             className="text-xl font-bold text-white mb-6 uppercase tracking-widest"
+           >
+            {value.heading}
+          </h2>
+        )}
         <div className="space-y-3">
           {value.steps.map((step, index) => (
             <div
@@ -239,9 +375,103 @@ function DevhubItem() {
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${openSteps[index] ? "max-h-screen" : "max-h-0"}`}
               >
                 <div className="px-5 pb-5 pt-2 bg-[#242323]">
-                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
-                    {step.content}
-                  </p>
+                   {step.content && (
+                    <PortableText
+                      value={step.content}
+                      components={{
+                        types: {
+                          image: ({ value }) => (
+                            <div className="my-10 w-full h-auto">
+                              {value?.asset?.url && (
+                                <img
+                                  src={value.asset.url}
+                                  alt={value.alt || "Blog Image"}
+                                  width={2500}
+                                  height={2000}
+                                  className="rounded-2xl !relative w-full h-auto"
+                                />
+                              )}
+                            </div>
+                          ),
+                          youtube: ({ value }) => (
+                            <div className="my-4 aspect-w-16 aspect-h-9">
+                              <iframe
+                                className="w-full h-full rounded-lg"
+                                src={`https://www.youtube.com/embed/${value?.url?.split("v=")[1]}`}
+                                title="YouTube video player"
+                                style={{ border: "none" }}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            </div>
+                          ),
+          
+                          buttonLink: ({ value }) => <ButtonLink value={value} />,
+                          disclaimer: ({ value }) => <Disclaimer value={value} />,
+                          stepsAccordion: ({ value }) => <StepsAccordion value={value} />,
+                          codeBlock: CodeBlock,
+                        },
+                        code: CodeBlock,
+                        marks: {
+                          strong: ({ children }) => (
+                            <strong className="font-bold">{children}</strong>
+                          ),
+                          em: ({ children }) => <em className="italic">{children}</em>,
+                          code: ({ children }) => (
+                            <code className="bg-gray-200 px-1 py-0.5 rounded">
+                              {children}
+                            </code>
+                          ),
+                          link: ({ value, children }) => (
+                            <a
+                              href={value?.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              {children}
+                            </a>
+                          ),
+                        },
+                        list: {
+                          bullet: ({ children }) => (
+                            <ul className="list-disc pl-6 my-2">{children}</ul>
+                          ),
+                          number: ({ children }) => (
+                            <ol className="list-decimal pl-6 my-2">{children}</ol>
+                          ),
+                        },
+                        block: {
+                          h2: ({ children }) => {
+                            const text = children?.[0]; // Extract text from children array
+                            return (
+                              <h2
+                                id={text}
+                                className="font-actayWide text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-bold mt-10 mb-4"
+                              >
+                                {text}
+                              </h2>
+                            );
+                          },
+                          h3: ({ children }) => {
+                            const text = children?.[0];
+                            return (
+                              <h3
+                                id={text}
+                                className="text-sm sm:text-lg xl:text-xl 2xl:text-2xl mt-4"
+                              >
+                                {text}
+                              </h3>
+                            );
+                          },
+                          normal: ({ children }) => (
+                            <p className="my-2 text-xs sm:text-sm xl:text-base 2xl:text-lg">
+                              {children}
+                            </p>
+                          ),
+                        },
+                      }}                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -495,7 +725,9 @@ function DevhubItem() {
                 buttonLink: ({ value }) => <ButtonLink value={value} />,
                 disclaimer: ({ value }) => <Disclaimer value={value} />,
                 stepsAccordion: ({ value }) => <StepsAccordion value={value} />,
+                codeBlock: CodeBlock,
               },
+              code: CodeBlock,
               marks: {
                 strong: ({ children }) => (
                   <strong className="font-bold">{children}</strong>
