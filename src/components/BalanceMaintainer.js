@@ -871,7 +871,8 @@ const BalanceMaintainerExample = () => {
                   >
                     <button
                       onClick={handleClaim}
-                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
+                      disabled={hasSufficientBalance}
+                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       💰 Claim ETH
                     </button>
