@@ -308,153 +308,153 @@ const BalanceMaintainerExample = () => {
   // Initialize provider and signer
   useEffect(() => {
     const initProvider = async () => {
+      console.log('Initializing provider...');
       if (window.ethereum) {
         try {
+          console.log('MetaMask is installed');
           // Request account access if needed
           await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('Account access requested');
 
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
           const address = await signer.getAddress();
+          console.log('Initial wallet address:', address);
 
           // Get network with error handling
           let network;
           try {
             network = await provider.getNetwork();
+            console.log('Current network:', network);
           } catch (error) {
             console.warn("Error getting network:", error);
+            // Default to Optimism Sepolia if network fetch fails
             network = { chainId: 11155420 };
           }
 
-          // Batch state updates for initialization
-          const initialState = {
-            provider,
-            signer,
-            address,
-            chainId: network.chainId,
-            isInitialized: true
-          };
-
-          // Update all states at once
-          setProvider(initialState.provider);
-          setSigner(initialState.signer);
-          setAddress(initialState.address);
-          setChainId(initialState.chainId);
-          setIsInitialized(initialState.isInitialized);
+          setProvider(provider);
+          setSigner(signer);
+          setAddress(address);
+          setChainId(network.chainId);
+          setIsInitialized(true);
+          console.log('Provider initialized successfully');
 
           // Listen for account changes
+          console.log('Setting up accountsChanged listener');
           window.ethereum.on('accountsChanged', async (accounts) => {
+            console.log('Accounts changed event triggered:', accounts);
             if (accounts.length === 0) {
-              // Batch reset all states for disconnection
-              const resetState = {
-                address: "",
-                signer: null,
-                isDeployed: false,
-                contractAddress: "",
-                isInitialized: false,
-                provider: null,
-                chainId: null
-              };
-
-              // Update all states at once
-              setAddress(resetState.address);
-              setSigner(resetState.signer);
-              setIsDeployed(resetState.isDeployed);
-              setContractAddress(resetState.contractAddress);
-              setIsInitialized(resetState.isInitialized);
-              setProvider(resetState.provider);
-              setChainId(resetState.chainId);
-
-              toast.error("Wallet disconnected");
+              console.log('Wallet disconnected - No accounts available');
+              // Reset all states
+              setAddress("");
+              setSigner(null);
+              setIsDeployed(false);
+              setContractAddress("");
+              setIsInitialized(false);
+              setProvider(null);
+              setChainId(null);
+              setHasSufficientBalance(false);
+              setUserBalance("0");
+              // Clear any existing toasts
+              toast.dismiss();
+              toast.error('Wallet disconnected');
             } else {
+              console.log('Wallet connected - New account:', accounts[0]);
               try {
-                const newSigner = await provider.getSigner();
-                const newAddress = accounts[0];
+                const newProvider = new ethers.BrowserProvider(window.ethereum);
+                const newSigner = await newProvider.getSigner();
+                const newAddress = await newSigner.getAddress();
 
-                // Batch update states for account change
+                // Update provider and signer
+                setProvider(newProvider);
                 setSigner(newSigner);
                 setAddress(newAddress);
+                setIsInitialized(true);
 
-                // Check for existing contract when account changes
-                checkExistingContract(provider, newAddress);
+                // Get new network
+                const newNetwork = await newProvider.getNetwork();
+                setChainId(newNetwork.chainId);
+
+                // Check balance
+                const balance = await newProvider.getBalance(newAddress);
+                const balanceInEth = ethers.formatEther(balance);
+                setUserBalance(Number(balanceInEth).toFixed(4));
+                setHasSufficientBalance(Number(balanceInEth) >= 0.02);
+
+                // Check for existing contract
+                await checkExistingContract(newProvider, newAddress);
+
+                toast.success('Wallet connected successfully');
               } catch (error) {
                 console.error("Error handling account change:", error);
+                toast.error('Error connecting wallet');
               }
             }
           });
 
           // Listen for chain changes
+          console.log('Setting up chainChanged listener');
           window.ethereum.on('chainChanged', async (chainId) => {
+            console.log('Chain changed event triggered:', chainId);
             try {
+              // Convert chainId from hex to decimal
               const newChainId = parseInt(chainId, 16);
               setChainId(newChainId);
 
               // Wait a bit for the network to stabilize
               await new Promise(resolve => setTimeout(resolve, 1000));
 
-              // Check for existing contract when chain changes
+              // Update provider and check contract
               if (address) {
-                checkExistingContract(provider, address);
+                const newProvider = new ethers.BrowserProvider(window.ethereum);
+                setProvider(newProvider);
+
+                // Check balance with new provider
+                const balance = await newProvider.getBalance(address);
+                const balanceInEth = ethers.formatEther(balance);
+                setUserBalance(Number(balanceInEth).toFixed(4));
+                setHasSufficientBalance(Number(balanceInEth) >= 0.02);
+
+                // Check for existing contract
+                await checkExistingContract(newProvider, address);
               }
+
+              toast.success('Network changed successfully');
             } catch (error) {
               console.error("Error handling chain change:", error);
+              toast.error('Error changing network');
             }
           });
         } catch (error) {
           console.error("Error initializing provider:", error);
-          // Batch reset all states for error
-          const errorState = {
-            provider: null,
-            signer: null,
-            address: "",
-            chainId: null,
-            isInitialized: false,
-            isDeployed: false,
-            contractAddress: ""
-          };
-
-          // Update all states at once
-          setProvider(errorState.provider);
-          setSigner(errorState.signer);
-          setAddress(errorState.address);
-          setChainId(errorState.chainId);
-          setIsInitialized(errorState.isInitialized);
-          setIsDeployed(errorState.isDeployed);
-          setContractAddress(errorState.contractAddress);
+          // Reset states if initialization fails
+          setProvider(null);
+          setSigner(null);
+          setAddress("");
+          setChainId(null);
+          setIsInitialized(false);
+          setHasSufficientBalance(false);
+          setUserBalance("0");
+          toast.error('Failed to initialize wallet');
         }
       } else {
         console.error("MetaMask not found");
-        // Batch reset all states for no MetaMask
-        const noMetaMaskState = {
-          isInitialized: false,
-          provider: null,
-          signer: null,
-          address: "",
-          chainId: null,
-          isDeployed: false,
-          contractAddress: ""
-        };
-
-        // Update all states at once
-        setIsInitialized(noMetaMaskState.isInitialized);
-        setProvider(noMetaMaskState.provider);
-        setSigner(noMetaMaskState.signer);
-        setAddress(noMetaMaskState.address);
-        setChainId(noMetaMaskState.chainId);
-        setIsDeployed(noMetaMaskState.isDeployed);
-        setContractAddress(noMetaMaskState.contractAddress);
+        setIsInitialized(false);
+        toast.error('Please install MetaMask');
       }
     };
 
+    console.log('Starting provider initialization...');
     initProvider();
 
     return () => {
+      console.log('Cleaning up event listeners');
       if (window.ethereum) {
         window.ethereum.removeAllListeners('accountsChanged');
         window.ethereum.removeAllListeners('chainChanged');
       }
     };
-  }, []); // Keep empty dependency array as this should only run once on mount
+  }, []);
 
   // Check for existing contract
   const checkExistingContract = async (provider, userAddress) => {
