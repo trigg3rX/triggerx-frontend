@@ -58,18 +58,18 @@ function DashboardPage() {
     // Update meta tags when activeTab changes
     document.title = 'TriggerX | Dashboard';
     document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    
+
     // Update Open Graph meta tags
     document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Dashboard');
     document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
     document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
     document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
-    
+
     // Update Twitter Card meta tags
     document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Dashboard');
     document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
     document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
-  }, [ baseUrl]);
+  }, [baseUrl]);
 
   useEffect(() => {
     const initializeProvider = async () => {
@@ -278,7 +278,32 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!window.ethereum) {
+        toast.error("Please install MetaMask to use this application!");
+        setConnected(false);
+        return;
+      }
 
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length === 0) {
+          // Clear any existing toasts before showing connection message
+          toast.dismiss();
+          toast.error("Please connect your wallet to continue!");
+        }
+        setConnected(accounts.length > 0);
+      } catch (error) {
+        toast.error("Failed to check wallet connection!");
+        setConnected(false);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -600,11 +625,10 @@ function DashboardPage() {
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className={`transition-transform duration-300 ${
-                                              expandedJobs[job.id]
+                                            className={`transition-transform duration-300 ${expandedJobs[job.id]
                                                 ? "rotate-180"
                                                 : ""
-                                            }`}
+                                              }`}
                                           >
                                             <path d="m6 9 6 6 6-6" />
                                           </svg>
@@ -890,26 +914,25 @@ function DashboardPage() {
                       isStaking ||
                       !stakeAmount ||
                       Number(stakeAmount) >
-                        Number(accountBalance?.formatted || 0)
+                      Number(accountBalance?.formatted || 0)
                     }
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                     <span
-                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
-                        isStaking ||
-                        !stakeAmount ||
-                        Number(stakeAmount) >
+                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
+                          !stakeAmount ||
+                          Number(stakeAmount) >
                           Number(accountBalance?.formatted || 0)
                           ? "opacity-50"
                           : ""
-                      }`}
+                        }`}
                     >
                       {isStaking
                         ? "Staking..."
                         : Number(stakeAmount) >
-                            Number(accountBalance?.formatted || 0)
+                          Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Stake"}
                     </span>
