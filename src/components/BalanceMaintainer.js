@@ -308,24 +308,19 @@ const BalanceMaintainerExample = () => {
   // Initialize provider and signer
   useEffect(() => {
     const initProvider = async () => {
-      console.log('Initializing provider...');
       if (window.ethereum) {
         try {
-          console.log('MetaMask is installed');
           // Request account access if needed
           await window.ethereum.request({ method: 'eth_requestAccounts' });
-          console.log('Account access requested');
 
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
           const address = await signer.getAddress();
-          console.log('Initial wallet address:', address);
 
           // Get network with error handling
           let network;
           try {
             network = await provider.getNetwork();
-            console.log('Current network:', network);
           } catch (error) {
             console.warn("Error getting network:", error);
             // Default to Optimism Sepolia if network fetch fails
@@ -337,65 +332,29 @@ const BalanceMaintainerExample = () => {
           setAddress(address);
           setChainId(network.chainId);
           setIsInitialized(true);
-          console.log('Provider initialized successfully');
 
           // Listen for account changes
-          console.log('Setting up accountsChanged listener');
           window.ethereum.on('accountsChanged', async (accounts) => {
-            console.log('Accounts changed event triggered:', accounts);
             if (accounts.length === 0) {
-              console.log('Wallet disconnected - No accounts available');
-              // Reset all states
               setAddress("");
               setSigner(null);
               setIsDeployed(false);
               setContractAddress("");
-              setIsInitialized(false);
-              setProvider(null);
-              setChainId(null);
-              setHasSufficientBalance(false);
-              setUserBalance("0");
-              // Clear any existing toasts
-              toast.dismiss();
-              toast.error('Wallet disconnected');
             } else {
-              console.log('Wallet connected - New account:', accounts[0]);
               try {
-                const newProvider = new ethers.BrowserProvider(window.ethereum);
-                const newSigner = await newProvider.getSigner();
-                const newAddress = await newSigner.getAddress();
-
-                // Update provider and signer
-                setProvider(newProvider);
-                setSigner(newSigner);
-                setAddress(newAddress);
-                setIsInitialized(true);
-
-                // Get new network
-                const newNetwork = await newProvider.getNetwork();
-                setChainId(newNetwork.chainId);
-
-                // Check balance
-                const balance = await newProvider.getBalance(newAddress);
-                const balanceInEth = ethers.formatEther(balance);
-                setUserBalance(Number(balanceInEth).toFixed(4));
-                setHasSufficientBalance(Number(balanceInEth) >= 0.02);
-
-                // Check for existing contract
-                await checkExistingContract(newProvider, newAddress);
-
-                toast.success('Wallet connected successfully');
+                const signer = await provider.getSigner();
+                setSigner(signer);
+                setAddress(accounts[0]);
+                // Check for existing contract when account changes
+                checkExistingContract(provider, accounts[0]);
               } catch (error) {
                 console.error("Error handling account change:", error);
-                toast.error('Error connecting wallet');
               }
             }
           });
 
           // Listen for chain changes
-          console.log('Setting up chainChanged listener');
           window.ethereum.on('chainChanged', async (chainId) => {
-            console.log('Chain changed event triggered:', chainId);
             try {
               // Convert chainId from hex to decimal
               const newChainId = parseInt(chainId, 16);
@@ -404,25 +363,12 @@ const BalanceMaintainerExample = () => {
               // Wait a bit for the network to stabilize
               await new Promise(resolve => setTimeout(resolve, 1000));
 
-              // Update provider and check contract
+              // Check for existing contract when chain changes
               if (address) {
-                const newProvider = new ethers.BrowserProvider(window.ethereum);
-                setProvider(newProvider);
-
-                // Check balance with new provider
-                const balance = await newProvider.getBalance(address);
-                const balanceInEth = ethers.formatEther(balance);
-                setUserBalance(Number(balanceInEth).toFixed(4));
-                setHasSufficientBalance(Number(balanceInEth) >= 0.02);
-
-                // Check for existing contract
-                await checkExistingContract(newProvider, address);
+                checkExistingContract(provider, address);
               }
-
-              toast.success('Network changed successfully');
             } catch (error) {
               console.error("Error handling chain change:", error);
-              toast.error('Error changing network');
             }
           });
         } catch (error) {
@@ -433,22 +379,16 @@ const BalanceMaintainerExample = () => {
           setAddress("");
           setChainId(null);
           setIsInitialized(false);
-          setHasSufficientBalance(false);
-          setUserBalance("0");
-          toast.error('Failed to initialize wallet');
         }
       } else {
         console.error("MetaMask not found");
         setIsInitialized(false);
-        toast.error('Please install MetaMask');
       }
     };
 
-    console.log('Starting provider initialization...');
     initProvider();
 
     return () => {
-      console.log('Cleaning up event listeners');
       if (window.ethereum) {
         window.ethereum.removeAllListeners('accountsChanged');
         window.ethereum.removeAllListeners('chainChanged');
@@ -806,10 +746,12 @@ const BalanceMaintainerExample = () => {
       // Check if wallet is connected
       if (!address) {
         toast.error('Wallet not connected. Please connect your wallet first.');
-
+        throw new Error('Wallet not connected');
       }
       let networkName = "op_sepolia"; // Default
-
+      if (chainId === 84532n) {
+        networkName = "base_sepolia";
+      }
       // Call the backend API to send ETH to the user's wallet
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
@@ -824,6 +766,7 @@ const BalanceMaintainerExample = () => {
           }),
         }
       );
+
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -874,8 +817,8 @@ const BalanceMaintainerExample = () => {
         className="mt-10"
         toastOptions={{
           style: {
-            background: "#0a0a0a",
-            color: "#fff",
+            background: "#0a0a0a", // Dark background
+            color: "#fff", // White text
             borderRadius: "8px",
             border: "1px gray solid",
           },
@@ -893,40 +836,48 @@ const BalanceMaintainerExample = () => {
         <div className="p-4 rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
           <div className="text-[#A2A2A2] space-y-2">
-            {!isInitialized ? (
-              <div className="text-center py-2">
-                <p className="text-[#A2A2A2] mb-2 text-start">Please connect your wallet to continue</p>
-
-              </div>
-            ) : !isDeployed ? (
+            {!isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed</p>
+
+                {console.log('Button State:', {
+                  isDeployed,
+                  isLoading,
+                  hasSigner: !!signer,
+                  isInitialized,
+                  canDeploy: !isLoading && !!signer && !isInitialized
+                })}
+
                 <div className="flex flex-wrap gap-4">
                   <Tooltip color="#2A2A2A"
-                    title={!hasSufficientBalance ? "Insufficient ETH balance" : ""}
-                    open={(isLoading || !signer || !isInitialized || !hasSufficientBalance) ? undefined : false}
+                    title={
+                      !hasSufficientBalance ? " Insufficient ETH balance" :
+                        ""}
+                    open={(!hasSufficientBalance) ? undefined : false}
                   >
                     <button
                       onClick={showDeployModal}
-                      disabled={isLoading || !signer || !isInitialized || !hasSufficientBalance}
-                      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${(isLoading || !signer || !isInitialized || !hasSufficientBalance) && 'opacity-50 cursor-not-allowed'}`}
+                      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg"
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
                   </Tooltip>
+
+
                   <Tooltip
                     color="#2A2A2A"
-                    title={hasSufficientBalance ? "Sufficient ETH balance" : ""}
+                    title={hasSufficientBalance ? " Sufficient ETH balance" : ""}
                     open={hasSufficientBalance ? undefined : false}
                   >
                     <button
                       onClick={handleClaim}
-                      disabled={isLoading}
-                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance && 'opacity-50 cursor-not-allowed'}`}
+                      disabled={hasSufficientBalance}
+                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       💰 Claim ETH
                     </button>
                   </Tooltip>
+
                 </div>
               </>
             ) : (
@@ -1054,7 +1005,7 @@ const BalanceMaintainerExample = () => {
           {isDeployed && (
             <button onClick={() => navigate('/', {
               state: {
-                jobType: 1,
+                jobType: 1, // Time-based trigger
                 contractAddress: contractAddress,
                 abi: JSON.stringify([{
                   "inputs": [],
