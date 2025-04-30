@@ -333,9 +333,9 @@ function DevhubItem() {
     return (
       <div className="my-10">
         {value.heading && (
-           <h2
-             className="text-xl font-bold text-white mb-6 uppercase tracking-widest"
-           >
+          <h2
+            className="text-xl font-bold text-white mb-6 uppercase tracking-widest"
+          >
             {value.heading}
           </h2>
         )}
@@ -375,7 +375,7 @@ function DevhubItem() {
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${openSteps[index] ? "max-h-screen" : "max-h-0"}`}
               >
                 <div className="px-5 pb-5 pt-2 bg-[#242323]">
-                   {step.content && (
+                  {step.content && (
                     <PortableText
                       value={step.content}
                       components={{
@@ -405,7 +405,7 @@ function DevhubItem() {
                               ></iframe>
                             </div>
                           ),
-          
+
                           buttonLink: ({ value }) => <ButtonLink value={value} />,
                           disclaimer: ({ value }) => <Disclaimer value={value} />,
                           stepsAccordion: ({ value }) => <StepsAccordion value={value} />,
@@ -470,7 +470,7 @@ function DevhubItem() {
                             </p>
                           ),
                         },
-                      }}                    />
+                      }} />
                   )}
                 </div>
               </div>
@@ -542,11 +542,11 @@ function DevhubItem() {
                 Open Github
               </a>
             </div>
-            <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
+            {/* <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <div className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center">
-                {/* <a
+                <a
                   href={postData.redirect || "#"}
                   onClick={(e) => {
                     if (!postData.redirect) {
@@ -559,7 +559,7 @@ function DevhubItem() {
                   className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center bg-[#F8FF7C] text-black px-4 py-2"
                 >
                   ⚡ Try Now
-                </a> */}
+                </a>
                 <a
                   href={"/eth-top-ups-example"}
                   target={postData.redirect ? "_blank" : undefined}
@@ -601,7 +601,7 @@ function DevhubItem() {
                   </div>
                 </Modal>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

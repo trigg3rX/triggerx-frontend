@@ -15,6 +15,9 @@ import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { Toaster, toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
+import BalanceMaintainer from "../../components/BalanceMaintainer";
+import sanityClient from "../../sanityClient";
+import { Tooltip } from "antd";
 
 import timeBasedIcon from "../../assets/time-based.gif";
 import conditionBasedIcon from "../../assets/condition-based.gif";
@@ -206,8 +209,50 @@ function CreateJobPage() {
   const [contractDetails, setContractDetails] = useState({});
   const [recurring, setRecurring] = useState(true);
   const baseUrl = 'https://app.triggerx.network';
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Add Sanity query
+  const query = `*[_type == "post"] | order(_createdAt desc) {
+    _id,     
+    title,
+    slug {
+      current  
+    },
+    image {
+      asset-> { 
+        _id,    
+        url
+      }
+    }
+  }`;
 
+  // Fetch posts from Sanity
+  useEffect(() => {
+    async function fetchPosts() {
+      setIsLoading(true);
+      try {
+        const fetchedPosts = await sanityClient.fetch(query);
+        if (Array.isArray(fetchedPosts)) {
+          setPosts(fetchedPosts);
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, []);
+
+  // Add state to track selected job
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  // Function to handle job selection
+  const handleJobSelect = (post) => {
+    setSelectedJob(post);
+  };
 
   useEffect(() => {
     // Update meta tags when activeTab changes
@@ -394,8 +439,8 @@ function CreateJobPage() {
     isSubmitting,
     argType,
     setArgType,
-    isLoading,
-    setIsLoading,
+    isLoading: jobCreationIsLoading,
+    setIsLoading: setJobCreationIsLoading,
     userBalance,
     isModalOpen,
     setIsModalOpen,
@@ -417,94 +462,55 @@ function CreateJobPage() {
         timeInterval: incomingTimeInterval
       } = location.state;
 
-      // 1. Set Job Type
+      // Set Job Type
       if (incomingJobType !== undefined) {
-        setJobType(Number(incomingJobType)); // Ensure it's a number
+        setJobType(Number(incomingJobType));
       }
 
-      // 2. Set Timeframe and recalculate seconds
+      // Set Timeframe
       if (incomingTimeframe) {
         setTimeframe(incomingTimeframe);
         const tfSeconds = (incomingTimeframe.years * 31536000) +
           (incomingTimeframe.months * 2592000) +
           (incomingTimeframe.days * 86400);
         setTimeframeInSeconds(tfSeconds);
-        setErrorFrame(""); // Clear any previous errors
       }
 
-      // 3. Set Time Interval (only if jobType is 1) and recalculate seconds
-      // Check the actual incomingJobType value
+      // Set Time Interval
       if (Number(incomingJobType) === 1 && incomingTimeInterval) {
         setTimeInterval(incomingTimeInterval);
-        // Recalculate intervalInSeconds based on the incoming object
         const tiSeconds = (incomingTimeInterval.hours * 3600) +
           (incomingTimeInterval.minutes * 60) +
           incomingTimeInterval.seconds;
         setIntervalInSeconds(tiSeconds);
-        setErrorInterval(""); // Clear any previous errors
-      } else {
-        // If job type is not 1, reset time interval (optional, depends on desired behavior)
-        // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
-        // setIntervalInSeconds(0);
       }
 
-      // 4. Set Contract Details (Address and ABI) for the 'main' job
-      // We use the incomingJobType directly here to ensure the key is correct
+      // Set Contract Details
       if (incomingContractAddress && incomingAbiString && incomingJobType !== undefined) {
-
         const extractedFunctions = extractFunctions(incomingAbiString);
-
-        // Update the contractDetails state for the specific job type's 'main' entry
-        // Using functional update ensures we're working with the latest state
-        setContractDetails(prevDetails => {
-          const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
-
-          // Prepare the 'main' details object
-          const newMainDetails = {
-            // Keep existing 'main' details if any, and overwrite specific fields
-            ...(prevDetails[currentJobTypeKey]?.main || {}),
-            contractAddress: incomingContractAddress,
-            contractABI: incomingAbiString,
-            // Reset functions/target as ABI/Address is new
-            // The ContractDetails component should re-evaluate based on these changes
-            functions: extractedFunctions,
-            targetFunction: "",
-            // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
-            // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
-            argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
-            argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
-            ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
-          };
-
-          // Return the updated state object
-          return {
-            ...prevDetails,
-            [currentJobTypeKey]: {
-              // Preserve other potential keys (like linked jobs) if they exist
-              ...(prevDetails[currentJobTypeKey] || {}),
-              main: newMainDetails, // Set the updated 'main' details
+        setContractDetails(prevDetails => ({
+          ...prevDetails,
+          [Number(incomingJobType)]: {
+            main: {
+              ...(prevDetails[Number(incomingJobType)]?.main || {}),
+              contractAddress: incomingContractAddress,
+              contractABI: incomingAbiString,
+              functions: extractedFunctions,
+              targetFunction: "",
+              argumentType: "static",
+              argsArray: [],
+              ipfsCodeUrl: "",
             },
-          };
-        });
+          },
+        }));
       }
 
-      // This prevents the form from being re-filled if the user navigates back and forth
-      // or refreshes the page. Use with caution if you need the state for other purposes.
-      navigate('.', { replace: true, state: null });
-
+      // If we're coming from the sidebar, we don't need to clear the state
+      if (!selectedJob) {
+        navigate('.', { replace: true, state: null });
+      }
     }
-  }, [
-    location.state,
-    setJobType,
-    setTimeframe,
-    setTimeframeInSeconds, // Add dependency
-    setTimeInterval,
-    setIntervalInSeconds, // Add dependency
-    setContractDetails,
-    setErrorFrame, // Add dependency
-    setErrorInterval, // Add dependency
-    navigate // Add dependency if using navigate to clear state
-  ]);
+  }, [location.state, selectedJob, setJobType, setTimeframe, setTimeframeInSeconds, setTimeInterval, setIntervalInSeconds, setContractDetails, navigate]);
 
   const handleContractDetailChange = (jobType, jobKey, field, value) => {
     setContractDetails((prevDetails) => ({
@@ -787,9 +793,12 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
-
-
-
+  // Add template status to posts
+  const postsWithTemplateStatus = posts.map((post, index) => ({
+    ...post,
+    hasTemplate: index === posts.length - 1, // Only the last post has a template
+    templateStatus: index === posts.length - 1 ? 'Ready' : 'Pending'
+  }));
 
   return (
     <div>
@@ -816,558 +825,627 @@ function CreateJobPage() {
         <div className="mx-auto px-6 relative z-30">
           <PageHeader />
 
-          <form
-            ref={formRef}
-            onSubmit={(e) => handleFormSubmit(e, jobType)}
-            onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
-            className="w-full lg:w-[80%] max-w-[1600px] mx-auto"
-          >
-            <div className="space-y-8">
-              {/* Job Type Selection */}
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
-                <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
-                  Trigger Type
-                </label>
-                <div className="flex flex-wrap md:flex-nowrap gap-4 justify-between w-[95%] mx-auto">
-                  {options.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={(e) => {
-                        if (!option.disabled) {
-                          handleJobTypeChange(e, option.value);
-                        }
-                      }}
-                      className={`${Number(option.value) === jobType
-                        ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
-                        : "bg-white/5 border border-white/10 "
-                        } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
+          <div className="flex flex-col lg:flex-row gap-6 justify-center">
+            {/* Sidebar with actual posts */}
+            <div className="w-full lg:w-1/4 bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Use Template</h2>
+                <button
+                  onClick={() => setSelectedJob(null)}
+                  className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200"
+                >
+                  Create Manual Job
+                </button>
+              </div>
+              <div className="space-y-2">
+                {isLoading ? (
+                  <div className="animate-pulse space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-16 bg-white/5 rounded-lg"></div>
+                    ))}
+                  </div>
+                ) : postsWithTemplateStatus.length > 0 ? (
+                  postsWithTemplateStatus.map((post) => (
+                    <Tooltip
+                      key={post._id}
+                      title={post.hasTemplate ? "Template is ready" : "Template is in progress"}
+                      color={post.hasTemplate ? "#4CAF50" : "#2A2A2A"}
                     >
                       <div
-                        className={`${Number(option.value) === jobType
-                          ? "bg-white border border-white/10"
-                          : ""
-                          } absolute top-2 left-2 rounded-full w-3 h-3 border`}
-                      ></div>
-                      {Number(option.value) === jobType ? (
-                        <img
-                          src={option.gif}
-                          alt={option.label}
-                          className="w-auto h-8"
-                        />
-                      ) : (
-                        <img
-                          src={option.icon}
-                          alt={option.label}
-                          className="w-auto h-8"
-                        />
-                      )}
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {jobType ? (
-                <>
-                  <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 relative z-50">
-                    {/* network */}
-                    <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                      <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
-                        Network
-                      </label>
-                      <div
-                        ref={dropdownRef}
-                        className="relative w-full md:w-[70%] xl:w-[80%]"
+                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?._id === post._id ? 'bg-white/10 border-white/30' : ''
+                          } ${!post.hasTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => post.hasTemplate && handleJobSelect(post)}
                       >
-                        <div
-                          className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center gap-5"
-                          onClick={() => setIsNetworkOpen((prev) => !prev)}
-                        >
-                          <div className="w-6 h-6 text-xs xs:text-sm sm:text-base">
-                            {networkIcons[selectedNetwork]}
-                          </div>
-                          {selectedNetwork}
-                          <ChevronDown className="absolute top-3 right-4 text-white text-xs" />
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium">{post.title}</h4>
+                          <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
+                            }`}>
+                            {post.templateStatus}
+                          </span>
                         </div>
-                        {isNetworkOpen && (
-                          <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
-                            {supportedNetworks.map((network) => (
-                              <div
-                                key={network.id}
-                                className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg flex items-center gap-5 text-xs xs:text-sm sm:text-base"
-                                onClick={() => {
-                                  setSelectedNetwork(network.name);
-                                  setTriggerChainId(network.id);
-                                  setIsNetworkOpen(false);
-                                }}
-                              >
-                                <div className="w-6 h-6">
-                                  {networkIcons[network.name] || null}
-                                </div>
-                                {network.name}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <p className="text-xs text-gray-400 py-2">Devhub Post</p>
+                      </div>
+                    </Tooltip>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400">No jobs found</div>
+                )}
+              </div>
+            </div>
+
+            {/* Main content area */}
+            <div className="w-full lg:w-3/5">
+              {selectedJob ? (
+                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
+                  <div className="flex justify-end items-center mb-6">
+                    {/* <h2 className="text-xl font-semibold">{selectedJob.title}</h2> */}
+                    <button
+                      className="text-white hover:text-gray-300"
+                      onClick={() => setSelectedJob(null)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <BalanceMaintainer />
+                </div>
+              ) : (
+                <form
+                  ref={formRef}
+                  onSubmit={(e) => handleFormSubmit(e, jobType)}
+                  onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
+                  className="w-full max-w-[1600px]"
+                >
+                  <div className="space-y-8">
+                    {/* Job Type Selection */}
+                    <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
+                      <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
+                        Trigger Type
+                      </label>
+                      <div className="flex flex-wrap md:flex-nowrap gap-4 justify-between w-[95%] mx-auto">
+                        {options.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={(e) => {
+                              if (!option.disabled) {
+                                handleJobTypeChange(e, option.value);
+                              }
+                            }}
+                            className={`${Number(option.value) === jobType
+                              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
+                              : "bg-white/5 border border-white/10 "
+                              } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
+                          >
+                            <div
+                              className={`${Number(option.value) === jobType
+                                ? "bg-white border border-white/10"
+                                : ""
+                                } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                            ></div>
+                            {Number(option.value) === jobType ? (
+                              <img
+                                src={option.gif}
+                                alt={option.label}
+                                className="w-auto h-8"
+                              />
+                            ) : (
+                              <img
+                                src={option.icon}
+                                alt={option.label}
+                                className="w-auto h-8"
+                              />
+                            )}
+                            <span>{option.label}</span>
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    <TimeframeInputs
-                      timeframe={timeframe}
-                      onTimeframeChange={handleTimeframeChange}
-                      error={errorFrame}
-                      ref={errorFrameRef}
-                    />
-
-                    {jobType === 1 && (
-                      <TimeIntervalInputs
-                        timeInterval={timeInterval}
-                        onTimeIntervalChange={handleTimeIntervalChange}
-                        error={errorInterval}
-                        ref={errorIntervalRef}
-                      />
-                    )}
-
-                    {(jobType === 2 || jobType === 3) && (
-                      <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label className="block text-sm sm:text-base font-medium text-gray-300">
-                          Recurring
-                        </label>
-                        <div className="flex space-x-6 w-full md:w-[70%] xl:w-[80%]">
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="radio"
-                              name="recurring"
-                              value="yes"
-                              className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
-                              checked={recurring === true}
-                              onChange={() => setRecurring(true)}
-                            />
-                            <span className="ml-2 text-white">Yes</span>
-                          </label>
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="radio"
-                              name="recurring"
-                              value="no"
-                              className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
-                              checked={recurring === false}
-                              onChange={() => setRecurring(false)}
-                            />
-                            <span className="ml-2 text-white">No</span>
-                          </label>
-                        </div>
-                      </div>
-                    )}
-
-                    {jobType === 3 && (
+                    {jobType ? (
                       <>
-                        <div className="relative flex flex-col items-start justify-between gap-6">
-                          <label className="block text-sm sm:text-base font-medium text-gray-300 text-wrap overflow-hidden">
-                            Event Contract Address
-                          </label>
-                          <input
-                            type="text"
-                            id="contractAddress"
-                            value={eventContractInteraction.contractAddress}
-                            onChange={
-                              eventContractInteraction.handleContractAddressChange
-                            }
-                            placeholder="Your Contract address"
-                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
-                            required
-                          />
-                        </div>
-
-                        {eventContractInteraction.contractAddress && (
-                          <>
-                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                              <h4 className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
-                                Contract ABI
-                              </h4>
-                              <div className="w-[70%] xl:w-[80%] text-start ml-3">
-                                {eventContractInteraction.contractABI ? (
-                                  <svg
-                                    className="w-5 h-5 text-green-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <div className="flex items-center ml-3">
-                                    <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
-                                      Not Available{" "}
-                                    </h4>
-                                    <h4 className="text-red-400 mt-[2px]">✕</h4>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                              <label
-                                htmlFor="targetEvent"
-                                className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                        <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 relative z-50">
+                          {/* network */}
+                          <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
+                              Network
+                            </label>
+                            <div
+                              ref={dropdownRef}
+                              className="relative w-full md:w-[70%] xl:w-[80%]"
+                            >
+                              <div
+                                className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center gap-5"
+                                onClick={() => setIsNetworkOpen((prev) => !prev)}
                               >
-                                Target event
-                              </label>
-
-                              <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
-                                <div
-                                  className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
-                                  onClick={() => setIsEventOpen(!isEventOpen)}
-                                >
-                                  {eventContractInteraction.targetEvent ||
-                                    "Select an event"}
-                                  <ChevronDown className="text-white text-xs" />
+                                <div className="w-6 h-6 text-xs xs:text-sm sm:text-base">
+                                  {networkIcons[selectedNetwork]}
                                 </div>
-                                {isEventOpen && (
-                                  <div
-                                    ref={eventdropdownRef}
-                                    className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg"
-                                  >
-                                    {eventContractInteraction.events.map(
-                                      (func, index) => {
-                                        const signature = `${func.name
-                                          }(${func.inputs
-                                            .map((input) => input.type)
-                                            .join(",")})`;
-                                        return (
-                                          <div
-                                            key={index}
-                                            className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg"
-                                            onClick={() => {
-                                              eventContractInteraction.handleEventChange(
-                                                {
-                                                  target: { value: signature },
-                                                }
-                                              );
-                                              setIsEventOpen(false);
-                                            }}
-                                          >
-                                            {signature}
-                                          </div>
-                                        );
-                                      }
-                                    )}
-                                  </div>
-                                )}
+                                {selectedNetwork}
+                                <ChevronDown className="absolute top-3 right-4 text-white text-xs" />
                               </div>
-                            </div>
-
-                            {eventContractInteraction.events.length === 0 &&
-                              eventContractInteraction.contractAddress && (
-                                <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto  text-sm text-yellow-400">
-                                  No writable events found. Make sure the
-                                  contract is verified on Blockscout /
-                                  Etherscan.
-                                </h4>
+                              {isNetworkOpen && (
+                                <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
+                                  {supportedNetworks.map((network) => (
+                                    <div
+                                      key={network.id}
+                                      className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg flex items-center gap-5 text-xs xs:text-sm sm:text-base"
+                                      onClick={() => {
+                                        setSelectedNetwork(network.name);
+                                        setTriggerChainId(network.id);
+                                        setIsNetworkOpen(false);
+                                      }}
+                                    >
+                                      <div className="w-6 h-6">
+                                        {networkIcons[network.name] || null}
+                                      </div>
+                                      {network.name}
+                                    </div>
+                                  ))}
+                                </div>
                               )}
-                          </>
-                        )}
-                      </>
-                    )}
-
-                    <ContractDetails
-                      contractAddress={
-                        contractDetails[jobType]?.["main"]?.contractAddress ||
-                        ""
-                      }
-                      setContractAddress={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "contractAddress",
-                          value
-                        )
-                      }
-                      contractABI={
-                        contractDetails[jobType]?.["main"]?.contractABI || ""
-                      }
-                      setContractABI={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "contractABI",
-                          value
-                        )
-                      }
-                      functions={
-                        contractDetails[jobType]?.["main"]?.functions || []
-                      }
-                      setFunctions={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "functions",
-                          value
-                        )
-                      }
-                      targetFunction={
-                        contractDetails[jobType]?.["main"]?.targetFunction || ""
-                      }
-                      setTargetFunction={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "targetFunction",
-                          value
-                        )
-                      }
-                      argumentType={
-                        contractDetails[jobType]?.["main"]?.argumentType ||
-                        "static"
-                      }
-                      setArgumentType={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "argumentType",
-                          value
-                        )
-                      }
-                      argsArray={
-                        contractDetails[jobType]?.["main"]?.argsArray || []
-                      }
-                      setArgArray={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "argsArray",
-                          value
-                        )
-                      }
-                      ipfsCodeUrl={
-                        contractDetails[jobType]?.["main"]?.ipfsCodeUrl || ""
-                      }
-                      setIpfsCodeUrl={(value) =>
-                        handleContractDetailChange(
-                          jobType,
-                          "main",
-                          "ipfsCodeUrl",
-                          value
-                        )
-                      }
-                    />
-
-                    {jobType === 2 && (
-                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <label
-                          htmlFor="ConditionScript"
-                          className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
-                        >
-                          Condition Script
-                        </label>
-
-                        <input
-                          id="ConditionScript"
-                          value={conditionScript}
-                          required
-                          onChange={(e) => {
-                            setConditionScript(e.target.value);
-                          }}
-                          className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
-                          placeholder="Enter your condition script"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {linkedJobs[jobType]?.length > 0 && (
-                    <div className="space-y-8">
-                      {linkedJobs[jobType].map((jobId) => {
-                        const jobKey = jobId; // The linked job ID
-                        return (
-                          <div
-                            key={jobId}
-                            className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 overflow-hidden"
-                          >
-                            <div className="bg-[#303030] border border-white/10 flex justify-center items-center gap-3 mt-0 w-[110%] ml-[-30px]">
-                              <p className="py-4">Linked Job {jobId}</p>
-                              <DeleteConfirmationButton
-                                jobType={jobType}
-                                jobId={jobId}
-                                handleDeleteLinkedJob={handleDeleteLinkedJob}
-                              />
                             </div>
+                          </div>
 
+                          <TimeframeInputs
+                            timeframe={timeframe}
+                            onTimeframeChange={handleTimeframeChange}
+                            error={errorFrame}
+                            ref={errorFrameRef}
+                          />
+
+                          {jobType === 1 && (
+                            <TimeIntervalInputs
+                              timeInterval={timeInterval}
+                              onTimeIntervalChange={handleTimeIntervalChange}
+                              error={errorInterval}
+                              ref={errorIntervalRef}
+                            />
+                          )}
+
+                          {(jobType === 2 || jobType === 3) && (
                             <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                               <label className="block text-sm sm:text-base font-medium text-gray-300">
-                                Network
+                                Recurring
                               </label>
-                              <div className="relative w-full md:w-[70%] xl:w-[80%]">
-                                <div className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5">
-                                  <div className="w-6 h-6">
-                                    {networkIcons[selectedNetwork]}
-                                  </div>
-                                  {selectedNetwork}
-                                </div>
+                              <div className="flex space-x-6 w-full md:w-[70%] xl:w-[80%]">
+                                <label className="inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recurring"
+                                    value="yes"
+                                    className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
+                                    checked={recurring === true}
+                                    onChange={() => setRecurring(true)}
+                                  />
+                                  <span className="ml-2 text-white">Yes</span>
+                                </label>
+                                <label className="inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recurring"
+                                    value="no"
+                                    className="form-radio h-4 w-4 text-blue-500 accent-[#F8FF7C]"
+                                    checked={recurring === false}
+                                    onChange={() => setRecurring(false)}
+                                  />
+                                  <span className="ml-2 text-white">No</span>
+                                </label>
                               </div>
                             </div>
+                          )}
 
-                            <ContractDetails
-                              contractAddress={
-                                contractDetails[jobType]?.[jobKey]
-                                  ?.contractAddress || ""
-                              }
-                              setContractAddress={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "contractAddress",
-                                  value
-                                )
-                              }
-                              contractABI={
-                                contractDetails[jobType]?.[jobKey]
-                                  ?.contractABI || ""
-                              }
-                              setContractABI={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "contractABI",
-                                  value
-                                )
-                              }
-                              functions={
-                                contractDetails[jobType]?.[jobKey]?.functions ||
-                                []
-                              }
-                              setFunctions={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "functions",
-                                  value
-                                )
-                              }
-                              targetFunction={
-                                contractDetails[jobType]?.[jobKey]
-                                  ?.targetFunction || ""
-                              }
-                              setTargetFunction={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "targetFunction",
-                                  value
-                                )
-                              }
-                              argumentType={
-                                contractDetails[jobType]?.[jobKey]
-                                  ?.argumentType || "static"
-                              }
-                              setArgumentType={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "argumentType",
-                                  value
-                                )
-                              }
-                              argsArray={
-                                contractDetails[jobType]?.[jobKey]?.argsArray ||
-                                []
-                              }
-                              setArgArray={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "argsArray",
-                                  value
-                                )
-                              }
-                              ipfsCodeUrl={
-                                contractDetails[jobType]?.[jobKey]
-                                  ?.ipfsCodeUrl || ""
-                              }
-                              setIpfsCodeUrl={(value) =>
-                                handleContractDetailChange(
-                                  jobType,
-                                  jobKey,
-                                  "ipfsCodeUrl",
-                                  value
-                                )
-                              }
-                            />
+                          {jobType === 3 && (
+                            <>
+                              <div className="relative flex flex-col items-start justify-between gap-6">
+                                <label className="block text-sm sm:text-base font-medium text-gray-300 text-wrap overflow-hidden">
+                                  Event Contract Address
+                                </label>
+                                <input
+                                  type="text"
+                                  id="contractAddress"
+                                  value={eventContractInteraction.contractAddress}
+                                  onChange={
+                                    eventContractInteraction.handleContractAddressChange
+                                  }
+                                  placeholder="Your Contract address"
+                                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
+                                  required
+                                />
+                              </div>
+
+                              {eventContractInteraction.contractAddress && (
+                                <>
+                                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                    <h4 className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
+                                      Contract ABI
+                                    </h4>
+                                    <div className="w-[70%] xl:w-[80%] text-start ml-3">
+                                      {eventContractInteraction.contractABI ? (
+                                        <svg
+                                          className="w-5 h-5 text-green-500"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M5 13l4 4L19 7"
+                                          />
+                                        </svg>
+                                      ) : (
+                                        <div className="flex items-center ml-3">
+                                          <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
+                                            Not Available{" "}
+                                          </h4>
+                                          <h4 className="text-red-400 mt-[2px]">✕</h4>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                    <label
+                                      htmlFor="targetEvent"
+                                      className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                                    >
+                                      Target event
+                                    </label>
+
+                                    <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
+                                      <div
+                                        className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
+                                        onClick={() => setIsEventOpen(!isEventOpen)}
+                                      >
+                                        {eventContractInteraction.targetEvent ||
+                                          "Select an event"}
+                                        <ChevronDown className="text-white text-xs" />
+                                      </div>
+                                      {isEventOpen && (
+                                        <div
+                                          ref={eventdropdownRef}
+                                          className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg"
+                                        >
+                                          {eventContractInteraction.events.map(
+                                            (func, index) => {
+                                              const signature = `${func.name
+                                                }(${func.inputs
+                                                  .map((input) => input.type)
+                                                  .join(",")})`;
+                                              return (
+                                                <div
+                                                  key={index}
+                                                  className="py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg"
+                                                  onClick={() => {
+                                                    eventContractInteraction.handleEventChange(
+                                                      {
+                                                        target: { value: signature },
+                                                      }
+                                                    );
+                                                    setIsEventOpen(false);
+                                                  }}
+                                                >
+                                                  {signature}
+                                                </div>
+                                              );
+                                            }
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {eventContractInteraction.events.length === 0 &&
+                                    eventContractInteraction.contractAddress && (
+                                      <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto  text-sm text-yellow-400">
+                                        No writable events found. Make sure the
+                                        contract is verified on Blockscout /
+                                        Etherscan.
+                                      </h4>
+                                    )}
+                                </>
+                              )}
+                            </>
+                          )}
+
+                          <ContractDetails
+                            contractAddress={
+                              contractDetails[jobType]?.["main"]?.contractAddress ||
+                              ""
+                            }
+                            setContractAddress={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "contractAddress",
+                                value
+                              )
+                            }
+                            contractABI={
+                              contractDetails[jobType]?.["main"]?.contractABI || ""
+                            }
+                            setContractABI={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "contractABI",
+                                value
+                              )
+                            }
+                            functions={
+                              contractDetails[jobType]?.["main"]?.functions || []
+                            }
+                            setFunctions={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "functions",
+                                value
+                              )
+                            }
+                            targetFunction={
+                              contractDetails[jobType]?.["main"]?.targetFunction || ""
+                            }
+                            setTargetFunction={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "targetFunction",
+                                value
+                              )
+                            }
+                            argumentType={
+                              contractDetails[jobType]?.["main"]?.argumentType ||
+                              "static"
+                            }
+                            setArgumentType={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "argumentType",
+                                value
+                              )
+                            }
+                            argsArray={
+                              contractDetails[jobType]?.["main"]?.argsArray || []
+                            }
+                            setArgArray={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "argsArray",
+                                value
+                              )
+                            }
+                            ipfsCodeUrl={
+                              contractDetails[jobType]?.["main"]?.ipfsCodeUrl || ""
+                            }
+                            setIpfsCodeUrl={(value) =>
+                              handleContractDetailChange(
+                                jobType,
+                                "main",
+                                "ipfsCodeUrl",
+                                value
+                              )
+                            }
+                          />
+
+                          {jobType === 2 && (
+                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                              <label
+                                htmlFor="ConditionScript"
+                                className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
+                              >
+                                Condition Script
+                              </label>
+
+                              <input
+                                id="ConditionScript"
+                                value={conditionScript}
+                                required
+                                onChange={(e) => {
+                                  setConditionScript(e.target.value);
+                                }}
+                                className="text-xs xs:text-sm sm:text-base w-full md:w-[70%] xl:w-[80%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none "
+                                placeholder="Enter your condition script"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {linkedJobs[jobType]?.length > 0 && (
+                          <div className="space-y-8">
+                            {linkedJobs[jobType].map((jobId) => {
+                              const jobKey = jobId; // The linked job ID
+                              return (
+                                <div
+                                  key={jobId}
+                                  className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 overflow-hidden"
+                                >
+                                  <div className="bg-[#303030] border border-white/10 flex justify-center items-center gap-3 mt-0 w-[110%] ml-[-30px]">
+                                    <p className="py-4">Linked Job {jobId}</p>
+                                    <DeleteConfirmationButton
+                                      jobType={jobType}
+                                      jobId={jobId}
+                                      handleDeleteLinkedJob={handleDeleteLinkedJob}
+                                    />
+                                  </div>
+
+                                  <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                    <label className="block text-sm sm:text-base font-medium text-gray-300">
+                                      Network
+                                    </label>
+                                    <div className="relative w-full md:w-[70%] xl:w-[80%]">
+                                      <div className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5">
+                                        <div className="w-6 h-6">
+                                          {networkIcons[selectedNetwork]}
+                                        </div>
+                                        {selectedNetwork}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <ContractDetails
+                                    contractAddress={
+                                      contractDetails[jobType]?.[jobKey]
+                                        ?.contractAddress || ""
+                                    }
+                                    setContractAddress={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "contractAddress",
+                                        value
+                                      )
+                                    }
+                                    contractABI={
+                                      contractDetails[jobType]?.[jobKey]
+                                        ?.contractABI || ""
+                                    }
+                                    setContractABI={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "contractABI",
+                                        value
+                                      )
+                                    }
+                                    functions={
+                                      contractDetails[jobType]?.[jobKey]?.functions ||
+                                      []
+                                    }
+                                    setFunctions={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "functions",
+                                        value
+                                      )
+                                    }
+                                    targetFunction={
+                                      contractDetails[jobType]?.[jobKey]
+                                        ?.targetFunction || ""
+                                    }
+                                    setTargetFunction={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "targetFunction",
+                                        value
+                                      )
+                                    }
+                                    argumentType={
+                                      contractDetails[jobType]?.[jobKey]
+                                        ?.argumentType || "static"
+                                    }
+                                    setArgumentType={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "argumentType",
+                                        value
+                                      )
+                                    }
+                                    argsArray={
+                                      contractDetails[jobType]?.[jobKey]?.argsArray ||
+                                      []
+                                    }
+                                    setArgArray={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "argsArray",
+                                        value
+                                      )
+                                    }
+                                    ipfsCodeUrl={
+                                      contractDetails[jobType]?.[jobKey]
+                                        ?.ipfsCodeUrl || ""
+                                    }
+                                    setIpfsCodeUrl={(value) =>
+                                      handleContractDetailChange(
+                                        jobType,
+                                        jobKey,
+                                        "ipfsCodeUrl",
+                                        value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        )}
 
-                  <div className="flex gap-4 justify-center items-center relative z-30">
-                    <button
-                      type="submit"
-                      className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                      disabled={isLoading} // Disable while loading
-                    >
-                      <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                      <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                      {isLoading ? (
-                        <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
-                          Estimating Fees
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
+                        <div className="flex gap-4 justify-center items-center relative z-30">
+                          <button
+                            type="submit"
+                            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
+                            disabled={jobCreationIsLoading} // Disable while loading
                           >
-                            <ellipse
-                              className="spinner_rXNP"
-                              cx="9"
-                              cy="4"
-                              rx="3"
-                              ry="3"
-                            />
-                          </svg>
-                        </span>
-                      ) : (
-                        <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                          Create Job
-                        </span>
-                      )}
-                    </button>
-                    {(linkedJobs[jobType]?.length ?? 0) < 3 && (
-                      <button
-                        onClick={() => handleLinkJob(jobType)}
-                        className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                        disabled={isLoading}
-                      >
-                        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                        <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                            <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                            <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                            {jobCreationIsLoading ? (
+                              <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
+                                Estimating Fees
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <ellipse
+                                    className="spinner_rXNP"
+                                    cx="9"
+                                    cy="4"
+                                    rx="3"
+                                    ry="3"
+                                  />
+                                </svg>
+                              </span>
+                            ) : (
+                              <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
+                                Create Job
+                              </span>
+                            )}
+                          </button>
+                          {(linkedJobs[jobType]?.length ?? 0) < 3 && (
+                            <button
+                              onClick={() => handleLinkJob(jobType)}
+                              className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
+                              disabled={jobCreationIsLoading}
+                            >
+                              <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                              <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
-                        <span
-                          className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
-                            } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
-                        >
-                          Link Job
+                              <span
+                                className={`${jobCreationIsLoading ? "cursor-not-allowed opacity-50 " : ""
+                                  } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                              >
+                                Link Job
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2">
+                        <span className="mt-1">
+                          <WarningOutlined />
                         </span>
-                      </button>
+                        select trigger type to create new job
+                      </div>
                     )}
                   </div>
-                </>
-              ) : (
-                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2">
-                  <span className="mt-1">
-                    <WarningOutlined />
-                  </span>
-                  select trigger type to create new job
-                </div>
+                </form>
               )}
             </div>
-          </form>
+          </div>
         </div>
         {/* Estimated Fee Modal */}
         <EstimatedFeeModal
-          isOpen={isLoading}
+          isOpen={jobCreationIsLoading}
           showProcessing={showProcessModal}
           showFees={isModalOpen}
           steps={processSteps}
