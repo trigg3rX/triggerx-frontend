@@ -2,7 +2,7 @@ import {defineField, defineType, defineArrayMember} from 'sanity'
 
 const codeBlockDefinition = defineArrayMember({
   type: 'code',
-  name: 'codeBlock', // Keep consistent name if needed, though 'type' is primary
+  name: 'codeBlock', 
   title: 'Code Block',
   options: {
     language: 'javascript', // Default language
@@ -14,7 +14,6 @@ const codeBlockDefinition = defineArrayMember({
       {title: 'Bash', value: 'bash'},
       {title: 'JSON', value: 'json'},
       {title: 'Markdown', value: 'markdown'},
-      // Add more languages if needed
     ],
     withFilename: true, // Allows adding a filename
   },
@@ -30,11 +29,6 @@ export const postType = defineType({
       type: 'string',
       validation: (rule) => rule.required(),
     }),
-    // defineField({
-    //   name: 'subtitle',
-    //   type: 'string',
-    //   // validation: (rule) => rule.required(),
-    // }),
     defineField({
       name: 'slug',
       type: 'slug',
@@ -46,22 +40,6 @@ export const postType = defineType({
       type: 'image',
       validation: (Rule) => Rule.required(),
     }),
-    // defineField({
-    //   name: 'chainlinkProducts',
-    //   type: 'string',
-    //   validation: (Rule) => Rule.required(),
-    // }),
-    // defineField({
-    //   name: 'readTime',
-    //   title: 'Read Time (in minutes)',
-    //   type: 'number',
-    //   validation: (Rule) => Rule.required().min(1),
-    // }),
-    // defineField({
-    //   name: 'productVersions',
-    //   type: 'string',
-    //   validation: (Rule) => Rule.required(),
-    // }),
     defineField({
       name: 'requires',
       type: 'string',
@@ -117,7 +95,6 @@ export const postType = defineType({
               type: 'url',
               validation: (Rule) =>
                 Rule.uri({allowRelative: true, scheme: ['http', 'https', 'mailto', 'tel']}),
-              // Or use a 'reference' type if linking to other Sanity documents
             },
           ],
           preview: {
@@ -149,7 +126,6 @@ export const postType = defineType({
           preview: {
             select: {title: 'title', subtitle: 'text'},
             prepare({title, content}) {
-              // Basic text extraction for preview
               const block = (content || []).find((block) => block._type === 'block')
               const text = block
                 ? block.children
@@ -200,7 +176,7 @@ export const postType = defineType({
                       description: 'The detailed content shown when the step is expanded.',
                       type: 'array',
                       of: [
-                        defineArrayMember({type: 'block'}), // Allow standard text blocks
+                        defineArrayMember({type: 'block'}),
                         codeBlockDefinition,
                       ],
                     },
