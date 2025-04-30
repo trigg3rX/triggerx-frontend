@@ -8,6 +8,8 @@ import confetti from 'canvas-confetti';
 import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
 import { Tooltip } from "antd";
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
+import { useAccount, useBalance } from "wagmi";
+import { Copy, Check } from 'lucide-react';
 
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
@@ -274,7 +276,11 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
 
 const BalanceMaintainerExample = () => {
   const navigate = useNavigate();
-  const [address, setAddress] = useState("");
+  const { address, isConnected } = useAccount();
+  const { data: balanceData } = useBalance({
+    address,
+    watch: true,
+  });
   const [showModal, setShowModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
@@ -285,7 +291,7 @@ const BalanceMaintainerExample = () => {
     contractAddress: "",
     contractMethod: ""
   });
-  const [hasSufficientBalance, setHasSufficientBalance] = useState(true);
+  const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
   const [userBalance, setUserBalance] = useState("0");
   const [claimAmount, setClaimAmount] = useState("0.05");
 
@@ -302,8 +308,19 @@ const BalanceMaintainerExample = () => {
   const [signer, setSigner] = useState(null);
   const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [copiedAddresses, setCopiedAddresses] = useState({});
 
+  // Check balance sufficiency whenever balance changes
+  useEffect(() => {
+    if (balanceData) {
+      const balance = balanceData.value;
+      const requiredBalance = ethers.parseEther('0.02');
+      const formattedBalance = ethers.formatEther(balance);
 
+      setUserBalance(Number(formattedBalance).toFixed(4));
+      setHasSufficientBalance(balance >= requiredBalance);
+    }
+  }, [balanceData]);
 
   // Initialize provider and signer
   useEffect(() => {
@@ -315,7 +332,6 @@ const BalanceMaintainerExample = () => {
 
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
-          const address = await signer.getAddress();
 
           // Get network with error handling
           let network;
@@ -329,29 +345,8 @@ const BalanceMaintainerExample = () => {
 
           setProvider(provider);
           setSigner(signer);
-          setAddress(address);
           setChainId(network.chainId);
           setIsInitialized(true);
-
-          // Listen for account changes
-          window.ethereum.on('accountsChanged', async (accounts) => {
-            if (accounts.length === 0) {
-              setAddress("");
-              setSigner(null);
-              setIsDeployed(false);
-              setContractAddress("");
-            } else {
-              try {
-                const signer = await provider.getSigner();
-                setSigner(signer);
-                setAddress(accounts[0]);
-                // Check for existing contract when account changes
-                checkExistingContract(provider, accounts[0]);
-              } catch (error) {
-                console.error("Error handling account change:", error);
-              }
-            }
-          });
 
           // Listen for chain changes
           window.ethereum.on('chainChanged', async (chainId) => {
@@ -376,7 +371,6 @@ const BalanceMaintainerExample = () => {
           // Reset states if initialization fails
           setProvider(null);
           setSigner(null);
-          setAddress("");
           setChainId(null);
           setIsInitialized(false);
         }
@@ -390,7 +384,6 @@ const BalanceMaintainerExample = () => {
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeAllListeners('accountsChanged');
         window.ethereum.removeAllListeners('chainChanged');
       }
     };
@@ -676,34 +669,6 @@ const BalanceMaintainerExample = () => {
     }
   }, [isInitialized, provider, address]);
 
-  // Add function to check balance sufficiency
-  const checkBalanceSufficiency = async () => {
-    if (!provider || !address) return;
-
-    try {
-      const balance = await provider.getBalance(address);
-      const requiredBalance = ethers.parseEther('0.02');
-      const formattedBalance = ethers.formatEther(balance);
-
-      setUserBalance(Number(formattedBalance).toFixed(4));
-      setHasSufficientBalance(balance >= requiredBalance);
-    } catch (error) {
-      console.error("Error checking balance:", error);
-      setHasSufficientBalance(false);
-    }
-  };
-
-  // Call checkBalanceSufficiency when provider or address changes
-  useEffect(() => {
-    if (provider && address) {
-      checkBalanceSufficiency();
-
-      // Set up periodic balance check
-      const interval = setInterval(checkBalanceSufficiency, 15000); // Check every 15 seconds
-      return () => clearInterval(interval);
-    }
-  }, [provider, address]);
-
   // Create a function to trigger confetti
   const triggerConfetti = () => {
     // Create coin-like confetti
@@ -767,7 +732,6 @@ const BalanceMaintainerExample = () => {
         }
       );
 
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to claim ETH');
@@ -776,12 +740,17 @@ const BalanceMaintainerExample = () => {
       const data = await response.json();
       console.log('Claim successful:', data);
 
-      // Update balance after claiming
-      setTimeout(() => {
-        if (provider && address) {
-          checkBalanceSufficiency();
-        }
-      }, 2000);
+      // Force a balance refresh by invalidating the wagmi cache
+      if (window.ethereum) {
+        // Request account access to trigger a balance update
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      }
+
+      // Update local balance state
+      if (balanceData) {
+        const newBalance = balanceData.value + ethers.parseEther(claimAmount);
+        setUserBalance(Number(ethers.formatEther(newBalance)).toFixed(4));
+      }
 
       return true; // indicate success to the modal
     } catch (error) {
@@ -810,95 +779,113 @@ const BalanceMaintainerExample = () => {
     }
   };
 
+  // Function to format address
+  const formatAddress = (address) => {
+    if (!address) return '';
+    return `${address.slice(0, 8)}...${address.slice(-5)}`;
+  };
+
+  // Function to copy address
+  const copyAddress = async (address) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddresses(prev => ({ ...prev, [address]: true }));
+      setTimeout(() => {
+        setCopiedAddresses(prev => ({ ...prev, [address]: false }));
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy address:', err);
+    }
+  };
+
   return (
-    <div className="min-h-[90vh] md:mt-[20rem] mt-[10rem]">
+    <div className=" ">
       <Toaster
         position="center"
         className="mt-10"
         toastOptions={{
           style: {
-            background: "#0a0a0a", // Dark background
-            color: "#fff", // White text
+            background: "#0a0a0a",
+            color: "#fff",
             borderRadius: "8px",
             border: "1px gray solid",
           },
         }}
       />
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4 mb-6 ">
+      {/* <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4 mb-6 ">
         Deploy Balance Maintainer
       </h1>
       <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed text-center">
         Set up your automated blockchain tasks with precise conditions and
         parameters.
-      </h4>
-      <div className="bg-[#141414] rounded-lg max-w-[1600px] mx-auto w-[95%] sm:w-[85%] px-3 sm:px-5 py-6 mt-4 my-8 sm:my-12">
+      </h4> */}
+      <div className="bg-[#141414] rounded-lg max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Contract Info Section */}
-        <div className="p-4 rounded-lg mb-6">
+        <div className=" rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
           <div className="text-[#A2A2A2] space-y-2">
-            {!isDeployed ? (
+            {!isConnected ? (
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                <p className="text-white text-center">Please connect your wallet to interact with the contract</p>
+              </div>
+            ) : !isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed</p>
-
-                {console.log('Button State:', {
-                  isDeployed,
-                  isLoading,
-                  hasSigner: !!signer,
-                  isInitialized,
-                  canDeploy: !isLoading && !!signer && !isInitialized
-                })}
+                {/* <p className="pb-2 text-white">Current Balance: {userBalance} ETH</p> */}
 
                 <div className="flex flex-wrap gap-4">
-                  <Tooltip color="#2A2A2A"
-                    title={
-                      !hasSufficientBalance ? " Insufficient ETH balance" :
-                        ""}
-                    open={(!hasSufficientBalance) ? undefined : false}
+                  <Tooltip
+                    color="#2A2A2A"
+                    title={!hasSufficientBalance ? "Insufficient ETH balance (Minimum 0.02 ETH required)" : ""}
+                    open={!hasSufficientBalance ? undefined : false}
                   >
                     <button
                       onClick={showDeployModal}
-                      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg"
+                      disabled={!hasSufficientBalance || isLoading}
+                      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${!hasSufficientBalance || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
                   </Tooltip>
 
-
                   <Tooltip
                     color="#2A2A2A"
-                    title={hasSufficientBalance ? " Sufficient ETH balance" : ""}
+                    title={hasSufficientBalance ? "You already have sufficient ETH balance" : ""}
                     open={hasSufficientBalance ? undefined : false}
                   >
                     <button
                       onClick={handleClaim}
-                      disabled={hasSufficientBalance}
-                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={hasSufficientBalance || isLoading}
+                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                     >
                       💰 Claim ETH
                     </button>
                   </Tooltip>
-
                 </div>
               </>
             ) : (
               <>
-                <p className="text-white">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
-                <p className="text-white">Owner : <span className="text-[#A2A2A2] font-semibold pl-2">{address}</span></p>
-                <p className="text-white">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>
-                <p className="text-white">
-                  Contract Address :{' '}
-                  <a
-                    href={`${chainId === 11155420n
-                      ? 'https://sepolia-optimism.etherscan.io/address/'
-                      : 'https://sepolia.basescan.org/address/'}${contractAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#77E8A3] underline pl-2"
-                  >
-                    {contractAddress}
-                  </a>
-                </p>
-                {isSettingInitialBalance && <p className="text-yellow-500">Adding initial Address in the balance maintain list...</p>}
+                <div className="bg-white/5 border border-white/10  p-5 rounded-lg ">
+                  <p className="text-white py-2">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
+                  <p className="text-white py-2">Owner : <span className="text-[#A2A2A2] font-semibold pl-2">{address}</span></p>
+                  <p className="text-white py-2">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>
+                  <p className="text-white py-2">
+                    Contract Address :{' '}
+                    <a
+                      href={`${chainId === 11155420n
+                        ? 'https://sepolia-optimism.etherscan.io/address/'
+                        : 'https://sepolia.basescan.org/address/'}${contractAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#77E8A3] underline pl-2"
+                    >
+                      {contractAddress}
+                    </a>
+                  </p>
+                  {isSettingInitialBalance && <p className="text-yellow-500">Adding initial Address in the balance maintain list...</p>}
+                </div>
               </>
             )}
           </div>
@@ -921,7 +908,7 @@ const BalanceMaintainerExample = () => {
           networkName={getNetworkName()}
         />
 
-        <div className="bg-[#303030] p-4 rounded-lg mb-6">
+        <div className="bg-white/5 border border-white/10  p-5 rounded-lg my-6">
           <h2 className="text-xl text-white mb-3">Add Addresses</h2>
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <input
@@ -929,15 +916,15 @@ const BalanceMaintainerExample = () => {
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="Enter wallet address where you maintain your funds"
-              className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg flex-1 ${(!isDeployed) && ' cursor-not-allowed'}`}
+              className={`bg-white/5 border border-white/10 rounded-lg text-white px-4 py-4 rounded-lg flex-1  placeholder-gray-400 focus:outline-none ${(!isDeployed) && ' cursor-not-allowed'}`}
               disabled={!isDeployed || isSettingInitialBalance || isLoading}
             />
             <input
               type="number"
               value={newBalance}
               onChange={(e) => setNewBalance(e.target.value)}
-              placeholder="Minimum balance (ETH)"
-              className={`bg-[#1A1B1E] text-white px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
+              placeholder="Min balance"
+              className={`bg-white/5 border border-white/10 rounded-lg px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
               step="0.1"
               min="0"
               disabled={!isDeployed || isSettingInitialBalance || isLoading}
@@ -958,45 +945,62 @@ const BalanceMaintainerExample = () => {
         </div>
 
         {/* Addresses Table */}
-        <div className=" p-4 rounded-lg mb-6 min-h-[40vh]">
+        <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
           <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
           <div className="overflow-x-auto w-full">
-            <table className="w-full min-w-full border-separate border-spacing-y-2 md:border-spacing-y-4">
-              <thead className="bg-[#303030]">
-                <tr>
-                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white rounded-tl-lg rounded-bl-lg w-3/5">Address</th>
-                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Current Balance</th>
-                  <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white rounded-tr-lg rounded-br-lg w-1/5">Min Balance (ETH)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!isDeployed ? (
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+              <table className="w-full min-w-full border-collapse">
+                <thead className="bg-white/5">
                   <tr>
-                    <td colSpan="3" className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]">
-                      Please deploy the contract first to configure addresses
-                    </td>
+                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-3/5">Address</th>
+                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Current Balance</th>
+                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Min Balance (ETH)</th>
                   </tr>
-                ) : (
-                  addresses.map((item) => (
-                    <tr key={item.key} className=" bg-[#1A1A1A]">
-                      <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 truncate rounded-tl-lg rounded-bl-lg">
-                        <span className="block truncate">{item.address}</span>
-                      </td>
-                      <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
-                        <span className="px-2 sm:px-4 py-2 bg-[#4CAF50] text-white rounded whitespace-nowrap text-sm">
-                          {item.currentBalance} ETH
-                        </span>
-                      </td>
-                      <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5 rounded-tr-lg rounded-br-lg">
-                        <span className="px-2 sm:px-4 py-2 bg-[#C07AF6] text-white rounded whitespace-nowrap text-sm">
-                          {item.minimumBalance} ETH
-                        </span>
+                </thead>
+                <tbody>
+                  {!isDeployed ? (
+                    <tr>
+                      <td colSpan="3" className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]">
+                        Please deploy the contract first to configure addresses
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    addresses.map((item) => (
+                      <tr key={item.key} className="bg-[#1A1A1A]">
+                        <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 truncate">
+                          <div className="flex items-center gap-2">
+                            <span className="block truncate">
+                              <span className="s">{`${item.address.slice(0, 4)}...${item.address.slice(-15)}`}</span>
+                            </span>
+                            <button
+                              onClick={() => copyAddress(item.address)}
+                              className="p-1 hover:bg-white/10 rounded transition-colors"
+                              title="Copy address"
+                            >
+                              {copiedAddresses[item.address] ? (
+                                <Check className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <Copy className="h-4 w-4 text-gray-400" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
+                          <span className="px-2 sm:px-4 py-2 bg-[#4CAF50] text-white rounded whitespace-nowrap text-sm">
+                            {item.currentBalance} ETH
+                          </span>
+                        </td>
+                        <td className="px-2 sm:px-4 md:px-6 py-3 w-1/5">
+                          <span className="px-2 sm:px-4 py-2 bg-[#C07AF6] text-white rounded whitespace-nowrap text-sm">
+                            {item.minimumBalance} ETH
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
