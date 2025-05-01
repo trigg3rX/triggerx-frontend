@@ -4,6 +4,8 @@ import { ethers } from 'ethers';
 import Modal from "react-modal";
 import toast from 'react-hot-toast';
 import { Toaster } from "react-hot-toast";
+import { FiInfo } from "react-icons/fi";
+
 import confetti from 'canvas-confetti';
 import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
 import { Tooltip } from "antd";
@@ -17,6 +19,8 @@ const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 // transaction modal
 
 const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
+  const [showAmountTooltip, setShowAmountTooltip] = useState(false);
+  const [showNetworkFeeTooltip, setShowNetworkFeeTooltip] = useState(false);
   if (!isOpen) return null;
 
   return (
@@ -43,12 +47,63 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
 
         <div className="bg-[#1E1E1E] p-4 rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <span>Amount</span>
+            <div className="flex">
+              {" "}
+              Required ETH  <div className="relative top-[4px]">
+                <FiInfo
+                  className="text-gray-400 hover:text-white cursor-pointer ml-2"
+                  size={15}
+                  onMouseEnter={() => setShowAmountTooltip(true)}
+                  onMouseLeave={() => setShowAmountTooltip(false)}
+                />
+                {showAmountTooltip && (
+                  <div className="absolute left-8 top-2 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
+                    <div className="flex flex-col gap-2 text-sm text-gray-300">
+                      <div className="flex items-center gap-2">
+                        <span>
+                          Extra ETH held in the contract, will be used automatically to top up the address if its balance falls below the set minimum.
+
+
+
+
+
+
+
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <span className="text-white font-medium">{modalData.amount} ETH</span>
           </div>
 
           <div className="flex justify-between items-center mb-4">
-            <span>Network fee</span>
+            <div className="flex">
+              {" "}
+              Network Fee
+              {/* <div className="relative top-[4px]">
+                <FiInfo
+                  className="text-gray-400 hover:text-white cursor-pointer ml-2"
+                  size={15}
+                  onMouseEnter={() => setShowNetworkFeeTooltip(true)}
+                  onMouseLeave={() => setShowNetworkFeeTooltip(false)}
+                />
+                {showNetworkFeeTooltip && (
+                  <div className="absolute left-8 top-2 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
+                    <div className="flex flex-col gap-2 text-sm text-gray-300">
+                      <div className="flex items-center gap-2">
+                        <span>
+                          Required ETH to Stake is based on the total
+                          TriggerGas consumed and TriggerGas's unit price.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div> */}
+            </div>
             <span className="text-gray-300">{modalData.networkFee}</span>
           </div>
 
@@ -96,6 +151,15 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
   const [isSuccess, setIsSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const confettiCanvasRef = React.useRef(null);
+
+  // Reset states when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsLoading(false);
+      setIsSuccess(false);
+      setCopied(false);
+    }
+  }, [isOpen]);
 
   // Function to play confetti inside modal
   const playModalConfetti = () => {
@@ -277,9 +341,10 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
 const BalanceMaintainerExample = () => {
   const navigate = useNavigate();
   const { address, isConnected } = useAccount();
-  const { data: balanceData } = useBalance({
+  const { data: balanceData, refetch: refetchBalance } = useBalance({
     address,
     watch: true,
+    enabled: !!address,
   });
   const [showModal, setShowModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -309,16 +374,18 @@ const BalanceMaintainerExample = () => {
   const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [copiedAddresses, setCopiedAddresses] = useState({});
+  const [selectedJob, setSelectedJob] = useState(null);
 
-  // Check balance sufficiency whenever balance changes
+  // Update userBalance and hasSufficientBalance whenever balanceData changes
   useEffect(() => {
     if (balanceData) {
       const balance = balanceData.value;
       const requiredBalance = ethers.parseEther('0.02');
-      const formattedBalance = ethers.formatEther(balance);
+      const formattedBalance = Number(ethers.formatEther(balance)).toFixed(4);
 
-      setUserBalance(Number(formattedBalance).toFixed(4));
+      setUserBalance(formattedBalance);
       setHasSufficientBalance(balance >= requiredBalance);
+      console.log("Balance updated from wagmi:", formattedBalance);
     }
   }, [balanceData]);
 
@@ -477,7 +544,7 @@ const BalanceMaintainerExample = () => {
   const setInitialBalance = async (contractAddr) => {
     if (!signer || !address || !contractAddr) return;
 
-    setIsSettingInitialBalance(true);
+    setIsSettingInitialBalance(false);
     try {
       const contract = new ethers.Contract(
         contractAddr,
@@ -597,7 +664,7 @@ const BalanceMaintainerExample = () => {
         toast.success("Contract deployed successfully!");
 
         // Set initial balance for owner
-        await setInitialBalance(proxyAddress);
+        //await setInitialBalance(proxyAddress);
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
@@ -713,10 +780,17 @@ const BalanceMaintainerExample = () => {
         toast.error('Wallet not connected. Please connect your wallet first.');
         throw new Error('Wallet not connected');
       }
+
       let networkName = "op_sepolia"; // Default
       if (chainId === 84532n) {
         networkName = "base_sepolia";
       }
+
+      // Get initial balance before claiming
+      await refetchBalance();
+      const initialBalance = balanceData?.value || ethers.parseEther('0');
+      console.log("Initial balance:", ethers.formatEther(initialBalance));
+
       // Call the backend API to send ETH to the user's wallet
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
@@ -740,19 +814,33 @@ const BalanceMaintainerExample = () => {
       const data = await response.json();
       console.log('Claim successful:', data);
 
-      // Force a balance refresh by invalidating the wagmi cache
-      if (window.ethereum) {
-        // Request account access to trigger a balance update
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      // Wait for balance to update
+      let attempts = 0;
+      const maxAttempts = 20;
+      const checkInterval = 1000;
+
+      while (attempts < maxAttempts) {
+        // Get current balance using wagmi
+        await refetchBalance();
+        const currentBalance = balanceData?.value || ethers.parseEther('0');
+        const expectedBalance = initialBalance + ethers.parseEther(claimAmount);
+
+        console.log("Current balance:", ethers.formatEther(currentBalance));
+        console.log("Expected balance:", ethers.formatEther(expectedBalance));
+
+        // Check if current balance is at least the expected balance
+        if (currentBalance >= expectedBalance) {
+          console.log("Balance update verified");
+          return true;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+        attempts++;
       }
 
-      // Update local balance state
-      if (balanceData) {
-        const newBalance = balanceData.value + ethers.parseEther(claimAmount);
-        setUserBalance(Number(ethers.formatEther(newBalance)).toFixed(4));
-      }
-
-      return true; // indicate success to the modal
+      // If we couldn't verify the balance update, still return success
+      console.log("Could not verify balance update, but claim was successful");
+      return true;
     } catch (error) {
       console.error('Claim error:', error);
 
@@ -767,6 +855,7 @@ const BalanceMaintainerExample = () => {
       throw error; // propagate error to modal
     }
   };
+  console.log("userBalance...........", userBalance);
 
   // Get network name for display
   const getNetworkName = () => {
@@ -819,7 +908,30 @@ const BalanceMaintainerExample = () => {
         Set up your automated blockchain tasks with precise conditions and
         parameters.
       </h4> */}
-      <div className="bg-[#141414] rounded-lg max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
+      <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
+        {/* Template Info Section */}
+        <div className=" mb-6">
+          <h2 className="text-xl text-white mb-4">BalanceMaintainer Template</h2>
+          <p className="text-[#A2A2A2] mb-4">
+            This template automatically monitors and refills ETH for selected addresses when their balance drops below a set threshold.
+          </p>
+
+          <div className="space-y-2">
+            <h3 className="text-white text-lg mb-2">Setup Steps</h3>
+            <ul className="list-disc list-inside text-[#A2A2A2] space-y-2 ml-2">
+              <li>On contract deployment, extra ETH will be held to cover future top-ups when balances dip.</li>
+              <li>Add the address you want to monitor</li>
+              <li>Set the minimum balance to maintain (for testnet, keep it below 0.02 ETH)</li>
+              <li>Confirm the transaction to save your settings</li>
+              <li>Click on Create Job.
+              </li>
+            </ul>
+            <p className="text-[#A2A2A2] mt-4 italic">
+              Once set, top-ups happen automatically—no manual checks required.
+            </p>
+          </div>
+        </div>
+
         {/* Contract Info Section */}
         <div className=" rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
@@ -831,38 +943,23 @@ const BalanceMaintainerExample = () => {
             ) : !isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed</p>
-                {/* <p className="pb-2 text-white">Current Balance: {userBalance} ETH</p> */}
 
                 <div className="flex flex-wrap gap-4">
-                  <Tooltip
-                    color="#2A2A2A"
-                    title={!hasSufficientBalance ? "Insufficient ETH balance (Minimum 0.02 ETH required)" : ""}
-                    open={!hasSufficientBalance ? undefined : false}
-                  >
+                  {hasSufficientBalance ? (
                     <button
                       onClick={showDeployModal}
-                      disabled={!hasSufficientBalance || isLoading}
-                      className={`bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg ${!hasSufficientBalance || isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
+                      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#B15AE6]"
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
-                  </Tooltip>
-
-                  <Tooltip
-                    color="#2A2A2A"
-                    title={hasSufficientBalance ? "You already have sufficient ETH balance" : ""}
-                    open={hasSufficientBalance ? undefined : false}
-                  >
+                  ) : (
                     <button
                       onClick={handleClaim}
-                      disabled={hasSufficientBalance || isLoading}
-                      className={`bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A] ${hasSufficientBalance || isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
+                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
                     >
                       💰 Claim ETH
                     </button>
-                  </Tooltip>
+                  )}
                 </div>
               </>
             ) : (
@@ -884,7 +981,8 @@ const BalanceMaintainerExample = () => {
                       {contractAddress}
                     </a>
                   </p>
-                  {isSettingInitialBalance && <p className="text-yellow-500">Adding initial Address in the balance maintain list...</p>}
+
+                  {/* {isSettingInitialBalance && <p className="text-yellow-500">Adding initial Address in the balance maintain list...</p>} */}
                 </div>
               </>
             )}
@@ -917,7 +1015,7 @@ const BalanceMaintainerExample = () => {
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="Enter wallet address where you maintain your funds"
               className={`bg-white/5 border border-white/10 rounded-lg text-white px-4 py-4 rounded-lg flex-1  placeholder-gray-400 focus:outline-none ${(!isDeployed) && ' cursor-not-allowed'}`}
-              disabled={!isDeployed || isSettingInitialBalance || isLoading}
+              disabled={!isDeployed || isLoading}
             />
             <input
               type="number"
@@ -927,12 +1025,12 @@ const BalanceMaintainerExample = () => {
               className={`bg-white/5 border border-white/10 rounded-lg px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
               step="0.1"
               min="0"
-              disabled={!isDeployed || isSettingInitialBalance || isLoading}
+              disabled={!isDeployed || isLoading}
             />
             <button
               onClick={showAddAddressModal}
-              disabled={!isDeployed || isSettingInitialBalance || isLoading || !newAddress || !newBalance}
-              className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg transition-colors whitespace-nowrap ${(!isDeployed || isSettingInitialBalance || isLoading || !newAddress || !newBalance) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!isDeployed || isLoading || !newAddress || !newBalance}
+              className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg transition-colors whitespace-nowrap ${(!isDeployed || isLoading || !newAddress || !newBalance) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isLoading && modalType === "addAddress" ? 'Adding...' : 'Add Address'}
             </button>
@@ -1007,8 +1105,9 @@ const BalanceMaintainerExample = () => {
         {/* Deploy Button */}
         <div className="flex justify-center">
           {isDeployed && (
-            <button onClick={() => navigate('/', {
-              state: {
+            <button onClick={() => {
+              setSelectedJob(null);
+              const jobState = {
                 jobType: 1, // Time-based trigger
                 contractAddress: contractAddress,
                 abi: JSON.stringify([{
@@ -1020,16 +1119,19 @@ const BalanceMaintainerExample = () => {
                 }]),
                 timeframe: { years: 0, months: 0, days: 1 },
                 timeInterval: { hours: 1, minutes: 0, seconds: 0 }
-              }
-            })} className="relative bg-[#F8FF7C] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
+              };
+              // Update location state directly
+              window.history.pushState(jobState, '', window.location.pathname);
+              // Trigger state update by dispatching a popstate event
+              window.dispatchEvent(new PopStateEvent('popstate', { state: jobState }));
+            }} className="relative bg-[#F8FF7C] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                Create Job            </span>
+                Create Job
+              </span>
             </button>
-
           )}
-
         </div>
       </div>
     </div>

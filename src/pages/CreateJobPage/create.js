@@ -18,6 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import BalanceMaintainer from "../../components/BalanceMaintainer";
 import sanityClient from "../../sanityClient";
 import { Tooltip } from "antd";
+
 import timeBasedIcon from "../../assets/time-based.gif";
 import conditionBasedIcon from "../../assets/condition-based.gif";
 import eventBasedIcon from "../../assets/event-based.gif";
@@ -28,7 +29,6 @@ import eventBasedGif from "../../assets/event-based.gif";
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
 import { randomBytes } from "ethers";
-import { FiInfo } from "react-icons/fi";
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -196,8 +196,6 @@ function CreateJobPage() {
   const [selectedNetwork, setSelectedNetwork] = useState(
     supportedNetworks[0].name
   );
-  const [isLoading, setIsLoading] = useState(true);
-
   const [triggerChainId, setTriggerChainId] = useState(supportedNetworks[0].id);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [linkedJobs, setLinkedJobs] = useState({});
@@ -212,8 +210,7 @@ function CreateJobPage() {
   const [recurring, setRecurring] = useState(true);
   const baseUrl = 'https://app.triggerx.network';
   const [posts, setPosts] = useState([]);
-  const [selectedJob, setSelectedJob] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(true);
 
   // Add Sanity query
   const query = `*[_type == "post"] | order(_createdAt desc) {
@@ -248,6 +245,9 @@ function CreateJobPage() {
 
     fetchPosts();
   }, []);
+
+  // Add state to track selected job
+  const [selectedJob, setSelectedJob] = useState(null);
 
   // Function to handle job selection
   const handleJobSelect = (post) => {
@@ -462,98 +462,54 @@ function CreateJobPage() {
         timeInterval: incomingTimeInterval
       } = location.state;
 
-      // 1. Set Job Type
+      // Set Job Type
       if (incomingJobType !== undefined) {
-        setJobType(Number(incomingJobType)); // Ensure it's a number
+        setJobType(Number(incomingJobType));
         setSelectedJob(null); // Clear selected job when job type is set
-
       }
 
-      // 2. Set Timeframe and recalculate seconds
+      // Set Timeframe
       if (incomingTimeframe) {
         setTimeframe(incomingTimeframe);
         const tfSeconds = (incomingTimeframe.years * 31536000) +
           (incomingTimeframe.months * 2592000) +
           (incomingTimeframe.days * 86400);
         setTimeframeInSeconds(tfSeconds);
-        setErrorFrame(""); // Clear any previous errors
       }
 
-      // 3. Set Time Interval (only if jobType is 1) and recalculate seconds
-      // Check the actual incomingJobType value
+      // Set Time Interval
       if (Number(incomingJobType) === 1 && incomingTimeInterval) {
         setTimeInterval(incomingTimeInterval);
-        // Recalculate intervalInSeconds based on the incoming object
         const tiSeconds = (incomingTimeInterval.hours * 3600) +
           (incomingTimeInterval.minutes * 60) +
           incomingTimeInterval.seconds;
         setIntervalInSeconds(tiSeconds);
-        setErrorInterval(""); // Clear any previous errors
-      } else {
-        // If job type is not 1, reset time interval (optional, depends on desired behavior)
-        // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
-        // setIntervalInSeconds(0);
       }
 
-      // 4. Set Contract Details (Address and ABI) for the 'main' job
-      // We use the incomingJobType directly here to ensure the key is correct
+      // Set Contract Details
       if (incomingContractAddress && incomingAbiString && incomingJobType !== undefined) {
-
         const extractedFunctions = extractFunctions(incomingAbiString);
-
-        // Update the contractDetails state for the specific job type's 'main' entry
-        // Using functional update ensures we're working with the latest state
-        setContractDetails(prevDetails => {
-          const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
-
-          // Prepare the 'main' details object
-          const newMainDetails = {
-            // Keep existing 'main' details if any, and overwrite specific fields
-            ...(prevDetails[currentJobTypeKey]?.main || {}),
-            contractAddress: incomingContractAddress,
-            contractABI: incomingAbiString,
-            // Reset functions/target as ABI/Address is new
-            // The ContractDetails component should re-evaluate based on these changes
-            functions: extractedFunctions,
-            targetFunction: "",
-            // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
-            // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
-            argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
-            argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
-            ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
-          };
-
-          // Return the updated state object
-          return {
-            ...prevDetails,
-            [currentJobTypeKey]: {
-              // Preserve other potential keys (like linked jobs) if they exist
-              ...(prevDetails[currentJobTypeKey] || {}),
-              main: newMainDetails, // Set the updated 'main' details
+        setContractDetails(prevDetails => ({
+          ...prevDetails,
+          [Number(incomingJobType)]: {
+            main: {
+              ...(prevDetails[Number(incomingJobType)]?.main || {}),
+              contractAddress: incomingContractAddress,
+              contractABI: incomingAbiString,
+              functions: extractedFunctions,
+              targetFunction: "",
+              argumentType: "static",
+              argsArray: [],
+              ipfsCodeUrl: "",
             },
-          };
-        });
+          },
+        }));
       }
 
-      // This prevents the form from being re-filled if the user navigates back and forth
-      // or refreshes the page. Use with caution if you need the state for other purposes.
-      navigate('.', { replace: true, state: null });
+      // Clear location state after processing
       window.history.replaceState(null, '', window.location.pathname);
-
-
     }
-  }, [
-    location.state,
-    setJobType,
-    setTimeframe,
-    setTimeframeInSeconds, // Add dependency
-    setTimeInterval,
-    setIntervalInSeconds, // Add dependency
-    setContractDetails,
-    setErrorFrame, // Add dependency
-    setErrorInterval, // Add dependency
-    navigate // Add dependency if using navigate to clear state
-  ]);
+  }, [location.state, setJobType, setTimeframe, setTimeframeInSeconds, setTimeInterval, setIntervalInSeconds, setContractDetails]);
 
   // Add event listener for popstate events
   useEffect(() => {
@@ -895,15 +851,12 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
-
   // Add template status to posts
   const postsWithTemplateStatus = posts.map((post, index) => ({
     ...post,
     hasTemplate: index === posts.length - 1, // Only the last post has a template
     templateStatus: index === posts.length - 1 ? 'Ready' : 'In Progress'
   }));
-
-
 
   return (
     <div>
@@ -932,77 +885,57 @@ function CreateJobPage() {
 
           <div className="flex flex-col lg:flex-row gap-6 justify-center">
             {/* Sidebar with actual posts */}
-            <div className="w-full lg:w-1/4 space-y-4">
-              {/* Points System Box */}
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <h2 className="text-xl font-semibold mb-4">Points System</h2>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-[#F8FF7C] text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">20</div>
-                    <span className="text-gray-300">points for every custom job you create
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">10</div>
-                    <span className="text-gray-300">points for every job created via a template</span>
-                  </div>
-                  <p className="text-sm text-gray-400 mt-3 pt-3 border-t border-white/10">
-                    Earn more by building more. Every job counts.
-                  </p>
-                </div>
+            <div className="w-full lg:w-1/4 bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Use Template</h2>
+                <button
+                  onClick={() => setSelectedJob(null)}
+                  className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200"
+                >
+                  Create Manual Job
+                </button>
               </div>
-
-              {/* Template List Box */}
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Use Template</h2>
-                  <button
-                    onClick={() => setSelectedJob(null)}
-                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200"
-                  >
-                    Create Custom Job
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {isLoading ? (
-                    <div className="animate-pulse space-y-2">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-16 bg-white/5 rounded-lg"></div>
-                      ))}
-                    </div>
-                  ) : postsWithTemplateStatus.length > 0 ? (
-                    postsWithTemplateStatus.map((post) => (
-                      <Tooltip
-                        key={post._id}
-                        title={post.hasTemplate ? "Template is ready" : "Template is in progress"}
-                        color={post.hasTemplate ? "#4CAF50" : "#2A2A2A"}
+              <div className="space-y-2">
+                {isLoading ? (
+                  <div className="animate-pulse space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-16 bg-white/5 rounded-lg"></div>
+                    ))}
+                  </div>
+                ) : postsWithTemplateStatus.length > 0 ? (
+                  postsWithTemplateStatus.map((post) => (
+                    <Tooltip
+                      key={post._id}
+                      title={post.hasTemplate ? "Template is ready" : "Template is in progress"}
+                      color={post.hasTemplate ? "#4CAF50" : "#2A2A2A"}
+                    >
+                      <div
+                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?._id === post._id ? 'bg-white/10 border-white/30' : ''
+                          } ${!post.hasTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => post.hasTemplate && handleJobSelect(post)}
                       >
-                        <div
-                          className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?._id === post._id ? 'bg-white/10 border-white/30' : ''
-                            } ${!post.hasTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          onClick={() => post.hasTemplate && handleJobSelect(post)}
-                        >
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium">{post.title}</h4>
-                            <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
-                              }`}>
-                              {post.templateStatus}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-400 py-2">Devhub Post</p>
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium">{post.title}</h4>
+                          <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
+                            }`}>
+                            {post.templateStatus}
+                          </span>
                         </div>
-                      </Tooltip>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-400">No jobs found</div>
-                  )}
-                </div>
+                        <p className="text-xs text-gray-400 py-2">Devhub Post</p>
+                      </div>
+                    </Tooltip>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400">No jobs found</div>
+                )}
               </div>
             </div>
+
+            {/* Main content area */}
             <div className="w-full lg:w-3/5">
               {selectedJob ? (
                 <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                  {/* <div className="flex justify-end items-center mb-6">
+                  <div className="flex justify-end items-center mb-6">
                     <button
                       className="text-white hover:text-gray-300"
                       onClick={() => setSelectedJob(null)}
@@ -1011,7 +944,7 @@ function CreateJobPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
-                  </div> */}
+                  </div>
                   <BalanceMaintainer setSelectedJob={setSelectedJob} />
                 </div>
               ) : (
@@ -1506,11 +1439,11 @@ function CreateJobPage() {
                           <button
                             type="submit"
                             className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                            disabled={isLoading} // Disable while loading
+                            disabled={jobCreationIsLoading} // Disable while loading
                           >
                             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                             <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                            {isLoading ? (
+                            {jobCreationIsLoading ? (
                               <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
                                 Estimating Fees
                                 <svg
@@ -1538,13 +1471,13 @@ function CreateJobPage() {
                             <button
                               onClick={() => handleLinkJob(jobType)}
                               className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                              disabled={isLoading}
+                              disabled={jobCreationIsLoading}
                             >
                               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                               <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                               <span
-                                className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
+                                className={`${jobCreationIsLoading ? "cursor-not-allowed opacity-50 " : ""
                                   } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                               >
                                 Link Job
@@ -1562,14 +1495,14 @@ function CreateJobPage() {
                       </div>
                     )}
                   </div>
-                </form>)}
+                </form>
+              )}
             </div>
-
           </div>
         </div>
         {/* Estimated Fee Modal */}
         <EstimatedFeeModal
-          isOpen={isLoading}
+          isOpen={jobCreationIsLoading}
           showProcessing={showProcessModal}
           showFees={isModalOpen}
           steps={processSteps}
