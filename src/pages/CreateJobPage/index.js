@@ -924,9 +924,9 @@ function CreateJobPage() {
         <div className="mx-auto px-6 relative z-30">
           <PageHeader />
 
-          <div className="flex flex-col lg:flex-row gap-6 justify-center">
+          <div className="flex flex-col lg:flex-row gap-6 justify-center max-w-[1600px] mx-auto">
             {/* Sidebar with actual posts */}
-            <div className="w-full lg:w-1/4 space-y-4">
+            <div className="w-full lg:w-1/3 space-y-4">
               {/* Points System Box */}
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
                 <h2 className="text-xl font-semibold mb-4">Points System</h2>
@@ -977,7 +977,7 @@ function CreateJobPage() {
                           onClick={() => post.hasTemplate && handleJobSelect(post)}
                         >
                           <div className="flex justify-between items-center">
-                            <h4 className="font-medium">{post.title}</h4>
+                            <h4 className="font-medium lg:w-[70%]">{post.title}</h4>
                             <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
                               }`}>
                               {post.templateStatus}
@@ -995,7 +995,7 @@ function CreateJobPage() {
                 </div>
               </div>
             </div>
-            <div className="w-full lg:w-3/5">
+            <div className="w-full lg:w-3/4">
               {selectedJob ? (
                 <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
                   {/* <div className="flex justify-end items-center mb-6">
@@ -1015,7 +1015,7 @@ function CreateJobPage() {
                   ref={formRef}
                   onSubmit={(e) => handleFormSubmit(e, jobType)}
                   onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
-                  className="w-full max-w-[1600px]"
+                  className=""
                 >
                   <div className="space-y-8">
                     {/* Job Type Selection */}
