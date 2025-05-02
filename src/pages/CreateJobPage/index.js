@@ -222,6 +222,7 @@ function CreateJobPage() {
     slug {
       current  
     },
+    templateType,
     image {
       asset-> { 
         _id,    
@@ -504,32 +505,25 @@ function CreateJobPage() {
         // Update the contractDetails state for the specific job type's 'main' entry
         // Using functional update ensures we're working with the latest state
         setContractDetails(prevDetails => {
-          const currentJobTypeKey = Number(incomingJobType); // Use the numeric job type as the key
+          const currentJobTypeKey = Number(incomingJobType);
 
-          // Prepare the 'main' details object
           const newMainDetails = {
-            // Keep existing 'main' details if any, and overwrite specific fields
             ...(prevDetails[currentJobTypeKey]?.main || {}),
             contractAddress: incomingContractAddress,
             contractABI: incomingAbiString,
-            // Reset functions/target as ABI/Address is new
-            // The ContractDetails component should re-evaluate based on these changes
             functions: extractedFunctions,
-            targetFunction: "",
-            // Preserve argumentType, argsArray, ipfsCodeUrl if they existed?
-            // Or reset them too? Let's assume we want to keep them for now unless specified otherwise.
-            argumentType: prevDetails[currentJobTypeKey]?.main?.argumentType || "static", // Default or keep existing
-            argsArray: prevDetails[currentJobTypeKey]?.main?.argsArray || [],
-            ipfsCodeUrl: prevDetails[currentJobTypeKey]?.main?.ipfsCodeUrl || "",
+            // Pre-select the maintainBalances function
+            targetFunction: "maintainBalances()",  // Add the parentheses to match the function signature
+            argumentType: "static",
+            argsArray: [],
+            ipfsCodeUrl: "",
           };
-
           // Return the updated state object
           return {
             ...prevDetails,
             [currentJobTypeKey]: {
-              // Preserve other potential keys (like linked jobs) if they exist
               ...(prevDetails[currentJobTypeKey] || {}),
-              main: newMainDetails, // Set the updated 'main' details
+              main: newMainDetails,
             },
           };
         });
@@ -595,11 +589,11 @@ function CreateJobPage() {
             ...prevDetails,
             [Number(jobType)]: {
               main: {
-                ...(prevDetails[Number(jobType)]?.main || {}),
                 contractAddress: contractAddress,
                 contractABI: abi,
                 functions: extractedFunctions,
-                targetFunction: "",
+                // Pre-select the maintainBalances function
+                targetFunction: "maintainBalances()",  // Add the parentheses to match the function signature
                 argumentType: "static",
                 argsArray: [],
                 ipfsCodeUrl: "",
