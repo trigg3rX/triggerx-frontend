@@ -5,6 +5,8 @@ import Modal from "react-modal";
 import toast from 'react-hot-toast';
 import { Toaster } from "react-hot-toast";
 import { FiInfo } from "react-icons/fi";
+import { getChainId } from 'wagmi/actions';
+import { useNetwork, useChainId } from 'wagmi';
 
 import confetti from 'canvas-confetti';
 import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
@@ -147,11 +149,26 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
 };
 
 // Add ClaimModal component with internal confetti
-const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkName }) => {
+const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const confettiCanvasRef = React.useRef(null);
+  const chainId = useChainId();
+
+  // Function to get network name based on chain ID
+  const getNetworkName = () => {
+    if (!chainId) return "Unknown Network";
+
+    switch (chainId) {
+      case 11155420:
+        return "Optimism Sepolia";
+      case 84532:
+        return "Base Sepolia";
+      default:
+        return `Chain ${chainId}`;
+    }
+  };
 
   // Reset states when modal closes
   useEffect(() => {
@@ -267,7 +284,12 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
             <div className="bg-[#1E1E1E] p-4 rounded-lg">
               <div className="mb-4">
                 <span className="text-gray-400">Network</span>
-                <div className="mt-1 text-white font-medium">{networkName}</div>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-white font-medium">{getNetworkName()}</span>
+                  {/* <span className="text-xs px-2 py-1 bg-[#303030] rounded-full text-gray-400">
+                    Chain ID: {chainId}
+                  </span> */}
+                </div>
               </div>
 
               <div className="mb-4">
@@ -280,13 +302,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
                     title="Copy address"
                   >
                     {copied ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="h-4 w-4 text-green-400" />
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
+                      <Copy className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -299,8 +317,6 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
                 </div>
               </div>
             </div>
-
-
           </div>
 
           <div className="mt-8 flex justify-between gap-5">
@@ -355,7 +371,7 @@ const BalanceMaintainerExample = () => {
   });
   const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
   const [userBalance, setUserBalance] = useState("0");
-  const [claimAmount, setClaimAmount] = useState("0.02");
+  const [claimAmount, setClaimAmount] = useState("0.03");
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
@@ -1000,7 +1016,6 @@ const BalanceMaintainerExample = () => {
           onConfirm={confirmClaim}
           address={address}
           claimAmount={claimAmount}
-          networkName={getNetworkName()}
         />
 
         <div className="bg-white/5 border border-white/10  p-5 rounded-lg my-6">
