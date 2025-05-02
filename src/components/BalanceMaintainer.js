@@ -16,6 +16,7 @@ import { Copy, Check } from 'lucide-react';
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
+
 // transaction modal
 
 const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
@@ -199,11 +200,7 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
       setIsSuccess(true);
       playModalConfetti();
 
-      // Close modal with a delay after success
-      setTimeout(() => {
-        setIsSuccess(false);
-        onClose();
-      }, 4000);
+
     } catch (error) {
       setIsLoading(false);
       console.error("Claim error in modal:", error);
@@ -358,7 +355,7 @@ const BalanceMaintainerExample = () => {
   });
   const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
   const [userBalance, setUserBalance] = useState("0");
-  const [claimAmount, setClaimAmount] = useState("0.05");
+  const [claimAmount, setClaimAmount] = useState("0.02");
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
