@@ -675,6 +675,9 @@ function CreateJobPage() {
     }
 
     try {
+       // --- Determine if the job is custom or from a template ---
+       const isCustomJob = selectedJob === null; // true if custom, false if template
+
       const allJobsDetails = [];
       const mainJobDetails = contractDetails[jobType]?.["main"];
 
@@ -724,6 +727,7 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           contractABI: mainJobDetails.contractABI,
+          custom: isCustomJob,
         });
       }
 
@@ -760,6 +764,7 @@ function CreateJobPage() {
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
               contractABI: linkedJobDetails.contractABI,
+              custom: isCustomJob,
             });
           }
         }
