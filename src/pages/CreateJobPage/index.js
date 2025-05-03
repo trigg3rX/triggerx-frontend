@@ -16,6 +16,8 @@ import { Toaster, toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 import BalanceMaintainer from "../../components/BalanceMaintainer";
+import PriceOracle from "../../components/PriceOracle";
+import StakingRewards from "../../components/StakingRewards";
 import sanityClient from "../../sanityClient";
 import { Tooltip } from "antd";
 import timeBasedIcon from "../../assets/time-based.gif";
@@ -24,6 +26,7 @@ import eventBasedIcon from "../../assets/event-based.gif";
 import timeBasedGif from "../../assets/time-based.gif";
 import conditionBasedGif from "../../assets/condition-based.gif";
 import eventBasedGif from "../../assets/event-based.gif";
+import templates from "../../data/templates.json";
 
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
@@ -196,7 +199,7 @@ function CreateJobPage() {
   const [selectedNetwork, setSelectedNetwork] = useState(
     supportedNetworks[0].name
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [triggerChainId, setTriggerChainId] = useState(supportedNetworks[0].id);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
@@ -211,48 +214,27 @@ function CreateJobPage() {
   const [contractDetails, setContractDetails] = useState({});
   const [recurring, setRecurring] = useState(true);
   const baseUrl = 'https://app.triggerx.network';
-  const [posts, setPosts] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
 
-
-  // Add Sanity query
-  const query = `*[_type == "post"] | order(_createdAt desc) {
-    _id,     
-    title,
-    slug {
-      current  
-    },
-    templateType,
-    image {
-      asset-> { 
-        _id,    
-        url
-      }
-    }
-  }`;
-
-  // Fetch posts from Sanity
-  useEffect(() => {
-    async function fetchPosts() {
-      setIsLoading(true);
-      try {
-        const fetchedPosts = await sanityClient.fetch(query);
-        if (Array.isArray(fetchedPosts)) {
-          setPosts(fetchedPosts);
-        }
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchPosts();
-  }, []);
-
   // Function to handle job selection
-  const handleJobSelect = (post) => {
-    setSelectedJob(post);
+  const handleJobSelect = (template) => {
+    setSelectedJob(template);
+  };
+
+  // Function to render the appropriate component based on selected template
+  const renderSelectedTemplate = () => {
+    if (!selectedJob) return null;
+
+    switch (selectedJob.id) {
+      case 'balance-maintainer':
+        return <BalanceMaintainer setSelectedJob={setSelectedJob} />;
+      case 'price-oracle':
+        return <PriceOracle setSelectedJob={setSelectedJob} />;
+      case 'staking-rewards':
+        return <StakingRewards setSelectedJob={setSelectedJob} />;
+      default:
+        return null;
+    }
   };
 
   useEffect(() => {
@@ -889,16 +871,6 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
-
-  // Add template status to posts
-  const postsWithTemplateStatus = posts.map((post, index) => ({
-    ...post,
-    hasTemplate: index === posts.length - 1, // Only the last post has a template
-    templateStatus: index === posts.length - 1 ? 'Ready' : 'In Progress'
-  }));
-
-
-
   return (
     <div>
       <Toaster
@@ -958,57 +930,37 @@ function CreateJobPage() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {isLoading ? (
-                    <div className="animate-pulse space-y-2">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-16 bg-white/5 rounded-lg"></div>
-                      ))}
-                    </div>
-                  ) : postsWithTemplateStatus.length > 0 ? (
-                    postsWithTemplateStatus.map((post) => (
-                      <Tooltip
-                        key={post._id}
-                        title={post.hasTemplate ? "Template is ready" : "Template is in progress"}
-                        color={post.hasTemplate ? "#4CAF50" : "#2A2A2A"}
+                  {templates.templates.map((template) => (
+                    <Tooltip
+                      key={template.id}
+                      title={"Template is ready"}
+                      color="#4CAF50"
+                    >
+                      <div
+                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${
+                          selectedJob?.id === template.id ? 'bg-white/10 border-white/30' : ''
+                        }`}
+                        onClick={() => handleJobSelect(template)}
                       >
-                        <div
-                          className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?._id === post._id ? 'bg-white/10 border-white/30' : ''
-                            } ${!post.hasTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          onClick={() => post.hasTemplate && handleJobSelect(post)}
-                        >
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium lg:w-[70%]">{post.title}</h4>
-                            <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
-                              }`}>
-                              {post.templateStatus}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-400 py-2">
-                            {post.templateType || 'Template'} • Devhub Post
-                          </p>
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium lg:w-[70%]">{template.title}</h4>
+                          <span className="text-xs px-2 py-1 rounded bg-green-900/30 text-green-400">
+                            {template.status}
+                          </span>
                         </div>
-                      </Tooltip>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-400">No jobs found</div>
-                  )}
+                        <p className="text-xs text-gray-400 py-2">
+                          Template • Devhub Post
+                        </p>
+                      </div>
+                    </Tooltip>
+                  ))}
                 </div>
               </div>
             </div>
             <div className="w-full lg:w-3/4">
               {selectedJob ? (
                 <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                  {/* <div className="flex justify-end items-center mb-6">
-                    <button
-                      className="text-white hover:text-gray-300"
-                      onClick={() => setSelectedJob(null)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div> */}
-                  <BalanceMaintainer setSelectedJob={setSelectedJob} />
+                  {renderSelectedTemplate()}
                 </div>
               ) : (
                 <form
@@ -1558,7 +1510,8 @@ function CreateJobPage() {
                       </div>
                     )}
                   </div>
-                </form>)}
+                </form>
+              )}
             </div>
 
           </div>
