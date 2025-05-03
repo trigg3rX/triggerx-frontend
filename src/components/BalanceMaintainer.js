@@ -676,8 +676,11 @@ const BalanceMaintainerExample = () => {
         setIsDeployed(true);
         toast.success("Contract deployed successfully!");
 
+        // Fetch contract data immediately
+        await fetchContractData(provider, proxyAddress);
+        
         // Set initial balance for owner
-        //await setInitialBalance(proxyAddress);
+        await setInitialBalance(proxyAddress);
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
