@@ -675,9 +675,6 @@ function CreateJobPage() {
     }
 
     try {
-       // --- Determine if the job is custom or from a template ---
-       const isCustomJob = selectedJob === null; // true if custom, false if template
-
       const allJobsDetails = [];
       const mainJobDetails = contractDetails[jobType]?.["main"];
 
@@ -727,7 +724,6 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           contractABI: mainJobDetails.contractABI,
-          custom: isCustomJob,
         });
       }
 
@@ -764,7 +760,6 @@ function CreateJobPage() {
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
               contractABI: linkedJobDetails.contractABI,
-              custom: isCustomJob,
             });
           }
         }
@@ -972,7 +967,7 @@ function CreateJobPage() {
                   ref={formRef}
                   onSubmit={(e) => handleFormSubmit(e, jobType)}
                   onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
-                  className=""
+                  className="w-full max-w-[1600px]"
                 >
                   <div className="space-y-8">
                     {/* Job Type Selection */}
@@ -1459,11 +1454,11 @@ function CreateJobPage() {
                           <button
                             type="submit"
                             className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                            disabled={jobCreationIsLoading} // Disable while loading
+                            disabled={isLoading} // Disable while loading
                           >
                             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                             <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                            {jobCreationIsLoading ? (
+                            {isLoading ? (
                               <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
                                 Estimating Fees
                                 <svg
@@ -1491,13 +1486,13 @@ function CreateJobPage() {
                             <button
                               onClick={() => handleLinkJob(jobType)}
                               className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                              disabled={jobCreationIsLoading}
+                              disabled={isLoading}
                             >
                               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                               <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                               <span
-                                className={`${jobCreationIsLoading ? "cursor-not-allowed opacity-50 " : ""
+                                className={`${isLoading ? "cursor-not-allowed opacity-50 " : ""
                                   } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                               >
                                 Link Job
@@ -1515,15 +1510,14 @@ function CreateJobPage() {
                       </div>
                     )}
                   </div>
-                </form>
-              )}
+                </form>)}
             </div>
 
           </div>
         </div>
         {/* Estimated Fee Modal */}
         <EstimatedFeeModal
-          isOpen={jobCreationIsLoading}
+          isOpen={isLoading}
           showProcessing={showProcessModal}
           showFees={isModalOpen}
           steps={processSteps}
