@@ -967,27 +967,61 @@ const StakingReward = () => {
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
         <div className=" mb-6">
-          <h2 className="text-xl text-white mb-4">StakingReward Template
-          </h2>
+          <h2 className="text-xl text-white mb-4">StakingReward Template</h2>
           <p className="text-[#A2A2A2] mb-4">
-          Stake ERC20 tokens and earn rewards based on your participation.
-Once the staking threshold is reached, you’ll automatically receive Reward NFTs and points.
-No manual setup required—the job will be auto-created for you.
+            A powerful staking system that rewards participants with NFTs and points.
+            Stake your ERC20 tokens to earn exclusive rewards and participate in the ecosystem.
+            The entire process is automated with smart contract integration.
           </p>
 
-          <div className="space-y-2">
-            <h3 className="text-white text-lg mb-2">Setup Steps</h3>
-            <ul className="list-disc list-inside text-[#A2A2A2] space-y-2 ml-2">
-              <li>Click to receive ERC20 tokens.</li>
-              <li>Select "Stake" or "Unstake."</li>
-              <li> Enter amount to lock tokens.</li>
-              <li>Only if you’ve staked before.</li>
-              <li>TriggerX creates the job based on your stake status.
-              </li>
-              <li>Receive NFTs + points once the threshold is met.</li>
-            </ul>
-            <p className="text-[#A2A2A2] mt-4 italic">
-              Once set, top-ups happen automatically—no manual checks required.
+          <div className="space-y-4">
+            <h3 className="text-white text-lg mb-2">Setup Flow</h3>
+            <div className="space-y-4">
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">1. Claim Tokens</h4>
+                <p className="text-[#A2A2A2]">Click "Claim Token" to receive predefined ERC20 tokens directly into your wallet.</p>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">2. Stake or Unstake</h4>
+                <p className="text-[#A2A2A2]">After claiming, choose whether to stake or unstake your tokens based on your strategy.</p>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">3. Staking Process</h4>
+                <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
+                  <li>Enter your desired staking amount</li>
+                  <li>Tokens will be locked in the contract</li>
+                  <li>Your stake will be recorded and tracked</li>
+                </ul>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">4. Unstaking Options</h4>
+                <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
+                  <li>View your current staked balance</li>
+                  <li>Enter amount to unstake (if you have staked tokens)</li>
+                  <li>Receive notification if no tokens are currently staked</li>
+                </ul>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">5. Automated Job Creation</h4>
+                <p className="text-[#A2A2A2]">A job is automatically created and visible on your dashboard based on your staking status.</p>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">6. Reward System</h4>
+                <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
+                  <li>Receive exclusive Reward NFTs upon reaching staking threshold</li>
+                  <li>Earn points as an NFT holder for future platform features</li>
+                  <li>Automatic reward distribution through smart contracts</li>
+                </ul>
+              </div>
+            </div>
+
+            <p className="text-[#A2A2A2] mt-6 italic">
+              The entire process is automated through smart contracts - no manual intervention required after setup.
             </p>
           </div>
         </div>
