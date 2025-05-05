@@ -791,23 +791,16 @@ const BalanceMaintainerExample = () => {
   // Modified confirmClaim function
   const confirmClaim = async () => {
     try {
-      // Check if wallet is connected
       if (!address) {
-        toast.error('Wallet not connected. Please connect your wallet first.');
-        throw new Error('Wallet not connected');
+        toast.error("Wallet not connected. Please connect your wallet first.");
+        throw new Error("Wallet not connected");
       }
-
-      let networkName = "op_sepolia"; // Default
+  
+      let networkName = "op_sepolia";
       if (chainId === 84532n) {
         networkName = "base_sepolia";
       }
-
-      // Get initial balance before claiming
-      await refetchBalance();
-      const initialBalance = balanceData?.value || ethers.parseEther('0');
-      console.log("Initial balance:", ethers.formatEther(initialBalance));
-
-      // Call the backend API to send ETH to the user's wallet
+  
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
@@ -817,58 +810,35 @@ const BalanceMaintainerExample = () => {
           },
           body: JSON.stringify({
             wallet_address: address,
-            network: networkName
+            network: networkName,
           }),
         }
       );
-
+  
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to claim ETH');
+        throw new Error(errorData.message || "Failed to claim ETH");
       }
-
+  
       const data = await response.json();
-      console.log('Claim successful:', data);
-
-      // Wait for balance to update
-      let attempts = 0;
-      const maxAttempts = 20;
-      const checkInterval = 1000;
-
-      while (attempts < maxAttempts) {
-        // Get current balance using wagmi
-        await refetchBalance();
-        const currentBalance = balanceData?.value || ethers.parseEther('0');
-        const expectedBalance = initialBalance + ethers.parseEther(claimAmount);
-
-        console.log("Current balance:", ethers.formatEther(currentBalance));
-        console.log("Expected balance:", ethers.formatEther(expectedBalance));
-
-        // Check if current balance is at least the expected balance
-        if (currentBalance >= expectedBalance) {
-          console.log("Balance update verified");
-          return true;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        attempts++;
-      }
-
-      // If we couldn't verify the balance update, still return success
-      console.log("Could not verify balance update, but claim was successful");
+      console.log("Claim successful:", data);
+  
+      // Refresh balance in the background
+      refetchBalance();
+  
+      // Return true immediately to close the modal
       return true;
     } catch (error) {
-      console.error('Claim error:', error);
-
-      // Check if it's a user rejection from the API
-      if (error.message?.includes("rejected") ||
-        error.message?.includes("denied")) {
-        toast.error('Transaction was rejected');
+      console.error("Claim error:", error);
+      if (
+        error.message?.includes("rejected") ||
+        error.message?.includes("denied")
+      ) {
+        toast.error("Transaction was rejected");
       } else {
-        toast.error(error.message || 'Failed to claim ETH');
+        toast.error(error.message || "Failed to claim ETH");
       }
-
-      throw error; // propagate error to modal
+      throw error;
     }
   };
   console.log("userBalance...........", userBalance);

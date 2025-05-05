@@ -8,13 +8,8 @@ import DashboardPage from "./pages/DashboardPage";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import DevhubItem from "./pages/DevhubItem";
-import { getSubdomain } from "./utils/subdomain";
-import { HelmetProvider, Helmet } from 'react-helmet-async';
-import {
-
-  baseSepolia,
-  optimismSepolia,
-} from "wagmi/chains";
+import { HelmetProvider, Helmet } from "react-helmet-async";
+import { baseSepolia, optimismSepolia } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 import NotFound from "./components/NotFound";
@@ -34,7 +29,7 @@ const myCustomTheme = {
     actionButtonBorderMobile: "rgba(255, 255, 255, 0.25)",
     actionButtonSecondaryBackground: "rgba(255, 255, 255, 0.25)",
     closeButton: "rgba(224, 232, 255, 0.8)",
-    closeButtonBackground: "transaperent",
+    closeButtonBackground: "transparent",
     connectButtonBackground: "#F8FF7C",
     connectButtonBackgroundError: "#FF494A",
     connectButtonInnerBackground: "#F8FF7C",
@@ -92,18 +87,18 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 const App = () => {
-  const subdomain = getSubdomain();
-
   return (
     <HelmetProvider>
-      <WagmiProvider config={config} >
+      <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-
             <Router>
               <Layout>
                 <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
-                  <meta name="description" content="TriggerX - Web3 Automation Platform" />
+                  <meta
+                    name="description"
+                    content="TriggerX - Web3 Automation Platform"
+                  />
                   <meta property="og:type" content="website" />
                   <meta property="og:site_name" content="TriggerX" />
                 </Helmet>
@@ -115,15 +110,20 @@ const App = () => {
                     <Route path="/devhub" element={<Devhub />} />
                     <Route path="/devhub/:slug" element={<DevhubItem />} />
                     <Route path="/api" element={<ApiCreation />} />
-                    <Route path="/eth-top-ups-example" element={<BalanceMaintainer />} />
-                    <Route path="/staking-rewards" element={<StakingRewards />} />
+                    <Route
+                      path="/eth-top-ups-example"
+                      element={<BalanceMaintainer />}
+                    />
+                    <Route
+                      path="/staking-rewards"
+                      element={<StakingRewards />}
+                    />
                     <Route path="/price-oracle" element={<PriceOracle />} />
                     <Route path="*" element={<NotFound />} />
                   </>
                 </Routes>
               </Layout>
             </Router>
-
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
