@@ -723,7 +723,7 @@ function CreateJobPage() {
           arguments: mainJobDetails.argsArray,
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
-          contractABI: mainJobDetails.contractABI,
+          abi: mainJobDetails.contractABI,
         });
       }
 
@@ -759,7 +759,7 @@ function CreateJobPage() {
               arguments: linkedJobDetails.argsArray,
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
-              contractABI: linkedJobDetails.contractABI,
+              abi: linkedJobDetails.contractABI,
             });
           }
         }
@@ -937,9 +937,8 @@ function CreateJobPage() {
                       color="#4CAF50"
                     >
                       <div
-                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${
-                          selectedJob?.id === template.id ? 'bg-white/10 border-white/30' : ''
-                        }`}
+                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?.id === template.id ? 'bg-white/10 border-white/30' : ''
+                          }`}
                         onClick={() => handleJobSelect(template)}
                       >
                         <div className="flex justify-between items-center">
