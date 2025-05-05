@@ -95,7 +95,7 @@ export function EstimatedFeeModal({
   // Load Ethereum token image
   const ethImage = new Image();
   ethImage.src = "/character/token.svg";
-    // "https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg";
+  // "https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg";
 
   useEffect(() => {
     if (!gameStarted || gameOver) return;
@@ -345,20 +345,20 @@ export function EstimatedFeeModal({
       {(showProcessing || showFees) && (
         <>
           <div className="w-full bg-black rounded-xl flex flex-col gap-2 shadow-lg border border-gray-600 ">
-          {!(showFees && gameOver) ? (
-            <>
-              <canvas
-                ref={canvasRef}
-                width={gridSize * tileSize}
-                height={gridSize * tileSize}
-                onClick={handleCanvasClick}
-              />
-            </>
-          ) : (
-            <div className="text-white text-center py-6 px-6">
-              {score > 0 ? "Fees calculated! Your token-grabbing skills have been noted.😉" : "Fees calculated! Your token-grabbing skills have been noted.😉"}
-            </div>
-          )}
+            {!(showFees && gameOver) ? (
+              <>
+                <canvas
+                  ref={canvasRef}
+                  width={gridSize * tileSize}
+                  height={gridSize * tileSize}
+                  onClick={handleCanvasClick}
+                />
+              </>
+            ) : (
+              <div className="text-white text-center py-6 px-6">
+                {score > 0 ? "Fees calculated! Your token-grabbing skills have been noted.😉" : "Fees calculated! Your token-grabbing skills have been noted.😉"}
+              </div>
+            )}
           </div>
           <div className="text-white text-center py-2">Score: {score}</div>
         </>
@@ -448,11 +448,10 @@ export function EstimatedFeeModal({
                 onClick={handleStake} // Use handleStake
                 disabled={isDisabled}
                 // disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  isDisabled
-                    ? "bg-gray-400 text-gray-700 " // Disabled styles
-                    : "bg-white text-black" // Enabled styles
-                }`}
+                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${isDisabled
+                  ? "bg-gray-400 text-gray-700 " // Disabled styles
+                  : "bg-white text-black" // Enabled styles
+                  }`}
               >
                 {isSubmitting ? "Processing..." : "Next"}
               </button>
@@ -460,11 +459,10 @@ export function EstimatedFeeModal({
               <button
                 onClick={handleStake} // Use handleStake
                 disabled={!hasEnoughEthToStake}
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  !hasEnoughEthToStake
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-white text-black"
-                }`}
+                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!hasEnoughEthToStake
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-white text-black"
+                  }`}
               >
                 {hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
               </button>
