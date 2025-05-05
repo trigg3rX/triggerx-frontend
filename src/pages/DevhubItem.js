@@ -616,6 +616,7 @@ function DevhubItem() {
                     <a
                       href={`#${pair.h2Heading}`}
                       onClick={(e) => {
+                        console.log(pair.h2Heading)
                         e.preventDefault();
                         const targetElement = document.getElementById(
                           pair.h2Heading
