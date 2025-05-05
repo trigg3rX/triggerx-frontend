@@ -678,7 +678,7 @@ const BalanceMaintainerExample = () => {
 
         // Fetch contract data immediately
         await fetchContractData(provider, proxyAddress);
-        
+
         // Set initial balance for owner
         await setInitialBalance(proxyAddress);
       } else {
