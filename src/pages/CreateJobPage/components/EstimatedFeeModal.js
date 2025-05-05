@@ -458,13 +458,13 @@ export function EstimatedFeeModal({
             ) : (
               <button
                 onClick={handleStake} // Use handleStake
-                disabled={!hasEnoughEthToStake}
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!hasEnoughEthToStake
+                disabled={!hasEnoughEthToStake || isSubmitting}
+                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
                   ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                   : "bg-white text-black"
                   }`}
               >
-                {hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
+                {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
               </button>
             )}
             <button
