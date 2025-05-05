@@ -789,6 +789,7 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           abi: mainJobDetails.contractABI,
+          abi: mainJobDetails.contractABI,
         });
       }
 
