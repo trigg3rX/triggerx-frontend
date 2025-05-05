@@ -301,10 +301,6 @@ const StakingReward = () => {
         networkName = "base_sepolia";
       }
 
-      await refetchBalance();
-      const initialBalance = balanceData?.value || ethers.parseEther("0");
-      console.log("Initial balance:", ethers.formatEther(initialBalance));
-
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
@@ -327,32 +323,13 @@ const StakingReward = () => {
       const data = await response.json();
       console.log("Claim successful:", data);
 
-      let attempts = 0;
-      const maxAttempts = 20;
-      const checkInterval = 1000;
+      // Refresh balance in the background
+      refetchBalance();
 
-      while (attempts < maxAttempts) {
-        await refetchBalance();
-        const currentBalance = balanceData?.value || ethers.parseEther("0");
-        const expectedBalance = initialBalance + ethers.parseEther(0.03);
-
-        console.log("Current balance:", ethers.formatEther(currentBalance));
-        console.log("Expected balance:", ethers.formatEther(expectedBalance));
-
-        if (currentBalance >= expectedBalance) {
-          console.log("Balance update verified");
-          return true;
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, checkInterval));
-        attempts++;
-      }
-
-      console.log("Could not verify balance update, but claim was successful");
+      // Return true immediately to close the modal
       return true;
     } catch (error) {
       console.error("Claim error:", error);
-
       if (
         error.message?.includes("rejected") ||
         error.message?.includes("denied")
@@ -361,12 +338,10 @@ const StakingReward = () => {
       } else {
         toast.error(error.message || "Failed to claim ETH");
       }
-
       throw error;
     }
   };
 
-  // Function to approve token spending
   const approveTokens = async (amount) => {
     if (!signer || !address) return false;
 
@@ -590,7 +565,6 @@ const StakingReward = () => {
         {/* Static Content */}
         <div className=" mb-6">
           <h2 className="text-xl text-white mb-4">StakingReward Template</h2>
-          <h2 className="text-xl text-white mb-4">StakingReward Template</h2>
           <p className="text-[#A2A2A2] mb-4">
             Stake ERC20 tokens and earn rewards based on your participation.
             Once the staking threshold is reached, you'll automatically receive
@@ -603,16 +577,26 @@ const StakingReward = () => {
             <div className="space-y-4">
               <div className="bg-white/5 p-4 rounded-lg">
                 <h4 className="text-white font-medium mb-2">1. Claim Tokens</h4>
-                <p className="text-[#A2A2A2]">Click "Claim Token" to receive predefined ERC20 tokens directly into your wallet.</p>
+                <p className="text-[#A2A2A2]">
+                  Click "Claim Token" to receive predefined ERC20 tokens
+                  directly into your wallet.
+                </p>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">2. Stake or Unstake</h4>
-                <p className="text-[#A2A2A2]">After claiming, choose whether to stake or unstake your tokens based on your strategy.</p>
+                <h4 className="text-white font-medium mb-2">
+                  2. Stake or Unstake
+                </h4>
+                <p className="text-[#A2A2A2]">
+                  After claiming, choose whether to stake or unstake your tokens
+                  based on your strategy.
+                </p>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">3. Staking Process</h4>
+                <h4 className="text-white font-medium mb-2">
+                  3. Staking Process
+                </h4>
                 <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
                   <li>Enter your desired staking amount</li>
                   <li>Tokens will be locked in the contract</li>
@@ -621,31 +605,48 @@ const StakingReward = () => {
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">4. Unstaking Options</h4>
+                <h4 className="text-white font-medium mb-2">
+                  4. Unstaking Options
+                </h4>
                 <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
                   <li>View your current staked balance</li>
                   <li>Enter amount to unstake (if you have staked tokens)</li>
-                  <li>Receive notification if no tokens are currently staked</li>
+                  <li>
+                    Receive notification if no tokens are currently staked
+                  </li>
                 </ul>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">5. Automated Job Creation</h4>
-                <p className="text-[#A2A2A2]">A job is automatically created and visible on your dashboard based on your staking status.</p>
+                <h4 className="text-white font-medium mb-2">
+                  5. Automated Job Creation
+                </h4>
+                <p className="text-[#A2A2A2]">
+                  A job is automatically created and visible on your dashboard
+                  based on your staking status.
+                </p>
               </div>
 
               <div className="bg-white/5 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">6. Reward System</h4>
+                <h4 className="text-white font-medium mb-2">
+                  6. Reward System
+                </h4>
                 <ul className="list-disc list-inside text-[#A2A2A2] space-y-1 ml-2">
-                  <li>Receive exclusive Reward NFTs upon reaching staking threshold</li>
-                  <li>Earn points as an NFT holder for future platform features</li>
+                  <li>
+                    Receive exclusive Reward NFTs upon reaching staking
+                    threshold
+                  </li>
+                  <li>
+                    Earn points as an NFT holder for future platform features
+                  </li>
                   <li>Automatic reward distribution through smart contracts</li>
                 </ul>
               </div>
             </div>
 
             <p className="text-[#A2A2A2] mt-6 italic">
-              The entire process is automated through smart contracts - no manual intervention required after setup.
+              The entire process is automated through smart contracts - no
+              manual intervention required after setup.
             </p>
           </div>
         </div>
