@@ -24,6 +24,14 @@ const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
   const [showAmountTooltip, setShowAmountTooltip] = useState(false);
   const [showNetworkFeeTooltip, setShowNetworkFeeTooltip] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isSettingInitialBalance, setIsSettingInitialBalance] = useState(false)
+
+  const handleConfirmClick = async () => {
+    setIsDeploying(true);
+    await onConfirm();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -138,10 +146,26 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
           Cancel
         </button>
         <button
-          onClick={onConfirm}
-          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black `}
+          onClick={handleConfirmClick}
+          // always enabled for addAddress, disable only for other types while deploying
+          disabled={modalType !== 'addAddress' && isDeploying}
+          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${(modalType !== 'addAddress' && isDeploying) ? 'opacity-75' : ''}`}
         >
-          Confirm
+          {modalType === "deploy" && isDeploying ? (
+            <span className="flex items-center justify-center">
+              Deploying Contract...
+            </span>
+          ) : modalType === "addAddress" && isDeploying ? (
+            <span className="flex items-center justify-center">
+              Adding Address...
+            </span>
+          ) : modalType === "Intial Balance" && isDeploying ? (
+            <span className="flex items-center justify-center">
+              Adding Initial Balance...
+            </span>
+          ) : (
+            'Confirm'
+          )}
         </button>
       </div>
     </Modal>
@@ -216,11 +240,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
       setIsLoading(false);
       setIsSuccess(true);
       playModalConfetti();
-
-
-    } catch (error) {
+    } catch (err) {
       setIsLoading(false);
-      console.error("Claim error in modal:", error);
+      console.error(err);
     }
   };
 
@@ -555,6 +577,7 @@ const BalanceMaintainerExample = () => {
 
   // Set initial balance for owner
   const setInitialBalance = async (contractAddr) => {
+    setModalType("Intial Balance")
     if (!signer || !address || !contractAddr) return;
 
     setIsSettingInitialBalance(false);
@@ -606,18 +629,23 @@ const BalanceMaintainerExample = () => {
   };
 
   const handleConfirm = async () => {
-    setShowModal(false);
+    setShowModal(true);
 
     if (modalType === "deploy") {
       handleDeploy();
     } else if (modalType === "addAddress") {
       handleAddAddress();
+    } else if (modalType === "initialBalance") {
+      // user confirmed the second step: seed owner balance
+      await setInitialBalance(contractAddress);
+      setShowModal(false);
     }
   };
 
+
   const handleDeploy = async () => {
     if (!signer || !address) return;
-    setIsLoading(true);
+    setShowModal(true);
 
     try {
       // Get current network from provider
@@ -674,19 +702,19 @@ const BalanceMaintainerExample = () => {
         const proxyAddress = parsedLog.args.proxy;
         setContractAddress(proxyAddress);
         setIsDeployed(true);
-        toast.success("Contract deployed successfully!");
 
         // Fetch contract data immediately
         await fetchContractData(provider, proxyAddress);
 
         // Set initial balance for owner
-        await setInitialBalance(proxyAddress);
+        // await setInitialBalance(proxyAddress);
+        toast.success("Contract deployed successfully!");
+
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
     } catch (err) {
       console.error("Deployment error:", err);
-
       // Check for user rejection
       if (err.code === 'ACTION_REJECTED' ||
         err.code === 4001 ||
@@ -698,7 +726,7 @@ const BalanceMaintainerExample = () => {
         toast.error("Deployment failed: " + (err.message || "Unknown error"));
       }
     } finally {
-      setIsLoading(false);
+      setShowModal(false);
     }
   };
 
@@ -727,6 +755,7 @@ const BalanceMaintainerExample = () => {
       setNewAddress("");
       setNewBalance("");
       toast.success("Address added successfully!");
+      setShowModal(false);
     } catch (error) {
       console.error("Error adding address:", error);
 
@@ -738,7 +767,7 @@ const BalanceMaintainerExample = () => {
         error.message?.includes("user rejected")) {
         toast.error("Transaction rejected by user");
       } else {
-        toast.error("Failed to add address: " + (error.message || "Unknown error"));
+        toast.error("Failed to add address ");
       }
     } finally {
       setIsLoading(false);
