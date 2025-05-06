@@ -157,7 +157,7 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
             </span>
           ) : modalType === "addAddress" && isDeploying ? (
             <span className="flex items-center justify-center">
-              Adding Address...
+              Confirm
             </span>
           ) : modalType === "Intial Balance" && isDeploying ? (
             <span className="flex items-center justify-center">
@@ -629,7 +629,7 @@ const BalanceMaintainerExample = () => {
   };
 
   const handleConfirm = async () => {
-    setShowModal(true);
+    setShowModal(false);
 
     if (modalType === "deploy") {
       handleDeploy();
@@ -824,12 +824,12 @@ const BalanceMaintainerExample = () => {
         toast.error("Wallet not connected. Please connect your wallet first.");
         throw new Error("Wallet not connected");
       }
-  
+
       let networkName = "op_sepolia";
       if (chainId === 84532n) {
         networkName = "base_sepolia";
       }
-  
+
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
@@ -843,18 +843,18 @@ const BalanceMaintainerExample = () => {
           }),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to claim ETH");
       }
-  
+
       const data = await response.json();
       console.log("Claim successful:", data);
-  
+
       // Refresh balance in the background
       refetchBalance();
-  
+
       // Return true immediately to close the modal
       return true;
     } catch (error) {
@@ -970,9 +970,12 @@ const BalanceMaintainerExample = () => {
                   ) : (
                     <button
                       onClick={handleClaim}
-                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#E1E85A]"
+                      className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-all text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
                     >
-                      💰 Claim ETH
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                      Claim ETH
                     </button>
                   )}
                 </div>
@@ -1020,64 +1023,61 @@ const BalanceMaintainerExample = () => {
           claimAmount={claimAmount}
         />
 
-        <div className="bg-white/5 border border-white/10  p-5 rounded-lg my-6">
-          <h2 className="text-xl text-white mb-3">Add Addresses</h2>
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
-            <input
-              type="text"
-              value={newAddress}
-              onChange={(e) => setNewAddress(e.target.value)}
-              placeholder="Enter wallet address where you maintain your funds"
-              className={`bg-white/5 border border-white/10 rounded-lg text-white px-4 py-4 rounded-lg flex-1  placeholder-gray-400 focus:outline-none ${(!isDeployed) && ' cursor-not-allowed'}`}
-              disabled={!isDeployed || isLoading}
-            />
-            <input
-              type="number"
-              value={newBalance}
-              onChange={(e) => setNewBalance(e.target.value)}
-              placeholder="Min balance"
-              className={`bg-white/5 border border-white/10 rounded-lg px-4 py-4 rounded-lg w-48 ${(!isDeployed) && ' cursor-not-allowed'}`}
-              step="0.1"
-              min="0"
-              disabled={!isDeployed || isLoading}
-            />
-            <button
-              onClick={showAddAddressModal}
-              disabled={!isDeployed || isLoading || !newAddress || !newBalance}
-              className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg transition-colors whitespace-nowrap ${(!isDeployed || isLoading || !newAddress || !newBalance) ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {isLoading && modalType === "addAddress" ? 'Adding...' : 'Add Address'}
-            </button>
-          </div>
-          {error && (
-            <div className="mt-4 p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200">
-              {error}
+        {/* Add Addresses - Only visible after deployment */}
+        {isDeployed && (
+          <div className="bg-white/5 border border-white/10 p-5 rounded-lg my-6">
+            <h2 className="text-xl text-white mb-3">Add Addresses</h2>
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <input
+                type="text"
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
+                placeholder="Enter wallet address where you maintain your funds"
+                className="bg-white/5 border border-white/10 rounded-lg text-white px-4 py-4 rounded-lg flex-1 placeholder-gray-400 focus:outline-none"
+                disabled={isLoading}
+              />
+              <input
+                type="number"
+                value={newBalance}
+                onChange={(e) => setNewBalance(e.target.value)}
+                placeholder="Min balance"
+                className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 rounded-lg w-48"
+                step="0.1"
+                min="0"
+                disabled={isLoading}
+              />
+              <button
+                onClick={showAddAddressModal}
+                disabled={isLoading || !newAddress || !newBalance}
+                className={`bg-[#FFFFFF] text-black px-6 py-2 rounded-lg transition-colors whitespace-nowrap ${(isLoading || !newAddress || !newBalance) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isLoading && modalType === "addAddress" ? 'Adding...' : 'Add Address'}
+              </button>
             </div>
-          )}
-        </div>
+            {error && (
+              <div className="mt-4 p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200">
+                {error}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Addresses Table */}
-        <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
-          <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
-          <div className="overflow-x-auto w-full">
-            <div className="border border-white/10 rounded-lg overflow-hidden">
-              <table className="w-full min-w-full border-collapse">
-                <thead className="bg-white/5">
-                  <tr>
-                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-3/5">Address</th>
-                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Current Balance</th>
-                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Min Balance (ETH)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {!isDeployed ? (
+        {isDeployed && addresses.length > 0 && (
+          <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
+            <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
+            <div className="overflow-x-auto w-full">
+              <div className="border border-white/10 rounded-lg overflow-hidden">
+                <table className="w-full min-w-full border-collapse">
+                  <thead className="bg-white/5">
                     <tr>
-                      <td colSpan="3" className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]">
-                        Please deploy the contract first to configure addresses
-                      </td>
+                      <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-3/5">Address</th>
+                      <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Current Balance</th>
+                      <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-1/5">Min Balance (ETH)</th>
                     </tr>
-                  ) : (
-                    addresses.map((item) => (
+                  </thead>
+                  <tbody>
+                    {addresses.map((item) => (
                       <tr key={item.key} className="bg-[#1A1A1A]">
                         <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 truncate">
                           <div className="flex items-center gap-2">
@@ -1108,13 +1108,13 @@ const BalanceMaintainerExample = () => {
                           </span>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Deploy Button */}
         <div className="flex justify-center">
