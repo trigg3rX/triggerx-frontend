@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import Modal from "react-modal";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
 import { FiInfo } from "react-icons/fi";
+import { getChainId } from "wagmi/actions";
+import { useNetwork, useChainId } from "wagmi";
 
-import confetti from 'canvas-confetti';
-import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
+import confetti from "canvas-confetti";
+import TriggerXTemplateFactory from "../artifacts/TriggerXTemplateFactory.json";
 import { Tooltip } from "antd";
-import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
+import BalanceMaintainer from "../artifacts/BalanceMaintainer.json";
 import { useAccount, useBalance } from "wagmi";
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check } from "lucide-react";
 
-const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
+const DYNAMICPRICEORACLE_IMPLEMENTATION =
+  "0x632661bA1B3b78C2707A7cAFf9829456BB11eDfd";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 // transaction modal
 
-const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
+const TransactionModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  modalType,
+  modalData,
+}) => {
   const [showAmountTooltip, setShowAmountTooltip] = useState(false);
   const [showNetworkFeeTooltip, setShowNetworkFeeTooltip] = useState(false);
   if (!isOpen) return null;
@@ -40,7 +49,9 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
               <span>Interacting with</span>
             </div>
             <div className="flex items-center">
-              <span className="text-sm truncate max-w-[180px]">{modalData.contractAddress}</span>
+              <span className="text-sm truncate max-w-[180px]">
+                {modalData.contractAddress}
+              </span>
             </div>
           </div>
         </div>
@@ -49,7 +60,8 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
           <div className="flex justify-between items-center mb-4">
             <div className="flex">
               {" "}
-              Required ETH  <div className="relative top-[4px]">
+              Required ETH{" "}
+              <div className="relative top-[4px]">
                 <FiInfo
                   className="text-gray-400 hover:text-white cursor-pointer ml-2"
                   size={15}
@@ -61,14 +73,9 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
                     <div className="flex flex-col gap-2 text-sm text-gray-300">
                       <div className="flex items-center gap-2">
                         <span>
-                          Extra ETH held in the contract, will be used automatically to top up the address if its balance falls below the set minimum.
-
-
-
-
-
-
-
+                          Extra ETH held in the contract, will be used
+                          automatically to top up the address if its balance
+                          falls below the set minimum.
                         </span>
                       </div>
                     </div>
@@ -76,7 +83,9 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
                 )}
               </div>
             </div>
-            <span className="text-white font-medium">{modalData.amount} ETH</span>
+            <span className="text-white font-medium">
+              {modalData.amount} ETH
+            </span>
           </div>
 
           <div className="flex justify-between items-center mb-4">
@@ -146,11 +155,26 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
 };
 
 // Add ClaimModal component with internal confetti
-const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkName }) => {
+const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const confettiCanvasRef = React.useRef(null);
+  const chainId = useChainId();
+
+  // Function to get network name based on chain ID
+  const getNetworkName = () => {
+    if (!chainId) return "Unknown Network";
+
+    switch (chainId) {
+      case 11155420:
+        return "Optimism Sepolia";
+      case 84532:
+        return "Base Sepolia";
+      default:
+        return `Chain ${chainId}`;
+    }
+  };
 
   // Reset states when modal closes
   useEffect(() => {
@@ -184,9 +208,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
         particleCount: 30,
         spread: 100,
         origin: { y: 0.6, x: Math.random() },
-        colors: ['#FFD700', '#FFA500', '#F8FF7C'],
-        shapes: ['circle'],
-        scalar: 1.2
+        colors: ["#FFD700", "#FFA500", "#F8FF7C"],
+        shapes: ["circle"],
+        scalar: 1.2,
       });
     }, 250);
   };
@@ -198,12 +222,6 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
       setIsLoading(false);
       setIsSuccess(true);
       playModalConfetti();
-
-      // Close modal with a delay after success
-      setTimeout(() => {
-        setIsSuccess(false);
-        onClose();
-      }, 4000);
     } catch (error) {
       setIsLoading(false);
       console.error("Claim error in modal:", error);
@@ -218,7 +236,8 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
 
   // Function to copy address and update icon
   const copyAddressToClipboard = () => {
-    navigator.clipboard.writeText(address)
+    navigator.clipboard
+      .writeText(address)
       .then(() => {
         toast.success("Address copied to clipboard!");
         setCopied(true);
@@ -246,14 +265,13 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
 
       {isSuccess ? (
         <div className="flex flex-col items-center justify-center text-center h-full py-8 z-20 relative">
-          <div className="text-3xl font-bold mb-6 text-white">
-            Woohoo!
-          </div>
+          <div className="text-3xl font-bold mb-6 text-white">Woohoo!</div>
           <div className="text-xl text-[#F8FF7C] font-bold mb-6">
             You claimed successfully!
           </div>
           <div className="text-lg mb-6">
-            <span className="text-green-400 font-bold">{claimAmount} ETH</span> has been added to your wallet
+            <span className="text-green-400 font-bold">{claimAmount} ETH</span>{" "}
+            has been added to your wallet
           </div>
           <button
             onClick={onClose}
@@ -270,26 +288,31 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
             <div className="bg-[#1E1E1E] p-4 rounded-lg">
               <div className="mb-4">
                 <span className="text-gray-400">Network</span>
-                <div className="mt-1 text-white font-medium">{networkName}</div>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-white font-medium">
+                    {getNetworkName()}
+                  </span>
+                  {/* <span className="text-xs px-2 py-1 bg-[#303030] rounded-full text-gray-400">
+                    Chain ID: {chainId}
+                  </span> */}
+                </div>
               </div>
 
               <div className="mb-4">
                 <span className="text-gray-400">Your Address</span>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="text-white font-medium">{truncateAddress(address)}</span>
+                  <span className="text-white font-medium">
+                    {truncateAddress(address)}
+                  </span>
                   <button
                     onClick={copyAddressToClipboard}
                     className="text-white bg-[#303030] hover:bg-[#404040] p-1 rounded-md"
                     title="Copy address"
                   >
                     {copied ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="h-4 w-4 text-green-400" />
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
+                      <Copy className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -302,33 +325,47 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount, networkN
                 </div>
               </div>
             </div>
-
-
           </div>
 
           <div className="mt-8 flex justify-between gap-5">
             <button
               onClick={onClose}
               disabled={isLoading}
-              className={`flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={isLoading}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-black"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Claiming...
                 </span>
               ) : (
-                'Claim'
+                "Claim"
               )}
             </button>
           </div>
@@ -354,11 +391,11 @@ const PriceOracle = () => {
     networkFee: "$0.00",
     speed: "0 sec",
     contractAddress: "",
-    contractMethod: ""
+    contractMethod: "",
   });
   const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
   const [userBalance, setUserBalance] = useState("0");
-  const [claimAmount, setClaimAmount] = useState("0.05");
+  const [claimAmount, setClaimAmount] = useState("0.03");
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
@@ -380,7 +417,7 @@ const PriceOracle = () => {
   useEffect(() => {
     if (balanceData) {
       const balance = balanceData.value;
-      const requiredBalance = ethers.parseEther('0.02');
+      const requiredBalance = ethers.parseEther("0.02");
       const formattedBalance = Number(ethers.formatEther(balance)).toFixed(4);
 
       setUserBalance(formattedBalance);
@@ -395,7 +432,7 @@ const PriceOracle = () => {
       if (window.ethereum) {
         try {
           // Request account access if needed
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          await window.ethereum.request({ method: "eth_requestAccounts" });
 
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
@@ -416,14 +453,14 @@ const PriceOracle = () => {
           setIsInitialized(true);
 
           // Listen for chain changes
-          window.ethereum.on('chainChanged', async (chainId) => {
+          window.ethereum.on("chainChanged", async (chainId) => {
             try {
               // Convert chainId from hex to decimal
               const newChainId = parseInt(chainId, 16);
               setChainId(newChainId);
 
               // Wait a bit for the network to stabilize
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise((resolve) => setTimeout(resolve, 1000));
 
               // Check for existing contract when chain changes
               if (address) {
@@ -451,7 +488,7 @@ const PriceOracle = () => {
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeAllListeners('chainChanged');
+        window.ethereum.removeAllListeners("chainChanged");
       }
     };
   }, []);
@@ -471,14 +508,14 @@ const PriceOracle = () => {
       // Get proxy address for the user and implementation
       const proxyAddress = await factoryContract.getProxyAddress(
         userAddress,
-        BALANCEMAINTAINER_IMPLEMENTATION
+        DYNAMICPRICEORACLE_IMPLEMENTATION
       );
 
       // Check if proxy exists and is not zero address
       if (proxyAddress && proxyAddress !== ethers.ZeroAddress) {
         // Verify the proxy contract exists
         const proxyCode = await provider.getCode(proxyAddress);
-        if (proxyCode !== '0x') {
+        if (proxyCode !== "0x") {
           setContractAddress(proxyAddress);
           setIsDeployed(true);
           await fetchContractData(provider, proxyAddress);
@@ -499,31 +536,41 @@ const PriceOracle = () => {
   // Fetch contract data
   const fetchContractData = async (provider, contractAddr) => {
     if (!provider || !contractAddr) return;
-
+    console.log("in fetch function");
     try {
       const contract = new ethers.Contract(
         contractAddr,
         BalanceMaintainer.abi,
         provider
       );
+      console.log("contract", contract);
 
       // Get contract balance
       const balance = await contract.getContractBalance();
+      console.log("balance", contract);
+
       setContractBalance(Number(ethers.formatEther(balance)).toFixed(4));
 
       // Get tracked addresses and their minimum balances
-      const [addrs, minBalances] = await contract.getAllTrackedAddressesWithBalances();
+      const [addrs, minBalances] =
+        await contract.getAllTrackedAddressesWithBalances();
 
       // Fetch actual balances for each address
-      const balancesPromises = addrs.map(addr => provider.getBalance(addr));
+      const balancesPromises = addrs.map((addr) => provider.getBalance(addr));
       const actualBalances = await Promise.all(balancesPromises);
 
-      setAddresses(addrs.map((addr, index) => ({
-        key: index.toString(),
-        address: addr,
-        currentBalance: Number(ethers.formatEther(actualBalances[index])).toFixed(4),
-        minimumBalance: Number(ethers.formatEther(minBalances[index])).toFixed(4)
-      })));
+      setAddresses(
+        addrs.map((addr, index) => ({
+          key: index.toString(),
+          address: addr,
+          currentBalance: Number(
+            ethers.formatEther(actualBalances[index])
+          ).toFixed(4),
+          minimumBalance: Number(
+            ethers.formatEther(minBalances[index])
+          ).toFixed(4),
+        }))
+      );
     } catch (error) {
       console.error("Error fetching contract data:", error);
     }
@@ -554,7 +601,7 @@ const PriceOracle = () => {
       console.log("balance of contract", await contract.getContractBalance());
       const tx = await contract.setMultipleAddressesWithBalance(
         [address],
-        [ethers.parseEther('0.01')]
+        [ethers.parseEther("0.01")]
       );
 
       await tx.wait();
@@ -572,8 +619,11 @@ const PriceOracle = () => {
       amount: "0.02",
       networkFee: "$0.01",
       speed: "2 sec",
-      contractAddress: FACTORY_ADDRESS.substring(0, 7) + "..." + FACTORY_ADDRESS.substring(FACTORY_ADDRESS.length - 5),
-      contractMethod: "createProxy()"
+      contractAddress:
+        FACTORY_ADDRESS.substring(0, 7) +
+        "..." +
+        FACTORY_ADDRESS.substring(FACTORY_ADDRESS.length - 5),
+      contractMethod: "createProxy()",
     });
     setShowModal(true);
   };
@@ -586,8 +636,11 @@ const PriceOracle = () => {
       amount: newBalance,
       networkFee: "$0.01",
       speed: "2 sec",
-      contractAddress: contractAddress.substring(0, 7) + "..." + contractAddress.substring(contractAddress.length - 5),
-      contractMethod: "setMultipleAddressesWithBalance()"
+      contractAddress:
+        contractAddress.substring(0, 7) +
+        "..." +
+        contractAddress.substring(contractAddress.length - 5),
+      contractMethod: "setMultipleAddressesWithBalance()",
     });
     setShowModal(true);
   };
@@ -612,7 +665,9 @@ const PriceOracle = () => {
       const currentChainId = network.chainId;
 
       if (!currentChainId) {
-        throw new Error("Unable to determine current network. Please ensure your wallet is connected.");
+        throw new Error(
+          "Unable to determine current network. Please ensure your wallet is connected."
+        );
       }
 
       // Create factory contract instance
@@ -625,8 +680,10 @@ const PriceOracle = () => {
       // Verify contract is deployed and accessible
       try {
         const code = await signer.provider.getCode(FACTORY_ADDRESS);
-        if (code === '0x') {
-          throw new Error(`Factory contract not deployed at ${FACTORY_ADDRESS} on current network`);
+        if (code === "0x") {
+          throw new Error(
+            `Factory contract not deployed at ${FACTORY_ADDRESS} on current network`
+          );
         }
       } catch (err) {
         throw new Error(`Failed to verify factory contract: ${err.message}`);
@@ -634,23 +691,28 @@ const PriceOracle = () => {
 
       // Get current balance to ensure sufficient funds
       const balance = await signer.provider.getBalance(address);
-      const requiredBalance = ethers.parseEther('0.02');
+      const requiredBalance = ethers.parseEther("0.02");
       if (balance < requiredBalance) {
-        throw new Error(`Insufficient balance. Required: ${ethers.formatEther(requiredBalance)} ETH, Current: ${ethers.formatEther(balance)} ETH`);
+        throw new Error(
+          `Insufficient balance. Required: ${ethers.formatEther(requiredBalance)} ETH, Current: ${ethers.formatEther(balance)} ETH`
+        );
       }
 
       // Deploy proxy through factory
-      const tx = await factoryContract.createProxy(BALANCEMAINTAINER_IMPLEMENTATION, {
-        value: ethers.parseEther('0.02')
-      });
+      const tx = await factoryContract.createProxy(
+        DYNAMICPRICEORACLE_IMPLEMENTATION,
+        {
+          value: ethers.parseEther("0.02"),
+        }
+      );
 
       const receipt = await tx.wait();
 
       // Get the deployed proxy address from the event
-      const event = receipt.logs.find(log => {
+      const event = receipt.logs.find((log) => {
         try {
           const parsedLog = factoryContract.interface.parseLog(log);
-          return parsedLog && parsedLog.name === 'ProxyDeployed';
+          return parsedLog && parsedLog.name === "ProxyDeployed";
         } catch (e) {
           return false;
         }
@@ -663,8 +725,11 @@ const PriceOracle = () => {
         setIsDeployed(true);
         toast.success("Contract deployed successfully!");
 
+        // Fetch contract data immediately
+        await fetchContractData(provider, proxyAddress);
+
         // Set initial balance for owner
-        //await setInitialBalance(proxyAddress);
+        await setInitialBalance(proxyAddress);
       } else {
         throw new Error("No deployment event found in transaction receipt");
       }
@@ -672,11 +737,13 @@ const PriceOracle = () => {
       console.error("Deployment error:", err);
 
       // Check for user rejection
-      if (err.code === 'ACTION_REJECTED' ||
+      if (
+        err.code === "ACTION_REJECTED" ||
         err.code === 4001 ||
         err.message?.includes("rejected") ||
         err.message?.includes("denied") ||
-        err.message?.includes("user rejected")) {
+        err.message?.includes("user rejected")
+      ) {
         toast.error("Transaction rejected by user");
       } else {
         toast.error("Deployment failed: " + (err.message || "Unknown error"));
@@ -700,7 +767,6 @@ const PriceOracle = () => {
       console.log("tryying to add address...");
       console.log("contract", contract);
 
-
       const tx = await contract.setMultipleAddressesWithBalance(
         [newAddress],
         [ethers.parseEther(newBalance)]
@@ -715,14 +781,18 @@ const PriceOracle = () => {
       console.error("Error adding address:", error);
 
       // Check for user rejection
-      if (error.code === 'ACTION_REJECTED' ||
+      if (
+        error.code === "ACTION_REJECTED" ||
         error.code === 4001 ||
         error.message?.includes("rejected") ||
         error.message?.includes("denied") ||
-        error.message?.includes("user rejected")) {
+        error.message?.includes("user rejected")
+      ) {
         toast.error("Transaction rejected by user");
       } else {
-        toast.error("Failed to add address: " + (error.message || "Unknown error"));
+        toast.error(
+          "Failed to add address: " + (error.message || "Unknown error")
+        );
       }
     } finally {
       setIsLoading(false);
@@ -741,7 +811,12 @@ const PriceOracle = () => {
     // Create coin-like confetti
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+    const defaults = {
+      startVelocity: 30,
+      spread: 360,
+      ticks: 60,
+      zIndex: 10000,
+    };
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -757,13 +832,15 @@ const PriceOracle = () => {
       const particleCount = 50 * (timeLeft / duration);
 
       // Gold coins
-      confetti(Object.assign({}, defaults, {
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
-        colors: ['#FFD700', '#FFA500', '#F8FF7C'],
-        shapes: ['circle'],
-        scalar: randomInRange(0.8, 1.2)
-      }));
+      confetti(
+        Object.assign({}, defaults, {
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
+          colors: ["#FFD700", "#FFA500", "#F8FF7C"],
+          shapes: ["circle"],
+          scalar: randomInRange(0.8, 1.2),
+        })
+      );
     }, 250);
   };
 
@@ -775,23 +852,16 @@ const PriceOracle = () => {
   // Modified confirmClaim function
   const confirmClaim = async () => {
     try {
-      // Check if wallet is connected
       if (!address) {
-        toast.error('Wallet not connected. Please connect your wallet first.');
-        throw new Error('Wallet not connected');
+        toast.error("Wallet not connected. Please connect your wallet first.");
+        throw new Error("Wallet not connected");
       }
 
-      let networkName = "op_sepolia"; // Default
+      let networkName = "op_sepolia";
       if (chainId === 84532n) {
         networkName = "base_sepolia";
       }
 
-      // Get initial balance before claiming
-      await refetchBalance();
-      const initialBalance = balanceData?.value || ethers.parseEther('0');
-      console.log("Initial balance:", ethers.formatEther(initialBalance));
-
-      // Call the backend API to send ETH to the user's wallet
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
@@ -801,58 +871,35 @@ const PriceOracle = () => {
           },
           body: JSON.stringify({
             wallet_address: address,
-            network: networkName
+            network: networkName,
           }),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to claim ETH');
+        throw new Error(errorData.message || "Failed to claim ETH");
       }
 
       const data = await response.json();
-      console.log('Claim successful:', data);
+      console.log("Claim successful:", data);
 
-      // Wait for balance to update
-      let attempts = 0;
-      const maxAttempts = 20;
-      const checkInterval = 1000;
+      // Refresh balance in the background
+      refetchBalance();
 
-      while (attempts < maxAttempts) {
-        // Get current balance using wagmi
-        await refetchBalance();
-        const currentBalance = balanceData?.value || ethers.parseEther('0');
-        const expectedBalance = initialBalance + ethers.parseEther(claimAmount);
-
-        console.log("Current balance:", ethers.formatEther(currentBalance));
-        console.log("Expected balance:", ethers.formatEther(expectedBalance));
-
-        // Check if current balance is at least the expected balance
-        if (currentBalance >= expectedBalance) {
-          console.log("Balance update verified");
-          return true;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        attempts++;
-      }
-
-      // If we couldn't verify the balance update, still return success
-      console.log("Could not verify balance update, but claim was successful");
+      // Return true immediately to close the modal
       return true;
     } catch (error) {
-      console.error('Claim error:', error);
-
-      // Check if it's a user rejection from the API
-      if (error.message?.includes("rejected") ||
-        error.message?.includes("denied")) {
-        toast.error('Transaction was rejected');
+      console.error("Claim error:", error);
+      if (
+        error.message?.includes("rejected") ||
+        error.message?.includes("denied")
+      ) {
+        toast.error("Transaction was rejected");
       } else {
-        toast.error(error.message || 'Failed to claim ETH');
+        toast.error(error.message || "Failed to claim ETH");
       }
-
-      throw error; // propagate error to modal
+      throw error;
     }
   };
   console.log("userBalance...........", userBalance);
@@ -870,7 +917,7 @@ const PriceOracle = () => {
 
   // Function to format address
   const formatAddress = (address) => {
-    if (!address) return '';
+    if (!address) return "";
     return `${address.slice(0, 8)}...${address.slice(-5)}`;
   };
 
@@ -878,12 +925,12 @@ const PriceOracle = () => {
   const copyAddress = async (address) => {
     try {
       await navigator.clipboard.writeText(address);
-      setCopiedAddresses(prev => ({ ...prev, [address]: true }));
+      setCopiedAddresses((prev) => ({ ...prev, [address]: true }));
       setTimeout(() => {
-        setCopiedAddresses(prev => ({ ...prev, [address]: false }));
+        setCopiedAddresses((prev) => ({ ...prev, [address]: false }));
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy address:', err);
+      console.error("Failed to copy address:", err);
     }
   };
 
@@ -901,34 +948,36 @@ const PriceOracle = () => {
           },
         }}
       />
-      {/* <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center px-4 mb-6 ">
-        Deploy Balance Maintainer
-      </h1>
-      <h4 className="text-sm sm:text-base lg:text-lg text-[#A2A2A2] leading-relaxed text-center">
-        Set up your automated blockchain tasks with precise conditions and
-        parameters.
-      </h4> */}
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
         <div className=" mb-6">
-          <h2 className="text-xl text-white mb-4">Price-Oracle Template</h2>
+          <h2 className="text-xl text-white mb-4">
+            Dynamic Price Oracle Template
+          </h2>
           <p className="text-[#A2A2A2] mb-4">
-            This template automatically monitors and refills ETH for selected addresses when their balance drops below a set threshold.
+            Fetches the real-time price of Ethereum in USD and updates it to the
+            contract via automation.
           </p>
 
           <div className="space-y-2">
             <h3 className="text-white text-lg mb-2">Setup Steps</h3>
             <ul className="list-disc list-inside text-[#A2A2A2] space-y-2 ml-2">
-              <li>On contract deployment, extra ETH will be held to cover future top-ups when balances dip.</li>
-              <li>Add the address you want to monitor</li>
-              <li>Set the minimum balance to maintain (for testnet, keep it below 0.02 ETH)</li>
-              <li>Confirm the transaction to save your settings</li>
-              <li>Click on Create Job.
+              <li>
+                Deploy - Click the "Deploy" button to deploy the proxy of
+                DynamicPriceOracle on OP Sepolia.
+              </li>
+              <li>
+                Create Job - Click "Create Job" to view the prefilled job data.
+              </li>
+              <li>
+                Adjust Settings - Optionally update the time interval or
+                timeframe as per your needs.
+              </li>
+              <li>
+                Confirm - Click "Create Job" to finalize and activate the
+                automation.
               </li>
             </ul>
-            <p className="text-[#A2A2A2] mt-4 italic">
-              Once set, top-ups happen automatically—no manual checks required.
-            </p>
           </div>
         </div>
 
@@ -938,7 +987,9 @@ const PriceOracle = () => {
           <div className="text-[#A2A2A2] space-y-2">
             {!isConnected ? (
               <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                <p className="text-white text-center">Please connect your wallet to interact with the contract</p>
+                <p className="text-white text-center">
+                  Please connect your wallet to interact with the contract
+                </p>
               </div>
             ) : !isDeployed ? (
               <>
@@ -950,7 +1001,9 @@ const PriceOracle = () => {
                       onClick={showDeployModal}
                       className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#B15AE6]"
                     >
-                      {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
+                      {isLoading && modalType === "deploy"
+                        ? "Deploying..."
+                        : "🛠️ Deploy Contract"}
                     </button>
                   ) : (
                     <button
@@ -965,15 +1018,33 @@ const PriceOracle = () => {
             ) : (
               <>
                 <div className="bg-white/5 border border-white/10  p-5 rounded-lg ">
-                  <p className="text-white py-2">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
-                  <p className="text-white py-2">Owner : <span className="text-[#A2A2A2] font-semibold pl-2">{address}</span></p>
-                  <p className="text-white py-2">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>
                   <p className="text-white py-2">
-                    Contract Address :{' '}
+                    Status :{" "}
+                    <span className="text-[#A2A2A2] font-semibold pl-2">
+                      {" "}
+                      {isInitialized ? "Deployed Successfully" : "Deploying..."}
+                    </span>
+                  </p>
+                  <p className="text-white py-2">
+                    Owner :{" "}
+                    <span className="text-[#A2A2A2] font-semibold pl-2">
+                      {address}
+                    </span>
+                  </p>
+                  {/* <p className="text-white py-2">
+                    Balance :{" "}
+                    <span className="text-[#A2A2A2] font-semibold pl-2">
+                      {contractBalance} ETH
+                    </span>{" "}
+                  </p> */}
+                  <p className="text-white py-2">
+                    Contract Address :{" "}
                     <a
-                      href={`${chainId === 11155420n
-                        ? 'https://sepolia-optimism.etherscan.io/address/'
-                        : 'https://sepolia.basescan.org/address/'}${contractAddress}`}
+                      href={`${
+                        chainId === 11155420n
+                          ? "https://sepolia-optimism.etherscan.io/address/"
+                          : "https://sepolia.basescan.org/address/"
+                      }${contractAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#77E8A3] underline pl-2"
@@ -1003,10 +1074,9 @@ const PriceOracle = () => {
           onConfirm={confirmClaim}
           address={address}
           claimAmount={claimAmount}
-          networkName={getNetworkName()}
         />
 
-        <div className="bg-white/5 border border-white/10  p-5 rounded-lg my-6">
+        {/* <div className="bg-white/5 border border-white/10  p-5 rounded-lg my-6">
           <h2 className="text-xl text-white mb-3">Add Addresses</h2>
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <input
@@ -1040,10 +1110,10 @@ const PriceOracle = () => {
               {error}
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Addresses Table */}
-        <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
+        {/* <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
           <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
           <div className="overflow-x-auto w-full">
             <div className="border border-white/10 rounded-lg overflow-hidden">
@@ -1100,31 +1170,51 @@ const PriceOracle = () => {
               </table>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Deploy Button */}
         <div className="flex justify-center">
           {isDeployed && (
-            <button onClick={() => {
-              setSelectedJob(null);
-              const jobState = {
-                jobType: 1, // Time-based trigger
-                contractAddress: contractAddress,
-                abi: JSON.stringify([{
-                  "inputs": [],
-                  "name": "maintainBalances",
-                  "outputs": [],
-                  "stateMutability": "nonpayable",
-                  "type": "function"
-                }]),
-                timeframe: { years: 0, months: 0, days: 1 },
-                timeInterval: { hours: 1, minutes: 0, seconds: 0 }
-              };
-              // Update location state directly
-              window.history.pushState(jobState, '', window.location.pathname);
-              // Trigger state update by dispatching a popstate event
-              window.dispatchEvent(new PopStateEvent('popstate', { state: jobState }));
-            }} className="relative bg-[#F8FF7C] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
+            <button
+              onClick={() => {
+                setSelectedJob(null);
+                const jobState = {
+                  jobType: 1, // Time-based trigger
+                  contractAddress: contractAddress,
+                  abi: JSON.stringify([
+                    {
+                      inputs: [
+                        {
+                          internalType: "uint256",
+                          name: "_newPrice",
+                          type: "uint256",
+                        },
+                      ],
+                      name: "updatePrice",
+                      outputs: [],
+                      stateMutability: "nonpayable",
+                      type: "function",
+                    },
+                  ]),
+                  timeframe: { years: 0, months: 0, days: 1 },
+                  timeInterval: { hours: 1, minutes: 0, seconds: 0 },
+                  argumentType: "dynamic",
+                  ipfsCodeUrl:
+                    "https://teal-random-koala-993.mypinata.cloud/ipfs/bafkreiamtrzx3w2wa6s4vs4bbxbhbtwbzuoxoylijjrdy2ezglm6xrdcuu",
+                };
+                // Update location state directly
+                window.history.pushState(
+                  jobState,
+                  "",
+                  window.location.pathname
+                );
+                // Trigger state update by dispatching a popstate event
+                window.dispatchEvent(
+                  new PopStateEvent("popstate", { state: jobState })
+                );
+              }}
+              className="relative bg-[#F8FF7C] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform "
+            >
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
