@@ -784,14 +784,13 @@ const StakingReward = () => {
                     !stakeAmount ||
                     !hasSufficientTokenBalance
                   }
-                  className={`bg-[#FFFFFF] text-black px-6 py-4 rounded-lg transition-colors whitespace-nowrap ${
-                    !isInitialized ||
+                  className={`bg-[#FFFFFF] text-black px-6 py-4 rounded-lg transition-colors whitespace-nowrap ${!isInitialized ||
                     isStaking ||
                     !stakeAmount ||
                     !hasSufficientTokenBalance
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-[#E1E1E1]"
-                  }`}
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#E1E1E1]"
+                    }`}
                 >
                   {isApproving
                     ? "Approving..."
@@ -825,15 +824,14 @@ const StakingReward = () => {
                     parseFloat(stakedAmount) <= 0 ||
                     parseFloat(unstakeAmount) > parseFloat(stakedAmount)
                   }
-                  className={`bg-[#FFFFFF] text-black px-6 py-4 rounded-lg transition-colors whitespace-nowrap ${
-                    !isInitialized ||
+                  className={`bg-[#FFFFFF] text-black px-6 py-4 rounded-lg transition-colors whitespace-nowrap ${!isInitialized ||
                     isUnstaking ||
                     !unstakeAmount ||
                     parseFloat(stakedAmount) <= 0 ||
                     parseFloat(unstakeAmount) > parseFloat(stakedAmount)
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-[#E1E1E1]"
-                  }`}
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#E1E1E1]"
+                    }`}
                 >
                   {isUnstaking ? "Unstaking..." : "Unstake"}
                 </button>
@@ -842,98 +840,111 @@ const StakingReward = () => {
           </div>
         </div>
 
-        {/* Job Configuration Table */}
+        {/* Job Configuration Form Layout */}
         <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
           <h2 className="text-xl text-white mb-3">Job Configuration</h2>
-          <div className="overflow-x-auto w-full">
-            <div className="border border-white/10 rounded-lg overflow-hidden">
-              <table className="w-full min-w-full border-collapse">
-                <thead className="bg-white/5">
-                  <tr>
-                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-3/5">
-                      Parameter
-                    </th>
-                    <th className="px-2 sm:px-4 md:px-6 py-5 text-left text-white w-2/5">
-                      Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {isConnected ? (
-                    [
-                      {
-                        key: "jobType",
-                        parameter: "Job Type",
-                        value: jobConfig.jobType,
-                      },
-                      {
-                        key: "argType",
-                        parameter: "Arg Type",
-                        value: jobConfig.argType,
-                      },
-                      {
-                        key: "targetContractAddress",
-                        parameter: "Target Contract Address",
-                        value: jobConfig.targetContractAddress,
-                      },
-                      {
-                        key: "targetFunction",
-                        parameter: "Target Function",
-                        value: jobConfig.targetFunction,
-                      },
-                      {
-                        key: "triggerContractAddress",
-                        parameter: "Trigger Contract Address",
-                        value: jobConfig.triggerContractAddress,
-                      },
-                      {
-                        key: "triggerEvent",
-                        parameter: "Trigger Event",
-                        value: jobConfig.triggerEvent,
-                      },
-                    ].map((item) => (
-                      <tr key={item.key} className="bg-[#1A1A1A]">
-                        <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 font-bold">
-                          {item.parameter}
-                        </td>
-                        <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-2/5 truncate">
-                          <div className="flex items-center gap-2">
-                            <span className="block truncate">
-                              {item.parameter.includes("Address") && item.value
-                                ? `${item.value.slice(0, 4)}...${item.value.slice(-15)}`
-                                : item.value}
-                            </span>
-                            {item.parameter.includes("Address") &&
-                              item.value && (
-                                <button
-                                  onClick={() => copyAddress(item.value)}
-                                  className="p-1 hover:bg-white/10 rounded transition-colors"
-                                  title="Copy address"
-                                >
-                                  {copiedAddresses[item.value] ? (
-                                    <Check className="h-4 w-4 text-green-500" />
-                                  ) : (
-                                    <Copy className="h-4 w-4 text-gray-400" />
-                                  )}
-                                </button>
-                              )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="2"
-                        className="px-2 sm:px-4 md:px-6 py-4 text-center text-[#A2A2A2] h-[40vh]"
-                      >
-                        Please connect your wallet to view job configuration
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="w-full">
+            {isConnected ? (
+              <div className="border border-white/10 rounded-lg overflow-hidden bg-[#1A1A1A] p-4">
+                <div className="grid gap-4">
+                  {/* Job Type */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium">Job Type</lable>
+                    <div className="md:col-span-2">
+                      <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2]">
+                        {jobConfig.jobType}
+                      </div>
+                    </div>
+                  </div>
+
+
+                  {/* Arg Type */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium ">Arg Type</lable>
+                    <div className="md:col-span-2">
+                      <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2]">
+                        {jobConfig.argType}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Target Contract Address */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium">Target Contract Address</lable>
+                    <div className="md:col-span-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2] truncate">
+                          {jobConfig.targetContractAddress}
+                          {/* <button
+                            onClick={() => copyAddress(jobConfig.targetContractAddress)}
+                            className="p-2 hover:bg-white/10 rounded transition-colors"
+                            title="Copy address"
+                            type="button"
+                          >
+                            {copiedAddresses[jobConfig.targetContractAddress] ? (
+                              <Check className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Copy className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button> */}
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Target Function */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium">Target Function</lable>
+                    <div className="md:col-span-2">
+                      <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2]">
+                        {jobConfig.targetFunction}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trigger Contract Address */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium">Trigger Contract Address</lable>
+                    <div className="md:col-span-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2] truncate">
+                          {jobConfig.triggerContractAddress}
+                        </div>
+                        {/* <button
+                          onClick={() => copyAddress(jobConfig.triggerContractAddress)}
+                          className="p-2 hover:bg-white/10 rounded transition-colors"
+                          title="Copy address"
+                          type="button"
+                        >
+                          {copiedAddresses[jobConfig.triggerContractAddress] ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Copy className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button> */}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trigger Event */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <lable className="text-white font-medium">Trigger Event</lable>
+                    <div className="md:col-span-2">
+                      <div className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#A2A2A2]">
+                        {jobConfig.triggerEvent}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="border border-white/10 rounded-lg overflow-hidden bg-[#1A1A1A] h-[40vh] flex items-center justify-center">
+                <p className="text-center text-[#A2A2A2]">
+                  Please connect your wallet to view job configuration
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
