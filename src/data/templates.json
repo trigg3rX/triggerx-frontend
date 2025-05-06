@@ -1,0 +1,22 @@
+{
+  "templates": [
+    {
+      "id": "balance-maintainer",
+      "title": "Automating ETH Top-Ups with TriggerX",
+      "status": "Ready",
+      "hasTemplate": true
+    },
+    {
+        "id": "price-oracle",
+        "title": "Dynamic Price Oracle with TriggerX",
+        "status": "Ready",
+        "hasTemplate": true
+      },
+      {
+        "id": "staking-rewards",
+        "title": "Automating Staking Rewards with TriggerX",
+        "status": "Ready",
+        "hasTemplate": true
+      }
+  ]
+} 

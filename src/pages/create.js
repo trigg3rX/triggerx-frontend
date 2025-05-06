@@ -16,19 +16,19 @@ import { Toaster, toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 import BalanceMaintainer from "../../components/BalanceMaintainer";
-import PriceOracle from "../../components/PriceOracle";
-import StakingRewards from "../../components/StakingRewards";
+import sanityClient from "../../sanityClient";
 import { Tooltip } from "antd";
+
 import timeBasedIcon from "../../assets/time-based.gif";
 import conditionBasedIcon from "../../assets/condition-based.gif";
 import eventBasedIcon from "../../assets/event-based.gif";
 import timeBasedGif from "../../assets/time-based.gif";
 import conditionBasedGif from "../../assets/condition-based.gif";
 import eventBasedGif from "../../assets/event-based.gif";
-import templates from "../../data/templates.json";
 
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
+import { randomBytes } from "ethers";
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -136,7 +136,7 @@ function extractFunctions(abi) {
       }
     } else if (Array.isArray(abi)) {
       abiArray = abi;
-    } else if (abi && typeof abi === "object" && !Array.isArray(abi)) {
+    } else if (abi && typeof abi === 'object' && !Array.isArray(abi)) {
       // Handle cases where ABI might be passed as a single object instead of array
       // This might happen if the JSON string was just '{}'
       // Or if the location.state accidentally passed an object directly
@@ -148,7 +148,8 @@ function extractFunctions(abi) {
         // Try to be lenient if possible, otherwise return empty
         abiArray = Array.isArray(Object.values(abi)) ? Object.values(abi) : [];
       }
-    } else {
+    }
+    else {
       // console.warn("ABI is not an array, object, or valid JSON string:", abi);
       // throw new Error("ABI must be an array, object, or valid JSON string");
       return []; // Return empty if type is unexpected
@@ -188,14 +189,13 @@ function extractFunctions(abi) {
   }
 }
 
+
 function CreateJobPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedNetwork, setSelectedNetwork] = useState(
     supportedNetworks[0].name
   );
-  const [isLoading, setIsLoading] = useState(false);
-
   const [triggerChainId, setTriggerChainId] = useState(supportedNetworks[0].id);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [linkedJobs, setLinkedJobs] = useState({});
@@ -203,66 +203,76 @@ function CreateJobPage() {
   const [jobDetails, setJobDetails] = useState([]);
   const [conditionScript, setConditionScript] = useState("");
   const { address, isConnected } = useAccount();
+  const [connected, setConnected] = useState(false);
   const formRef = useRef(null);
   const { handleKeyDown } = useFormKeyboardNavigation();
   const [contractDetails, setContractDetails] = useState({});
   const [recurring, setRecurring] = useState(true);
-  const baseUrl = "https://app.triggerx.network";
+  const baseUrl = 'https://app.triggerx.network';
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Add Sanity query
+  const query = `*[_type == "post"] | order(_createdAt desc) {
+    _id,     
+    title,
+    slug {
+      current  
+    },
+    image {
+      asset-> { 
+        _id,    
+        url
+      }
+    }
+  }`;
+
+  // Fetch posts from Sanity
+  useEffect(() => {
+    async function fetchPosts() {
+      setIsLoading(true);
+      try {
+        const fetchedPosts = await sanityClient.fetch(query);
+        if (Array.isArray(fetchedPosts)) {
+          setPosts(fetchedPosts);
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, []);
+
+  // Add state to track selected job
   const [selectedJob, setSelectedJob] = useState(null);
 
   // Function to handle job selection
-  const handleJobSelect = (template) => {
-    setSelectedJob(template);
-  };
-
-  // Function to render the appropriate component based on selected template
-  const renderSelectedTemplate = () => {
-    if (!selectedJob) return null;
-
-    switch (selectedJob.id) {
-      case "balance-maintainer":
-        return <BalanceMaintainer setSelectedJob={setSelectedJob} />;
-      case "price-oracle":
-        return <PriceOracle setSelectedJob={setSelectedJob} />;
-      case "staking-rewards":
-        return <StakingRewards setSelectedJob={setSelectedJob} />;
-      default:
-        return null;
-    }
+  const handleJobSelect = (post) => {
+    setSelectedJob(post);
   };
 
   useEffect(() => {
     // Update meta tags when activeTab changes
-    document.title = "TriggerX | Build";
-    document
-      .querySelector('meta[name="description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
+    document.title = 'TriggerX | Build';
+    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
 
     // Update Open Graph meta tags
-    document
-      .querySelector('meta[property="og:title"]')
-      .setAttribute("content", "TriggerX | Build");
-    document
-      .querySelector('meta[property="og:description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
-    document
-      .querySelector('meta[property="og:image"]')
-      .setAttribute("content", `${baseUrl}/images/build-og.png`);
-    document
-      .querySelector('meta[property="og:url"]')
-      .setAttribute("content", `${baseUrl}`);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Build');
+    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}`);
 
     // Update Twitter Card meta tags
-    document
-      .querySelector('meta[name="twitter:title"]')
-      .setAttribute("content", "TriggerX | Build");
-    document
-      .querySelector('meta[name="twitter:description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
-    document
-      .querySelector('meta[name="twitter:image"]')
-      .setAttribute("content", `${baseUrl}/images/build-og.png`);
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Build');
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/build-og.png`);
   }, [baseUrl]);
+
+
+
 
   const eventdropdownRef = useRef(null);
   // Close dropdown when clicking outside
@@ -442,213 +452,65 @@ function CreateJobPage() {
 
   useEffect(() => {
     if (location.state) {
-      console.log("Received state from previous page:", location.state);
+      console.log('Received state from previous page:', location.state);
 
       const {
         jobType: incomingJobType,
         contractAddress: incomingContractAddress,
         abi: incomingAbiString,
         timeframe: incomingTimeframe,
-        timeInterval: incomingTimeInterval,
-        argumentType: incomingArgumentType,
-        ipfsCodeUrl: incomingIpfsCodeUrl,
+        timeInterval: incomingTimeInterval
       } = location.state;
 
-      // 1. Set Job Type
+      // Set Job Type
       if (incomingJobType !== undefined) {
-        setJobType(Number(incomingJobType)); // Ensure it's a number
-        setSelectedJob(null); // Clear selected job when job type is set
+        setJobType(Number(incomingJobType));
       }
 
-      // 2. Set Timeframe and recalculate seconds
+      // Set Timeframe
       if (incomingTimeframe) {
         setTimeframe(incomingTimeframe);
-        const tfSeconds =
-          incomingTimeframe.years * 31536000 +
-          incomingTimeframe.months * 2592000 +
-          incomingTimeframe.days * 86400;
+        const tfSeconds = (incomingTimeframe.years * 31536000) +
+          (incomingTimeframe.months * 2592000) +
+          (incomingTimeframe.days * 86400);
         setTimeframeInSeconds(tfSeconds);
-        setErrorFrame(""); // Clear any previous errors
       }
 
-      // 3. Set Time Interval (only if jobType is 1) and recalculate seconds
-      // Check the actual incomingJobType value
+      // Set Time Interval
       if (Number(incomingJobType) === 1 && incomingTimeInterval) {
         setTimeInterval(incomingTimeInterval);
-        // Recalculate intervalInSeconds based on the incoming object
-        const tiSeconds =
-          incomingTimeInterval.hours * 3600 +
-          incomingTimeInterval.minutes * 60 +
+        const tiSeconds = (incomingTimeInterval.hours * 3600) +
+          (incomingTimeInterval.minutes * 60) +
           incomingTimeInterval.seconds;
         setIntervalInSeconds(tiSeconds);
-        setErrorInterval(""); // Clear any previous errors
-      } else {
-        // If job type is not 1, reset time interval (optional, depends on desired behavior)
-        // setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
-        // setIntervalInSeconds(0);
       }
 
-      // 4. Set Contract Details (Address and ABI) for the 'main' job
-      // We use the incomingJobType directly here to ensure the key is correct
-      if (
-        incomingContractAddress &&
-        incomingAbiString &&
-        incomingJobType !== undefined
-      ) {
+      // Set Contract Details
+      if (incomingContractAddress && incomingAbiString && incomingJobType !== undefined) {
         const extractedFunctions = extractFunctions(incomingAbiString);
-
-        let defaultTargetFunctionSignature = "";
-        // If writable functions exist, select the first one's signature
-
-        if (extractedFunctions && extractedFunctions.length > 0) {
-          const firstFunc = extractedFunctions[0];
-          // Construct the full signature (e.g., "functionName(type1,type2)")
-          defaultTargetFunctionSignature = `${firstFunc.name}(${firstFunc.inputs.map((input) => input.type).join(",")})`;
-        }
-        let argumentType = "static"; // Default to static arguments
-        let finalIpfsUrl = "";
-
-        if (incomingArgumentType) {
-          argumentType = incomingArgumentType;
-        }
-
-        if (incomingIpfsCodeUrl) { // Check if it was sent (even if empty string)
-          finalIpfsUrl = incomingIpfsCodeUrl;
-       }
-
-        // Update the contractDetails state for the specific job type's 'main' entry
-        // Using functional update ensures we're working with the latest state
-        setContractDetails((prevDetails) => {
-          const currentJobTypeKey = Number(incomingJobType);
-
-          const newMainDetails = {
-            ...(prevDetails[currentJobTypeKey]?.main || {}),
-            contractAddress: incomingContractAddress,
-            contractABI: incomingAbiString,
-            functions: extractedFunctions,
-            // Pre-select the maintainBalances function
-            targetFunction: defaultTargetFunctionSignature, // Set the default function
-            argumentType: argumentType,
-            argsArray: [],
-            ipfsCodeUrl: finalIpfsUrl,
-          };
-          // Return the updated state object
-          return {
-            ...prevDetails,
-            [currentJobTypeKey]: {
-              ...(prevDetails[currentJobTypeKey] || {}),
-              main: newMainDetails,
+        setContractDetails(prevDetails => ({
+          ...prevDetails,
+          [Number(incomingJobType)]: {
+            main: {
+              ...(prevDetails[Number(incomingJobType)]?.main || {}),
+              contractAddress: incomingContractAddress,
+              contractABI: incomingAbiString,
+              functions: extractedFunctions,
+              targetFunction: "",
+              argumentType: "static",
+              argsArray: [],
+              ipfsCodeUrl: "",
             },
-          };
-        });
+          },
+        }));
       }
 
-      // This prevents the form from being re-filled if the user navigates back and forth
-      // or refreshes the page. Use with caution if you need the state for other purposes.
-      navigate(".", { replace: true, state: null });
-      window.history.replaceState(null, "", window.location.pathname);
+      // If we're coming from the sidebar, we don't need to clear the state
+      if (!selectedJob) {
+        navigate('.', { replace: true, state: null });
+      }
     }
-  }, [
-    location.state,
-    setJobType,
-    setTimeframe,
-    setTimeframeInSeconds, // Add dependency
-    setTimeInterval,
-    setIntervalInSeconds, // Add dependency
-    setContractDetails,
-    setErrorFrame, // Add dependency
-    setErrorInterval, // Add dependency
-    navigate, // Add dependency if using navigate to clear state
-  ]);
-
-  // Add event listener for popstate events
-  useEffect(() => {
-    const handlePopState = (event) => {
-      if (event.state) {
-        // Process the state change
-        const { jobType, contractAddress, abi, timeframe, timeInterval, argumentType, ipfsCodeUrl } =
-          event.state;
-
-        if (jobType !== undefined) {
-          setJobType(Number(jobType));
-          setSelectedJob(null);
-        }
-
-        if (timeframe) {
-          setTimeframe(timeframe);
-          const tfSeconds =
-            timeframe.years * 31536000 +
-            timeframe.months * 2592000 +
-            timeframe.days * 86400;
-          setTimeframeInSeconds(tfSeconds);
-        }
-
-        if (timeInterval && Number(jobType) === 1) {
-          setTimeInterval(timeInterval);
-          const tiSeconds =
-            timeInterval.hours * 3600 +
-            timeInterval.minutes * 60 +
-            timeInterval.seconds;
-          setIntervalInSeconds(tiSeconds);
-        }
-
-        if (contractAddress && abi) {
-          const extractedFunctions = extractFunctions(abi);
-
-          let defaultTargetFunctionSignature = "";
-          if (extractedFunctions && extractedFunctions.length > 0) {
-            const firstFunc = extractedFunctions[0];
-            defaultTargetFunctionSignature = `${firstFunc.name}(${firstFunc.inputs.map((input) => input.type).join(",")})`;
-          }
-          const defaultArgumentType = "static";
-
-          console.log(
-            "Default Target Function (popstate):",
-            defaultTargetFunctionSignature
-          ); // Debug log
-          console.log("Default Argument Type (popstate):", defaultArgumentType); // Debug log
-
-          let argType = "static"; // Default to static arguments
-         let finalIpfsUrl = "";
-
-        if (argumentType) {
-          argType = argumentType;
-        }
-
-        if (ipfsCodeUrl) { // Check if it was sent (even if empty string)
-          finalIpfsUrl = ipfsCodeUrl;
-       }
-
-
-          setContractDetails((prevDetails) => ({
-            ...prevDetails,
-            [Number(jobType)]: {
-              main: {
-                contractAddress: contractAddress,
-                contractABI: abi,
-                functions: extractedFunctions,
-                // Pre-select the maintainBalances function
-                targetFunction: defaultTargetFunctionSignature,
-                argumentType: argType,
-                argsArray: [],
-                ipfsCodeUrl: finalIpfsUrl,
-              },
-            },
-          }));
-        }
-      }
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, [
-    setJobType,
-    setTimeframe,
-    setTimeframeInSeconds,
-    setTimeInterval,
-    setIntervalInSeconds,
-    setContractDetails,
-  ]);
+  }, [location.state, selectedJob, setJobType, setTimeframe, setTimeframeInSeconds, setTimeInterval, setIntervalInSeconds, setContractDetails, navigate]);
 
   const handleContractDetailChange = (jobType, jobKey, field, value) => {
     setContractDetails((prevDetails) => ({
@@ -662,6 +524,8 @@ function CreateJobPage() {
       },
     }));
   };
+
+
 
   useEffect(() => {
     setContractDetails((prevDetails) => {
@@ -715,9 +579,9 @@ function CreateJobPage() {
           timeInterval.minutes === 0 &&
           timeInterval.seconds === 0) ||
         timeInterval.hours * 3600 +
-          timeInterval.minutes * 60 +
-          timeInterval.seconds <
-          30
+        timeInterval.minutes * 60 +
+        timeInterval.seconds <
+        30
       ) {
         setErrorInterval(
           "Please set a valid time interval of at least 30 seconds before submitting."
@@ -751,13 +615,11 @@ function CreateJobPage() {
               : 4;
       };
 
-      const getArgType = (argumentType) => (argumentType === "static" ? 0 : 1);
+      const getArgType = (argumentType) => argumentType === "static" ? 0 : 1;
 
       // Add main job details if available
       if (mainJobDetails) {
-        const taskdefinitionid = getTaskDefinitionId(
-          mainJobDetails.argumentType
-        );
+        const taskdefinitionid = getTaskDefinitionId(mainJobDetails.argumentType);
         const argType = getArgType(mainJobDetails.argumentType);
 
         allJobsDetails.push({
@@ -772,20 +634,18 @@ function CreateJobPage() {
           time_interval: intervalInSeconds,
           recurring: recurring,
           trigger_chain_id: triggerChainId.toString(),
-          trigger_contract_address:
-            eventContractInteraction.contractAddress || "NULL",
+          trigger_contract_address: eventContractInteraction.contractAddress || "NULL",
           trigger_event: "NULL",
           script_ipfs_url: mainJobDetails.ipfsCodeUrl || "",
           script_target_function: "trigger",
           target_chain_id: triggerChainId.toString(),
           target_contract_address: mainJobDetails.contractAddress,
-          target_function: mainJobDetails.targetFunction?.split("(")[0],
+          target_function: mainJobDetails.targetFunction?.split('(')[0],
           arg_type: argType,
           arguments: mainJobDetails.argsArray,
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
-          abi: mainJobDetails.contractABI,
-          abi: mainJobDetails.contractABI,
+          contractABI: mainJobDetails.contractABI,
         });
       }
 
@@ -795,9 +655,7 @@ function CreateJobPage() {
           const linkedJobDetails = contractDetails[jobType]?.[jobId];
 
           if (linkedJobDetails) {
-            const taskdefinitionid = getTaskDefinitionId(
-              linkedJobDetails.argumentType
-            );
+            const taskdefinitionid = getTaskDefinitionId(linkedJobDetails.argumentType);
             const argType = getArgType(linkedJobDetails.argumentType);
 
             allJobsDetails.push({
@@ -812,8 +670,7 @@ function CreateJobPage() {
               time_interval: intervalInSeconds,
               recurring: recurring,
               trigger_chain_id: triggerChainId.toString(),
-              trigger_contract_address:
-                eventContractInteraction.contractAddress || "NULL",
+              trigger_contract_address: eventContractInteraction.contractAddress || "NULL",
               trigger_event: "NULL",
               script_ipfs_url: linkedJobDetails.ipfsCodeUrl || "",
               script_target_function: "trigger",
@@ -824,7 +681,7 @@ function CreateJobPage() {
               arguments: linkedJobDetails.argsArray,
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
-              abi: linkedJobDetails.contractABI,
+              contractABI: linkedJobDetails.contractABI,
             });
           }
         }
@@ -892,7 +749,7 @@ function CreateJobPage() {
           intervalInSeconds,
           codeUrls,
           processSteps,
-          setProcessSteps
+          setProcessSteps,
         );
 
         // Ensure UI updates and animation completes
@@ -936,6 +793,13 @@ function CreateJobPage() {
     setJobType(Number(newJobType));
   };
 
+  // Add template status to posts
+  const postsWithTemplateStatus = posts.map((post, index) => ({
+    ...post,
+    hasTemplate: index === posts.length - 1, // Only the last post has a template
+    templateStatus: index === posts.length - 1 ? 'Ready' : 'Pending'
+  }));
+
   return (
     <div>
       <Toaster
@@ -961,96 +825,70 @@ function CreateJobPage() {
         <div className="mx-auto px-6 relative z-30">
           <PageHeader />
 
-          <div className="flex flex-col lg:flex-row gap-6 justify-center max-w-[1600px] mx-auto">
+          <div className="flex flex-col lg:flex-row gap-6 justify-center">
             {/* Sidebar with actual posts */}
-            <div className="w-full lg:w-1/3 space-y-4">
-              {/* Points System Box */}
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <h2 className="text-xl font-semibold mb-4">Points System</h2>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-[#F8FF7C] text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">
-                      20
-                    </div>
-                    <span className="text-gray-300">
-                      points for every custom job you create
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">
-                      10
-                    </div>
-                    <span className="text-gray-300">
-                      points for every job created via a template
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-400 mt-3 pt-3 border-t border-white/10">
-                    Earn more by building more. Every job counts.
-                  </p>
-                </div>
+            <div className="w-full lg:w-1/4 bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Use Template</h2>
+                <button
+                  onClick={() => setSelectedJob(null)}
+                  className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200"
+                >
+                  Create Manual Job
+                </button>
               </div>
-
-              {/* Template List Box */}
-              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
-                <div className="flex justify-between gap-3 items-center mb-4">
-                  <h2 className="text-lg lg:text-base font-semibold">Use Template</h2>
-                  <button
-                    onClick={() => {
-                      setSelectedJob(null);
-                      setJobType(null);
-                    
-                      // Reset timeframe and interval to initial values
-                      setTimeframe({ years: 0, months: 0, days: 0 });
-                      setTimeframeInSeconds(0);
-                    
-                      setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
-                      setIntervalInSeconds(0);
-                    
-                      // Clear contract details
-                      setContractDetails({});
-                    
-                    }}
-                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-[14px]"
-                  >
-                    Create Custom Job
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {templates.templates.map((template) => (
+              <div className="space-y-2">
+                {isLoading ? (
+                  <div className="animate-pulse space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-16 bg-white/5 rounded-lg"></div>
+                    ))}
+                  </div>
+                ) : postsWithTemplateStatus.length > 0 ? (
+                  postsWithTemplateStatus.map((post) => (
                     <Tooltip
-                      key={template.id}
-                      title={"Template is ready"}
-                      color="#4CAF50"
+                      key={post._id}
+                      title={post.hasTemplate ? "Template is ready" : "Template is in progress"}
+                      color={post.hasTemplate ? "#4CAF50" : "#2A2A2A"}
                     >
                       <div
-                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${
-                          selectedJob?.id === template.id
-                            ? "bg-white/10 border-white/30"
-                            : ""
-                        }`}
-                        onClick={() => handleJobSelect(template)}
+                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${selectedJob?._id === post._id ? 'bg-white/10 border-white/30' : ''
+                          } ${!post.hasTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => post.hasTemplate && handleJobSelect(post)}
                       >
                         <div className="flex justify-between items-center">
-                          <h4 className="font-medium lg:w-[70%]">
-                            {template.title}
-                          </h4>
-                          <span className="text-xs px-2 py-1 rounded bg-green-900/30 text-green-400">
-                            {template.status}
+                          <h4 className="font-medium">{post.title}</h4>
+                          <span className={`text-xs px-2 py-1 rounded ${post.hasTemplate ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
+                            }`}>
+                            {post.templateStatus}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400 py-2">
-                          Template • Devhub Post
-                        </p>
+                        <p className="text-xs text-gray-400 py-2">Devhub Post</p>
                       </div>
                     </Tooltip>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400">No jobs found</div>
+                )}
               </div>
             </div>
-            <div className="w-full lg:w-3/4">
+
+            {/* Main content area */}
+            <div className="w-full lg:w-3/5">
               {selectedJob ? (
                 <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                  {renderSelectedTemplate()}
+                  <div className="flex justify-end items-center mb-6">
+                    {/* <h2 className="text-xl font-semibold">{selectedJob.title}</h2> */}
+                    <button
+                      className="text-white hover:text-gray-300"
+                      onClick={() => setSelectedJob(null)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <BalanceMaintainer />
                 </div>
               ) : (
                 <form
@@ -1074,18 +912,16 @@ function CreateJobPage() {
                                 handleJobTypeChange(e, option.value);
                               }
                             }}
-                            className={`${
-                              Number(option.value) === jobType
-                                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
-                                : "bg-white/5 border border-white/10 "
-                            } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-[14px]`}
+                            className={`${Number(option.value) === jobType
+                              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
+                              : "bg-white/5 border border-white/10 "
+                              } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
                           >
                             <div
-                              className={`${
-                                Number(option.value) === jobType
-                                  ? "bg-white border border-white/10"
-                                  : ""
-                              } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                              className={`${Number(option.value) === jobType
+                                ? "bg-white border border-white/10"
+                                : ""
+                                } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                             ></div>
                             {Number(option.value) === jobType ? (
                               <img
@@ -1120,9 +956,7 @@ function CreateJobPage() {
                             >
                               <div
                                 className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center gap-5"
-                                onClick={() =>
-                                  setIsNetworkOpen((prev) => !prev)
-                                }
+                                onClick={() => setIsNetworkOpen((prev) => !prev)}
                               >
                                 <div className="w-6 h-6 text-xs xs:text-sm sm:text-base">
                                   {networkIcons[selectedNetwork]}
@@ -1210,9 +1044,7 @@ function CreateJobPage() {
                                 <input
                                   type="text"
                                   id="contractAddress"
-                                  value={
-                                    eventContractInteraction.contractAddress
-                                  }
+                                  value={eventContractInteraction.contractAddress}
                                   onChange={
                                     eventContractInteraction.handleContractAddressChange
                                   }
@@ -1248,9 +1080,7 @@ function CreateJobPage() {
                                           <h4 className="text-gray-400 pr-2 text-xs xs:text-sm sm:text-base">
                                             Not Available{" "}
                                           </h4>
-                                          <h4 className="text-red-400 mt-[2px]">
-                                            ✕
-                                          </h4>
+                                          <h4 className="text-red-400 mt-[2px]">✕</h4>
                                         </div>
                                       )}
                                     </div>
@@ -1266,9 +1096,7 @@ function CreateJobPage() {
                                     <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
                                       <div
                                         className="w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between"
-                                        onClick={() =>
-                                          setIsEventOpen(!isEventOpen)
-                                        }
+                                        onClick={() => setIsEventOpen(!isEventOpen)}
                                       >
                                         {eventContractInteraction.targetEvent ||
                                           "Select an event"}
@@ -1281,11 +1109,10 @@ function CreateJobPage() {
                                         >
                                           {eventContractInteraction.events.map(
                                             (func, index) => {
-                                              const signature = `${
-                                                func.name
-                                              }(${func.inputs
-                                                .map((input) => input.type)
-                                                .join(",")})`;
+                                              const signature = `${func.name
+                                                }(${func.inputs
+                                                  .map((input) => input.type)
+                                                  .join(",")})`;
                                               return (
                                                 <div
                                                   key={index}
@@ -1293,9 +1120,7 @@ function CreateJobPage() {
                                                   onClick={() => {
                                                     eventContractInteraction.handleEventChange(
                                                       {
-                                                        target: {
-                                                          value: signature,
-                                                        },
+                                                        target: { value: signature },
                                                       }
                                                     );
                                                     setIsEventOpen(false);
@@ -1311,8 +1136,7 @@ function CreateJobPage() {
                                     </div>
                                   </div>
 
-                                  {eventContractInteraction.events.length ===
-                                    0 &&
+                                  {eventContractInteraction.events.length === 0 &&
                                     eventContractInteraction.contractAddress && (
                                       <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto  text-sm text-yellow-400">
                                         No writable events found. Make sure the
@@ -1327,8 +1151,8 @@ function CreateJobPage() {
 
                           <ContractDetails
                             contractAddress={
-                              contractDetails[jobType]?.["main"]
-                                ?.contractAddress || ""
+                              contractDetails[jobType]?.["main"]?.contractAddress ||
+                              ""
                             }
                             setContractAddress={(value) =>
                               handleContractDetailChange(
@@ -1339,8 +1163,7 @@ function CreateJobPage() {
                               )
                             }
                             contractABI={
-                              contractDetails[jobType]?.["main"]?.contractABI ||
-                              ""
+                              contractDetails[jobType]?.["main"]?.contractABI || ""
                             }
                             setContractABI={(value) =>
                               handleContractDetailChange(
@@ -1351,8 +1174,7 @@ function CreateJobPage() {
                               )
                             }
                             functions={
-                              contractDetails[jobType]?.["main"]?.functions ||
-                              []
+                              contractDetails[jobType]?.["main"]?.functions || []
                             }
                             setFunctions={(value) =>
                               handleContractDetailChange(
@@ -1363,8 +1185,7 @@ function CreateJobPage() {
                               )
                             }
                             targetFunction={
-                              contractDetails[jobType]?.["main"]
-                                ?.targetFunction || ""
+                              contractDetails[jobType]?.["main"]?.targetFunction || ""
                             }
                             setTargetFunction={(value) =>
                               handleContractDetailChange(
@@ -1375,8 +1196,8 @@ function CreateJobPage() {
                               )
                             }
                             argumentType={
-                              contractDetails[jobType]?.["main"]
-                                ?.argumentType || "static"
+                              contractDetails[jobType]?.["main"]?.argumentType ||
+                              "static"
                             }
                             setArgumentType={(value) =>
                               handleContractDetailChange(
@@ -1387,8 +1208,7 @@ function CreateJobPage() {
                               )
                             }
                             argsArray={
-                              contractDetails[jobType]?.["main"]?.argsArray ||
-                              []
+                              contractDetails[jobType]?.["main"]?.argsArray || []
                             }
                             setArgArray={(value) =>
                               handleContractDetailChange(
@@ -1399,8 +1219,7 @@ function CreateJobPage() {
                               )
                             }
                             ipfsCodeUrl={
-                              contractDetails[jobType]?.["main"]?.ipfsCodeUrl ||
-                              ""
+                              contractDetails[jobType]?.["main"]?.ipfsCodeUrl || ""
                             }
                             setIpfsCodeUrl={(value) =>
                               handleContractDetailChange(
@@ -1449,9 +1268,7 @@ function CreateJobPage() {
                                     <DeleteConfirmationButton
                                       jobType={jobType}
                                       jobId={jobId}
-                                      handleDeleteLinkedJob={
-                                        handleDeleteLinkedJob
-                                      }
+                                      handleDeleteLinkedJob={handleDeleteLinkedJob}
                                     />
                                   </div>
 
@@ -1495,8 +1312,8 @@ function CreateJobPage() {
                                       )
                                     }
                                     functions={
-                                      contractDetails[jobType]?.[jobKey]
-                                        ?.functions || []
+                                      contractDetails[jobType]?.[jobKey]?.functions ||
+                                      []
                                     }
                                     setFunctions={(value) =>
                                       handleContractDetailChange(
@@ -1531,8 +1348,8 @@ function CreateJobPage() {
                                       )
                                     }
                                     argsArray={
-                                      contractDetails[jobType]?.[jobKey]
-                                        ?.argsArray || []
+                                      contractDetails[jobType]?.[jobKey]?.argsArray ||
+                                      []
                                     }
                                     setArgArray={(value) =>
                                       handleContractDetailChange(
@@ -1565,11 +1382,11 @@ function CreateJobPage() {
                           <button
                             type="submit"
                             className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                            disabled={isLoading} // Disable while loading
+                            disabled={jobCreationIsLoading} // Disable while loading
                           >
                             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                             <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                            {isLoading ? (
+                            {jobCreationIsLoading ? (
                               <span className="flex items-center gap-2 text-nowrap font-actayRegular relative z-10 rounded-full opacity-50 cursor-not-allowed text-xs sm:text-base overflow-hidden">
                                 Estimating Fees
                                 <svg
@@ -1597,17 +1414,14 @@ function CreateJobPage() {
                             <button
                               onClick={() => handleLinkJob(jobType)}
                               className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
-                              disabled={isLoading}
+                              disabled={jobCreationIsLoading}
                             >
                               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                               <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                               <span
-                                className={`${
-                                  isLoading
-                                    ? "cursor-not-allowed opacity-50 "
-                                    : ""
-                                } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                                className={`${jobCreationIsLoading ? "cursor-not-allowed opacity-50 " : ""
+                                  } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                               >
                                 Link Job
                               </span>
@@ -1631,7 +1445,7 @@ function CreateJobPage() {
         </div>
         {/* Estimated Fee Modal */}
         <EstimatedFeeModal
-          isOpen={isLoading}
+          isOpen={jobCreationIsLoading}
           showProcessing={showProcessModal}
           showFees={isModalOpen}
           steps={processSteps}

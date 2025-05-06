@@ -14,6 +14,7 @@ const Leaderboard = () => {
     developers: [],
     contributors: [],
   });
+  const [searchTerm, setSearchTerm] = useState("");
   const baseUrl = 'https://app.triggerx.network';
 
 
@@ -122,10 +123,28 @@ const Leaderboard = () => {
     }, 2000);
   };
 
-  // Get the appropriate data for the active tab
-  const keeperData = leaderboardData.keepers || [];
-  const developerData = leaderboardData.developers || [];
-  const contributorData = leaderboardData.contributors || [];
+  // Filter data based on search term
+  const getFilteredData = (dataList) => {
+    if (!searchTerm) return dataList;
+
+    return dataList.filter(item => {
+      if (activeTab === "keeper") {
+        return (
+          (item.operator && item.operator.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (item.address && item.address.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+      } else if (activeTab === "developer") {
+        return item.address && item.address.toLowerCase().includes(searchTerm.toLowerCase());
+      } else {
+        return item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      }
+    });
+  };
+
+  // Use filtered data for tables
+  const filteredKeepers = getFilteredData(leaderboardData.keepers || []);
+  const filteredDevelopers = getFilteredData(leaderboardData.developers || []);
+  const filteredContributors = getFilteredData(leaderboardData.contributors || []);
 
   // Render keeper/operators table
   const renderKeeperTable = () => {
@@ -158,8 +177,8 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {keeperData.length > 0
-            ? keeperData.map((item, index) => (
+          {filteredKeepers.length > 0
+            ? filteredKeepers.map((item, index) => (
               <tr key={index}>
                 <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
                   {item.operator}
@@ -275,8 +294,8 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {developerData.length > 0
-            ? developerData.map((item, index) => (
+          {filteredDevelopers.length > 0
+            ? filteredDevelopers.map((item, index) => (
               <tr key={index}>
                 <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
                   <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
@@ -370,8 +389,8 @@ const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {contributorData.length > 0
-            ? contributorData.map((item, index) => (
+          {filteredContributors.length > 0
+            ? filteredContributors.map((item, index) => (
               <tr key={index}>
                 <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
                   {item.name}
@@ -423,6 +442,29 @@ const Leaderboard = () => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center">
           Leaderboard
         </h1>
+
+        {/* <div className="max-w-[1600px] w-[85%] mx-auto flex items-center justify-end mt-8 mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-[#141414] text-white border border-gray-700 rounded-full py-2 px-6 pr-12 focus:outline-none"
+            />
+            <button className="absolute right-4 top-2.5">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+                  stroke="#C07AF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+          <button className="ml-2 bg-[#141414] text-white p-2.5 rounded-full border border-gray-700">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6H21M7 12H17M11 18H13" stroke="#C07AF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div> */}
 
         <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-10 bg-[#181818F0] p-2 rounded-lg">
           <button
