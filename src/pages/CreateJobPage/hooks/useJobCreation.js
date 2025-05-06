@@ -17,7 +17,6 @@ export function useJobCreation() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   const [codeUrls, setCodeUrls] = useState([]);
 
   const handleCodeUrlChange = (event, jobType, jobId = null) => {
@@ -36,7 +35,8 @@ export function useJobCreation() {
       });
 
       console.log(
-        `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"
+        `Code URL for ${jobType} ${
+          jobId !== null ? "linked job " + jobId : "main job"
         } changed to:`,
         url
       );
@@ -45,13 +45,12 @@ export function useJobCreation() {
 
   useEffect(() => {
     fetchTGBalance();
-  }, []);
+  });
 
   const estimateFee = async (
     timeframeInSeconds,
     intervalInSeconds,
-    codeUrls,
-
+    codeUrls
   ) => {
     console.log("argType", argType);
     try {
@@ -134,11 +133,12 @@ export function useJobCreation() {
             setEstimatedFeeInGwei(estimatedFeeInGwei);
           } catch (error) {
             console.error("Error getting task fees:", error);
-            toast.warning("Failed to get task fees. Using base fee estimation.");
+            toast.warning(
+              "Failed to get task fees. Using base fee estimation."
+            );
           }
         }
-      }
-      else {
+      } else {
         totalFeeTG = 0.1 * executionCount;
       }
 
@@ -154,7 +154,7 @@ export function useJobCreation() {
     useStakeRegistry();
 
   const fetchTGBalance = async () => {
-    console.log("in fetch")
+    if (typeof window.ethereum == "undefined") return;
     try {
       // Check if ethereum provider exists
       if (!window.ethereum) {
@@ -163,25 +163,35 @@ export function useJobCreation() {
       }
 
       // Use this to only check for existing connections without prompting:
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      console.log("accounts", accounts)
+      const accounts = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      // console.log("accounts", accounts);
 
       if (accounts.length > 0) {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
 
-        console.log("provider", provider,"signer", signer, "userAddress", userAddress)
-        
+        // console.log(
+        //   "provider",
+        //   provider,
+        //   "signer",
+        //   signer,
+        //   "userAddress",
+        //   userAddress
+        // );
+
         const stakeRegistryContract = new ethers.Contract(
           stakeRegistryAddress,
           ["function getStake(address) view returns (uint256, uint256)"],
           provider
         );
 
-        console.log("stakeRegistryContract", stakeRegistryContract)
+        // console.log("stakeRegistryContract", stakeRegistryContract);
 
-        const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
+        const [_, tgBalance] =
+          await stakeRegistryContract.getStake(userAddress);
         console.log("Raw TG Balance:", tgBalance.toString());
         setUserBalance(ethers.formatEther(tgBalance));
       }
@@ -193,7 +203,6 @@ export function useJobCreation() {
       }
     }
   };
-
 
   const handleSubmit = async (
     stakeRegistryAddress,
