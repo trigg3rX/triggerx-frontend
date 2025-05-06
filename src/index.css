@@ -224,3 +224,19 @@ input {
     background-position: 35% 35%;
   }
 }
+
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #f8ff7c;
+  border-radius: 4px;
+}
+
