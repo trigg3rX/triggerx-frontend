@@ -1,3 +1,4 @@
+import { Divide } from "lucide-react";
 import React, { useState } from "react";
 import { FiCopy, FiCheck, FiKey } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
@@ -68,36 +69,33 @@ const ApiCreation = () => {
         <h2 className="text-xl font-semibold mb-4">Quick Start Guide</h2>
         <ol className="space-y-4">
           <li className="flex flex-row gap-5 items-center">
-            <span className="border border-[#C07AF6] bg-[#C07AF638] w-10 h-10 flex items-center justify-center rounded-lg">
-              {" "}
+            <div className="border border-[#C07AF6] bg-[#371B58] py-2 px-4 flex items-center justify-center rounded-lg">
               1
-            </span>
+            </div>
             <span className="text-md">
               Generate an API key in the "API Key Generator" tab
             </span>
           </li>
           <li className="flex flex-row gap-5 items-center">
-            <span className="border border-[#C07AF6] bg-[#C07AF638] w-10 h-10 flex items-center justify-center rounded-lg">
+            <div className="border border-[#C07AF6] bg-[#371B58] py-2 px-3 flex items-center justify-center rounded-lg">
               2
-            </span>
+            </div>
             <span className="text-md">
               Review the API documentation for available endpoints
             </span>
           </li>
           <li className="flex flex-row gap-5 items-center">
-            <span className="border border-[#C07AF6] bg-[#C07AF638] w-10 h-10 flex items-center justify-center rounded-lg">
-              {" "}
+            <div className="border border-[#C07AF6] bg-[#371B58] py-2 px-3 flex items-center justify-center rounded-lg">
               3
-            </span>
+            </div>
             <span className="text-md">
               Make API requests using your generated key
             </span>
           </li>
           <li className="flex flex-row gap-5 items-center">
-            <span className="border border-[#C07AF6] bg-[#C07AF638] w-10 h-10 flex items-center justify-center rounded-lg">
-              {" "}
+            <div className="border border-[#C07AF6] bg-[#371B58] py-2 px-3 flex items-center justify-center rounded-lg">
               4
-            </span>
+            </div>
             <span className="text-md">Monitor your usage and rate limits</span>
           </li>
         </ol>
@@ -127,21 +125,19 @@ const ApiCreation = () => {
 
       <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
-          className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-            activeTab === "documetation"
-              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-              : "bg-transparent"
-          }`}
+          className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "documetation"
+            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+            : "bg-transparent"
+            }`}
           onClick={() => setActiveTab("documetation")}
         >
           Documentation
         </button>
         <button
-          className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-            activeTab === "apikey"
-              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-              : "bg-transparent"
-          }`}
+          className={`w-[50%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "apikey"
+            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+            : "bg-transparent"
+            }`}
           onClick={() => setActiveTab("apikey")}
         >
           API key Generator
@@ -189,9 +185,8 @@ const ApiCreation = () => {
                           />
                           <button
                             onClick={() => copyToClipboard(apiKey.key)}
-                            className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${
-                              copiedEndpoint ? "text-green-500" : ""
-                            }`}
+                            className={`p-2 rounded text-gray-400 hover:text-white transition-colors ${copiedEndpoint ? "text-green-500" : ""
+                              }`}
                           >
                             {copiedEndpoint ? (
                               <FiCheck size={20} />
@@ -253,8 +248,8 @@ const ApiCreation = () => {
                 >
                   <div className=" flex-1 space-y-4  p-4 rounded-xl">
                     {activeTab === "documetation" && (
-                     <div className="px-2 sm:px-0">
-                         <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+                      <div className="px-2 sm:px-0">
+                        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
                           {/* Column 1: API List */}
                           <div className="w-full lg:w-[30%] py-2 lg:py-4 lg:sticky top-0 h-fit">
                             <h3 className="text-xl font-bold mb-2 lg:mb-4">
@@ -267,7 +262,7 @@ const ApiCreation = () => {
                                   method: "POST",
                                 },
                                 { name: "Retrieve Job Data", method: "GET" },
-                               
+
                                 {
                                   name: "Job Last Executed Time API",
                                   method: "PUT",
@@ -283,30 +278,28 @@ const ApiCreation = () => {
                                 { name: "Get User API", method: "GET" },
                               ].map((api) => (
                                 <button
-                                key={api.name}
-                                className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${
-                                  expandedSection ===
-                                  api.name.toLowerCase().replace(/\s+/g, "")
+                                  key={api.name}
+                                  className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${expandedSection ===
+                                    api.name.toLowerCase().replace(/\s+/g, "")
                                     ? "bg-[#242424] "
                                     : "hover:bg-[#242424]"
-                                }`}
-                                onClick={() =>
-                                  setExpandedSection(
-                                    api.name.toLowerCase().replace(/\s+/g, "")
-                                  )
-                                }
-                              >
-                                   <div className="flex items-center justify-start gap-2 lg:gap-5">
+                                    }`}
+                                  onClick={() =>
+                                    setExpandedSection(
+                                      api.name.toLowerCase().replace(/\s+/g, "")
+                                    )
+                                  }
+                                >
+                                  <div className="flex items-center justify-start gap-2 lg:gap-5">
                                     <span
-                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${
-                                        api.method === "GET"
-                                          ? "bg-blue-500"
-                                          : api.method === "POST"
-                                            ? "bg-green-500"
-                                            : api.method === "PUT"
-                                              ? "bg-yellow-500"
-                                              : "bg-red-500"
-                                      }`}
+                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${api.method === "GET"
+                                        ? "bg-blue-500"
+                                        : api.method === "POST"
+                                          ? "bg-green-500"
+                                          : api.method === "PUT"
+                                            ? "bg-yellow-500"
+                                            : "bg-red-500"
+                                        }`}
                                     >
                                       {api.method}
                                     </span>
@@ -327,7 +320,7 @@ const ApiCreation = () => {
                                     Create Automation Job
                                   </h3>
                                   <p className=" text-gray-400 text-md">
-                                  Creates a new blockchain automation job with specified parameters. Define trigger conditions, target actions, security levels, and scheduling options. Supports both one-time and recurring executions with customizable time intervals.
+                                    Creates a new blockchain automation job with specified parameters. Define trigger conditions, target actions, security levels, and scheduling options. Supports both one-time and recurring executions with customizable time intervals.
                                   </p>
                                 </div>
 
@@ -501,8 +494,8 @@ const ApiCreation = () => {
                                   </div>
                                 </div> */}
 
-                                  {/* Query Parameters */}
-                                  <div>
+                                {/* Query Parameters */}
+                                <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -510,14 +503,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -525,14 +518,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -540,14 +533,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -743,11 +736,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveLanguage(`cURL`)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium ${
-                                            activeLanguage === lang
-                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium ${activeLanguage === lang
+                                            ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           {lang}
                                         </button>
@@ -975,11 +967,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -1124,7 +1115,7 @@ const ApiCreation = () => {
                                     Retrive Job Data
                                   </h3>
                                   <p className=" text-gray-400 text-md">
-                                  Fetches detailed information about a specific automation job using its unique ID. Returns comprehensive data including job status, configuration, execution history, and associated parameters.
+                                    Fetches detailed information about a specific automation job using its unique ID. Returns comprehensive data including job status, configuration, execution history, and associated parameters.
                                   </p>
                                 </div>
 
@@ -1186,8 +1177,8 @@ const ApiCreation = () => {
                                   </div>
                                 </div>
 
-                           {/* Query Parameters */}
-                           <div>
+                                {/* Query Parameters */}
+                                <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -1195,14 +1186,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -1210,14 +1201,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -1225,14 +1216,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -1244,7 +1235,7 @@ const ApiCreation = () => {
                                     <div>
                                       <h4 className="text-md ">Response</h4>
                                     </div>
-                                    <div>
+                                    <div className="flex items-center gap-3 ">
                                       <select
                                         value={activeStatus}
                                         onChange={(e) =>
@@ -1258,7 +1249,7 @@ const ApiCreation = () => {
                                         <option value="404">404 </option>
                                         <option value="500">500 </option>
                                       </select>
-                                      <span className="text-[#C3E88D] ml-3">
+                                      <span className="text-[#C3E88D] lg:block hidden">
                                         application/json
                                       </span>
                                     </div>
@@ -1470,11 +1461,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveLanguage(`cURL`)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium ${
-                                            activeLanguage === lang
-                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium ${activeLanguage === lang
+                                            ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           {lang}
                                         </button>
@@ -1579,11 +1569,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -1777,7 +1766,7 @@ const ApiCreation = () => {
                                 </div>
                               </div>
                             )}
-                           
+
                             {expandedSection === "joblastexecutedtimeapi" && (
                               <div className="space-y-6 w-[80%]">
                                 <div className="">
@@ -1785,7 +1774,7 @@ const ApiCreation = () => {
                                     Job Last Executed Time API
                                   </h3>
                                   <p className=" text-gray-400 text-md">
-                                  Updates the last execution timestamp for a specific automation job. This is used to track when the job was last run and manage scheduling for recurring tasks.
+                                    Updates the last execution timestamp for a specific automation job. This is used to track when the job was last run and manage scheduling for recurring tasks.
                                   </p>
                                 </div>
 
@@ -1899,8 +1888,8 @@ const ApiCreation = () => {
                                     </div>
                                   </div>
                                 </div> */}
-  {/* Query Parameters */}
-  <div>
+                                {/* Query Parameters */}
+                                <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -1908,14 +1897,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -1923,14 +1912,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -1938,19 +1927,19 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
                                 </div>
-                               
+
                                 <div className="w-full py-4">
                                   {/* Request Data Section */}
                                   <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
@@ -1973,11 +1962,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveLanguage(`cURL`)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium ${
-                                            activeLanguage === lang
-                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium ${activeLanguage === lang
+                                            ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           {lang}
                                         </button>
@@ -2078,11 +2066,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2275,8 +2262,8 @@ const ApiCreation = () => {
                                   </div>
                                 </div> */}
 
-                                  {/* Query Parameters */}
-                                  <div>
+                                {/* Query Parameters */}
+                                <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -2284,14 +2271,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -2299,14 +2286,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -2314,14 +2301,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -2515,11 +2502,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveLanguage(`cURL`)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium ${
-                                            activeLanguage === lang
-                                              ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium ${activeLanguage === lang
+                                            ? "bg-[#242424] text-white border-b-2 border-[#5047FF]"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           {lang}
                                         </button>
@@ -2600,11 +2586,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2841,8 +2826,8 @@ const ApiCreation = () => {
                                     </table>
                                   </div>
                                 </div>
-  {/* Query Parameters */}
-  <div>
+                                {/* Query Parameters */}
+                                <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
@@ -2850,14 +2835,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -2865,14 +2850,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -2880,19 +2865,19 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
                                 </div>
-                               
+
                                 {/* cURL Example */}
                                 <div className="w-full py-4">
                                   <div className="bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
@@ -2915,20 +2900,20 @@ const ApiCreation = () => {
                                           {"<your-api-key>"}' \
                                         </div>
                                         <div>--data</div>
-                                          <div className="text-sm">
-                                            {"{"}
-                                            <div className="ml-4">
-                                              <span className="text-[#FF616D]">
-                                                "id (Integer)"
-                                              </span>
-                                              :{" "}
-                                              <span className="text-[#C3E88D]">
-                                                "The ID of the job to delete
-                                                "
-                                              </span>
-                                            </div>
-                                            {"}"}
+                                        <div className="text-sm">
+                                          {"{"}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "id (Integer)"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              "The ID of the job to delete
+                                              "
+                                            </span>
                                           </div>
+                                          {"}"}
+                                        </div>
                                       </pre>
                                     </div>
                                   </div>
@@ -2936,125 +2921,124 @@ const ApiCreation = () => {
 
                                 {/* Response Section */}
                                 <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
-                                    <div className="flex items-center justify-between p-4 border-b border-[#333333]">
-                                      <h3 className="text-xl font-bold">
-                                        Response
-                                      </h3>
-                                    </div>
-
-                                    {/* Status Code Tabs */}
-                                    <div className="flex border-b border-[#333333]">
-                                      {[
-                                        { code: "200", color: "bg-green-500" },
-                                        { code: "400", color: "bg-yellow-500" },
-                                        { code: "401", color: "bg-red-500" },
-                                        { code: "403", color: "bg-red-500" },
-                                        { code: "500", color: "bg-red-500" },
-                                      ].map((status) => (
-                                        <button
-                                          key={status.code}
-                                          onClick={() =>
-                                            setActiveStatus(status.code)
-                                          }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
-                                        >
-                                          <span
-                                            className={`w-2 h-2 rounded-full ${status.color}`}
-                                          ></span>
-                                          {status.code}
-                                        </button>
-                                      ))}
-                                    </div>
-
-                                    <div className="p-4 bg-[#242424]">
-                                    {activeStatus === "200" && (
-                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
-                                          <div className="text-sm">
-                                            {"{"}
-                                            <div className="ml-4">
-                                              <span className="text-[#FF616D]">
-                                                "message"
-                                              </span>
-                                              :{" "}
-                                              <span className="text-[#C3E88D]">
-                                                "Job deleted successfully"
-                                              </span>
-                                            </div>
-                                            {"}"}
-                                          </div>
-                                        </pre>
-                                      )}
-                                      {activeStatus === "400" && (
-                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                          {"{"}{" "}
-                                          <div className="ml-4">
-                                            <span className="text-[#FF616D]">
-                                              "Bad Request"
-                                            </span>
-                                            :{" "}
-                                            <span className="text-[#C3E88D]">
-                                              Invalid input data
-                                            </span>
-                                            ,<br />
-                                          </div>
-                                          {"}"}
-                                        </pre>
-                                      )}
-                                      {activeStatus === "401" && (
-                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                          {"{"}{" "}
-                                          <div className="ml-4">
-                                            <span className="text-[#FF616D]">
-                                              "Unauthorized"
-                                            </span>
-                                            :{" "}
-                                            <span className="text-[#C3E88D]">
-                                              Invalid or missing API key
-                                            </span>
-                                            ,<br />
-                                          </div>
-                                          {"}"}
-                                        </pre>
-                                      )}
-                                      {activeStatus === "403" && (
-                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                          {"{"}{" "}
-                                          <div className="ml-4">
-                                            <span className="text-[#FF616D]">
-                                              "Not Found"
-                                            </span>
-                                            :{" "}
-                                            <span className="text-[#C3E88D]">
-                                              Resource not found
-                                            </span>
-                                            ,<br />
-                                          </div>
-                                          {"}"}
-                                        </pre>
-                                      )}
-                                      {activeStatus === "500" && (
-                                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
-                                          {"{"}{" "}
-                                          <div className="ml-4">
-                                            <span className="text-[#FF616D]">
-                                              "Internal Server Error"
-                                            </span>
-                                            :{" "}
-                                            <span className="text-[#C3E88D]">
-                                              Server-side error
-                                            </span>
-                                            ,<br />
-                                          </div>
-                                          {"}"}
-                                        </pre>
-                                      )}
-                                      {/* Add other status responses similarly */}
-                                    </div>
+                                  <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+                                    <h3 className="text-xl font-bold">
+                                      Response
+                                    </h3>
                                   </div>
+
+                                  {/* Status Code Tabs */}
+                                  <div className="flex border-b border-[#333333]">
+                                    {[
+                                      { code: "200", color: "bg-green-500" },
+                                      { code: "400", color: "bg-yellow-500" },
+                                      { code: "401", color: "bg-red-500" },
+                                      { code: "403", color: "bg-red-500" },
+                                      { code: "500", color: "bg-red-500" },
+                                    ].map((status) => (
+                                      <button
+                                        key={status.code}
+                                        onClick={() =>
+                                          setActiveStatus(status.code)
+                                        }
+                                        className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                          ? "bg-[#242424] text-white"
+                                          : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
+                                      >
+                                        <span
+                                          className={`w-2 h-2 rounded-full ${status.color}`}
+                                        ></span>
+                                        {status.code}
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  <div className="p-4 bg-[#242424]">
+                                    {activeStatus === "200" && (
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                                        <div className="text-sm">
+                                          {"{"}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "message"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              "Job deleted successfully"
+                                            </span>
+                                          </div>
+                                          {"}"}
+                                        </div>
+                                      </pre>
+                                    )}
+                                    {activeStatus === "400" && (
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                        {"{"}{" "}
+                                        <div className="ml-4">
+                                          <span className="text-[#FF616D]">
+                                            "Bad Request"
+                                          </span>
+                                          :{" "}
+                                          <span className="text-[#C3E88D]">
+                                            Invalid input data
+                                          </span>
+                                          ,<br />
+                                        </div>
+                                        {"}"}
+                                      </pre>
+                                    )}
+                                    {activeStatus === "401" && (
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                        {"{"}{" "}
+                                        <div className="ml-4">
+                                          <span className="text-[#FF616D]">
+                                            "Unauthorized"
+                                          </span>
+                                          :{" "}
+                                          <span className="text-[#C3E88D]">
+                                            Invalid or missing API key
+                                          </span>
+                                          ,<br />
+                                        </div>
+                                        {"}"}
+                                      </pre>
+                                    )}
+                                    {activeStatus === "403" && (
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                        {"{"}{" "}
+                                        <div className="ml-4">
+                                          <span className="text-[#FF616D]">
+                                            "Not Found"
+                                          </span>
+                                          :{" "}
+                                          <span className="text-[#C3E88D]">
+                                            Resource not found
+                                          </span>
+                                          ,<br />
+                                        </div>
+                                        {"}"}
+                                      </pre>
+                                    )}
+                                    {activeStatus === "500" && (
+                                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-[#E6E6E6]">
+                                        {"{"}{" "}
+                                        <div className="ml-4">
+                                          <span className="text-[#FF616D]">
+                                            "Internal Server Error"
+                                          </span>
+                                          :{" "}
+                                          <span className="text-[#C3E88D]">
+                                            Server-side error
+                                          </span>
+                                          ,<br />
+                                        </div>
+                                        {"}"}
+                                      </pre>
+                                    )}
+                                    {/* Add other status responses similarly */}
+                                  </div>
+                                </div>
                               </div>
                             )}
                             {expandedSection === "getuserapi" && (
@@ -3148,7 +3132,7 @@ const ApiCreation = () => {
                                     </div>
                                   </div>
                                 </div> */}
-                                     {/* Query Parameters */}
+                                {/* Query Parameters */}
                                 <div>
                                   <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
@@ -3157,14 +3141,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        api_key 
+                                          api_key
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -3172,14 +3156,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        columns  
+                                          columns
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -3187,14 +3171,14 @@ const ApiCreation = () => {
                                     <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                       <div className="flex items-center gap-2 mb-2">
                                         <span className="text-[#FF616D]">
-                                        filters   
+                                          filters
                                         </span>
                                         <span className="text-[#C3E88D]">
                                           string
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                      SQL-like WHERE clause to filter results
+                                        SQL-like WHERE clause to filter results
                                       </p>
                                     </div>
                                   </div>
@@ -3232,20 +3216,7 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              user_id
-                                              </span>
-                                              <span className="text-[#C3E88D]">
-                                                string
-                                              </span>
-                                            </div>
-                                            <p className="text-gray-400 text-sm">
-                                             ""
-                                            </p>
-                                          </div>
-                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
-                                            <div className="flex items-center gap-2 mb-1">
-                                              <span className="text-[#FF616D]">
-                                              user_address
+                                                user_id
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
@@ -3258,30 +3229,43 @@ const ApiCreation = () => {
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              job_ids
+                                                user_address
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
                                               </span>
                                             </div>
                                             <p className="text-gray-400 text-sm">
-                                             ""
+                                              ""
                                             </p>
                                           </div>
                                           <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-[#FF616D]">
-                                              account_balance
+                                                job_ids
                                               </span>
                                               <span className="text-[#C3E88D]">
                                                 string
                                               </span>
                                             </div>
                                             <p className="text-gray-400 text-sm">
-                                             ""
+                                              ""
                                             </p>
                                           </div>
-                                         
+                                          <div className=" border-[#4B4A4A] border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-[#FF616D]">
+                                                account_balance
+                                              </span>
+                                              <span className="text-[#C3E88D]">
+                                                string
+                                              </span>
+                                            </div>
+                                            <p className="text-gray-400 text-sm">
+                                              ""
+                                            </p>
+                                          </div>
+
                                         </>
                                       )}
                                       {activeStatus === "400" && (
@@ -3389,25 +3373,25 @@ const ApiCreation = () => {
                                           {"<your-api-key>"}'
                                         </div>
                                         <div>--data</div>
-                                          <div className="text-sm">
-                                            {"{"}
-                                            <div className="ml-4">
-                                              <span className="text-[#FF616D]">
-                                                "id (Integer)"
-                                              </span>
-                                              :{" "}
-                                              <span className="text-[#C3E88D]">
-                                                "The ID of the user to retrieve
-                                                "
-                                              </span>
-                                            </div>
-                                            {"}"}
+                                        <div className="text-sm">
+                                          {"{"}
+                                          <div className="ml-4">
+                                            <span className="text-[#FF616D]">
+                                              "id (Integer)"
+                                            </span>
+                                            :{" "}
+                                            <span className="text-[#C3E88D]">
+                                              "The ID of the user to retrieve
+                                              "
+                                            </span>
                                           </div>
+                                          {"}"}
+                                        </div>
                                       </pre>
                                     </div>
                                   </div>
-                                   {/* Response Section */}
-                                   <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
+                                  {/* Response Section */}
+                                  <div className="mt-5 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
                                     <div className="flex items-center justify-between p-4 border-b border-[#333333]">
                                       <h3 className="text-xl font-bold">
                                         Response
@@ -3428,11 +3412,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -3477,15 +3460,15 @@ const ApiCreation = () => {
                                               </span>
                                               :{" "}
                                               <span className="text-[#C3E88D]">
-                                              1000000000000000000
+                                                1000000000000000000
                                               </span>
-                                           
-                                             
-                                          
+
+
+
                                             </div>
                                             {"}"}
                                           </div>
-                                          
+
                                         </pre>
                                       )}
                                       {activeStatus === "400" && (

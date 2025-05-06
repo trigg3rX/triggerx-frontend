@@ -502,23 +502,7 @@ function DevhubItem() {
       </div>
 
       {/* Try Now Button (NO Modal inside) */}
-      <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full sm:w-max flex items-center justify-center">
-        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-        <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-        {/* This inner div helps contain the link styling */}
-        <div className="w-full sm:w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center">
-          <a
-            href={postData.redirect || "#"} // Link to redirect URL or use "#" if triggering modal
-            target={postData.redirect ? "_blank" : undefined} // Only target blank if it's a real link
-            rel={postData.redirect ? "noopener noreferrer" : undefined}
-            // IMPORTANT: onClick triggers the *single* modal state if no redirect exists
-            onClick={!postData.redirect ? handleOpenModal : undefined}
-            className="w-full sm:w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center bg-[#F8FF7C] text-black" // Apply inner styles
-          >
-            ⚡ Try Now
-          </a>
-        </div>
-      </div>
+
     </div>
   );
 
@@ -589,7 +573,7 @@ function DevhubItem() {
                 Open Github
               </a>
             </div>
-            <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
+            {/* <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max  flex items-center justify-center">
               <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
               <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
               <div className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center">
@@ -632,6 +616,7 @@ function DevhubItem() {
                     <a
                       href={`#${pair.h2Heading}`}
                       onClick={(e) => {
+                        console.log(pair.h2Heading)
                         e.preventDefault();
                         const targetElement = document.getElementById(
                           pair.h2Heading
@@ -645,11 +630,10 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${
-                        activeHeading === pair.h2Heading
+                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
                           ? "text-green-400 font-bold"
                           : "text-gray-300"
-                      }`}
+                        }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -681,11 +665,10 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
-                    activeHeading === pair.h2Heading
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
                       ? "text-green-400 font-bold"
                       : "text-gray-300"
-                  }`}
+                    }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
@@ -722,7 +705,7 @@ function DevhubItem() {
             href={"/devhub"}
             className="w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center text-black"
           >
-          Go Back to DevHub
+            Go Back to DevHub
           </a>
         </div>
       </div>

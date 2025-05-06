@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { ethers } from "ethers";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
 import WalletModal from "../components/WalletModal";
 import DashboardSkeleton from "../components/DashboardSkeleton";
@@ -25,7 +25,6 @@ function DashboardPage() {
   const [isWalletInstalled, setIsWalletInstalled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [provider, setProvider] = useState(null);
-  const navigate = useNavigate();
   const [isStaking, setIsStaking] = useState(false);
   const { address } = useAccount();
   const { data: accountBalance } = useBalance({
@@ -51,24 +50,39 @@ function DashboardPage() {
     }
   };
 
-  const baseUrl = 'https://app.triggerx.network';
-
+  const baseUrl = "https://app.triggerx.network";
 
   useEffect(() => {
     // Update meta tags when activeTab changes
-    document.title = 'TriggerX | Dashboard';
-    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.title = "TriggerX | Dashboard";
+    document
+      .querySelector('meta[name="description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
 
     // Update Open Graph meta tags
-    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Dashboard');
-    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
-    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/leaderboard`);
+    document
+      .querySelector('meta[property="og:title"]')
+      .setAttribute("content", "TriggerX | Dashboard");
+    document
+      .querySelector('meta[property="og:description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
+    document
+      .querySelector('meta[property="og:image"]')
+      .setAttribute("content", `${baseUrl}/images/dashboard-og.png`);
+    document
+      .querySelector('meta[property="og:url"]')
+      .setAttribute("content", `${baseUrl}/leaderboard`);
 
     // Update Twitter Card meta tags
-    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Dashboard');
-    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/dashboard-og.png`);
+    document
+      .querySelector('meta[name="twitter:title"]')
+      .setAttribute("content", "TriggerX | Dashboard");
+    document
+      .querySelector('meta[name="twitter:description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
+    document
+      .querySelector('meta[name="twitter:image"]')
+      .setAttribute("content", `${baseUrl}/images/dashboard-og.png`);
   }, [baseUrl]);
 
   useEffect(() => {
@@ -450,7 +464,6 @@ function DashboardPage() {
   useEffect(() => {
     if (connected && provider) {
       fetchJobDetails();
-
       fetchTGBalance();
     }
   }, [connected, provider]);
@@ -625,10 +638,11 @@ function DashboardPage() {
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className={`transition-transform duration-300 ${expandedJobs[job.id]
+                                            className={`transition-transform duration-300 ${
+                                              expandedJobs[job.id]
                                                 ? "rotate-180"
                                                 : ""
-                                              }`}
+                                            }`}
                                           >
                                             <path d="m6 9 6 6 6-6" />
                                           </svg>
@@ -914,25 +928,26 @@ function DashboardPage() {
                       isStaking ||
                       !stakeAmount ||
                       Number(stakeAmount) >
-                      Number(accountBalance?.formatted || 0)
+                        Number(accountBalance?.formatted || 0)
                     }
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                     <span
-                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
-                          !stakeAmount ||
-                          Number(stakeAmount) >
+                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
+                        isStaking ||
+                        !stakeAmount ||
+                        Number(stakeAmount) >
                           Number(accountBalance?.formatted || 0)
                           ? "opacity-50"
                           : ""
-                        }`}
+                      }`}
                     >
                       {isStaking
                         ? "Staking..."
                         : Number(stakeAmount) >
-                          Number(accountBalance?.formatted || 0)
+                            Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Stake"}
                     </span>
