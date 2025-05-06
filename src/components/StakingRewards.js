@@ -9,18 +9,36 @@ import ClaimModal from "./Stake-Reward/ClaimModal";
 import StakingRewardsABI from "../artifacts/StakingReword.json";
 import { Copy, Check } from "lucide-react";
 
+// Contract addresses and Static Data
 const TOKEN_ADDRESS = process.env.REACT_APP_STAKER_TOKEN_ADDRESS;
 const STAKE_REWARD_CONTRACT_ADDRESS =
   process.env.REACT_APP_STAKING_REWARD_CONTRACT_ADDRESS;
+const ETHClaimAmount = "0.03";
+const THRESHOLD = "10";
+const jobConfig = {
+  jobType: "Event Based (2)",
+  argType: "static",
+  targetContractAddress: "0xfF97e83B212fC5d536B0bB26d7d8a266C93FF861",
+  targetFunction: "distributeNFTRewards",
+  triggerContractAddress: "0xfF97e83B212fC5d536B0bB26d7d8a266C93FF861",
+  triggerEvent: "ThresholdReached(uint256,uint256)",
+  abi: {
+    inputs: [],
+    name: "distributeNFTRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+};
 
 const StakingReward = () => {
+  // Wagmi hooks
   const { address, isConnected } = useAccount();
   const { data: balanceData, refetch: refetchBalance } = useBalance({
     address,
     watch: true,
     enabled: !!address,
   });
-
   const { data: tokenBalanceData, refetch: refetchTokenBalance } = useBalance({
     address,
     token: TOKEN_ADDRESS,
@@ -45,11 +63,11 @@ const StakingReward = () => {
     useState(false);
 
   const [userBalance, setUserBalance] = useState("0");
-  const [claimAmount, setClaimAmount] = useState("0.03");
 
   const [tokenBalance, setTokenBalance] = useState("0");
   const [stakedAmount, setStakedAmount] = useState("0");
   const [totalStaked, setTotalStaked] = useState("0");
+  const [nextThreshold, setNextThreshold] = useState("0");
 
   const [isClaimingToken, setIsClaimingToken] = useState(false);
   const [isStaking, setIsStaking] = useState(false);
@@ -70,18 +88,9 @@ const StakingReward = () => {
   const [hasNFT, setHasNFT] = useState(false);
 
   const [copiedAddresses, setCopiedAddresses] = useState({});
+  const [isAbiExpanded, setIsAbiExpanded] = useState(false);
 
-  // Job configuration data
-  const jobConfig = {
-    jobType: "Event Based",
-    argType: "static",
-    targetContractAddress: "0xfF97e83B212fC5d536B0bB26d7d8a266C93FF861",
-    targetFunction: "distributeNFTRewards",
-    triggerContractAddress: "0xfF97e83B212fC5d536B0bB26d7d8a266C93FF861",
-    triggerEvent: "ThresholdReached(uint256,uint256)",
-  };
-
-  // To update balances of ETH and Staker Token
+  // To update balances of ETH and Staker Token(STK)
   useEffect(() => {
     if (balanceData && tokenBalanceData) {
       const balance = balanceData.value;
@@ -212,6 +221,10 @@ const StakingReward = () => {
       // Check if user has NFT reward
       const hasReceivedNFT = await contract.hasReceivedNFT(userAddress);
       setHasNFT(hasReceivedNFT);
+
+      const modulusThreshold = ethers.formatEther(total) % THRESHOLD;
+      const nextThreshold = THRESHOLD - modulusThreshold;
+      setNextThreshold(nextThreshold);
     } catch (error) {
       console.error("Error fetching staking data:", error);
     }
@@ -547,6 +560,11 @@ const StakingReward = () => {
     }
   };
 
+  // Toggle ABI expansion
+  const toggleAbiExpansion = () => {
+    setIsAbiExpanded(!isAbiExpanded);
+  };
+
   return (
     <div className=" ">
       <Toaster
@@ -564,7 +582,7 @@ const StakingReward = () => {
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Static Content */}
         <div className=" mb-6">
-          <h2 className="text-xl text-white mb-4">StakingReward Template</h2>
+          <h2 className="text-xl text-white mb-4">Staking Reward Template</h2>
           <p className="text-[#A2A2A2] mb-4">
             Stake ERC20 tokens and earn rewards based on your participation.
             Once the staking threshold is reached, you'll automatically receive
@@ -654,7 +672,7 @@ const StakingReward = () => {
         {/* Conditional Content */}
         <div className=" rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">
-            Stakeing Reward Information
+            Staking Reward Information
           </h2>
           <div className="text-[#A2A2A2] space-y-2">
             {!isConnected ? (
@@ -728,7 +746,7 @@ const StakingReward = () => {
           onClose={() => setShowClaimModal(false)}
           onConfirm={confirmClaim}
           address={address}
-          claimAmount={claimAmount}
+          claimAmount={ETHClaimAmount}
           networkName={getNetworkName()}
         />
 
@@ -754,6 +772,22 @@ const StakingReward = () => {
                 ) : (
                   <span className="text-[#A2A2A2]">Not Yet</span>
                 )}
+              </p>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+              <h3 className="text-white text-lg mb-2">
+                Threshold for NFT Reward
+              </h3>
+              <p className="text-[#77E8A3]  text-2xl font-semibold">
+                {THRESHOLD} STK
+              </p>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+              <h3 className="text-white text-lg mb-2">
+                Next Threshold for Reward Distribution
+              </h3>
+              <p className="text-[#77E8A3] text-2xl font-semibold">
+                {parseFloat(nextThreshold).toFixed(2)} Tokens
               </p>
             </div>
           </div>
@@ -891,32 +925,60 @@ const StakingReward = () => {
                         parameter: "Trigger Event",
                         value: jobConfig.triggerEvent,
                       },
+                      {
+                        key: "abi",
+                        parameter: "ABI",
+                        value: JSON.stringify(jobConfig.abi),
+                      },
                     ].map((item) => (
                       <tr key={item.key} className="bg-[#1A1A1A]">
                         <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-3/5 font-bold">
                           {item.parameter}
                         </td>
-                        <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-2/5 truncate">
+                        <td className="px-2 sm:px-4 md:px-6 py-5 text-[#A2A2A2] w-2/5">
                           <div className="flex items-center gap-2">
-                            <span className="block truncate">
-                              {item.parameter.includes("Address") && item.value
-                                ? `${item.value.slice(0, 4)}...${item.value.slice(-15)}`
-                                : item.value}
-                            </span>
-                            {item.parameter.includes("Address") &&
-                              item.value && (
+                            {item.parameter === "ABI" ? (
+                              <div className="w-full">
                                 <button
-                                  onClick={() => copyAddress(item.value)}
-                                  className="p-1 hover:bg-white/10 rounded transition-colors"
-                                  title="Copy address"
+                                  onClick={toggleAbiExpansion}
+                                  className="flex items-center gap-2 hover:bg-white/10 rounded transition-colors w-full text-left"
                                 >
-                                  {copiedAddresses[item.value] ? (
-                                    <Check className="h-4 w-4 text-green-500" />
-                                  ) : (
-                                    <Copy className="h-4 w-4 text-gray-400" />
-                                  )}
+                                  <span className="block truncate underline">
+                                    {!isAbiExpanded
+                                      ? "Expand ABI"
+                                      : "Collapse ABI"}
+                                  </span>
                                 </button>
-                              )}
+                                {isAbiExpanded && (
+                                  <pre className="mt-2 p-2 bg-white/5 rounded-lg text-sm overflow-auto">
+                                    {JSON.stringify(jobConfig.abi, null, 2)}
+                                  </pre>
+                                )}
+                              </div>
+                            ) : (
+                              <>
+                                <span className="block truncate">
+                                  {item.parameter.includes("Address") &&
+                                  item.value
+                                    ? `${item.value.slice(0, 4)}...${item.value.slice(-15)}`
+                                    : item.value}
+                                </span>
+                                {item.parameter.includes("Address") &&
+                                  item.value && (
+                                    <button
+                                      onClick={() => copyAddress(item.value)}
+                                      className="p-1 hover:bg-white/10 rounded transition-colors"
+                                      title="Copy address"
+                                    >
+                                      {copiedAddresses[item.value] ? (
+                                        <Check className="h-4 w-4 text-green-500" />
+                                      ) : (
+                                        <Copy className="h-4 w-4 text-gray-400" />
+                                      )}
+                                    </button>
+                                  )}
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
