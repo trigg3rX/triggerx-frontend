@@ -18,7 +18,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import BalanceMaintainer from "../../components/BalanceMaintainer";
 import PriceOracle from "../../components/PriceOracle";
 import StakingRewards from "../../components/StakingRewards";
-import sanityClient from "../../sanityClient";
 import { Tooltip } from "antd";
 import timeBasedIcon from "../../assets/time-based.gif";
 import conditionBasedIcon from "../../assets/condition-based.gif";
@@ -30,8 +29,6 @@ import templates from "../../data/templates.json";
 
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
-import { randomBytes } from "ethers";
-import { FiInfo } from "react-icons/fi";
 
 const networkIcons = {
   [optimismSepolia.name]: (
@@ -206,7 +203,6 @@ function CreateJobPage() {
   const [jobDetails, setJobDetails] = useState([]);
   const [conditionScript, setConditionScript] = useState("");
   const { address, isConnected } = useAccount();
-  const [connected, setConnected] = useState(false);
   const formRef = useRef(null);
   const { handleKeyDown } = useFormKeyboardNavigation();
   const [contractDetails, setContractDetails] = useState({});
@@ -996,11 +992,25 @@ function CreateJobPage() {
 
               {/* Template List Box */}
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Use Template</h2>
+                <div className="flex justify-between gap-3 items-center mb-4">
+                  <h2 className="text-lg lg:text-base font-semibold">Use Template</h2>
                   <button
-                    onClick={() => setSelectedJob(null)}
-                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200"
+                    onClick={() => {
+                      setSelectedJob(null);
+                      setJobType(null);
+                    
+                      // Reset timeframe and interval to initial values
+                      setTimeframe({ years: 0, months: 0, days: 0 });
+                      setTimeframeInSeconds(0);
+                    
+                      setTimeInterval({ hours: 0, minutes: 0, seconds: 0 });
+                      setIntervalInSeconds(0);
+                    
+                      // Clear contract details
+                      setContractDetails({});
+                    
+                    }}
+                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-[14px]"
                   >
                     Create Custom Job
                   </button>
@@ -1068,7 +1078,7 @@ function CreateJobPage() {
                               Number(option.value) === jobType
                                 ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
                                 : "bg-white/5 border border-white/10 "
-                            } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-base`}
+                            } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-[14px]`}
                           >
                             <div
                               className={`${
