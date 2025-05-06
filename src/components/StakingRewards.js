@@ -977,8 +977,8 @@ const StakingReward = () => {
                   {item.isAddress ? (
                     <div className="flex flex-col space-y-2">
                       <div className=" flex items-center justify-between bg-black/30 rounded-lg p-2 border border-white/10 overflow-hidden">
-                        <p className="text-[#A2A2A2] font-mono text-sm overflow-x-auto whitespace-nowrap pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                          {item.value}
+                        <p className="break-all text-[#A2A2A2] font-mono text-sm overflow-x-auto whitespace-nowrap pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                          {item.value.substring(0, 10)}...{item.value.substring(item.value.length - 4)}
                         </p>
                         <button
                           onClick={() => {
@@ -994,7 +994,7 @@ const StakingReward = () => {
 
                     </div>
                   ) : (
-                    <p className="text-[#A2A2A2] text-lg">{item.value}</p>
+                    <p className="text-[#A2A2A2] text-lg break-all">{item.value}</p>
                   )}
                 </div>
               ))}
