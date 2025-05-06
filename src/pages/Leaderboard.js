@@ -443,7 +443,7 @@ const Leaderboard = () => {
           Leaderboard
         </h1>
 
-        <div className="max-w-[1600px] w-[85%] mx-auto flex items-center justify-end mt-8 mb-4">
+        {/* <div className="max-w-[1600px] w-[85%] mx-auto flex items-center justify-end mt-8 mb-4">
           <div className="relative">
             <input
               type="text"
@@ -464,7 +464,7 @@ const Leaderboard = () => {
               <path d="M3 6H21M7 12H17M11 18H13" stroke="#C07AF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-        </div>
+        </div> */}
 
         <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-10 bg-[#181818F0] p-2 rounded-lg">
           <button
