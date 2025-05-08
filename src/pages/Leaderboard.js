@@ -304,7 +304,7 @@ const Leaderboard = () => {
                   </td>
                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
                     <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
-                      {Number(item.points).toFixed(5)}
+                      {Number(item.points).toFixed(2)}
                     </span>
                   </td>
                   <Tooltip title="View Profile" color="#2A2A2A">
@@ -469,7 +469,7 @@ const Leaderboard = () => {
                   </td>
                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
                     <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {Number(item.points).toFixed(5)}
+                      {Number(item.points).toFixed(2)}
                     </span>
                   </td>
                 </tr>
@@ -532,7 +532,7 @@ const Leaderboard = () => {
                   </td>
                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
                     <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {Number(item.points).toFixed(5)}
+                      {Number(item.points).toFixed(2)}
                     </span>
                   </td>
                   <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
@@ -627,6 +627,11 @@ const Leaderboard = () => {
       </div>
     );
   };
+
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Reset pagination and sort when tab changes
   useEffect(() => {
