@@ -628,6 +628,11 @@ const Leaderboard = () => {
     );
   };
 
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   // Reset pagination and sort when tab changes
   useEffect(() => {
     setCurrentPage(1);
