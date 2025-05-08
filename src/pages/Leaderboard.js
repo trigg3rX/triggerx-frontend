@@ -628,16 +628,16 @@ const Leaderboard = () => {
     );
   };
 
-  // Reset pagination when search term changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
   // Reset pagination and sort when tab changes
   useEffect(() => {
     setCurrentPage(1);
     setSortConfig({ key: null, direction: 'desc' });
   }, [activeTab]);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <>
@@ -677,10 +677,13 @@ const Leaderboard = () => {
                 type="text"
                 placeholder="Search"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="flex-1 bg-[#181818] text-[#EDEDED] border border-[#A2A2A2]  placeholder-[#A2A2A2] rounded-l-full px-6 py-3 focus:outline-none  text-lg shadow-none"
               />
-              <button className="bg-[#C07AF6] hover:bg-[#a46be0] transition-colors  w-14 h-14 flex items-center justify-center -ml-5 z-10 border border-[#A2A2A2] rounded-full">
+              <button
+                onClick={() => setSearchTerm('')}
+                className="bg-[#C07AF6] hover:bg-[#a46be0] transition-colors  w-14 h-14 flex items-center justify-center -ml-5 z-10 border border-[#A2A2A2] rounded-full"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth="2">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
