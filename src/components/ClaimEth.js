@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { useChainId } from 'wagmi';
 import Modal from "react-modal";
 import toast from 'react-hot-toast';
 import { Copy, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
+
 
 const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -206,6 +206,10 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
 
 const ClaimEth = ({ onBalanceUpdate }) => {
     const { address } = useAccount();
+    const { refetch: refetchBalance } = useBalance({
+        address: address,
+        watch: false,
+    });
     const [showClaimModal, setShowClaimModal] = useState(false);
     const [claimAmount] = useState("0.03");
 
@@ -252,6 +256,9 @@ const ClaimEth = ({ onBalanceUpdate }) => {
             if (onBalanceUpdate) {
                 onBalanceUpdate();
             }
+
+            // Refresh the wallet balance
+            await refetchBalance();
 
             return true;
         } catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount, useBalance } from 'wagmi';
 import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
 import { FiInfo } from "react-icons/fi";
@@ -8,6 +9,11 @@ import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard
 import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
 
 function Header() {
+  const { address } = useAccount();
+  const { data: balance } = useBalance({
+    address: address,
+    watch: true,
+  });
 
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -173,8 +179,20 @@ function Header() {
             </div>
           </nav>
         </div>
-        <div className="flex items-center">
-          <ConnectButton chainStatus="icon" accountStatus="address" />
+        <div className="flex items-center gap-4">
+
+          <ConnectButton
+            chainStatus="icon"
+            accountStatus="address"
+            showBalance={false}
+          />
+          {address && balance && (
+            <div className="bg-[#f8ff7c] px-4 py-1.5 rounded-full border border-[#2A2A2A]">
+              <span className="text-black text-sm font-medium">
+                {Number(balance.formatted).toFixed(2)} {balance.symbol}
+              </span>
+            </div>
+          )}
 
           {/* <div className="relative">
             <FiInfo
@@ -220,9 +238,19 @@ function Header() {
 
         {/* Hamburger Menu and Navigation */}
         <div className="relative flex items-center gap-5">
-          {/* Connect Wallet Button */}
-          <div className="flex-shrink-0 relative z-10 ">
-            <ConnectButton chainStatus="none" accountStatus="address" />
+          {address && balance && (
+            <div className="bg-[#1A1A1A] px-3 py-1.5 rounded-full border border-[#2A2A2A]">
+              <span className="text-[#EDEDED] text-sm font-medium">
+                {Number(balance.formatted).toFixed(4)} {balance.symbol}
+              </span>
+            </div>
+          )}
+          <div className="flex-shrink-0 relative z-10">
+            <ConnectButton
+              chainStatus="none"
+              accountStatus="address"
+              showBalance={false}
+            />
           </div>
           {/* Hamburger Menu for Mobile */}
           <div className="lg:hidden">
