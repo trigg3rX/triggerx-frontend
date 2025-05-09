@@ -213,7 +213,19 @@ function CreateJobPage() {
   // Function to handle job selection
   const handleJobSelect = (template) => {
     setSelectedJob(template);
+    if (window.innerWidth < 1024) { // 1024px is the standard lg breakpoint in Tailwind
+      setTimeout(() => {
+        const templateSection = document.querySelector('.w-full.lg\\:w-3\\/4');
+        if (templateSection) {
+          templateSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100); // Small delay to ensure state update has completed
+    }
   };
+  
 
   // Function to render the appropriate component based on selected template
   const renderSelectedTemplate = () => {
@@ -1008,7 +1020,19 @@ function CreateJobPage() {
                     
                       // Clear contract details
                       setContractDetails({});
-                    
+                      
+                      // Add smooth scrolling for small screens
+                      if (window.innerWidth < 1024) {
+                        setTimeout(() => {
+                          const customJobSection = document.querySelector('.w-full.lg\\:w-3\\/4');
+                          if (customJobSection) {
+                            customJobSection.scrollIntoView({ 
+                              behavior: 'smooth',
+                              block: 'start'
+                            });
+                          }
+                        }, 100);
+                      }
                     }}
                     className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-[14px]"
                   >
@@ -1016,35 +1040,46 @@ function CreateJobPage() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {templates.templates.map((template) => (
-                    <Tooltip
-                      key={template.id}
-                      title={"Template is ready"}
-                      color="#4CAF50"
-                    >
-                      <div
-                        className={`p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 ${
-                          selectedJob?.id === template.id
-                            ? "bg-white/10 border-white/30"
-                            : ""
-                        }`}
-                        onClick={() => handleJobSelect(template)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-medium lg:w-[70%]">
-                            {template.title}
-                          </h4>
-                          <span className="text-xs px-2 py-1 rounded bg-green-900/30 text-green-400">
-                            {template.status}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-400 py-2">
-                          Template • Devhub Post
-                        </p>
-                      </div>
-                    </Tooltip>
-                  ))}
-                </div>
+  {templates.templates.map((template) => (
+    <Tooltip
+      key={template.id}
+      title={"Template is ready"}
+      color="#4CAF50"
+    >
+      <div
+        className={`p-4 rounded-lg transition-all duration-300 cursor-pointer
+          ${
+            selectedJob?.id === template.id
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
+              : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
+          }`}
+        onClick={() => handleJobSelect(template)}
+      >
+        <div className="flex justify-between items-center">
+          <h4 className={`font-medium lg:w-[70%] ${
+            selectedJob?.id === template.id ? "text-white" : ""
+          }`}>
+            {template.title}
+          </h4>
+          <span className={`text-xs px-3 py-1.5 rounded-full ${
+            selectedJob?.id === template.id
+              ? "bg-green-900/30 text-green-400"
+              : "bg-green-900/30 text-green-400"
+          }`}>
+            {template.status}
+          </span>
+        </div>
+        <p className={`text-xs mt-2 ${
+          selectedJob?.id === template.id
+            ? "text-white/80"
+            : "text-gray-400"
+        }`}>
+          Template • Devhub Post
+        </p>
+      </div>
+    </Tooltip>
+  ))}
+</div>
               </div>
             </div>
             <div className="w-full lg:w-3/4">

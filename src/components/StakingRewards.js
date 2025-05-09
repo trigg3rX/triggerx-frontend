@@ -562,27 +562,15 @@ const StakingReward = () => {
         {/* Conditional Content */}
         <div className="rounded-xl mb-8">
           <h2 className="text-xl text-white mb-6 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-[#F8FF7C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+           
             Staking Reward Information
           </h2>
           <div className="text-[#A2A2A2]">
-            {!isConnected ? (
-              <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-8 rounded-xl text-center">
-                <div className="bg-white/5 inline-flex p-4 rounded-full mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#F8FF7C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                </div>
-                <p className="text-white text-lg mb-6">
-                  Please connect your wallet to claim token and experiment with staking and unstaking.
-                </p>
-                <p className="text-[#A2A2A2] text-sm mb-4">
-                  You'll be able to claim tokens, stake them, and earn rewards
-                </p>
-              </div>
-            ) : (
+          {!isConnected ? (
+   <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+   <p className="text-white text-center">Please connect your wallet to interact with the contract</p>
+ </div>
+)  : (
               <div className="space-y-6">
                 <div className="flex flex-wrap gap-4">
                   {!hasSufficientBalance ? (
@@ -653,6 +641,9 @@ const StakingReward = () => {
           </div>
         </div>
 
+        {isConnected && (
+
+<>
         <TransactionModal
           isOpen={showModal || showTokenClaimModal}
           onClose={() => {
@@ -664,7 +655,7 @@ const StakingReward = () => {
           modalData={modalData}
         />
 
-        {isConnected && stakingContract && (
+        { stakingContract && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
               <h3 className="text-white text-lg mb-2">Your Staked Amount</h3>
@@ -1013,6 +1004,7 @@ const StakingReward = () => {
             </div>
           )}
         </div>
+        </> )}
       </div>
     </div>
   );
