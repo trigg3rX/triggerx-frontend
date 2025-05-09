@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccount, useBalance } from 'wagmi';
 import { useChainId } from 'wagmi';
 import Modal from "react-modal";
@@ -79,6 +79,10 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
             console.error(err);
         }
     };
+
+    useEffect(() => {
+        console.log("..........", isSuccess);
+    }, []);
 
     // Function to truncate address
     const truncateAddress = (addr) => {
@@ -204,7 +208,7 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
     );
 };
 
-const ClaimEth = ({ onBalanceUpdate }) => {
+const ClaimEth = () => {
     const { address } = useAccount();
     const { refetch: refetchBalance } = useBalance({
         address: address,
@@ -252,13 +256,13 @@ const ClaimEth = ({ onBalanceUpdate }) => {
             const data = await response.json();
             console.log("Claim successful:", data);
 
-            // Call the onBalanceUpdate callback if provided
-            if (onBalanceUpdate) {
-                onBalanceUpdate();
-            }
+
 
             // Refresh the wallet balance
             await refetchBalance();
+            console.log("Balance refreshed after claim.");
+
+
 
             return true;
         } catch (error) {

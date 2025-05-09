@@ -180,18 +180,6 @@ const BalanceMaintainerExample = () => {
   const [copiedAddresses, setCopiedAddresses] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Update userBalance and hasSufficientBalance whenever balanceData changes
-  useEffect(() => {
-    if (balanceData) {
-      const balance = balanceData.value;
-      const requiredBalance = ethers.parseEther('0.02');
-      const formattedBalance = Number(ethers.formatEther(balance)).toFixed(4);
-
-      setUserBalance(formattedBalance);
-      setHasSufficientBalance(balance >= requiredBalance);
-      console.log("Balance updated from wagmi:", formattedBalance);
-    }
-  }, [balanceData]);
 
   // Initialize provider and signer
   useEffect(() => {
