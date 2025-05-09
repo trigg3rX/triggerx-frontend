@@ -950,19 +950,7 @@ function CreateJobPage() {
 
   return (
     <div>
-      <Toaster
-        position="center"
-        className="mt-10"
-        toastOptions={{
-          style: {
-            background: "#0a0a0a", // Dark background
-            color: "#fff", // White text
-            borderRadius: "8px",
-            border: "1px gray solid",
-          },
-        }}
-      />
-
+      
       {/* <ProcessModal isOpen={showProcessModal} steps={processSteps} /> */}
 
       <div className="min-h-screen text-white pt-10 md:pt-20 lg:pt-32 pb-20 mt-[5rem] lg:mt-[9rem] relative">
@@ -1094,6 +1082,16 @@ function CreateJobPage() {
                   onKeyDown={handleKeyDown} // Add the keydown handler to the entire form
                   className="w-full max-w-[1600px]"
                 >
+                  {!isConnected ? (
+                                        <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
+  <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
+                        Trigger Type
+                      </label>
+                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                      <p className="text-white text-center">Please connect your wallet to interact with the contract</p>
+                    </div>
+                    </div>
+                  ):(
                   <div className="space-y-8">
                     {/* Job Type Selection */}
                     <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
@@ -1658,7 +1656,7 @@ function CreateJobPage() {
                         select trigger type to create new job
                       </div>
                     )}
-                  </div>
+                  </div>)}
                 </form>
               )}
             </div>

@@ -7,7 +7,7 @@ import { useAccount, useBalance } from "wagmi";
 import TransactionModal from "./Stake-Reward/TransactionModal";
 import StakingRewardsABI from "../artifacts/StakingReword.json";
 import { Copy, Check } from "lucide-react";
-import ClaimEth from "./ClaimEth";
+import ClaimEth from "./common/ClaimEth";
 
 // Contract addresses and Static Data
 const TOKEN_ADDRESS = process.env.REACT_APP_STAKER_TOKEN_ADDRESS;
@@ -510,18 +510,7 @@ const StakingReward = () => {
 
   return (
     <div className=" ">
-      <Toaster
-        position="center"
-        className="mt-10"
-        toastOptions={{
-          style: {
-            background: "#0a0a0a",
-            color: "#fff",
-            borderRadius: "8px",
-            border: "1px gray solid",
-          },
-        }}
-      />
+     
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Static Content */}
         <div className=" mb-6">

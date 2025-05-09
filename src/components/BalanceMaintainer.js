@@ -12,7 +12,7 @@ import { Tooltip } from "antd";
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 import { useAccount, useBalance } from "wagmi";
 import { Copy, Check } from 'lucide-react';
-import ClaimEth from './ClaimEth';
+import ClaimEth from './common/ClaimEth';
 
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
@@ -180,6 +180,18 @@ const BalanceMaintainerExample = () => {
   const [copiedAddresses, setCopiedAddresses] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
 
+  // Update userBalance and hasSufficientBalance whenever balanceData changes
+  useEffect(() => {
+    if (balanceData) {
+      const balance = balanceData.value;
+      const requiredBalance = ethers.parseEther('0.02');
+      const formattedBalance = Number(ethers.formatEther(balance)).toFixed(4);
+
+      setUserBalance(formattedBalance);
+      setHasSufficientBalance(balance >= requiredBalance);
+      console.log("Balance updated from wagmi:", formattedBalance);
+    }
+  }, [balanceData]);
 
   // Initialize provider and signer
   useEffect(() => {
@@ -646,10 +658,25 @@ const BalanceMaintainerExample = () => {
                     >
                       {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
                     </button>
+                    
                   ) : (
                     <ClaimEth onBalanceUpdate={refetchBalance} />
                   )}
+                
+
                 </div>
+                {hasSufficientBalance && (
+                    <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl ">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-[#77E8A3]">
+                          You need to deploy contract before create the job.
+                        </p>
+                      </div>
+                    </div>
+                  )}
               </>
             ) : (
               <>

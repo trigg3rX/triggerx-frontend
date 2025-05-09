@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { FiInfo } from "react-icons/fi";
 import { getChainId } from "wagmi/actions";
 import { useNetwork, useChainId } from "wagmi";
-import ClaimEth from "./ClaimEth";
+import ClaimEth from "./common/ClaimEth";
 import confetti from "canvas-confetti";
 import TriggerXTemplateFactory from "../artifacts/TriggerXTemplateFactory.json";
 import { Tooltip } from "antd";
@@ -658,18 +658,7 @@ const PriceOracle = () => {
 
   return (
     <div className=" ">
-      <Toaster
-        position="center"
-        className="mt-10"
-        toastOptions={{
-          style: {
-            background: "#0a0a0a",
-            color: "#fff",
-            borderRadius: "8px",
-            border: "1px gray solid",
-          },
-        }}
-      />
+     
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
         <div className=" mb-6">
@@ -716,6 +705,7 @@ const PriceOracle = () => {
             ) : !isDeployed ? (
               <>
                 <p className="pb-2">Status: Not Deployed</p>
+                <div className="space-y-6">
 
                 <div className="flex flex-wrap gap-4">
                   {hasSufficientBalance ? (
@@ -731,7 +721,21 @@ const PriceOracle = () => {
                     <ClaimEth onBalanceUpdate={refetchBalance} />
 
                   )}
+                  
                 </div>
+                {hasSufficientBalance && (
+                    <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-[#77E8A3]">
+                          You need to deploy contract before create the job.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                    </div>
               </>
             ) : (
               <>
@@ -774,6 +778,7 @@ const PriceOracle = () => {
                 </div>
               </>
             )}
+          
           </div>
         </div>
         <TransactionModal
