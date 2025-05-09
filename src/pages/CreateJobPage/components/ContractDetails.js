@@ -457,7 +457,7 @@ export function ContractDetails({
         </>
       )}
 
-      {targetFunction && (
+      {targetFunction && functionInputs.length > 0 && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap mb-6">
