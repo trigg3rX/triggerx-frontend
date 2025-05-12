@@ -9,6 +9,11 @@ import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import loader from "../assets/load.gif";
 
+// --- Add Constants for Time Calculations ---
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE; // 3600
+const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;    // 86400
+
 function DashboardPage() {
   const [jobs, setJobs] = useState([]);
   const [jobDetails, setJobDetails] = useState([]);
@@ -371,9 +376,9 @@ function DashboardPage() {
       const jobCreatorContract = await getJobCreatorContract();
 
       const timeframeInSeconds =
-        selectedJob.timeframe.years * 31536000 +
-        selectedJob.timeframe.months * 2592000 +
-        selectedJob.timeframe.days * 86400;
+      (selectedJob.timeframe.days || 0) * SECONDS_PER_DAY +
+      (selectedJob.timeframe.hours || 0) * SECONDS_PER_HOUR +
+      (selectedJob.timeframe.minutes || 0) * SECONDS_PER_MINUTE;
 
       const intervalInSeconds =
         selectedJob.timeInterval.hours * 3600 +

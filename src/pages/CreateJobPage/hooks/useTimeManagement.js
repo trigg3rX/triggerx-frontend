@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
 
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE; // 3600
+const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;    // 86400
+
 export function useTimeManagement() {
-  const [timeframe, setTimeframe] = useState({ years: 0, months: 0, days: 0 });
+  const [timeframe, setTimeframe] = useState({ days: 0, hours: 0, minutes: 0 });
   const [timeframeInSeconds, setTimeframeInSeconds] = useState(0);
   const [timeInterval, setTimeInterval] = useState({
     hours: 0,
@@ -17,17 +21,18 @@ export function useTimeManagement() {
   const handleTimeframeChange = (field, value) => {
     const updatedTimeframe = { ...timeframe, [field]: parseInt(value) || 0 };
     const updatedTimeframeInSeconds =
-      updatedTimeframe.years * 31536000 +
-      updatedTimeframe.months * 2592000 +
-      updatedTimeframe.days * 86400;
+      updatedTimeframe.days * SECONDS_PER_DAY +       // Use constant
+      updatedTimeframe.hours * SECONDS_PER_HOUR +     // Use constant
+      updatedTimeframe.minutes * SECONDS_PER_MINUTE;  // Use constant
+
     console.log("Calculated timeframe in seconds:", updatedTimeframeInSeconds);
 
     setTimeframe(updatedTimeframe);
     setTimeframeInSeconds(updatedTimeframeInSeconds);
     if (
-      updatedTimeframe.years > 0 ||
-      updatedTimeframe.months > 0 ||
-      updatedTimeframe.days > 0
+      updatedTimeframe.days > 0 ||
+      updatedTimeframe.hours > 0 ||
+      updatedTimeframe.minutes > 0
     ) {
       setErrorFrame("");
     }
