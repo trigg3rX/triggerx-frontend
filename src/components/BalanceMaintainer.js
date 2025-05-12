@@ -13,134 +13,12 @@ import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 import { useAccount, useBalance } from "wagmi";
 import { Copy, Check } from 'lucide-react';
 import ClaimEth from './common/ClaimEth';
+import DeployButton from './common/DeployButton'; // Import the new component
+
+import TransactionModal from './common/TransactionModal.js'; // Import the new component
 
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
-
-
-// transaction modal
-
-const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) => {
-  const [showAmountTooltip, setShowAmountTooltip] = useState(false);
-  const [isDeploying, setIsDeploying] = useState(false);
-
-  const handleConfirmClick = async () => {
-    setIsDeploying(true);
-    await onConfirm();
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onClose}
-      contentLabel="Estimate Fee"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
-      overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
-    >
-      <h2 className="text-2xl font-bold mb-6">Transaction request</h2>
-
-      <div className="space-y-6">
-        <div className="bg-[#1E1E1E] p-4 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <span>Interacting with</span>
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm truncate max-w-[180px]">{modalData.contractAddress}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#1E1E1E] p-4 rounded-lg">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex">
-              {" "}
-              Required ETH  <div className="relative top-[4px]">
-                <FiInfo
-                  className="text-gray-400 hover:text-white cursor-pointer ml-2"
-                  size={15}
-                  onMouseEnter={() => setShowAmountTooltip(true)}
-                  onMouseLeave={() => setShowAmountTooltip(false)}
-                />
-                {showAmountTooltip && (
-                  <div className="absolute left-8 top-2 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
-                    <div className="flex flex-col gap-2 text-sm text-gray-300">
-                      <div className="flex items-center gap-2">
-                        <span>
-                          Extra ETH held in the contract, will be used automatically to top up the address if its balance falls below the set minimum.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <span className="text-white font-medium">{modalData.amount} ETH</span>
-          </div>
-
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex">
-              {" "}
-              Network Fee
-            </div>
-            <span className="text-gray-300">{modalData.networkFee}</span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span>Speed</span>
-            <div className="flex items-center">
-              <div className="text-orange-400 mr-2">
-                <span className="mr-1">🦊</span>
-                <span>Market</span>
-              </div>
-              <span>~{modalData.speed}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#1E1E1E] p-4 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span> Method</span>
-            <span className="text-gray-300">{modalData.contractMethod}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8 flex justify-between gap-5">
-        <button
-          onClick={onClose}
-          className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleConfirmClick}
-          // always enabled for addAddress, disable only for other types while deploying
-          disabled={modalType !== 'addAddress' && isDeploying}
-          className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${(modalType !== 'addAddress' && isDeploying) ? 'opacity-75' : ''}`}
-        >
-          {modalType === "deploy" && isDeploying ? (
-            <span className="flex items-center justify-center">
-              Deploying Contract...
-            </span>
-          ) : modalType === "addAddress" && isDeploying ? (
-            <span className="flex items-center justify-center">
-              Confirm
-            </span>
-          ) : modalType === "Intial Balance" && isDeploying ? (
-            <span className="flex items-center justify-center">
-              Adding Initial Balance...
-            </span>
-          ) : (
-            'Confirm'
-          )}
-        </button>
-      </div>
-    </Modal>
-  );
-};
 
 const BalanceMaintainerExample = () => {
   const navigate = useNavigate();
@@ -414,7 +292,7 @@ const BalanceMaintainerExample = () => {
 
   const handleDeploy = async () => {
     if (!signer || !address) return;
-    setShowModal(true);
+    setIsLoading(true);
 
     try {
       // Get current network from provider
@@ -495,7 +373,7 @@ const BalanceMaintainerExample = () => {
         toast.error("Deployment failed: " + (err.message || "Unknown error"));
       }
     } finally {
-      setShowModal(false);
+      setIsLoading(false);
     }
   };
 
@@ -652,31 +530,29 @@ const BalanceMaintainerExample = () => {
 
                 <div className="flex flex-wrap gap-4">
                   {hasSufficientBalance ? (
-                    <button
+                    <DeployButton
                       onClick={showDeployModal}
-                      className="bg-[#C07AF6] text-white px-8 py-3 rounded-lg transition-colors text-lg hover:bg-[#B15AE6]"
-                    >
-                      {isLoading && modalType === "deploy" ? 'Deploying...' : '🛠️ Deploy Contract'}
-                    </button>
-                    
+                      isLoading={isLoading && modalType === "deploy"}
+                    />
+
                   ) : (
                     <ClaimEth onBalanceUpdate={refetchBalance} />
                   )}
-                
+
 
                 </div>
                 {hasSufficientBalance && (
-                    <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl ">
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <p className="text-[#77E8A3]">
-                          You need to deploy contract before create the job.
-                        </p>
-                      </div>
+                  <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl ">
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-[#77E8A3]">
+                        You need to deploy contract before create the job.
+                      </p>
                     </div>
-                  )}
+                  </div>
+                )}
               </>
             ) : (
               <>
