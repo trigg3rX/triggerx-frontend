@@ -820,7 +820,7 @@ const BalanceMaintainerExample = () => {
                   "stateMutability": "nonpayable",
                   "type": "function"
                 }]),
-                timeframe: { years: 0, months: 0, days: 1 },
+                timeframe: { days: 0, hours: 0, minutes: 1 },
                 timeInterval: { hours: 1, minutes: 0, seconds: 0 }
               };
               // Update location state directly
