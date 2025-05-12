@@ -230,7 +230,7 @@ const ClaimEth = () => {
 
             const chainId = await window.ethereum.request({ method: 'eth_chainId' });
             let networkName = "op_sepolia";
-            if (chainId === "0x14a34") { // Base Sepolia chainId in hex
+            if (chainId === "0x14a34") { 
                 networkName = "base_sepolia";
             }
 
