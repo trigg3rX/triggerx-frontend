@@ -1,19 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance } from "wagmi";
 import logo from "../assets/logo.svg";
 import nav from "../assets/nav.svg";
-import { FiInfo } from "react-icons/fi";
-import leaderboardNav from "../assets/leaderboardNav.svg"; // Import leaderboard nav image
-import devhubNav from "../assets/devhubNav.png"; // Import devhub nav image
+import { useWallet } from "../contexts/WalletContext";
 
 function Header() {
   const { address } = useAccount();
-  const { data: balance } = useBalance({
-    address: address,
-    watch: true,
+  const { refreshBalance } = useWallet();
+  const { data, refetch, isLoading } = useBalance({
+    address,
+    watch: true, // Enable watching for automatic updates
+    cacheTime: 5000, 
   });
+
+  useEffect(() => {
+    if (address) {
+      console.log("Header: Balance refresh triggered");
+      refetch();
+    }
+  }, [address, refreshBalance, refetch]);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -70,8 +77,6 @@ function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-
 
   // Update nav image based on route
   // useEffect(() => {
@@ -130,10 +135,11 @@ function Header() {
                 onClick={() => {
                   navigate("/devhub");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/devhub")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
                 Dev Hub
               </h4>
@@ -144,9 +150,10 @@ function Header() {
                   navigate("/");
                 }}
                 className={`text-center xl:w-[150px] lg:w-[130px] xl:text-base lg:text-[12px]
-                  ${isActiveRoute("/")
-                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                    : "transparent"
+                  ${
+                    isActiveRoute("/")
+                      ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                      : "transparent"
                   } px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Create Job
@@ -154,10 +161,11 @@ function Header() {
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/dashboard")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/dashboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }
                  px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
@@ -167,10 +175,11 @@ function Header() {
                 onClick={() => {
                   navigate("/leaderboard");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/leaderboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }
                 
               }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
@@ -180,16 +189,15 @@ function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
             showBalance={false}
           />
-          {address && balance && (
+          {address && data && (
             <div className="bg-[#f8ff7c] px-4 py-1.5 rounded-full border border-[#2A2A2A]">
               <span className="text-black text-sm font-medium">
-                {Number(balance.formatted).toFixed(2)} {balance.symbol}
+                {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
           )}
@@ -238,10 +246,10 @@ function Header() {
 
         {/* Hamburger Menu and Navigation */}
         <div className="relative flex items-center gap-5">
-          {address && balance && (
+          {address && data && (
             <div className="bg-[#1A1A1A] px-3 py-1.5 rounded-full border border-[#2A2A2A]">
               <span className="text-[#EDEDED] text-sm font-medium">
-                {Number(balance.formatted).toFixed(4)} {balance.symbol}
+                {Number(data.formatted).toFixed(4)} {data.symbol}
               </span>
             </div>
           )}
@@ -270,10 +278,11 @@ function Header() {
                     }}
                     className={`w-full 
                          
-                        ${isActiveRoute("https://www.triggerx.network/")
-                        ? "text-white"
-                        : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                        ${
+                          isActiveRoute("https://www.triggerx.network/")
+                            ? "text-white"
+                            : "text-gray-400"
+                        }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dev Hub
                   </h4>
@@ -283,8 +292,9 @@ function Header() {
                       navigate("/");
                       setMenuOpen(false);
                     }}
-                    className={`w-full ${isActiveRoute("/") ? "text-white" : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={`w-full ${
+                      isActiveRoute("/") ? "text-white" : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Create Job
                   </h4>
@@ -293,10 +303,11 @@ function Header() {
                       navigate("/dashboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${isActiveRoute("/dashboard")
-                      ? "text-white"
-                      : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={` w-full  ${
+                      isActiveRoute("/dashboard")
+                        ? "text-white"
+                        : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
                   </h4>
@@ -305,10 +316,11 @@ function Header() {
                       navigate("/leaderboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${isActiveRoute("/leaderboard")
-                      ? "text-white"
-                      : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={` w-full  ${
+                      isActiveRoute("/leaderboard")
+                        ? "text-white"
+                        : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Leaderboard
                   </h4>
