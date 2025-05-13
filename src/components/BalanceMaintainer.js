@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from 'ethers';
-import Modal from "react-modal";
 import toast from 'react-hot-toast';
-import { FiInfo } from "react-icons/fi";
-import { getChainId } from 'wagmi/actions';
-import { useNetwork, useChainId } from 'wagmi';
 import confetti from 'canvas-confetti';
 import TriggerXTemplateFactory from '../artifacts/TriggerXTemplateFactory.json';
-import { Tooltip } from "antd";
 import BalanceMaintainer from '../artifacts/BalanceMaintainer.json';
 import { useAccount, useBalance } from "wagmi";
 import { Copy, Check } from 'lucide-react';
@@ -16,18 +11,14 @@ import ClaimEth from './common/ClaimEth';
 import DeployButton from './common/DeployButton'; // Import the new component
 
 import TransactionModal from './common/TransactionModal.js'; // Import the new component
+import { useWallet } from "../contexts/WalletContext.js";
 
 const BALANCEMAINTAINER_IMPLEMENTATION = "0xAc7d9b390B070ab35298e716a11933721480472D";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 const BalanceMaintainerExample = () => {
-  const navigate = useNavigate();
   const { address, isConnected } = useAccount();
-  const { data: balanceData, refetch: refetchBalance } = useBalance({
-    address,
-    watch: true,
-    enabled: !!address,
-  });
+  const { refreshBalance } = useWallet(); 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
   const [modalData, setModalData] = useState({
@@ -39,8 +30,6 @@ const BalanceMaintainerExample = () => {
   });
   const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
   const [userBalance, setUserBalance] = useState("0");
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [claimAmount, setClaimAmount] = useState("0.03");
 
   const [chainId, setChainId] = useState(null);
   const [isDeployed, setIsDeployed] = useState(false);
@@ -57,6 +46,22 @@ const BalanceMaintainerExample = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [copiedAddresses, setCopiedAddresses] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
+
+  const {
+    data: balanceData,
+    refetch: refetchBalance,
+    isLoading: balanceLoading,
+  } = useBalance({
+    address,
+    enabled: !!address,
+  });
+
+  // 👉 Refetch balance when triggered via context
+  useEffect(() => {
+    if (address) {
+      refetchBalance();
+    }
+  }, [refreshBalance]);
 
   // Update userBalance and hasSufficientBalance whenever balanceData changes
   useEffect(() => {
@@ -428,54 +433,6 @@ const BalanceMaintainerExample = () => {
     }
   }, [isInitialized, provider, address]);
 
-  // Create a function to trigger confetti
-  const triggerConfetti = () => {
-    // Create coin-like confetti
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
-
-    function randomInRange(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    const interval = setInterval(function () {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-
-      // Gold coins
-      confetti(Object.assign({}, defaults, {
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
-        colors: ['#FFD700', '#FFA500', '#F8FF7C'],
-        shapes: ['circle'],
-        scalar: randomInRange(0.8, 1.2)
-      }));
-    }, 250);
-  };
-
-  // Get network name for display
-  const getNetworkName = () => {
-    if (chainId === 11155420n) {
-      return "Optimism Sepolia";
-    } else if (chainId === 84532n) {
-      return "Base Sepolia";
-    } else {
-      return "Test Network";
-    }
-  };
-
-  // Function to format address
-  const formatAddress = (address) => {
-    if (!address) return '';
-    return `${address.slice(0, 8)}...${address.slice(-5)}`;
-  };
-
   // Function to copy address
   const copyAddress = async (address) => {
     try {
@@ -536,7 +493,7 @@ const BalanceMaintainerExample = () => {
                     />
 
                   ) : (
-                    <ClaimEth onBalanceUpdate={refetchBalance} />
+                    <ClaimEth />
                   )}
 
 

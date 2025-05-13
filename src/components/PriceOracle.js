@@ -1,35 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
-import Modal from "react-modal";
+
 import toast from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
-import { FiInfo } from "react-icons/fi";
-import { getChainId } from "wagmi/actions";
-import { useNetwork, useChainId } from "wagmi";
 import ClaimEth from "./common/ClaimEth";
-import confetti from "canvas-confetti";
 import TriggerXTemplateFactory from "../artifacts/TriggerXTemplateFactory.json";
-import { Tooltip } from "antd";
 import BalanceMaintainer from "../artifacts/BalanceMaintainer.json";
 import { useAccount, useBalance } from "wagmi";
-import { Copy, Check } from "lucide-react";
-import TransactionModal from "./common/TransactionModal.js"
-import DeployButton from './common/DeployButton'; // Import the new component
-
+import TransactionModal from "./common/TransactionModal.js";
+import DeployButton from "./common/DeployButton"; // Import the new component
+import { useWallet } from "../contexts/WalletContext.js";
 
 const DYNAMICPRICEORACLE_IMPLEMENTATION =
   "0x632661bA1B3b78C2707A7cAFf9829456BB11eDfd";
 const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 const PriceOracle = () => {
-  const navigate = useNavigate();
   const { address, isConnected } = useAccount();
-  const { data: balanceData, refetch: refetchBalance } = useBalance({
-    address,
-    watch: true,
-    enabled: !!address,
-  });
+  const { refreshBalance } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
   const [modalData, setModalData] = useState({
@@ -57,6 +45,22 @@ const PriceOracle = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [copiedAddresses, setCopiedAddresses] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
+
+  const {
+    data: balanceData,
+    refetch: refetchBalance,
+    isLoading: balanceLoading,
+  } = useBalance({
+    address,
+    enabled: !!address,
+  });
+
+  // 👉 Refetch balance when triggered via context
+  useEffect(() => {
+    if (address) {
+      refetchBalance();
+    }
+  }, [refreshBalance]);
 
   // Update userBalance and hasSufficientBalance whenever balanceData changes
   useEffect(() => {
@@ -451,80 +455,10 @@ const PriceOracle = () => {
     }
   }, [isInitialized, provider, address]);
 
-  // Create a function to trigger confetti
-  const triggerConfetti = () => {
-    // Create coin-like confetti
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = {
-      startVelocity: 30,
-      spread: 360,
-      ticks: 60,
-      zIndex: 10000,
-    };
-
-    function randomInRange(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    const interval = setInterval(function () {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-
-      // Gold coins
-      confetti(
-        Object.assign({}, defaults, {
-          particleCount,
-          origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
-          colors: ["#FFD700", "#FFA500", "#F8FF7C"],
-          shapes: ["circle"],
-          scalar: randomInRange(0.8, 1.2),
-        })
-      );
-    }, 250);
-  };
-
-
   console.log("userBalance...........", userBalance);
-
-  // Get network name for display
-  const getNetworkName = () => {
-    if (chainId === 11155420n) {
-      return "Optimism Sepolia";
-    } else if (chainId === 84532n) {
-      return "Base Sepolia";
-    } else {
-      return "Test Network";
-    }
-  };
-
-  // Function to format address
-  const formatAddress = (address) => {
-    if (!address) return "";
-    return `${address.slice(0, 8)}...${address.slice(-5)}`;
-  };
-
-  // Function to copy address
-  const copyAddress = async (address) => {
-    try {
-      await navigator.clipboard.writeText(address);
-      setCopiedAddresses((prev) => ({ ...prev, [address]: true }));
-      setTimeout(() => {
-        setCopiedAddresses((prev) => ({ ...prev, [address]: false }));
-      }, 2000);
-    } catch (err) {
-      console.error("Failed to copy address:", err);
-    }
-  };
 
   return (
     <div className=" ">
-
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
         <div className=" mb-6">
@@ -572,7 +506,6 @@ const PriceOracle = () => {
               <>
                 <p className="pb-2">Status: Not Deployed</p>
                 <div className="space-y-6">
-
                   <div className="flex flex-wrap gap-4">
                     {hasSufficientBalance ? (
                       <DeployButton
@@ -580,16 +513,23 @@ const PriceOracle = () => {
                         isLoading={isLoading && modalType === "deploy"}
                       />
                     ) : (
-                      <ClaimEth onBalanceUpdate={refetchBalance} />
-
+                      <ClaimEth />
                     )}
-
                   </div>
                   {hasSufficientBalance && (
                     <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
                       <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-[#77E8A3] mr-2"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         <p className="text-[#77E8A3]">
                           You need to deploy contract before create the job.
@@ -624,10 +564,11 @@ const PriceOracle = () => {
                   <p className="text-white py-2">
                     Contract Address :{" "}
                     <a
-                      href={`${chainId === 11155420n
-                        ? "https://sepolia-optimism.etherscan.io/address/"
-                        : "https://sepolia.basescan.org/address/"
-                        }${contractAddress}`}
+                      href={`${
+                        chainId === 11155420n
+                          ? "https://sepolia-optimism.etherscan.io/address/"
+                          : "https://sepolia.basescan.org/address/"
+                      }${contractAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#77E8A3] underline pl-2"
@@ -640,7 +581,6 @@ const PriceOracle = () => {
                 </div>
               </>
             )}
-
           </div>
         </div>
         <TransactionModal
@@ -650,10 +590,6 @@ const PriceOracle = () => {
           modalType={modalType}
           modalData={modalData}
         />
-
-
-
-
 
         {/* Deploy Button */}
         <div className="flex justify-center">

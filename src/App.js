@@ -17,6 +17,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Devhub from "./pages/Devhub";
 import ApiCreation from "./pages/Api/ApiCreation";
 import BalanceMaintainer from "./components/BalanceMaintainer";
+import { WalletProvider } from "./contexts/WalletContext";
 
 const myCustomTheme = {
   blurs: {
@@ -92,38 +93,40 @@ const App = () => {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-            <Router>
-              <Layout>
-                <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
-                  <meta
-                    name="description"
-                    content="TriggerX - Web3 Automation Platform"
-                  />
-                  <meta property="og:type" content="website" />
-                  <meta property="og:site_name" content="TriggerX" />
-                </Helmet>
-                <Routes>
-                  <>
-                    <Route path="/" element={<CreateJobPage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/devhub" element={<Devhub />} />
-                    <Route path="/devhub/:slug" element={<DevhubItem />} />
-                    <Route path="/api" element={<ApiCreation />} />
-                    <Route
-                      path="/eth-top-ups-example"
-                      element={<BalanceMaintainer />}
+            <WalletProvider>
+              <Router>
+                <Layout>
+                  <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
+                    <meta
+                      name="description"
+                      content="TriggerX - Web3 Automation Platform"
                     />
-                    <Route
-                      path="/staking-rewards"
-                      element={<StakingRewards />}
-                    />
-                    <Route path="/price-oracle" element={<PriceOracle />} />
-                    <Route path="*" element={<NotFound />} />
-                  </>
-                </Routes>
-              </Layout>
-            </Router>
+                    <meta property="og:type" content="website" />
+                    <meta property="og:site_name" content="TriggerX" />
+                  </Helmet>
+                  <Routes>
+                    <>
+                      <Route path="/" element={<CreateJobPage />} />
+                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/devhub" element={<Devhub />} />
+                      <Route path="/devhub/:slug" element={<DevhubItem />} />
+                      <Route path="/api" element={<ApiCreation />} />
+                      <Route
+                        path="/eth-top-ups-example"
+                        element={<BalanceMaintainer />}
+                      />
+                      <Route
+                        path="/staking-rewards"
+                        element={<StakingRewards />}
+                      />
+                      <Route path="/price-oracle" element={<PriceOracle />} />
+                      <Route path="*" element={<NotFound />} />
+                    </>
+                  </Routes>
+                </Layout>
+              </Router>
+            </WalletProvider>
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
