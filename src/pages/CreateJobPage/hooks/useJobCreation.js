@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// usejobcreation
+import { useCallback, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -42,10 +43,6 @@ export function useJobCreation() {
       );
     }
   };
-
-  useEffect(() => {
-    fetchTGBalance();
-  });
 
   const estimateFee = async (
     timeframeInSeconds,
@@ -153,8 +150,14 @@ export function useJobCreation() {
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
 
-  const fetchTGBalance = async () => {
+  const fetchTGBalance = useCallback(async () => {
     if (typeof window.ethereum == "undefined") return;
+
+    if (!stakeRegistryAddress || !ethers.isAddress(stakeRegistryAddress)) {
+      console.log("Stake Registry Address not ready for TG balance fetch.");
+      return;
+    }
+
     try {
       // Check if ethereum provider exists
       if (!window.ethereum) {
@@ -166,21 +169,11 @@ export function useJobCreation() {
       const accounts = await window.ethereum.request({
         method: "eth_accounts",
       });
-      // console.log("accounts", accounts);
 
       if (accounts.length > 0) {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
-
-        // console.log(
-        //   "provider",
-        //   provider,
-        //   "signer",
-        //   signer,
-        //   "userAddress",
-        //   userAddress
-        // );
 
         const stakeRegistryContract = new ethers.Contract(
           stakeRegistryAddress,
@@ -202,7 +195,42 @@ export function useJobCreation() {
         toast.error("Failed to fetch TG balance");
       }
     }
-  };
+  }, [stakeRegistryAddress, setUserBalance]);
+
+  useEffect(() => {
+    if (stakeRegistryAddress && ethers.isAddress(stakeRegistryAddress)) {
+      console.log(
+        "Stake Registry Address is available, attempting to fetch TG balance."
+      );
+      fetchTGBalance();
+    }
+    const handleAccountsChanged = (accounts) => {
+      if (
+        accounts.length > 0 &&
+        stakeRegistryAddress &&
+        ethers.isAddress(stakeRegistryAddress)
+      ) {
+        console.log("Accounts changed, attempting to refetch TG balance.");
+        fetchTGBalance();
+      } else if (accounts.length === 0) {
+        // Handle user disconnecting
+        setUserBalance("0"); // Or whatever your default state is
+      }
+    };
+
+    if (window.ethereum && window.ethereum.on) {
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+    }
+
+    return () => {
+      if (window.ethereum && window.ethereum.removeListener) {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
+      }
+    };
+  }, [stakeRegistryAddress, fetchTGBalance, setUserBalance]);
 
   const handleSubmit = async (
     stakeRegistryAddress,
