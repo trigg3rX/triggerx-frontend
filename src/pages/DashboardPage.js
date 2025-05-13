@@ -376,9 +376,9 @@ function DashboardPage() {
       const jobCreatorContract = await getJobCreatorContract();
 
       const timeframeInSeconds =
-      (selectedJob.timeframe.days || 0) * SECONDS_PER_DAY +
-      (selectedJob.timeframe.hours || 0) * SECONDS_PER_HOUR +
-      (selectedJob.timeframe.minutes || 0) * SECONDS_PER_MINUTE;
+        (selectedJob.timeframe.days || 0) * SECONDS_PER_DAY +
+        (selectedJob.timeframe.hours || 0) * SECONDS_PER_HOUR +
+        (selectedJob.timeframe.minutes || 0) * SECONDS_PER_MINUTE;
 
       const intervalInSeconds =
         selectedJob.timeInterval.hours * 3600 +
@@ -539,7 +539,7 @@ function DashboardPage() {
 
   return (
     <div>
-     
+
       <div className="min-h-screen  text-white md:mt-[20rem] mt-[10rem]">
         <div className="fixed inset-0  pointer-events-none" />
         <div className="fixed  pointer-events-none" />
@@ -632,11 +632,10 @@ function DashboardPage() {
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className={`transition-transform duration-300 ${
-                                              expandedJobs[job.id]
-                                                ? "rotate-180"
-                                                : ""
-                                            }`}
+                                            className={`transition-transform duration-300 ${expandedJobs[job.id]
+                                              ? "rotate-180"
+                                              : ""
+                                              }`}
                                           >
                                             <path d="m6 9 6 6 6-6" />
                                           </svg>
@@ -922,26 +921,25 @@ function DashboardPage() {
                       isStaking ||
                       !stakeAmount ||
                       Number(stakeAmount) >
-                        Number(accountBalance?.formatted || 0)
+                      Number(accountBalance?.formatted || 0)
                     }
                     className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                     <span
-                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
-                        isStaking ||
+                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
                         !stakeAmount ||
                         Number(stakeAmount) >
-                          Number(accountBalance?.formatted || 0)
-                          ? "opacity-50"
-                          : ""
-                      }`}
+                        Number(accountBalance?.formatted || 0)
+                        ? "opacity-50"
+                        : ""
+                        }`}
                     >
                       {isStaking
                         ? "Staking..."
                         : Number(stakeAmount) >
-                            Number(accountBalance?.formatted || 0)
+                          Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Stake"}
                     </span>
