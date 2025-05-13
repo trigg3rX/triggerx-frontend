@@ -1,3 +1,4 @@
+// contract details
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
@@ -110,43 +111,167 @@ export function ContractDetails({
     }
   }
 
-  const handleContractAddressChange = async (e) => {
+  // ... (validateAddress, setContractAddress, helper functions are the same) ...
 
+  const handleContractAddressChange = async (e) => {
     const address = e.target.value;
     validateAddress(address);
 
     console.log("Contract address changed to:", address);
     setContractAddress(address);
 
-    if (ethers.isAddress(address)) {
-      const url = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${address}`;
+    const processSuccessfulAbi = (abiResult, source) => {
+      console.log(`ABI fetched successfully from ${source}`);
       try {
-        const response = await axios.get(url);
+        // Ensure the result is actually a parsable ABI
+        JSON.parse(abiResult); // This will throw if abiResult is not valid JSON
+        const writableFunctions = extractFunctions(abiResult).filter(
+          (func) =>
+            func.stateMutability === "nonpayable" ||
+            func.stateMutability === "payable"
+        );
+        console.log("Setting writable functions:", writableFunctions);
+        setFunctions(writableFunctions);
+        setContractABI(abiResult);
+        setShowManualABIInput(false);
+        return true; // Indicate success
+      } catch (jsonError) {
+        console.error(
+          `Error processing ABI from ${source}: Not valid JSON.`,
+          jsonError.message
+        );
+        console.error(
+          "Problematic ABI string:",
+          abiResult.substring(0, 200) + "..."
+        ); // Log part of the problematic string
+        handleAbiFetchFailure(
+          source,
+          `Received data from ${source}, but it's not a valid ABI JSON.`
+        );
+        return false; // Indicate failure
+      }
+    };
+
+    const handleAbiFetchFailure = (source, errorDetails) => {
+      console.warn(
+        `Failed to fetch or process ABI from ${source}. Details:`,
+        errorDetails
+      );
+    };
+
+    const resetAndShowManualInput = (reason) => {
+      console.log(reason);
+      setShowManualABIInput(true);
+      setContractABI("");
+      setFunctions([]);
+    };
+
+    if (ethers.isAddress(address)) {
+      let abiFetched = false;
+
+      // 1. Try Blockscout
+      const blockscoutUrl = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${address}`;
+      try {
+        console.log("Attempting to fetch ABI from Blockscout...");
+        const response = await axios.get(blockscoutUrl);
         const data = response.data;
-        if (data.status === "1") {
-          const writableFunctions = extractFunctions(data.result).filter(
-            (func) =>
-              func.stateMutability === "nonpayable" ||
-              func.stateMutability === "payable"
-          );
-          console.log("Setting writable functions:", writableFunctions);
-          setFunctions(writableFunctions);
-          setContractABI(data.result);
-          setShowManualABIInput(false);
+        if (
+          data.status === "1" &&
+          data.result &&
+          typeof data.result === "string" &&
+          data.result.startsWith("[")
+        ) {
+          if (processSuccessfulAbi(data.result, "Blockscout")) {
+            abiFetched = true;
+          }
+          // if processSuccessfulAbi returns false, abiFetched remains false
         } else {
-          setShowManualABIInput(true);
-          setContractABI("");
-          setFunctions([]);
+          handleAbiFetchFailure(
+            "Blockscout",
+            `Status: ${data.status}, Message: ${data.message || "N/A"}, Result: ${data.result ? data.result.substring(0, 100) + "..." : "No result"}`
+          );
         }
       } catch (error) {
-        console.error("Error fetching ABI:", error.message);
-        setShowManualABIInput(true);
-        setContractABI("");
-        setFunctions([]);
+        handleAbiFetchFailure(
+          "Blockscout",
+          `Network error or other issue: ${error.message}`
+        );
+      }
+
+      // 2. If Blockscout failed or its result wasn't a valid ABI, try Etherscan
+      if (!abiFetched) {
+        const ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY =
+          process.env.REACT_APP_ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY;
+
+        if (!ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY) {
+          console.warn(
+            "Etherscan API key (REACT_APP_ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY) is missing or empty. Skipping Etherscan fallback."
+          );
+        } else {
+          const etherscanUrl = `https://api-sepolia-optimism.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY}`;
+          try {
+            console.log(
+              "Attempting to fetch ABI from Etherscan (Optimism Sepolia)..."
+            );
+            const response = await axios.get(etherscanUrl);
+            const data = response.data;
+
+            // Log the raw Etherscan response for detailed debugging
+            console.log(
+              "Raw Etherscan API response data:",
+              JSON.stringify(data, null, 2)
+            );
+
+            if (
+              data.status === "1" &&
+              data.result &&
+              typeof data.result === "string" &&
+              data.result.startsWith("[")
+            ) {
+              if (
+                processSuccessfulAbi(
+                  data.result,
+                  "Etherscan (Optimism Sepolia)"
+                )
+              ) {
+                abiFetched = true;
+              }
+              // if processSuccessfulAbi returns false, abiFetched remains false
+            } else {
+              // More detailed failure reason from Etherscan
+              let failureReason = `Status: ${data.status}.`;
+              if (data.message) failureReason += ` Message: ${data.message}.`;
+              if (data.result)
+                failureReason += ` Result: ${data.result.substring(0, 100) + "..."}.`; // Show a snippet of the result if it's not the ABI
+              else failureReason += ` Result was empty/null.`;
+
+              handleAbiFetchFailure(
+                "Etherscan (Optimism Sepolia)",
+                failureReason +
+                  " (Check API key validity, contract verification on Etherscan, and network settings)."
+              );
+            }
+          } catch (error) {
+            console.error("Axios error fetching from Etherscan:", error);
+            handleAbiFetchFailure(
+              "Etherscan (Optimism Sepolia)",
+              `Network error or other issue: ${error.message}`
+            );
+          }
+        }
+      }
+
+      // 3. If ABI still not fetched after all attempts, then show manual input
+      if (!abiFetched) {
+        resetAndShowManualInput(
+          "ABI not found or processed successfully from Blockscout or Etherscan. Showing manual input."
+        );
       }
     } else {
-      console.log("Invalid address, clearing ABI");
+      // Address is invalid
+      console.log("Invalid address, clearing ABI and functions.");
       setContractABI("");
+      setFunctions([]);
       setShowManualABIInput(false);
     }
   };
@@ -155,13 +280,16 @@ export function ContractDetails({
     const abi = e.target.value;
     setManualABI(abi);
     try {
+      JSON.parse(abi);
       const writableFunctions = extractFunctions(abi).filter(
         (func) =>
           func.stateMutability === "nonpayable" ||
           func.stateMutability === "payable"
       );
+      console.log("Setting writable functions:", writableFunctions);
       setFunctions(writableFunctions);
       setContractABI(abi);
+
       // Reset target function when ABI changes
       setTargetFunction("");
     } catch (error) {
@@ -176,26 +304,6 @@ export function ContractDetails({
     const selectedValue = e.target.value;
     console.log("Function selection changed to:", selectedValue);
     setTargetFunction(selectedValue);
-
-    // const func = functions.find(
-    //   (f) =>
-    //     `${f.name}(${f.inputs.map((input) => input.type).join(",")})` ===
-    //     selectedValue
-    // );
-    // setSelectedFunction(func);
-
-    // Reset argument type if function has no inputs
-    // if (!func?.inputs?.length) {
-    //   setArgumentType("static");
-    // }
-
-    // if (func) {
-    //   setFunctionInputs(func.inputs.map(() => ""));
-    //   setArgArray(func.inputs.map(() => ""));
-    // } else {
-    //   setFunctionInputs([]);
-    //   setArgArray([]);
-    // }
   };
 
   const handleFunctionSelect = (signature) => {
@@ -207,13 +315,6 @@ export function ContractDetails({
     const newType = e.target.value;
     console.log("Argument type changed to:", newType);
     setArgumentType(newType);
-
-    // Clear inputs when switching to dynamic
-    // if (newType === "dynamic") {
-    //   const emptyInputs = selectedFunction?.inputs?.map(() => "") || [];
-    //   setFunctionInputs(emptyInputs);
-    //   setArgArray(emptyInputs);
-    // }
   };
 
   const isDisabled = argumentType === "dynamic";
@@ -222,17 +323,6 @@ export function ContractDetails({
     const newInputs = [...argsArray];
     newInputs[index] = value;
     setArgArray(newInputs);
-
-    // if (newInputs.every((input) => input !== "")) {
-    //   const bytesArray = newInputs.map((arg) => {
-    //     const hexValue = ethers.toBeHex(arg);
-    //     return hexValue.length % 2 === 0 ? hexValue : `0x0${hexValue.slice(2)}`;
-    //   });
-    //   setArgumentsInBytes(bytesArray);
-    // } else {
-    //   console.log("Not all inputs filled, clearing bytes array");
-    //   setArgumentsInBytes([]);
-    // }
   };
 
   const handleCodeUrlChange = (e) => {
@@ -281,8 +371,9 @@ export function ContractDetails({
             value={contractAddress}
             onChange={handleContractAddressChange}
             placeholder="Your Contract address"
-            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${addressError ? "border-red-500" : "border-white/10"
-              }`}
+            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+              addressError ? "border-red-500" : "border-white/10"
+            }`}
           />
           {addressError && (
             <p className="text-red-500 text-xs mt-1 ml-1">{addressError}</p>
@@ -322,7 +413,7 @@ export function ContractDetails({
         </div>
       )}
 
-      {/* {showManualABIInput && (
+      {showManualABIInput && (
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <label
             htmlFor="manualABI"
@@ -352,7 +443,7 @@ export function ContractDetails({
             </p>
           </div>
         </div>
-      )} */}
+      )}
 
       {(contractAddress || manualABI) && !addressError && (
         <>
@@ -418,8 +509,9 @@ export function ContractDetails({
                   className="relative w-full md:w-[70%] xl:w-[80%] z-30"
                 >
                   <div
-                    className={`text-xs xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${!hasArguments ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                    className={`text-xs xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${
+                      !hasArguments ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     onClick={() =>
                       hasArguments && setIsArgumentTypeOpen(!isArgumentTypeOpen)
                     }
@@ -457,7 +549,7 @@ export function ContractDetails({
         </>
       )}
 
-      {targetFunction && functionInputs.length > 0 && (
+      {targetFunction && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap mb-6">
@@ -483,8 +575,11 @@ export function ContractDetails({
                   type="text"
                   value={argsArray[index] || ""}
                   onChange={(e) => handleInputChange(index, e.target.value)}
-                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${isDisabled ? "opacity-50 cursor-not-allowed bg-gray-800" : ""
-                    }`}
+                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                    isDisabled
+                      ? "opacity-50 cursor-not-allowed bg-gray-800"
+                      : ""
+                  }`}
                   placeholder={`Enter ${input.type}`}
                   disabled={isDisabled}
                   readOnly={isDisabled}
@@ -509,12 +604,15 @@ export function ContractDetails({
               value={ipfsCodeUrl}
               required
               onChange={(e) => handleCodeUrlChange(e)}
-              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${ipfsCodeUrlError ? "border-red-500" : "border-white/10"
-                }`}
+              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                ipfsCodeUrlError ? "border-red-500" : "border-white/10"
+              }`}
               placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
             />
             {ipfsCodeUrlError && (
-              <p className="text-red-500 text-xs mt-1 ml-1">{ipfsCodeUrlError}</p>
+              <p className="text-red-500 text-xs mt-1 ml-1">
+                {ipfsCodeUrlError}
+              </p>
             )}
             <h4 className="w-full ml-1 mt-3 text-xs text-gray-400">
               Provide an IPFS URL or CID, where your code is stored.
