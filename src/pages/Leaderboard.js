@@ -497,11 +497,11 @@ const Leaderboard = () => {
         <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
           <thead className="sticky top-0 bg-[#2A2A2A]">
             <tr>
-              <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
                 Name
               </th>
               <th
-                className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
                 onClick={() => {
                   setSortConfig(prev => ({
                     key: 'points',
@@ -518,7 +518,7 @@ const Leaderboard = () => {
                   <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
                 )}
               </th>
-              <th className="px-6 py-5 text-center text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
                 Profile
               </th>
             </tr>
@@ -535,11 +535,21 @@ const Leaderboard = () => {
                       {Number(item.points).toFixed(2)}
                     </span>
                   </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                    <button className="px-5 py-2 border-[#C07AF6] rounded-full text-sm text-white border">
-                      View
-                    </button>
-                  </td>
+                  <Tooltip title="View Profile" color="#2A2A2A">
+                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://app.eigenlayer.xyz/contributor/${item.address}`,
+                            "_blank"
+                          )
+                        }
+                        className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </Tooltip>
                 </tr>
               ))
               : !isLoading && (

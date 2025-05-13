@@ -2,7 +2,8 @@
 import React from "react";
 
 const SkeletonElement = ({ type, className = "" }) => {
-  const baseClasses = "bg-[#1A1A1A] rounded animate-pulse";
+  // Changed from #1A1A1A to a lighter shade
+  const baseClasses = "bg-[#2A2A2A] rounded animate-pulse";
   let specificClasses = "";
 
   switch (type) {
@@ -48,13 +49,13 @@ const DevhubItemSkeleton = () => {
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen md:mt-[17rem] mt-[10rem] text-white">
       {/* Header Skeleton */}
-      <div className="max-w-4xl mx-auto text-center mb-16">
+      {/* <div className="max-w-4xl mx-auto text-center mb-16">
         <SkeletonElement type="title" className="mx-auto" />
         <SkeletonElement type="subtitle" className="mx-auto" />
-      </div>
+      </div> */}
 
       {/* Main Content Area Skeleton */}
-      <div className="bg-[#1A1A1A] rounded-3xl border border-gray-700 p-6 sm:p-8 md:p-10 lg:p-12 w-[95%] sm:w-[90%] mx-auto">
+      <div className="bg-[#2A2A2A] rounded-3xl border border-gray-700 p-6 sm:p-8 md:p-10 lg:p-12 w-[95%] sm:w-[90%] mx-auto">
         <div className="mb-8 md:mb-12">
           {/* Image Skeleton */}
           <SkeletonElement type="image" className="w-full sm:w-[95%] mx-auto" />
