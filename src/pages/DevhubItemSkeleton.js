@@ -20,8 +20,8 @@ const SkeletonElement = ({ type, className = "" }) => {
       specificClasses = "h-4 w-full mb-2";
       break;
     case "line-short":
-        specificClasses = "h-4 w-5/6 mb-2";
-        break;
+      specificClasses = "h-4 w-5/6 mb-2";
+      break;
     case "line-xs":
       specificClasses = "h-3 w-2/3 mb-2";
       break;
@@ -35,8 +35,8 @@ const SkeletonElement = ({ type, className = "" }) => {
       specificClasses = "h-4 w-full mb-2";
       break;
     case "heading":
-        specificClasses = "h-8 w-1/3 mb-4";
-        break;
+      specificClasses = "h-8 w-1/3 mb-4";
+      break;
     default:
       specificClasses = "h-4 w-full"; // Default paragraph line
   }
@@ -63,12 +63,12 @@ const DevhubItemSkeleton = () => {
           {/* Info Grid Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 md:gap-y-2 text-xs sm:text-sm text-white my-8 md:my-10 px-2 sm:px-4">
             <div className="space-y-3">
-               <SkeletonElement type="line-xs" />
-               <SkeletonElement type="line-xs" />
+              <SkeletonElement type="line-xs" />
+              <SkeletonElement type="line-xs" />
             </div>
             <div className="space-y-3">
-               <SkeletonElement type="line-xs" />
-               <SkeletonElement type="line-xs" />
+              <SkeletonElement type="line-xs" />
+              <SkeletonElement type="line-xs" />
             </div>
           </div>
 
@@ -89,29 +89,29 @@ const DevhubItemSkeleton = () => {
               <SkeletonElement type="toc-item" />
               <SkeletonElement type="toc-item" />
               <SkeletonElement type="toc-item" />
-              <SkeletonElement type="toc-item" className="w-3/4"/>
+              <SkeletonElement type="toc-item" className="w-3/4" />
             </div>
           </div>
-           {/* Basic Mobile TOC Placeholder */}
-           <div className="md:hidden mb-4">
-                <SkeletonElement type="line" className="h-10" />
-           </div>
+          {/* Basic Mobile TOC Placeholder */}
+          <div className="md:hidden mb-4">
+            <SkeletonElement type="line" className="h-10" />
+          </div>
         </aside>
 
         {/* Article Skeleton */}
         <article className="w-full md:w-3/4 lg:w-4/5 xl:flex-1 space-y-4">
-           <SkeletonElement type="heading" />
-           <SkeletonElement type="line" />
-           <SkeletonElement type="line" />
-           <SkeletonElement type="line-short" />
-           <br/>
-           <SkeletonElement type="line" />
-           <SkeletonElement type="line-short" />
-           <br/>
-           <SkeletonElement type="heading" className="w-1/2"/>
-           <SkeletonElement type="line" />
-           <SkeletonElement type="line-short" />
-           <SkeletonElement type="line" />
+          <SkeletonElement type="heading" />
+          <SkeletonElement type="line" />
+          <SkeletonElement type="line" />
+          <SkeletonElement type="line-short" />
+          <br />
+          <SkeletonElement type="line" />
+          <SkeletonElement type="line-short" />
+          <br />
+          <SkeletonElement type="heading" className="w-1/2" />
+          <SkeletonElement type="line" />
+          <SkeletonElement type="line-short" />
+          <SkeletonElement type="line" />
 
         </article>
       </div>
