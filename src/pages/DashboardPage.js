@@ -813,7 +813,11 @@ function DashboardPage() {
                                       <path d="M9 21V9" />
                                     </svg>
                                     <p className="text-lg mb-2">No active jobs found</p>
-                                    <p className="text-sm text-[#666666]">Create your first job to get started</p>
+                                    <p className="text-sm text-[#666666] mb-4">
+                                      <Link to="/" className="text-[#77E8A3] underline transition-all">
+                                        Create your first job to get started
+                                      </Link>
+                                    </p>
                                   </div>
                                 </td>
                               </tr>
