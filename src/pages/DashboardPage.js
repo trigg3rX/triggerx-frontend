@@ -629,37 +629,37 @@ function DashboardPage() {
         <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
           <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
             <div className="lg:w-[70%] w-full">
-              {loading ? (
-                <DashboardSkeleton />
-              ) : (
-                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 ">
-                  <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                    Active Jobs
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <div className="h-auto">
-                      <table className="w-full border-separate border-spacing-y-4">
-                        <thead className="bg-[#2A2A2A]">
-                          <tr>
-                            <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
-                              ID
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                              Type
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                              Status
-                            </th>
-                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {jobDetails.length > 0 ? (
-                            getPaginatedData(jobDetails).map((job, index) => (
+
+              <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 ">
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                  Active Jobs
+                </h2>
+                <div className="overflow-x-auto">
+                  <div className="h-auto">
+                    <table className="w-full border-separate border-spacing-y-4">
+                      <thead className="bg-[#2A2A2A]">
+                        <tr>
+                          <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+                            ID
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                            Type
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                            Status
+                          </th>
+                          <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loading
+                          ? Array.from({ length: 5 }).map((_, idx) => <DashboardSkeleton key={idx} />)
+                          : jobDetails.length > 0
+                            ? getPaginatedData(jobDetails).map((job, index) => (
                               <React.Fragment key={job.id}>
-                                <tr className="hover:bg-[#1F1F1F] transition-colors duration-200">
+                                <tr className="bg-[#1F1F1F] transition-colors duration-200">
                                   <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
                                     {index + 1}
                                   </td>
@@ -671,7 +671,7 @@ function DashboardPage() {
                                       {job.status}
                                     </span>
                                   </td>
-                                  <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg bg-[#1A1A1A]">
                                     <div className="flex flex-row gap-5">
                                       <button
                                         disabled
@@ -792,39 +792,40 @@ function DashboardPage() {
                                   )}
                               </React.Fragment>
                             ))
-                          ) : (
-                            <tr>
-                              <td colSpan="4" className="text-center py-8">
-                                <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="48"
-                                    height="48"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="mb-4"
-                                  >
-                                    <rect width="18" height="18" x="3" y="3" rx="2" />
-                                    <path d="M3 9h18" />
-                                    <path d="M9 21V9" />
-                                  </svg>
-                                  <p className="text-lg mb-2">No active jobs found</p>
-                                  <p className="text-sm text-[#666666]">Create your first job to get started</p>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                    {jobDetails.length > 0 && renderPagination(getTotalPages(jobDetails))}
+                            : (
+                              <tr>
+                                <td colSpan="4" className="text-center py-8">
+                                  <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="48"
+                                      height="48"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="mb-4"
+                                    >
+                                      <rect width="18" height="18" x="3" y="3" rx="2" />
+                                      <path d="M3 9h18" />
+                                      <path d="M9 21V9" />
+                                    </svg>
+                                    <p className="text-lg mb-2">No active jobs found</p>
+                                    <p className="text-sm text-[#666666]">Create your first job to get started</p>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                        }
+                      </tbody>
+                    </table>
                   </div>
+                  {jobDetails.length > 0 && renderPagination(getTotalPages(jobDetails))}
                 </div>
-              )}
+              </div>
+
             </div>
 
             <div className="space-y-8 h-full lg:w-[25%] w-full">
