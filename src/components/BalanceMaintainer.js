@@ -18,7 +18,7 @@ const FACTORY_ADDRESS = process.env.REACT_APP_TRIGGERXTEMPLATEFACTORY_ADDRESS;
 
 const BalanceMaintainerExample = () => {
   const { address, isConnected } = useAccount();
-  const { refreshBalance } = useWallet(); 
+  const { refreshBalance } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "deploy" or "addAddress"
   const [modalData, setModalData] = useState({
@@ -38,6 +38,7 @@ const BalanceMaintainerExample = () => {
   const [newBalance, setNewBalance] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [error, setError] = useState(null);
   const [contractBalance, setContractBalance] = useState("0");
   const [provider, setProvider] = useState(null);
@@ -127,10 +128,12 @@ const BalanceMaintainerExample = () => {
           setSigner(null);
           setChainId(null);
           setIsInitialized(false);
+          setIsPageLoading(false);
         }
       } else {
         console.error("MetaMask not found");
         setIsInitialized(false);
+        setIsPageLoading(false);
       }
     };
 
@@ -428,10 +431,24 @@ const BalanceMaintainerExample = () => {
 
   // Check for existing contract when component mounts or when initialized
   useEffect(() => {
-    if (isInitialized && provider && address) {
-      checkExistingContract(provider, address);
-    }
-  }, [isInitialized, provider, address]);
+    const performInitialChecks = async () => {
+      if (isInitialized && provider && address) {
+        setIsPageLoading(true);
+        await checkExistingContract(provider, address);
+        setIsPageLoading(false);
+      } else if (!isConnected && isInitialized) {
+        setIsPageLoading(false);
+      } else if (!isInitialized && !isConnected) {
+        setIsPageLoading(false);
+      } else if (isConnected && !isInitialized) {
+        setIsPageLoading(true);
+      } else {
+        setIsPageLoading(false);
+      }
+    };
+
+    performInitialChecks();
+  }, [isInitialized, provider, address, isConnected]);
 
   // Function to copy address
   const copyAddress = async (address) => {
@@ -477,7 +494,11 @@ const BalanceMaintainerExample = () => {
         <div className=" rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
           <div className="text-[#A2A2A2] space-y-2">
-            {!isConnected ? (
+            {isPageLoading ? (
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                <p className="text-white text-center">Loading contract details...</p>
+              </div>
+            ) : !isConnected ? (
               <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
                 <p className="text-white text-center">Please connect your wallet to interact with the contract</p>
               </div>
@@ -546,7 +567,7 @@ const BalanceMaintainerExample = () => {
         />
 
         {/* Add Addresses - Only visible after deployment */}
-        {isDeployed && (
+        {isPageLoading ? null : isDeployed && (
           <div className="bg-white/5 border border-white/10 p-5 rounded-lg my-6">
             <h2 className="text-xl text-white mb-3">Add Addresses</h2>
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -585,7 +606,7 @@ const BalanceMaintainerExample = () => {
         )}
 
         {/* Addresses Table */}
-        {isDeployed && addresses.length > 0 && (
+        {isPageLoading ? null : isDeployed && addresses.length > 0 && (
           <div className="p-4 rounded-lg mb-6 min-h-[40vh]">
             <h2 className="text-xl text-white mb-3">Configured Addresses</h2>
             <div className="overflow-x-auto w-full">
@@ -640,7 +661,7 @@ const BalanceMaintainerExample = () => {
 
         {/* Deploy Button */}
         <div className="flex justify-center">
-          {isDeployed && (
+          {isPageLoading ? null : isDeployed && (
             <button onClick={() => {
               setSelectedJob(null);
               const jobState = {

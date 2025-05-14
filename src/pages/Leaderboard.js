@@ -4,8 +4,10 @@ import { Tooltip } from "antd";
 import { Helmet } from 'react-helmet-async';
 import LeaderboardSkeleton from "../components/LeaderboardSkeleton";
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { useAccount } from "wagmi";
 
 const Leaderboard = () => {
+  const { address: connectedAddress, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("keeper");
   const [copyStatus, setCopyStatus] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -15,12 +17,47 @@ const Leaderboard = () => {
     developers: [],
     contributors: [],
   });
+  const [hasConnectedUserData, setHasConnectedUserData] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'desc' });
   const baseUrl = 'https://app.triggerx.network';
 
+  const getHighlightedData = (dataList) => {
+    if (!isConnected || !connectedAddress) return null;
+
+    return dataList.find(item =>
+      (item.address && item.address.toLowerCase() === connectedAddress.toLowerCase())
+    );
+  };
+
+  const highlightedKeeper = getHighlightedData(leaderboardData.keepers || []);
+  const highlightedDeveloper = getHighlightedData(leaderboardData.developers || []);
+  const highlightedContributor = getHighlightedData(leaderboardData.contributors || []);
+
+  // Check if the connected user has data in any category
+  useEffect(() => {
+    if (isConnected && connectedAddress) {
+      let hasDataInCurrentTab = false;
+
+      if (activeTab === "keeper") {
+        hasDataInCurrentTab = highlightedKeeper !== null;
+      } else if (activeTab === "developer") {
+        hasDataInCurrentTab = highlightedDeveloper !== null;
+      } else if (activeTab === "contributor") {
+        hasDataInCurrentTab = highlightedContributor !== null;
+      }
+
+      console.log(`Connected Address: ${connectedAddress}`);
+      console.log(`Active Tab: ${activeTab}`);
+      console.log(`Has Data In Current Tab: ${hasDataInCurrentTab}`);
+
+      setHasConnectedUserData(hasDataInCurrentTab);
+    } else {
+      setHasConnectedUserData(false);
+    }
+  }, [isConnected, connectedAddress, highlightedKeeper, highlightedDeveloper, highlightedContributor, activeTab]);
 
   //   // Update meta tags when activeTab changes
   //   document.title = 'TriggerX | Leaderboard';
@@ -73,6 +110,16 @@ const Leaderboard = () => {
 
           // Sort the keepers by points in descending order
           transformedKeeperData.sort((a, b) => b.points - a.points);
+
+          console.log("Transformed Keeper Data:", transformedKeeperData);
+
+          if (isConnected && connectedAddress) {
+            console.log("Looking for address:", connectedAddress);
+            const userKeeper = transformedKeeperData.find(k =>
+              k.address && k.address.toLowerCase() === connectedAddress.toLowerCase()
+            );
+            console.log("User's keeper data:", userKeeper || "Not found");
+          }
 
           setLeaderboardData((prev) => ({
             ...prev,
@@ -184,80 +231,22 @@ const Leaderboard = () => {
 
     return (
       <>
-        <table className="w-full border-separate border-spacing-y-4  h-auto">
-          <thead className="sticky top-0 bg-[#2A2A2A]">
-            <tr>
-              <th className="px-5 py-5 text-left text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
-                Operator
-              </th>
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                Address
-              </th>
+        {highlightedKeeper && (
+          <div className="bg-[#141414] ">
+            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex-1">
 
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'performed',
-                    direction: prev.key === 'performed' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Job Performed
-                {sortConfig.key === 'performed' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg">
-                Job Attested
-              </th>
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'points',
-                    direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Points
-                {sortConfig.key === 'points' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
-                Profile
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedKeepers.length > 0
-              ? paginatedKeepers.map((item, index) => (
-                <tr key={index}>
-                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                    {item.operator}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-
-
-                    {item.address ? `${item.address.substring(0, 8)}...${item.address.substring(item.address.length - 7)}` : ""}
-                    <button
-                      onClick={() =>
-                        copyAddressToClipboard(item.address, item.address)
-                      }
-                      className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
-                      title="Copy address"
-                    >
-                      {copyStatus[item.address] ? (
+                  <div className="flex items-center mb-3 gap-1">
+                    <div className="text-2xl font-semibold text-white mb-2">
+                      {highlightedKeeper.operator} :
+                    </div>
+                    <div className="text-white text-md mr-2  px-3 py-1 rounded-lg flex items-center">
+                      {highlightedKeeper.address}  <button
+                        onClick={() => copyAddressToClipboard(highlightedKeeper.address, highlightedKeeper.address)}
+                        className="p-1.5 hover:bg-[#252525] rounded-md transition-all"
+                        title="Copy address"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -269,70 +258,218 @@ const Leaderboard = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <path d="M20 6L9 17l-5-5"></path>
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect
-                            x="9"
-                            y="9"
-                            width="13"
-                            height="13"
-                            rx="2"
-                            ry="2"
-                          ></rect>
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
                         </svg>
-                      )}
-                    </button>
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.performed}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.attested}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
-                      {Number(item.points).toFixed(2)}
-                    </span>
-                  </td>
-                  <Tooltip title="View Profile" color="#2A2A2A">
-                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                      </button>
+                    </div>
+
+                  </div>
+                  <div className="flex md:justify-start flex-wrap gap-3">
+                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                      <div className="text-gray-400 text-md mb-1">Performed</div>
+                      <div className="text-white font-semibold">{highlightedKeeper.performed}</div>
+                    </div>
+                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                      <div className="text-gray-400 text-md mb-1">Attested</div>
+                      <div className="text-white font-semibold">{highlightedKeeper.attested}</div>
+                    </div>
+                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                      <div className="text-gray-400 text-md mb-1">Points</div>
+                      <div className="text-white font-bold">{Number(highlightedKeeper.points).toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={() =>
+                      window.open(
+                        `https://app.eigenlayer.xyz/operator/${highlightedKeeper.address}`,
+                        "_blank"
+                      )
+                    }
+                    className="px-5 py-2 text-md text-white underline decoration-2 decoration-white underline-offset-4"
+                  >
+                    View Profile
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        )}
+        <div
+          className="bg-[#141414] px-5 rounded-lg"
+
+        >
+          <table className="w-full border-separate border-spacing-y-4  h-auto">
+            <thead className="sticky top-0 bg-[#2A2A2A]">
+              <tr>
+                <th className="px-5 py-5 text-left text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+                  Operator
+                </th>
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                  Address
+                </th>
+
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'performed',
+                      direction: prev.key === 'performed' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Job Performed
+                  {sortConfig.key === 'performed' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg">
+                  Job Attested
+                </th>
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'points',
+                      direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Points
+                  {sortConfig.key === 'points' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+                  Profile
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedKeepers.length > 0
+                ? paginatedKeepers.map((item, index) => (
+                  <tr key={index} className={isConnected && item.address === connectedAddress ? "bg-[#271039] border-2 border-[#C07AF6]" : ""}>
+                    <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-left border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                      {item.operator}
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+
+
+                      {item.address ? `${item.address.substring(0, 8)}...${item.address.substring(item.address.length - 7)}` : ""}
                       <button
                         onClick={() =>
-                          window.open(
-                            `https://app.eigenlayer.xyz/operator/${item.address}`,
-                            "_blank"
-                          )
+                          copyAddressToClipboard(item.address, item.address)
                         }
-                        className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                        className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                        title="Copy address"
                       >
-                        View
+                        {copyStatus[item.address] ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#A2A2A2"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 6L9 17l-5-5"></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#A2A2A2"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="9"
+                              y="9"
+                              width="13"
+                              height="13"
+                              rx="2"
+                              ry="2"
+                            ></rect>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                          </svg>
+                        )}
                       </button>
                     </td>
-                  </Tooltip>
-                </tr>
-              ))
-              : !isLoading && (
-                <tr>
-                  <td colSpan="6" className="text-center text-[#A2A2A2] py-5">
-                    No keeper data available
-                  </td>
-                </tr>
-              )}
-          </tbody>
-        </table>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                      {item.performed}
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                      {item.attested}
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0 ">
+                      <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none font-extrabold text-black md:text-[15px] xs:text-[12px] rounded-lg w-[200px]">
+                        {Number(item.points).toFixed(2)}
+                      </span>
+                    </td>
+                    <Tooltip title="View Profile" color="#2A2A2A">
+                      <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `https://app.eigenlayer.xyz/operator/${item.address}`,
+                              "_blank"
+                            )
+                          }
+                          className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </Tooltip>
+                  </tr>
+                ))
+                : !isLoading && (
+                  <tr>
+                    <td colSpan="6" className="text-center text-[#A2A2A2] py-5">
+                      <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="48"
+                          height="48"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mb-4"
+                        >
+                          <rect width="18" height="18" x="3" y="3" rx="2" />
+                          <path d="M3 9h18" />
+                          <path d="M9 21V9" />
+                        </svg>
+                        <p className="text-lg mb-2">No keeper data available</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+            </tbody>
+          </table></div>
         {renderPagination(totalPages)}
       </>
     );
@@ -345,144 +482,217 @@ const Leaderboard = () => {
 
     return (
       <>
-        <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
-          <thead className="sticky top-0 bg-[#2A2A2A]">
-            <tr>
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
-                Address
-              </th>
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'totalJobs',
-                    direction: prev.key === 'totalJobs' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Total Jobs
-                {sortConfig.key === 'totalJobs' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'tasksExecuted',
-                    direction: prev.key === 'tasksExecuted' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Task Performed
-                {sortConfig.key === 'tasksExecuted' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'points',
-                    direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Points
-                {sortConfig.key === 'points' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedDevelopers.length > 0
-              ? paginatedDevelopers.map((item, index) => (
-                <tr key={index}>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
-                    <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
-                      {item.address ? `${item.address.substring(0, 5)}...${item.address.substring(item.address.length - 4)}` : ""}
-                    </span>
+        {highlightedDeveloper && (
+          <div className="bg-[#141414] ">
+            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center mb-3">
+                    <div className="text-2xl font-semibold text-white mr-2">Developer</div>
+                    <div className="text-gray-400 text-base bg-[#14141480] px-3 py-1 rounded-lg">
+                      {highlightedDeveloper.address}
+                    </div>
                     <button
-                      onClick={() =>
-                        copyAddressToClipboard(item.address, item.address)
-                      }
-                      className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                      onClick={() => copyAddressToClipboard(highlightedDeveloper.address, highlightedDeveloper.address)}
+                      className="p-1.5 hover:bg-[#252525] rounded-md transition-all ml-2"
                       title="Copy address"
                     >
-                      {copyStatus[item.address] ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 6L9 17l-5-5"></path>
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect
-                            x="9"
-                            y="9"
-                            width="13"
-                            height="13"
-                            rx="2"
-                            ry="2"
-                          ></rect>
-                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                        </svg>
-                      )}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                      </svg>
                     </button>
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.totalJobs}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
-                    {item.tasksExecuted}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {Number(item.points).toFixed(2)}
-                    </span>
-                  </td>
-                </tr>
-              ))
-              : !isLoading && (
-                <tr>
-                  <td colSpan="4" className="text-center text-[#A2A2A2] py-5">
-                    No developer data available
-                  </td>
-                </tr>
-              )}
-          </tbody>
-        </table>
+                  </div>
+                </div>
+                <div className="flex md:justify-end flex-wrap gap-3">
+                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                    <div className="text-gray-400 text-xs mb-1">Total Jobs</div>
+                    <div className="text-white font-semibold">{highlightedDeveloper.totalJobs}</div>
+                  </div>
+                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                    <div className="text-gray-400 text-xs mb-1">Tasks Executed</div>
+                    <div className="text-white font-semibold">{highlightedDeveloper.tasksExecuted}</div>
+                  </div>
+                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                    <div className="text-gray-400 text-xs mb-1">Points</div>
+                    <div className="text-yellow-300 font-bold">{Number(highlightedDeveloper.points).toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        <div
+          className="bg-[#141414] px-5 rounded-lg"
+
+        >
+          <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
+            <thead className="sticky top-0 bg-[#2A2A2A]">
+              <tr>
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+                  Address
+                </th>
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'totalJobs',
+                      direction: prev.key === 'totalJobs' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Total Jobs
+                  {sortConfig.key === 'totalJobs' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'tasksExecuted',
+                      direction: prev.key === 'tasksExecuted' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Task Performed
+                  {sortConfig.key === 'tasksExecuted' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'points',
+                      direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Points
+                  {sortConfig.key === 'points' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedDevelopers.length > 0
+                ? paginatedDevelopers.map((item, index) => (
+                  <tr key={index} className={isConnected && item.address === connectedAddress ? "bg-[#271039] border-2 border-[#C07AF6]" : ""}>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg flex items-center">
+                      <span className="truncate max-w-[180px] md:max-w-[220px] lg:max-w-[250px]">
+                        {item.address ? `${item.address.substring(0, 5)}...${item.address.substring(item.address.length - 4)}` : ""}
+                      </span>
+                      <button
+                        onClick={() =>
+                          copyAddressToClipboard(item.address, item.address)
+                        }
+                        className="ml-2 p-1 hover:bg-[#252525] rounded-md transition-all"
+                        title="Copy address"
+                      >
+                        {copyStatus[item.address] ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#A2A2A2"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 6L9 17l-5-5"></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#A2A2A2"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="9"
+                              y="9"
+                              width="13"
+                              height="13"
+                              rx="2"
+                              ry="2"
+                            ></rect>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                          </svg>
+                        )}
+                      </button>
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                      {item.totalJobs}
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
+                      {item.tasksExecuted}
+                    </td>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                      <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                        {Number(item.points).toFixed(2)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+                : !isLoading && (
+                  <tr>
+                    <td colSpan="4" className="text-center text-[#A2A2A2] py-5">
+                      <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="48"
+                          height="48"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mb-4"
+                        >
+                          <rect width="18" height="18" x="3" y="3" rx="2" />
+                          <path d="M3 9h18" />
+                          <path d="M9 21V9" />
+                        </svg>
+                        <p className="text-lg mb-2">     No developer data available</p>
+                      </div>
+
+                    </td>
+                  </tr>
+                )}
+            </tbody>
+          </table></div>
         {renderPagination(totalPages)}
       </>
     );
@@ -494,73 +704,96 @@ const Leaderboard = () => {
 
     return (
       <>
-        <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
-          <thead className="sticky top-0 bg-[#2A2A2A]">
-            <tr>
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
-                Name
-              </th>
-              <th
-                className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
-                onClick={() => {
-                  setSortConfig(prev => ({
-                    key: 'points',
-                    direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
-                  }));
-                }}
-              >
-                Points
-                {sortConfig.key === 'points' ? (
-                  sortConfig.direction === 'asc'
-                    ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                    : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
-                ) : (
-                  <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
-                )}
-              </th>
-              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
-                Profile
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedContributors.length > 0
-              ? paginatedContributors.map((item, index) => (
-                <tr key={index}>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
-                    {item.name}
-                  </td>
-                  <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                    <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
-                      {Number(item.points).toFixed(2)}
-                    </span>
-                  </td>
-                  <Tooltip title="View Profile" color="#2A2A2A">
-                    <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `https://app.eigenlayer.xyz/contributor/${item.address}`,
-                            "_blank"
-                          )
-                        }
-                        className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
-                      >
-                        View
-                      </button>
+        <div
+          className="bg-[#141414] px-5 rounded-lg"
+
+        >
+          <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
+            <thead className="sticky top-0 bg-[#2A2A2A]">
+              <tr>
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+                  Name
+                </th>
+                <th
+                  className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm cursor-pointer select-none"
+                  onClick={() => {
+                    setSortConfig(prev => ({
+                      key: 'points',
+                      direction: prev.key === 'points' && prev.direction === 'desc' ? 'asc' : 'desc',
+                    }));
+                  }}
+                >
+                  Points
+                  {sortConfig.key === 'points' ? (
+                    sortConfig.direction === 'asc'
+                      ? <Tooltip title="Sort ascending"><FiChevronUp className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                      : <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#C07AF6]" /></Tooltip>
+                  ) : (
+                    <Tooltip title="Sort descending"><FiChevronDown className="inline ml-1 text-[#A2A2A2]" /></Tooltip>
+                  )}
+                </th>
+                <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+                  Profile
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedContributors.length > 0
+                ? paginatedContributors.map((item, index) => (
+                  <tr key={index} className={isConnected && item.address === connectedAddress ? "bg-[#271039] border-2 border-[#C07AF6]" : ""}>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
+                      {item.name}
                     </td>
-                  </Tooltip>
-                </tr>
-              ))
-              : !isLoading && (
-                <tr>
-                  <td colSpan="3" className="text-center text-[#A2A2A2] py-5">
-                    No contributor data available
-                  </td>
-                </tr>
-              )}
-          </tbody>
-        </table>
+                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                      <span className="px-7 py-3 bg-[#F8FF7C] text-md border-none text-[#C1BEFF] text-black md:text-md xs:text-[12px] rounded-lg">
+                        {Number(item.points).toFixed(2)}
+                      </span>
+                    </td>
+                    <Tooltip title="View Profile" color="#2A2A2A">
+                      <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex-row justify-between border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `https://app.eigenlayer.xyz/contributor/${item.address}`,
+                              "_blank"
+                            )
+                          }
+                          className="px-5 py-2 text-sm text-white underline decoration-2 decoration-white underline-offset-4"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </Tooltip>
+                  </tr>
+                ))
+                : !isLoading && (
+                  <tr>
+                    <td colSpan="3" className="text-center text-[#A2A2A2] py-5">
+                      <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="48"
+                          height="48"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mb-4"
+                        >
+                          <rect width="18" height="18" x="3" y="3" rx="2" />
+                          <path d="M3 9h18" />
+                          <path d="M9 21V9" />
+                        </svg>
+                        <p className="text-lg mb-2">     No contributor data available</p>
+                      </div>
+
+                    </td>
+                  </tr>
+                )}
+            </tbody>
+          </table></div>
         {renderPagination(totalPages)}
       </>
     );
@@ -645,6 +878,7 @@ const Leaderboard = () => {
 
   // Reset pagination and sort when tab changes
   useEffect(() => {
+    setSearchTerm("");
     setCurrentPage(1);
     setSortConfig({ key: null, direction: 'desc' });
   }, [activeTab]);
@@ -737,9 +971,58 @@ const Leaderboard = () => {
             Contributor
           </button>
         </div>
+
+        {!isConnected && (
+          <div className="max-w-[1600px] w-[85%] mx-auto mb-6">
+            <div className="p-4 rounded-lg bg-white/5 border border-white/10 text-[#77e8a3]">
+
+              <p className="text-center flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Connect your wallet to see your performance metrics in the leaderboard</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Show "no data" message when wallet is connected but data not found in the current tab */}
+        {isConnected && !(
+          (activeTab === "keeper" && highlightedKeeper) ||
+          (activeTab === "developer" && highlightedDeveloper) ||
+          (activeTab === "contributor" && highlightedContributor)
+        ) && !isLoading &&
+          // Make sure we have data loaded for the current tab
+          ((activeTab === "keeper" && leaderboardData.keepers.length > 0) ||
+            (activeTab === "developer" && leaderboardData.developers.length > 0) ||
+            (activeTab === "contributor" && leaderboardData.contributors.length > 0)) && (
+            <div className="max-w-[1600px] w-[85%] mx-auto mb-6">
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10 text-[#77e8a3]">
+                <div className="text-center">
+
+                  <p className="mb-2 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Your connected wallet doesn't have any data in the {activeTab} leaderboard yet.</span>
+                  </p>
+                  {/* {activeTab === "keeper" && (
+                    <p className=" opacity-80 pt-1">Start running as a keeper to appear on this leaderboard.</p>
+                  )}
+                  {activeTab === "developer" && (
+                    <p className=" opacity-80 pt-1">Create jobs to join this leaderboard as a developer.</p>
+                  )}
+                  {activeTab === "contributor" && (
+                    <p className=" opacity-80 pt-1">Contribute to the TriggerX ecosystem to get listed here.</p>
+                  )} */}
+                </div>
+              </div>
+            </div>
+          )}
+
         <div className="">
           <div
-            className="max-w-[1600px] mx-auto w-[85%] bg-[#141414] px-5 rounded-lg"
+            className="max-w-[1600px] mx-auto w-[85%]  px-5 rounded-lg"
 
           >
             {/* Only render the table when not loading */}
