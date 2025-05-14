@@ -40,6 +40,8 @@ function DashboardPage() {
     type: "Condition-based",
     status: "Active",
   }); // Example data with more than 7 rows
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => ({
@@ -537,6 +539,86 @@ function DashboardPage() {
     return num.toFixed(4);
   };
 
+  // Add pagination helper functions
+  const getPaginatedData = (data) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = (data) => {
+    return Math.ceil(data.length / itemsPerPage);
+  };
+
+  // Pagination bar with ellipsis and page numbers (like leaderboard)
+  const renderPagination = (totalPages) => {
+    if (totalPages <= 1) return null;
+    const pageWindow = 2;
+    let pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - pageWindow && i <= currentPage + pageWindow)
+      ) {
+        pages.push(i);
+      } else if (
+        (i === currentPage - pageWindow - 1 && currentPage - pageWindow > 2) ||
+        (i === currentPage + pageWindow + 1 && currentPage + pageWindow < totalPages - 1)
+      ) {
+        pages.push('ellipsis-' + i);
+      }
+    }
+    // Remove duplicate ellipsis
+    pages = pages.filter((item, idx, arr) => {
+      if (typeof item === 'string' && item.startsWith('ellipsis')) {
+        return idx === 0 || arr[idx - 1] !== item;
+      }
+      return true;
+    });
+    return (
+      <div className="flex justify-center items-center space-x-2 py-8">
+        {/* Previous Arrow */}
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`w-10 h-10 rounded-lg flex items-center justify-center border border-[#EDEDED] ${currentPage === 1 ? 'bg-[#444] text-[#bbb] opacity-50 cursor-not-allowed' : 'bg-white text-black hover:bg-[#F8FF7C]'} transition`}
+        >
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+        {/* Page Numbers & Ellipsis */}
+        {pages.map((page, idx) =>
+          typeof page === 'number' ? (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
+                ? 'border-[#C07AF6] text-white bg-[#271039] font-bold'
+                : 'border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black'} transition`}
+            >
+              {page}
+            </button>
+          ) : (
+            <span
+              key={page}
+              className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#232323] text-[#EDEDED] border border-[#232323]"
+            >
+              ...
+            </span>
+          )
+        )}
+        {/* Next Arrow */}
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className={`w-10 h-10 rounded-lg flex items-center justify-center border border-[#EDEDED] ${currentPage === totalPages ? 'bg-[#fff] text-[#bbb] opacity-50 cursor-not-allowed' : 'bg-white text-black hover:bg-[#F8FF7C]'} transition`}
+        >
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div>
 
@@ -550,43 +632,36 @@ function DashboardPage() {
               {loading ? (
                 <DashboardSkeleton />
               ) : (
-                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 h-full">
+                <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 ">
                   <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                     Active Jobs
                   </h2>
-                  {jobDetails.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <div
-                        className="max-h-[650px] overflow-y-auto"
-                        style={{
-                          scrollbarWidth: "none",
-                          msOverflowStyle: "none",
-                        }}
-                      >
-                        <table className="w-full border-separate border-spacing-y-4 ">
-                          <thead className="sticky top-0 bg-[#2A2A2A]">
-                            <tr>
-                              <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg ">
-                                ID
-                              </th>
-                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
-                                Type
-                              </th>
-                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm">
-                                Status
-                              </th>
-                              <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg  xs:text-sm rounded-tr-lg rounded-br-lg">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {jobDetails.map((job, index) => (
-                              <React.Fragment>
-                                <tr key={job.id} className="  ">
+                  <div className="overflow-x-auto">
+                    <div className="h-auto">
+                      <table className="w-full border-separate border-spacing-y-4">
+                        <thead className="bg-[#2A2A2A]">
+                          <tr>
+                            <th className="px-5 py-5 text-center text-[#FFFFFF] font-bold md:text-lg lg:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
+                              ID
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                              Type
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm">
+                              Status
+                            </th>
+                            <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tr-lg rounded-br-lg">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {jobDetails.length > 0 ? (
+                            getPaginatedData(jobDetails).map((job, index) => (
+                              <React.Fragment key={job.id}>
+                                <tr className="hover:bg-[#1F1F1F] transition-colors duration-200">
                                   <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
-                                    {index + 1}{" "}
-                                    {/* Display sequential number instead of job.id */}
+                                    {index + 1}
                                   </td>
                                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A]">
                                     {job.type}
@@ -600,13 +675,13 @@ function DashboardPage() {
                                     <div className="flex flex-row gap-5">
                                       <button
                                         disabled
-                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors"
                                       >
                                         Update
                                       </button>
                                       <button
                                         onClick={() => handleDeleteJob(job.id)}
-                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white hover:bg-[#ff4444] transition-colors"
                                       >
                                         Delete
                                       </button>
@@ -620,7 +695,7 @@ function DashboardPage() {
                                           onClick={() =>
                                             toggleJobExpand(job.id)
                                           }
-                                          className="flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg"
+                                          className="flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg hover:bg-[#2A2A2A] transition-colors"
                                         >
                                           <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -647,8 +722,8 @@ function DashboardPage() {
                                   job.linkedJobs &&
                                   job.linkedJobs.length > 0 && (
                                     <tr>
-                                      <td colSpan="4" className="">
-                                        <div className="bg-[#1A1A1A] rounded-lg p-4">
+                                      <td colSpan="4" className="p-4">
+                                        <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#2A2A2A]">
                                           <h4 className="text-white font-bold mb-4">
                                             Linked Jobs
                                           </h4>
@@ -672,10 +747,7 @@ function DashboardPage() {
                                             <tbody>
                                               {job.linkedJobs.map(
                                                 (linkedJob, index) => (
-                                                  <tr
-                                                    key={job.id}
-                                                    className="  "
-                                                  >
+                                                  <tr key={index} className="hover:bg-[#1F1F1F] transition-colors duration-200">
                                                     <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
                                                       {index + 1}
                                                     </td>
@@ -694,7 +766,7 @@ function DashboardPage() {
                                                     <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
                                                       <button
                                                         disabled
-                                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed"
+                                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors"
                                                       >
                                                         Update
                                                       </button>
@@ -704,7 +776,7 @@ function DashboardPage() {
                                                             job.id
                                                           )
                                                         }
-                                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white"
+                                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white hover:bg-[#ff4444] transition-colors"
                                                       >
                                                         Delete
                                                       </button>
@@ -719,17 +791,38 @@ function DashboardPage() {
                                     </tr>
                                   )}
                               </React.Fragment>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="4" className="text-center py-8">
+                                <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="48"
+                                    height="48"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="mb-4"
+                                  >
+                                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                                    <path d="M3 9h18" />
+                                    <path d="M9 21V9" />
+                                  </svg>
+                                  <p className="text-lg mb-2">No active jobs found</p>
+                                  <p className="text-sm text-[#666666]">Create your first job to get started</p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
-                  ) : (
-                    <h4 className="text-center py-8 text-[#A2A2A2] flex items-center h-[650px] justify-center">
-                      No active jobs found. Create your first job to get
-                      started.
-                    </h4>
-                  )}
+                    {jobDetails.length > 0 && renderPagination(getTotalPages(jobDetails))}
+                  </div>
                 </div>
               )}
             </div>
