@@ -77,6 +77,7 @@ const StakingReward = () => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   const [stakeAmount, setStakeAmount] = useState("");
   const [unstakeAmount, setUnstakeAmount] = useState("");
@@ -188,10 +189,12 @@ const StakingReward = () => {
           setSigner(null);
           setChainId(null);
           setIsInitialized(false);
+          setIsPageLoading(false);
         }
       } else {
         console.error("MetaMask not found");
         setIsInitialized(false);
+        setIsPageLoading(false);
       }
     };
 
@@ -203,6 +206,38 @@ const StakingReward = () => {
       }
     };
   }, []);
+
+  // Effect to manage overall page loading state
+  useEffect(() => {
+    if (!isConnected && isInitialized) {
+      // Wallet initialized but not connected (e.g. user disconnected)
+      setIsPageLoading(false);
+    } else if (isInitialized && address && stakingContract && balanceData && tokenBalanceData) {
+      // All key pieces are initialized and data is available or being fetched by wagmi
+      // fetchStakingData is called when stakingContract is set, so we wait for stakingContract
+      // We can assume if stakedAmount is still "0" and other conditions met, initial fetch is pending or done.
+      // A more robust way would be a loading flag for fetchStakingData itself.
+      // For now, this should cover most cases.
+      if (stakedAmount !== "0" || totalStaked !== "0") { // Check if some staking data has been loaded
+        setIsPageLoading(false);
+      } else {
+        // If staking data hasn't loaded yet, we might still be loading.
+        // fetchStakingData will run due to stakingContract being set.
+        // To prevent premature unsetting of isPageLoading, we can add a small delay or rely on fetchStakingData's first run.
+        // For now, if initial data from fetchStakingData is needed before hiding loader,
+        // this logic needs refinement or a dedicated flag in fetchStakingData.
+        // Simplified: turn off loading if other core pieces are ready.
+        // Staking data display can have its own shimmer/loader if needed.
+        setIsPageLoading(false); // Simplified: if core is ready, turn off page loader.
+        // Staking specific data will fill in.
+      }
+    } else if (!isInitialized && !isConnected) {
+      // This case is handled by initProvider setting isPageLoading to false if no metamask
+      // or if init fails. If metamask is there but not yet init, isPageLoading remains true.
+    }
+    // If isInitialized is false, but isConnected is true (shouldn't happen with wagmi's useAccount)
+    // or if some data is still missing, isPageLoading remains true until conditions are met.
+  }, [isConnected, isInitialized, address, stakingContract, balanceData, tokenBalanceData, stakedAmount, totalStaked]);
 
   // Fetch total staked amount and user staked amount with NFT reward
   const fetchStakingData = async (contract, userAddress) => {
@@ -520,7 +555,11 @@ const StakingReward = () => {
             Staking Reward Information
           </h2>
           <div className="text-[#A2A2A2]">
-            {!isConnected ? (
+            {isPageLoading ? (
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                <p className="text-white text-center">Loading staking information...</p>
+              </div>
+            ) : !isConnected ? (
               <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
                 <p className="text-white text-center">
                   Please connect your wallet to interact with the contract
@@ -635,7 +674,7 @@ const StakingReward = () => {
           </div>
         </div>
 
-        {isConnected && (
+        {isPageLoading ? null : isConnected && (
           <>
             <TransactionModal
               isOpen={showModal || showTokenClaimModal}
@@ -734,14 +773,13 @@ const StakingReward = () => {
                         !stakeAmount ||
                         !hasSufficientTokenBalance
                       }
-                      className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${
-                        !isInitialized ||
+                      className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
                         isStaking ||
                         !stakeAmount ||
                         !hasSufficientTokenBalance
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
-                      }`}
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+                        }`}
                     >
                       {isApproving
                         ? "Approving..."
@@ -799,15 +837,14 @@ const StakingReward = () => {
                         parseFloat(stakedAmount) <= 0 ||
                         parseFloat(unstakeAmount) > parseFloat(stakedAmount)
                       }
-                      className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${
-                        !isInitialized ||
+                      className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
                         isUnstaking ||
                         !unstakeAmount ||
                         parseFloat(stakedAmount) <= 0 ||
                         parseFloat(unstakeAmount) > parseFloat(stakedAmount)
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
-                      }`}
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
+                        }`}
                     >
                       {isUnstaking ? "Unstaking..." : "Unstake"}
                     </button>
@@ -846,7 +883,7 @@ const StakingReward = () => {
                 Job Configuration
               </h2>
 
-              {isConnected ? (
+              {isPageLoading ? null : isConnected ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {[
                     {
@@ -1054,17 +1091,6 @@ const StakingReward = () => {
                         function
                       </p>
                     </div>
-
-                    {/* {!isAbiExpanded && (
-                  <div className="flex justify-center">
-                    <button
-                      onClick={toggleAbiExpansion}
-                      className="mt-3 flex items-center justify-center hover:underline text-[#77E8A3]"
-                    >
-                      Click to expand and see the full ABI
-                    </button>
-                  </div>
-                )} */}
 
                     {isAbiExpanded && (
                       <div className="mt-4">

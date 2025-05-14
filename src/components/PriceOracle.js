@@ -37,6 +37,7 @@ const PriceOracle = () => {
   const [newBalance, setNewBalance] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [error, setError] = useState(null);
   const [contractBalance, setContractBalance] = useState("0");
   const [provider, setProvider] = useState(null);
@@ -126,10 +127,12 @@ const PriceOracle = () => {
           setSigner(null);
           setChainId(null);
           setIsInitialized(false);
+          setIsPageLoading(false);
         }
       } else {
         console.error("MetaMask not found");
         setIsInitialized(false);
+        setIsPageLoading(false);
       }
     };
 
@@ -450,10 +453,23 @@ const PriceOracle = () => {
 
   // Check for existing contract when component mounts or when initialized
   useEffect(() => {
-    if (isInitialized && provider && address) {
-      checkExistingContract(provider, address);
-    }
-  }, [isInitialized, provider, address]);
+    const performInitialChecks = async () => {
+      if (isInitialized && provider && address) {
+        setIsPageLoading(true);
+        await checkExistingContract(provider, address);
+        setIsPageLoading(false);
+      } else if (!isConnected && isInitialized) {
+        setIsPageLoading(false);
+      } else if (!isInitialized && !isConnected) {
+        // initProvider effect will set isPageLoading to false if no Metamask or error occurs
+      } else if (isConnected && !isInitialized) {
+        // Keep isPageLoading true, initProvider will handle setting it.
+      } else {
+        setIsPageLoading(false);
+      }
+    };
+    performInitialChecks();
+  }, [isInitialized, provider, address, isConnected]);
 
   console.log("userBalance...........", userBalance);
 
@@ -496,7 +512,11 @@ const PriceOracle = () => {
         <div className=" rounded-lg mb-6">
           <h2 className="text-xl text-white mb-3">Contract Information</h2>
           <div className="text-[#A2A2A2] space-y-2">
-            {!isConnected ? (
+            {isPageLoading ? (
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                <p className="text-white text-center">Loading contract details...</p>
+              </div>
+            ) : !isConnected ? (
               <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
                 <p className="text-white text-center">
                   Please connect your wallet to interact with the contract
@@ -564,11 +584,10 @@ const PriceOracle = () => {
                   <p className="text-white py-2">
                     Contract Address :{" "}
                     <a
-                      href={`${
-                        chainId === 11155420n
-                          ? "https://sepolia-optimism.etherscan.io/address/"
-                          : "https://sepolia.basescan.org/address/"
-                      }${contractAddress}`}
+                      href={`${chainId === 11155420n
+                        ? "https://sepolia-optimism.etherscan.io/address/"
+                        : "https://sepolia.basescan.org/address/"
+                        }${contractAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#77E8A3] underline pl-2"
@@ -593,7 +612,7 @@ const PriceOracle = () => {
 
         {/* Deploy Button */}
         <div className="flex justify-center">
-          {isDeployed && (
+          {isPageLoading ? null : isDeployed && (
             <button
               onClick={() => {
                 setSelectedJob(null);

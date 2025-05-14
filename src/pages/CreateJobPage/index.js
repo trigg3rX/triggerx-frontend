@@ -600,10 +600,10 @@ function CreateJobPage() {
         if (timeframe) {
           setTimeframe(timeframe);
           const tfSeconds =
-          (timeframe.days || 0) * SECONDS_PER_DAY +
-          (timeframe.hours || 0) * SECONDS_PER_HOUR +
-          (timeframe.minutes || 0) * SECONDS_PER_MINUTE;
-        setTimeframeInSeconds(tfSeconds);
+            (timeframe.days || 0) * SECONDS_PER_DAY +
+            (timeframe.hours || 0) * SECONDS_PER_HOUR +
+            (timeframe.minutes || 0) * SECONDS_PER_MINUTE;
+          setTimeframeInSeconds(tfSeconds);
         }
 
         if (timeInterval && Number(jobType) === 1) {
@@ -738,9 +738,9 @@ function CreateJobPage() {
           timeInterval.minutes === 0 &&
           timeInterval.seconds === 0) ||
         timeInterval.hours * 3600 +
-          timeInterval.minutes * 60 +
-          timeInterval.seconds <
-          30
+        timeInterval.minutes * 60 +
+        timeInterval.seconds <
+        30
       ) {
         setErrorInterval(
           "Please set a valid time interval of at least 30 seconds before submitting."
@@ -975,13 +975,13 @@ function CreateJobPage() {
             <div className="w-full lg:w-1/3 space-y-4">
               {/* Points System Box */}
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <h2 className="text-xl font-semibold mb-4">Points System</h2>
+                <h2 className="text-lg md:text-xl font-semibold mb-4">Points System</h2>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="bg-[#F8FF7C] text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">
                       20
                     </div>
-                    <span className="text-gray-300">
+                    <span className="text-xs sm:text-sm text-gray-300">
                       points for every custom job you create
                     </span>
                   </div>
@@ -989,11 +989,11 @@ function CreateJobPage() {
                     <div className="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center font-semibold">
                       10
                     </div>
-                    <span className="text-gray-300">
+                    <span className="text-xs sm:text-sm text-gray-300">
                       points for every job created via a template
                     </span>
                   </div>
-                  <p className="text-sm text-gray-400 mt-3 pt-3 border-t border-white/10">
+                  <p className="text-xs sm:text-sm text-gray-400 mt-3 pt-3 border-t border-white/10">
                     Earn more by building more. Every job counts.
                   </p>
                 </div>
@@ -1002,7 +1002,7 @@ function CreateJobPage() {
               {/* Template List Box */}
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
                 <div className="flex justify-between gap-3 items-center mb-4">
-                  <h2 className="text-lg lg:text-base font-semibold">
+                  <h2 className="text-base md:text-lg font-semibold">
                     Use Template
                   </h2>
                   <button
@@ -1035,7 +1035,7 @@ function CreateJobPage() {
                         }, 100);
                       }
                     }}
-                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-[14px]"
+                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-sm"
                   >
                     Create Custom Job
                   </button>
@@ -1048,39 +1048,35 @@ function CreateJobPage() {
                       color="#4CAF50"
                     >
                       <div
-                        className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${
-                          selectedJob?.id === template.id
-                            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
-                            : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
-                        }`}
+                        className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${selectedJob?.id === template.id
+                          ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
+                          : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
+                          }`}
                         onClick={() => handleJobSelect(template)}
                       >
                         <div className="flex justify-between items-center">
                           <h4
-                            className={`font-medium lg:w-[70%] ${
-                              selectedJob?.id === template.id
-                                ? "text-white"
-                                : ""
-                            }`}
+                            className={`text-sm md:text-base font-medium lg:w-[70%] ${selectedJob?.id === template.id
+                              ? "text-white"
+                              : ""
+                              }`}
                           >
                             {template.title}
                           </h4>
                           <span
-                            className={`text-xs px-3 py-1.5 rounded-full ${
-                              selectedJob?.id === template.id
-                                ? "bg-green-900/30 text-green-400"
-                                : "bg-green-900/30 text-green-400"
-                            }`}
+                            className={`text-xs px-3 py-1.5 rounded-full ${selectedJob?.id === template.id
+                              ? "bg-green-900/30 text-green-400"
+                              : "bg-green-900/30 text-green-400"
+                              }`}
                           >
                             {template.status}
                           </span>
                         </div>
                         <p
-                          className={`text-xs mt-2 ${
-                            selectedJob?.id === template.id
-                              ? "text-white/80"
-                              : "text-gray-400"
-                          }`}
+                          className={`text-xs mt-2 ${selectedJob?.id === template.id
+                            ? "text-white/80"
+                            : "text-gray-400"
+                            }`}
                         >
                           Template • Devhub Post
                         </p>
@@ -1130,18 +1126,16 @@ function CreateJobPage() {
                                   handleJobTypeChange(e, option.value);
                                 }
                               }}
-                              className={`${
-                                Number(option.value) === jobType
-                                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
-                                  : "bg-white/5 border border-white/10 "
-                              } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs xs:text-[14px]`}
+                              className={`${Number(option.value) === jobType
+                                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
+                                : "bg-white/5 border border-white/10 "
+                                } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs sm:text-sm`}
                             >
                               <div
-                                className={`${
-                                  Number(option.value) === jobType
-                                    ? "bg-white border border-white/10"
-                                    : ""
-                                } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                                className={`${Number(option.value) === jobType
+                                  ? "bg-white border border-white/10"
+                                  : ""
+                                  } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                               ></div>
                               {Number(option.value) === jobType ? (
                                 <img
@@ -1273,7 +1267,7 @@ function CreateJobPage() {
                                       eventContractInteraction.handleContractAddressChange
                                     }
                                     placeholder="Your Contract address"
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none text-sm sm:text-base"
                                     required
                                   />
                                 </div>
@@ -1337,11 +1331,10 @@ function CreateJobPage() {
                                           >
                                             {eventContractInteraction.events.map(
                                               (func, index) => {
-                                                const signature = `${
-                                                  func.name
-                                                }(${func.inputs
-                                                  .map((input) => input.type)
-                                                  .join(",")})`;
+                                                const signature = `${func.name
+                                                  }(${func.inputs
+                                                    .map((input) => input.type)
+                                                    .join(",")})`;
                                                 return (
                                                   <div
                                                     key={index}
@@ -1370,7 +1363,7 @@ function CreateJobPage() {
                                     {eventContractInteraction.events.length ===
                                       0 &&
                                       eventContractInteraction.contractAddress && (
-                                        <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto  text-sm text-yellow-400">
+                                        <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs sm:text-sm text-yellow-400">
                                           No writable events found. Make sure
                                           the contract is verified on Blockscout
                                           / Etherscan.
@@ -1501,7 +1494,7 @@ function CreateJobPage() {
                                     className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 overflow-hidden"
                                   >
                                     <div className="bg-[#303030] border border-white/10 flex justify-center items-center gap-3 mt-0 w-[110%] ml-[-30px]">
-                                      <p className="py-4">Linked Job {jobId}</p>
+                                      <p className="py-4 text-sm md:text-base">Linked Job {jobId}</p>
                                       <DeleteConfirmationButton
                                         jobType={jobType}
                                         jobId={jobId}
@@ -1659,11 +1652,10 @@ function CreateJobPage() {
                                 <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                                 <span
-                                  className={`${
-                                    isLoading
-                                      ? "cursor-not-allowed opacity-50 "
-                                      : ""
-                                  } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                                  className={`${isLoading
+                                    ? "cursor-not-allowed opacity-50 "
+                                    : ""
+                                    } font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                                 >
                                   Link Job
                                 </span>
@@ -1672,11 +1664,11 @@ function CreateJobPage() {
                           </div>
                         </>
                       ) : (
-                        <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2">
+                        <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2 text-md">
                           <span className="mt-1">
                             <WarningOutlined />
                           </span>
-                          select trigger type to create new job
+                          Select trigger type to create new job
                         </div>
                       )}
                     </div>
