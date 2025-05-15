@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import { Link } from "react-router-dom";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
@@ -8,6 +8,7 @@ import DashboardSkeleton from "../components/DashboardSkeleton";
 import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import loader from "../assets/load.gif";
+import useApi from "../hooks/useApi";
 
 // --- Add Constants for Time Calculations ---
 const SECONDS_PER_MINUTE = 60;
@@ -42,6 +43,7 @@ function DashboardPage() {
   }); // Example data with more than 7 rows
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const api = useApi(); // Add the useApi hook
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => ({
@@ -96,9 +98,12 @@ function DashboardPage() {
     const initializeProvider = async () => {
       // console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
-        const ethProvider = new ethers.BrowserProvider(window.ethereum);
-        // console.log(ethProvider);
-        setProvider(ethProvider);
+        // Check if we're already connected before creating provider
+        // This avoids triggering connection prompts
+        if (address) {
+          const ethProvider = new ethers.BrowserProvider(window.ethereum);
+          setProvider(ethProvider);
+        }
         setIsWalletInstalled(true);
       } else {
         setIsWalletInstalled(false);
@@ -119,13 +124,14 @@ function DashboardPage() {
         window.ethereum.removeListener("chainChanged", initializeProvider);
       }
     };
-  }, []);
+  }, [address]); // Add address as dependency
 
   useEffect(() => {
-    if (provider) {
+    // Only fetch job details if provider exists and user is connected (address exists)
+    if (provider && address) {
       fetchJobDetails();
     }
-  }, [provider]);
+  }, [provider, address]);
 
   useEffect(() => {
     const logo = logoRef.current;
@@ -172,22 +178,23 @@ function DashboardPage() {
     }
 
     try {
+      setLoading(true);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      // console.log(userAddress, "address");
-
-      // Fetch job details from the ScyllaDB API
+      // Fetch job details from the ScyllaDB API using our new useApi hook
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/jobs/user/${userAddress}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch job details from the database");
+      const jobsData = await api.get(`${API_BASE_URL}/api/jobs/user/${userAddress}`);
+
+      // If the server is down, the useApi hook will have triggered the modal
+      // and returned an object with success: false
+      if (!jobsData.success) {
+        // The error modal will already be displayed by the ErrorContext
+        setLoading(false);
+        return;
       }
 
-      const jobsData = await response.json();
       console.log("Fetched jobs data:", jobsData);
 
       // First, create a lookup for quick access by job_id
@@ -230,9 +237,6 @@ function DashboardPage() {
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
         }));
 
-      // console.log(tempJobs);
-
-      // console.log("All formatted jobs:", tempJobs);
       setJobDetails(tempJobs);
       if (tempJobs.length === 0 && connected && !loading) {
         toast("No jobs found. Create a new job to get started!", {
@@ -240,10 +244,9 @@ function DashboardPage() {
         });
       }
     } catch (error) {
-      if (connected && error.message !== "Failed to fetch") {
-        // Only show error toast for actual server errors, not for no jobs
-        toast.error("Failed to fetch jobs. Please try again later.");
-      }
+      console.error("Error fetching job details:", error);
+      // No need to show error toast here as the useApi hook 
+      // and ErrorContext will handle displaying the server-down modal
     } finally {
       setLoading(false);
     }
@@ -308,15 +311,17 @@ function DashboardPage() {
       }
 
       try {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        if (accounts.length === 0) {
-          // Clear any existing toasts before showing connection message
+        // Use wagmi's useAccount hook instead of directly calling ethereum
+        // This will respect the autoConnect setting from App.js
+        setConnected(!!address);
+
+        // Only show toast if we have ethereum but no address (wallet exists but not connected)
+        if (!address && window.ethereum) {
           toast.dismiss();
-          toast.error("Please connect your wallet to continue!");
+          toast("Connect your wallet to view your dashboard", {
+            icon: "ℹ️",
+          });
         }
-        setConnected(accounts.length > 0);
       } catch (error) {
         toast.error("Failed to check wallet connection!");
         setConnected(false);
@@ -324,7 +329,7 @@ function DashboardPage() {
     };
 
     checkConnection();
-  }, []);
+  }, [address]); // Add address to dependencies
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -338,26 +343,26 @@ function DashboardPage() {
 
   const handleDeleteJob = async (jobId) => {
     try {
-      // Delete the job from the database
-      // console.log("delete job");
-
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-      const response = await fetch(`${API_BASE_URL}/api/jobs/delete/${jobId}`, {
-        method: "PUT",
-      });
+      // Use our API utility to handle the delete operation
+      const result = await api.delete(`${API_BASE_URL}/api/jobs/${jobId}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete job from the database");
+      // Check if the request was successful
+      if (!result.success) {
+        // The error will be handled by the server-down modal if it's a server error
+        // but we should still handle other types of errors
+        if (result.message && result.message !== "Server is down") {
+          toast.error(`Error deleting job: ${result.message}`);
+        }
+        return;
       }
 
-      toast.success("Job deleted successfully");
-
-      // Fetch the updated job details
-      await fetchJobDetails();
+      // If successful, update the UI
+      setJobDetails((prev) => prev.filter((job) => job.id !== jobId));
+      toast.success("Job deleted successfully!");
     } catch (error) {
-      // console.error("Error deleting job:", error);
-      toast.error("Failed to delete job");
+      console.error("Error deleting job:", error);
     }
   };
 
@@ -445,7 +450,8 @@ function DashboardPage() {
     useStakeRegistry();
 
   const fetchTGBalance = async () => {
-    if (!provider || !isWalletInstalled) {
+    // Only fetch balance if provider exists, wallet is installed, and address is available
+    if (!provider || !isWalletInstalled || !address) {
       return;
     }
 
@@ -654,7 +660,7 @@ function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {loading
+                        {loading && connected
                           ? Array.from({ length: 5 }).map((_, idx) => <DashboardSkeleton key={idx} />)
                           : jobDetails.length > 0
                             ? getPaginatedData(jobDetails).map((job, index) => (
@@ -671,7 +677,7 @@ function DashboardPage() {
                                       {job.status}
                                     </span>
                                   </td>
-                                  <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg bg-[#1A1A1A]">
+                                  <td className="flex justify-between px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg bg-[#1A1A1A]">
                                     <div className="flex flex-row gap-5">
                                       <button
                                         disabled
@@ -792,7 +798,36 @@ function DashboardPage() {
                                   )}
                               </React.Fragment>
                             ))
-                            : (
+                            : !connected ? (
+                              <tr>
+                                <td colSpan="4" className="text-center py-8">
+                                  <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="48"
+                                      height="48"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="mb-4"
+                                    >
+                                      <circle cx="12" cy="12" r="10" />
+                                      <path d="M8 12h8" />
+                                      <path d="m16 12-4-4" />
+                                      <path d="m16 12-4 4" />
+                                    </svg>
+                                    <p className="text-lg mb-2">Wallet Not Connected</p>
+                                    <p className="text-md text-[#666666] mb-4">
+                                      Please connect your wallet to view your dashboard
+                                    </p>
+
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : (
                               <tr>
                                 <td colSpan="4" className="text-center py-8">
                                   <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
@@ -833,7 +868,7 @@ function DashboardPage() {
             </div>
 
             <div className="space-y-8 h-full lg:w-[25%] w-full">
-              {loading ? (
+              {loading && connected ? (
                 <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
                   <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
                   <div className="p-6 bg-[#242323] rounded-lg">
@@ -859,7 +894,7 @@ function DashboardPage() {
                 </div>
               )}
               <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-                {loading ? (
+                {loading && connected ? (
                   <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
                     <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
                     <div className="p-6 bg-[#242323] rounded-lg">
@@ -902,7 +937,7 @@ function DashboardPage() {
               </div>
 
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
-                {loading ? (
+                {loading && connected ? (
                   <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
                     <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
                     <div className="p-6 bg-[#242323] rounded-lg">

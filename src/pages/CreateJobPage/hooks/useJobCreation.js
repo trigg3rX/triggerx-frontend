@@ -36,8 +36,7 @@ export function useJobCreation() {
       });
 
       console.log(
-        `Code URL for ${jobType} ${
-          jobId !== null ? "linked job " + jobId : "main job"
+        `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"
         } changed to:`,
         url
       );

@@ -12,7 +12,7 @@ function Header() {
   const { data, refetch, isLoading } = useBalance({
     address,
     watch: true, // Enable watching for automatic updates
-    cacheTime: 5000, 
+    cacheTime: 5000,
   });
 
   useEffect(() => {
@@ -135,11 +135,10 @@ function Header() {
                 onClick={() => {
                   navigate("/devhub");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
-                  isActiveRoute("/devhub")
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
                     ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                     : "transparent"
-                }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+                  }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
                 Dev Hub
               </h4>
@@ -150,10 +149,9 @@ function Header() {
                   navigate("/");
                 }}
                 className={`text-center xl:w-[150px] lg:w-[130px] xl:text-base lg:text-[12px]
-                  ${
-                    isActiveRoute("/")
-                      ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                      : "transparent"
+                  ${isActiveRoute("/")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
                   } px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Create Job
@@ -161,11 +159,10 @@ function Header() {
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
-                  isActiveRoute("/dashboard")
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/dashboard")
                     ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                     : "transparent"
-                }
+                  }
                  px-7 py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
@@ -175,11 +172,10 @@ function Header() {
                 onClick={() => {
                   navigate("/leaderboard");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${
-                  isActiveRoute("/leaderboard")
+                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
                     ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                     : "transparent"
-                }
+                  }
                 
               }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
@@ -278,11 +274,10 @@ function Header() {
                     }}
                     className={`w-full 
                          
-                        ${
-                          isActiveRoute("https://www.triggerx.network/")
-                            ? "text-white"
-                            : "text-gray-400"
-                        }  px-7 py-3 rounded-xl cursor-pointer`}
+                        ${isActiveRoute("https://www.triggerx.network/")
+                        ? "text-white"
+                        : "text-gray-400"
+                      }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dev Hub
                   </h4>
@@ -292,9 +287,8 @@ function Header() {
                       navigate("/");
                       setMenuOpen(false);
                     }}
-                    className={`w-full ${
-                      isActiveRoute("/") ? "text-white" : "text-gray-400"
-                    }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={`w-full ${isActiveRoute("/") ? "text-white" : "text-gray-400"
+                      }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Create Job
                   </h4>
@@ -303,11 +297,10 @@ function Header() {
                       navigate("/dashboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${
-                      isActiveRoute("/dashboard")
+                    className={` w-full  ${isActiveRoute("/dashboard")
                         ? "text-white"
                         : "text-gray-400"
-                    }  px-7 py-3 rounded-xl cursor-pointer`}
+                      }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
                   </h4>
@@ -316,11 +309,10 @@ function Header() {
                       navigate("/leaderboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${
-                      isActiveRoute("/leaderboard")
+                    className={` w-full  ${isActiveRoute("/leaderboard")
                         ? "text-white"
                         : "text-gray-400"
-                    }  px-7 py-3 rounded-xl cursor-pointer`}
+                      }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Leaderboard
                   </h4>

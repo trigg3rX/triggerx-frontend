@@ -82,26 +82,32 @@ const BalanceMaintainerExample = () => {
     const initProvider = async () => {
       if (window.ethereum) {
         try {
-          // Request account access if needed
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          // Only initialize if user is already connected
+          if (isConnected && address) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
 
-          const provider = new ethers.BrowserProvider(window.ethereum);
-          const signer = await provider.getSigner();
+            // Get network with error handling
+            let network;
+            try {
+              network = await provider.getNetwork();
+            } catch (error) {
+              console.warn("Error getting network:", error);
+              // Default to Optimism Sepolia if network fetch fails
+              network = { chainId: 11155420 };
+            }
 
-          // Get network with error handling
-          let network;
-          try {
-            network = await provider.getNetwork();
-          } catch (error) {
-            console.warn("Error getting network:", error);
-            // Default to Optimism Sepolia if network fetch fails
-            network = { chainId: 11155420 };
+            setProvider(provider);
+            setSigner(signer);
+            setChainId(network.chainId);
+            setIsInitialized(true);
+
+            // Check for existing contract when provider is initialized
+            checkExistingContract(provider, address);
+          } else {
+            setIsInitialized(true);
+            setIsPageLoading(false);
           }
-
-          setProvider(provider);
-          setSigner(signer);
-          setChainId(network.chainId);
-          setIsInitialized(true);
 
           // Listen for chain changes
           window.ethereum.on('chainChanged', async (chainId) => {
@@ -144,7 +150,7 @@ const BalanceMaintainerExample = () => {
         window.ethereum.removeAllListeners('chainChanged');
       }
     };
-  }, []);
+  }, [isConnected, address]);
 
   // Check for existing contract
   const checkExistingContract = async (provider, userAddress) => {
