@@ -12,7 +12,7 @@ import { EstimatedFeeModal } from "./components/EstimatedFeeModal";
 import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
-import { Toaster, toast } from "react-hot-toast";
+import {  toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 import BalanceMaintainer from "../../components/BalanceMaintainer";

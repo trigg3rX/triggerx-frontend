@@ -18,6 +18,8 @@ import Devhub from "./pages/Devhub";
 import ApiCreation from "./pages/Api/ApiCreation";
 import BalanceMaintainer from "./components/BalanceMaintainer";
 import { WalletProvider } from "./contexts/WalletContext";
+import { ErrorProvider } from "./contexts/ErrorContext";
+import ServerErrorModal from "./components/common/ServerErrorModal";
 
 const myCustomTheme = {
   blurs: {
@@ -83,6 +85,7 @@ const config = getDefaultConfig({
   projectId: "f8a6524307e28135845a9fe5811fcaa2",
   chains: [baseSepolia, optimismSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
+  autoConnect: false
 });
 
 const queryClient = new QueryClient();
@@ -93,40 +96,43 @@ const App = () => {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
-            <WalletProvider>
-              <Router>
-                <Layout>
-                  <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
-                    <meta
-                      name="description"
-                      content="TriggerX - Web3 Automation Platform"
-                    />
-                    <meta property="og:type" content="website" />
-                    <meta property="og:site_name" content="TriggerX" />
-                  </Helmet>
-                  <Routes>
-                    <>
-                      <Route path="/" element={<CreateJobPage />} />
-                      <Route path="/dashboard" element={<DashboardPage />} />
-                      <Route path="/leaderboard" element={<Leaderboard />} />
-                      <Route path="/devhub" element={<Devhub />} />
-                      <Route path="/devhub/:slug" element={<DevhubItem />} />
-                      <Route path="/api" element={<ApiCreation />} />
-                      <Route
-                        path="/eth-top-ups-example"
-                        element={<BalanceMaintainer />}
+            <ErrorProvider>
+              <WalletProvider>
+                <Router>
+                  <ServerErrorModal />
+                  <Layout>
+                    <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
+                      <meta
+                        name="description"
+                        content="TriggerX - Web3 Automation Platform"
                       />
-                      <Route
-                        path="/staking-rewards"
-                        element={<StakingRewards />}
-                      />
-                      <Route path="/price-oracle" element={<PriceOracle />} />
-                      <Route path="*" element={<NotFound />} />
-                    </>
-                  </Routes>
-                </Layout>
-              </Router>
-            </WalletProvider>
+                      <meta property="og:type" content="website" />
+                      <meta property="og:site_name" content="TriggerX" />
+                    </Helmet>
+                    <Routes>
+                      <>
+                        <Route path="/" element={<CreateJobPage />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/leaderboard" element={<Leaderboard />} />
+                        <Route path="/devhub" element={<Devhub />} />
+                        <Route path="/devhub/:slug" element={<DevhubItem />} />
+                        <Route path="/api" element={<ApiCreation />} />
+                        <Route
+                          path="/eth-top-ups-example"
+                          element={<BalanceMaintainer />}
+                        />
+                        <Route
+                          path="/staking-rewards"
+                          element={<StakingRewards />}
+                        />
+                        <Route path="/price-oracle" element={<PriceOracle />} />
+                        <Route path="*" element={<NotFound />} />
+                      </>
+                    </Routes>
+                  </Layout>
+                </Router>
+              </WalletProvider>
+            </ErrorProvider>
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>

@@ -488,7 +488,7 @@ const Leaderboard = () => {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center mb-3">
-                    <div className="text-2xl font-semibold text-white mr-2">Developer</div>
+
                     <div className="text-gray-400 text-base bg-[#14141480] px-3 py-1 rounded-lg">
                       {highlightedDeveloper.address}
                     </div>
@@ -516,16 +516,16 @@ const Leaderboard = () => {
                 </div>
                 <div className="flex md:justify-end flex-wrap gap-3">
                   <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                    <div className="text-gray-400 text-xs mb-1">Total Jobs</div>
+                    <div className="text-gray-400 text-md mb-1">Total Jobs</div>
                     <div className="text-white font-semibold">{highlightedDeveloper.totalJobs}</div>
                   </div>
                   <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                    <div className="text-gray-400 text-xs mb-1">Tasks Executed</div>
+                    <div className="text-gray-400 text-md mb-1">Tasks Executed</div>
                     <div className="text-white font-semibold">{highlightedDeveloper.tasksExecuted}</div>
                   </div>
                   <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                    <div className="text-gray-400 text-xs mb-1">Points</div>
-                    <div className="text-yellow-300 font-bold">{Number(highlightedDeveloper.points).toFixed(2)}</div>
+                    <div className="text-gray-400 text-md mb-1">Points</div>
+                    <div className="text-white font-semibold">{Number(highlightedDeveloper.points).toFixed(2)}</div>
                   </div>
                 </div>
               </div>
