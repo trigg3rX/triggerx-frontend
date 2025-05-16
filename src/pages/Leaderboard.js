@@ -232,67 +232,112 @@ const Leaderboard = () => {
     return (
       <>
         {highlightedKeeper && (
-          <div className="bg-[#141414] ">
-            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white">
+          <div className="bg-[#212020] rounded-lg">
+            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#FBF197]">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex-1">
+                <div className="">
 
-                  <div className="flex items-center mb-3 gap-1">
-                    <div className="text-2xl font-semibold text-white mb-2">
-                      {highlightedKeeper.operator} :
-                    </div>
-                    <div className="text-white text-md mr-2  px-3 py-1 rounded-lg flex items-center">
-                      {highlightedKeeper.address}  <button
-                        onClick={() => copyAddressToClipboard(highlightedKeeper.address, highlightedKeeper.address)}
-                        className="p-1.5 hover:bg-[#252525] rounded-md transition-all"
+                  <div className=" bg-[#181818] p-3 flex items-center  gap-1 rounded-lg">
+                    <h4 className="text-xl font-medium text-[#A2A2A2] ">
+                      {highlightedKeeper.operator} : {highlightedKeeper.address}  <button
+                        onClick={() => copyAddressToClipboard(highlightedDeveloper.address, highlightedDeveloper.address)}
+                        className="p-1.5 hover:bg-[#252525] rounded-md transition-all ml-2"
                         title="Copy address"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#A2A2A2"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                        </svg>
+                        {copyStatus[highlightedDeveloper.address] ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#82FBD0"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 6L9 17l-5-5"></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#FBF197"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="9"
+                              y="9"
+                              width="13"
+                              height="13"
+                              rx="2"
+                              ry="2"
+                            ></rect>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                          </svg>
+                        )}
                       </button>
-                    </div>
+                    </h4>
+                    {/* <p className="text-[#A2A2A2] text-md mr-2  px-3 py-1 rounded-lg flex items-center ">
+                    6768678584568768 <button
+                      onClick={() => copyAddressToClipboard(highlightedKeeper.address, highlightedKeeper.address)}
+                      className="p-1.5 hover:bg-[#252525] rounded-md transition-all ml-2"
+                      title="Copy address"
+                    >
+
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#A2A2A2"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+
+                    </button>
+                  </p> */}
 
                   </div>
-                  <div className="flex md:justify-start flex-wrap gap-3">
-                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                      <div className="text-gray-400 text-md mb-1">Performed</div>
-                      <div className="text-white font-semibold">{highlightedKeeper.performed}</div>
-                    </div>
-                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                      <div className="text-gray-400 text-md mb-1">Attested</div>
-                      <div className="text-white font-semibold">{highlightedKeeper.attested}</div>
-                    </div>
-                    <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
-                      <div className="text-gray-400 text-md mb-1">Points</div>
-                      <div className="text-white font-bold">{Number(highlightedKeeper.points).toFixed(2)}</div>
-                    </div>
-                  </div>
+
                 </div>
-                <div className="flex justify-end mt-4">
-                  <button
-                    onClick={() =>
-                      window.open(
-                        `https://app.eigenlayer.xyz/operator/${highlightedKeeper.address}`,
-                        "_blank"
-                      )
-                    }
-                    className="px-5 py-2 text-md text-white underline decoration-2 decoration-white underline-offset-4"
-                  >
-                    View Profile
-                  </button>
+                <div className="flex md:justify-start flex-wrap gap-3 items-center">
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
+                    <div className="text-gray-400 text-md mb-1">Performed</div>
+                    <div className="text-white font-semibold">{highlightedKeeper.performed}</div>
+                  </h4>
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
+                    <div className="text-gray-400 text-md mb-1">Attested</div>
+                    <div className="text-white font-semibold">{highlightedKeeper.attested}</div>
+                  </h4>
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
+                    <div className="text-gray-400 text-md mb-1">Points</div>
+                    <div className="text-white font-bold">{Number(highlightedKeeper.points).toFixed(2)}</div>
+                  </h4>
+                  <h4 className=" ">
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://app.eigenlayer.xyz/operator/${highlightedKeeper.address}`,
+                          "_blank"
+                        )
+                      }
+                      className="px-5 py-2 text-md text-white underline decoration-2 decoration-white underline-offset-4"
+                    >
+                      View Profile
+                    </button>
+                  </h4>
                 </div>
+
 
               </div>
 
@@ -483,61 +528,83 @@ const Leaderboard = () => {
     return (
       <>
         {highlightedDeveloper && (
-          <div className="bg-[#141414] ">
-            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white">
+          <div className="bg-[#212020] rounded-lg ">
+            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#FBF197]">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center mb-3">
 
-                    <div className="text-gray-400 text-base bg-[#14141480] px-3 py-1 rounded-lg">
-                      {highlightedDeveloper.address}
-                    </div>
-                    <button
-                      onClick={() => copyAddressToClipboard(highlightedDeveloper.address, highlightedDeveloper.address)}
-                      className="p-1.5 hover:bg-[#252525] rounded-md transition-all ml-2"
-                      title="Copy address"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#A2A2A2"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                    <p className="text-gray-400 text-base bg-[#181818] p-3 rounded-lg flex items-center">
+                      {highlightedDeveloper.address} <button
+                        onClick={() => copyAddressToClipboard(highlightedDeveloper.address, highlightedDeveloper.address)}
+                        className="p-1.5 hover:bg-[#252525] rounded-md transition-all ml-2"
+                        title="Copy address"
                       >
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                      </svg>
-                    </button>
+                        {copyStatus[highlightedDeveloper.address] ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#82FBD0"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 6L9 17l-5-5"></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#FBF197"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="9"
+                              y="9"
+                              width="13"
+                              height="13"
+                              rx="2"
+                              ry="2"
+                            ></rect>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                          </svg>
+                        )}
+                      </button>
+                    </p>
+
                   </div>
                 </div>
                 <div className="flex md:justify-end flex-wrap gap-3">
-                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
                     <div className="text-gray-400 text-md mb-1">Total Jobs</div>
                     <div className="text-white font-semibold">{highlightedDeveloper.totalJobs}</div>
-                  </div>
-                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                  </h4>
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
                     <div className="text-gray-400 text-md mb-1">Tasks Executed</div>
                     <div className="text-white font-semibold">{highlightedDeveloper.tasksExecuted}</div>
-                  </div>
-                  <div className="bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#333333]">
+                  </h4>
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
                     <div className="text-gray-400 text-md mb-1">Points</div>
                     <div className="text-white font-semibold">{Number(highlightedDeveloper.points).toFixed(2)}</div>
-                  </div>
+                  </h4>
                 </div>
               </div>
             </div>
           </div>
         )}
         <div
-          className="bg-[#141414] px-5 rounded-lg"
-
+          className="bg-[#141414] p-7 rounded-lg"
         >
           <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
-            <thead className="sticky top-0 bg-[#2A2A2A]">
+            <thead className="sticky top-0 bg-[#303030]">
               <tr>
                 <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
                   Address
@@ -704,12 +771,47 @@ const Leaderboard = () => {
 
     return (
       <>
-        <div
-          className="bg-[#141414] px-5 rounded-lg"
+        {highlightedContributor && (
+          <div className="bg-[#212020] rounded-lg">
+            <div className="mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#FBF197]">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="">
+                  <div className="flex items-center  bg-[#181818] p-3 rounded-lg">
+                    <h4 className="text-2xl font-semibold text-white mb-2">
+                      {highlightedContributor.name}
+                    </h4>
 
+                  </div>
+                </div>
+                <div className="flex md:justify-end flex-wrap gap-3 items-center" >
+                  <h4 className="bg-[#181818] rounded-lg px-4 py-2 border border-[#5F5F5F]">
+                    <div className="text-gray-400 text-md mb-1">Points</div>
+                    <div className="text-white font-semibold">{Number(highlightedContributor.points).toFixed(2)}</div>
+                  </h4>
+                  <h4 className="flex justify-end ">
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://app.eigenlayer.xyz/contributor/${highlightedContributor.address}`,
+                          "_blank"
+                        )
+                      }
+                      className="px-5 py-2 text-md text-white underline decoration-2 decoration-white underline-offset-4"
+                    >
+                      View Profile
+                    </button>
+                  </h4>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+        <div
+          className="bg-[#141414] p-7 rounded-lg"
         >
           <table className="w-full border-separate border-spacing-y-4 max-h-[650px] h-auto">
-            <thead className="sticky top-0 bg-[#2A2A2A]">
+            <thead className="sticky top-0 bg-[#303030]">
               <tr>
                 <th className="px-6 py-5 text-left text-[#FFFFFF] font-bold md:text-lg xs:text-sm rounded-tl-lg rounded-bl-lg">
                   Name
@@ -997,25 +1099,11 @@ const Leaderboard = () => {
             (activeTab === "developer" && leaderboardData.developers.length > 0) ||
             (activeTab === "contributor" && leaderboardData.contributors.length > 0)) && (
             <div className="max-w-[1600px] w-[85%] mx-auto mb-6">
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10 text-[#77e8a3]">
-                <div className="text-center">
+              <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
+                <p className="text-center text-[#77E8A3]">
 
-                  <p className="mb-2 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Your connected wallet doesn't have any data in the {activeTab} leaderboard yet.</span>
-                  </p>
-                  {/* {activeTab === "keeper" && (
-                    <p className=" opacity-80 pt-1">Start running as a keeper to appear on this leaderboard.</p>
-                  )}
-                  {activeTab === "developer" && (
-                    <p className=" opacity-80 pt-1">Create jobs to join this leaderboard as a developer.</p>
-                  )}
-                  {activeTab === "contributor" && (
-                    <p className=" opacity-80 pt-1">Contribute to the TriggerX ecosystem to get listed here.</p>
-                  )} */}
-                </div>
+                  Your connected wallet doesn't have any data in the {activeTab} leaderboard yet.
+                </p>
               </div>
             </div>
           )}
