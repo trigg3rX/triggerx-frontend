@@ -982,7 +982,7 @@ function CreateJobPage() {
                       20
                     </div>
                     <span className="text-xs sm:text-sm text-gray-300">
-                      points for every custom job you create
+                      Points for every custom job you create
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -990,7 +990,7 @@ function CreateJobPage() {
                       10
                     </div>
                     <span className="text-xs sm:text-sm text-gray-300">
-                      points for every job created via a template
+                      Points for every job created via a template
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-gray-400 mt-3 pt-3 border-t border-white/10">
@@ -1001,9 +1001,9 @@ function CreateJobPage() {
 
               {/* Template List Box */}
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 h-fit">
-                <div className="flex justify-between gap-3 items-center mb-4">
+                <div className="flex justify-between gap-3 items-center mb-6">
                   <h2 className="text-base md:text-lg font-semibold">
-                    Use Template
+                    Template
                   </h2>
                   <button
                     onClick={() => {
@@ -1035,53 +1035,39 @@ function CreateJobPage() {
                         }, 100);
                       }
                     }}
-                    className="bg-[#F8FF7C] text-black px-4 py-2 rounded-lg hover:bg-[#F8FF7C]/90 transition-colors duration-200 text-sm"
+                    className="bg-white text-[#0F0F0F] px-4 py-2 rounded-full  text-md"
                   >
                     Create Custom Job
                   </button>
                 </div>
                 <div className="space-y-2">
                   {templates.templates.map((template) => (
-                    <Tooltip
-                      key={template.id}
-                      title={"Template is ready"}
-                      color="#4CAF50"
+
+                    <div
+                      className={`p-6 rounded-lg transition-all duration-300 cursor-pointer ${selectedJob?.id === template.id
+                        ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
+                        : "bg-[#202020] border border-white/10 hover:bg-white/10 hover:border-white/20"
+                        }`}
+                      onClick={() => handleJobSelect(template)}
                     >
-                      <div
-                        className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${selectedJob?.id === template.id
-                          ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
-                          : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
-                          }`}
-                        onClick={() => handleJobSelect(template)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <h4
-                            className={`text-sm md:text-base font-medium lg:w-[70%] ${selectedJob?.id === template.id
-                              ? "text-white"
-                              : ""
-                              }`}
-                          >
-                            {template.title}
-                          </h4>
-                          <span
-                            className={`text-xs px-3 py-1.5 rounded-full ${selectedJob?.id === template.id
-                              ? "bg-green-900/30 text-green-400"
-                              : "bg-green-900/30 text-green-400"
-                              }`}
-                          >
-                            {template.status}
-                          </span>
-                        </div>
-                        <p
-                          className={`text-xs mt-2 ${selectedJob?.id === template.id
-                            ? "text-white/80"
-                            : "text-gray-400"
+                      <div className="flex justify-between items-center">
+                        <h4
+                          className={`text-sm md:text-base font-medium lg:w-[70%] ${selectedJob?.id === template.id
+                            ? "text-white"
+                            : ""
                             }`}
                         >
-                          Template • Devhub Post
-                        </p>
+                          {template.title}
+                        </h4>
+                        <span
+                          className={`text-xs px-4 py-2 rounded-full bg-[#FBF197] text-[#202020]`}
+                        >
+                          Use
+                        </span>
                       </div>
-                    </Tooltip>
+
+                    </div>
+
                   ))}
                 </div>
               </div>
@@ -1101,12 +1087,27 @@ function CreateJobPage() {
                   {!isConnected ? (
                     <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
                       <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
-                        Trigger Type
+                        Trigger Types
                       </label>
-                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                      <div className="flex flex-wrap md:flex-nowrap gap-4 justify-between w-[95%] mx-auto">
+                        {options.map((option) => (
+                          <div
+                            key={option.value}
+                            className="bg-white/5 border border-white/10 text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs sm:text-sm opacity-50 cursor-not-allowed"
+                          >
+                            <div className="absolute top-2 left-2 rounded-full w-3 h-3 border"></div>
+                            <img
+                              src={option.icon}
+                              alt={option.label}
+                              className="w-auto h-8"
+                            />
+                            <span>{option.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg mt-8">
                         <p className="text-white text-center">
-                          Please connect your wallet to interact with the
-                          contract
+                          Please connect your wallet to interact with the contract
                         </p>
                       </div>
                     </div>
