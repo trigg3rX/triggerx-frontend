@@ -316,7 +316,7 @@ const ApiCreation = () => {
                             {expandedSection === "createautomationjob" && (
                               <div className="space-y-6 ">
                                 <div className="">
-                                  <h3 className="text-xl font-bold pb-4">
+                                  <h3 className="text-sm font-bold pb-4">
                                     Create Automation Job
                                   </h3>
                                   <p className=" text-gray-400 text-md">

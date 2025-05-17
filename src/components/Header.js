@@ -136,8 +136,8 @@ function Header() {
                   navigate("/devhub");
                 }}
                 className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
-                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                    : "transparent"
+                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                  : "transparent"
                   }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
               >
                 Dev Hub
@@ -160,8 +160,8 @@ function Header() {
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
                 className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/dashboard")
-                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                    : "transparent"
+                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                  : "transparent"
                   }
                  px-7 py-3 rounded-xl cursor-pointer`}
               >
@@ -173,8 +173,8 @@ function Header() {
                   navigate("/leaderboard");
                 }}
                 className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
-                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                    : "transparent"
+                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                  : "transparent"
                   }
                 
               }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
@@ -188,15 +188,15 @@ function Header() {
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
-            showBalance={false}
+
           />
-          {address && data && (
+          {/* {address && data && (
             <div className="bg-[#f8ff7c] px-4 py-1.5 rounded-full border border-[#2A2A2A]">
               <span className="text-black text-sm font-medium">
                 {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
-          )}
+          )} */}
 
           {/* <div className="relative">
             <FiInfo
@@ -298,8 +298,8 @@ function Header() {
                       setMenuOpen(false);
                     }}
                     className={` w-full  ${isActiveRoute("/dashboard")
-                        ? "text-white"
-                        : "text-gray-400"
+                      ? "text-white"
+                      : "text-gray-400"
                       }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
@@ -310,8 +310,8 @@ function Header() {
                       setMenuOpen(false);
                     }}
                     className={` w-full  ${isActiveRoute("/leaderboard")
-                        ? "text-white"
-                        : "text-gray-400"
+                      ? "text-white"
+                      : "text-gray-400"
                       }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Leaderboard
