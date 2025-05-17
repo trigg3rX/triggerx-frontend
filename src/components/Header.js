@@ -188,17 +188,15 @@ function Header() {
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
-            showBalance={true}
+            showBalance={false}
           />
-
-
-          {/* {address && data && (
+          {address && data && (
             <div className="bg-[#f8ff7c] px-4 py-1.5 rounded-full border border-[#2A2A2A]">
               <span className="text-black text-sm font-medium">
                 {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
-          )} */}
+          )}
 
           {/* <div className="relative">
             <FiInfo

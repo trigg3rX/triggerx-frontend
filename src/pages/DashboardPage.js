@@ -615,7 +615,7 @@ function DashboardPage() {
         <button
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
-          className={`w-10 h-10 rounded-lg flex items-center justify-center border border-[#EDEDED] ${currentPage === totalPages ? 'bg-[#fff] text-[#bbb] opacity-50 cursor-not-allowed' : 'bg-white text-black hover:bg-[#F8FF7C]'} transition`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center border border-[#EDEDED] ${currentPage === totalPages ? 'bg-[#fff] text-[#bbb] opacity-50 cursor-not-allowed' : 'bg-white text-black hover:bg-[#F8FF7C]'} transition`}
         >
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
@@ -671,7 +671,7 @@ function DashboardPage() {
                                     {job.type}
                                   </td>
                                   <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                    <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                    <span className="px-5 py-2.5 rounded-full text-sm  border-[#82FBD0] text-[#82FBD0] border bg-[#82FBD01A]/10 md:text-md xs:text-md traking-wider">
                                       {job.status}
                                     </span>
                                   </td>
@@ -679,13 +679,13 @@ function DashboardPage() {
                                     <div className="flex flex-row gap-5">
                                       <button
                                         disabled
-                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors"
+                                        className="px-5 py-2.5 bg-[#C07AF6] rounded-full text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors md:text-md xs:text-md traking-wider"
                                       >
                                         Update
                                       </button>
                                       <button
                                         onClick={() => handleDeleteJob(job.id)}
-                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white hover:bg-[#ff4444] transition-colors"
+                                        className="px-5 py-2.5 bg-[#FF5757] rounded-full text-sm text-white hover:bg-[#ff4444] transition-colors md:text-md xs:text-md traking-wider"
                                       >
                                         Delete
                                       </button>
@@ -761,7 +761,7 @@ function DashboardPage() {
                                                       )}
                                                     </td>
                                                     <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
-                                                      <span className="px-4 py-2 rounded-full text-[15px] border-[#5047FF] text-[#C1BEFF] border bg-[#5047FF1A]/10 md:text-md xs:text-[12px]">
+                                                      <span className="px-5 py-2.5 rounded-full text-sm  border-[#82FBD0] text-[#82FBD0] border bg-[#82FBD01A]/10 md:text-md xs:text-md traking-wider">
                                                         {linkedJob.status
                                                           ? "InActive"
                                                           : "Active"}
@@ -770,7 +770,7 @@ function DashboardPage() {
                                                     <td className="bg-[#1A1A1A] px-6 py-5 space-x-2 text-white flex flex-row border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg">
                                                       <button
                                                         disabled
-                                                        className="px-4 py-2 bg-[#C07AF6] rounded-lg text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors"
+                                                        className="px-5 py-2.5 bg-[#C07AF6] rounded-full text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors"
                                                       >
                                                         Update
                                                       </button>
@@ -780,7 +780,7 @@ function DashboardPage() {
                                                             job.id
                                                           )
                                                         }
-                                                        className="px-4 py-2 bg-[#FF5757] rounded-lg text-sm text-white hover:bg-[#ff4444] transition-colors"
+                                                        className="px-5 py-2.5 bg-[#FF5757] rounded-full text-sm text-white hover:bg-[#ff4444] transition-colors"
                                                       >
                                                         Delete
                                                       </button>
@@ -800,25 +800,11 @@ function DashboardPage() {
                               <tr>
                                 <td colSpan="4" className="text-center py-8">
                                   <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="48"
-                                      height="48"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      className="mb-4"
-                                    >
-                                      <circle cx="12" cy="12" r="10" />
-                                      <path d="M8 12h8" />
-                                      <path d="m16 12-4-4" />
-                                      <path d="m16 12-4 4" />
+                                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg " className="mb-3" stroke="">
+                                      <path d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z" fill="#A2A2A2" />
                                     </svg>
                                     <p className="text-lg mb-2">Wallet Not Connected</p>
-                                    <p className="text-md text-[#666666] mb-4">
+                                    <p className="text-md text-[#666666] mb-4 tracking-wide">
                                       Please connect your wallet to view your dashboard
                                     </p>
 
