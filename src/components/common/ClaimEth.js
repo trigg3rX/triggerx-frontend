@@ -300,7 +300,7 @@ const ClaimEth = () => {
     <>
       <button
         onClick={handleClaim}
-        className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-all text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+        className="bg-[#F8FF7C] text-black px-8 py-3 my-5 rounded-full transition-all text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

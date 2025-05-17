@@ -565,7 +565,7 @@ const StakingReward = () => {
         {(!isConnected || isOptimismSepoliaNetwork()) && (
           <>
             <div className="rounded-xl mb-8">
-              <h2 className="text-xl text-white mb-6 flex items-center">
+              <h2 className="text-xl text-white  flex items-center">
                 Staking Reward Information
               </h2>
               <div className="text-[#A2A2A2]">
@@ -577,13 +577,13 @@ const StakingReward = () => {
                   </div>
                 ) : (
 
-                  <div className="space-y-6">
+                  <div className="">
                     <div className="flex flex-wrap gap-4">
                       {hasSufficientBalance ? (
                         !hasSufficientTokenBalance ? (
                           <button
                             onClick={showStakeTokenClaimModal}
-                            className="bg-[#F8FF7C] text-black px-8 py-3 rounded-lg transition-all text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+                            className="bg-[#C07AF6] text-white px-8 py-3 py-3 my-5 rounded-full transition-all text-lg flex items-center  hover:bg-[#B15AE6] "
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

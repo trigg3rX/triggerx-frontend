@@ -1010,7 +1010,7 @@ const Leaderboard = () => {
         <meta name="twitter:image" content={`${baseUrl}/images/${activeTab}-og.png`} />
       </Helmet>
       <div className="min-h-screen md:mt-[20rem] mt-[10rem]">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center">
+        <h1 className="text-3xl sm:text-4xl lg:text-7xl font-[300]  text-center tracking-wider">
           Leaderboard
         </h1>
         <div className="flex justify-between  w-[85%] max-w-[1600px]  mx-auto items-end">
@@ -1046,31 +1046,31 @@ const Leaderboard = () => {
 
         <div className="max-w-[1600px] w-[85%] mx-auto flex justify-between items-center my-10 bg-[#181818F0] p-2 rounded-lg">
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "keeper"
+            className={`w-[33%] text-[#FFFFFF]  lg:text-xl md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "keeper"
               ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
               : "bg-transparent"
               }`}
             onClick={() => setActiveTab("keeper")}
           >
-            Keeper
+            <h2>Keeper</h2>
           </button>
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "developer"
+            className={`w-[33%] text-[#FFFFFF] lg:text-xl md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "developer"
               ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
               : "bg-transparent"
               }`}
             onClick={() => setActiveTab("developer")}
           >
-            Developer
+            <h2>Developer</h2>
           </button>
           <button
-            className={`w-[33%] text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "contributor"
+            className={`w-[33%] text-[#FFFFFF]  lg:text-xl md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "contributor"
               ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
               : "bg-transparent"
               }`}
             onClick={() => setActiveTab("contributor")}
           >
-            Contributor
+            <h2>Contributor</h2>
           </button>
         </div>
 

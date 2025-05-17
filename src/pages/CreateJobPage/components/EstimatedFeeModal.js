@@ -386,7 +386,7 @@ export function EstimatedFeeModal({
                         <div className="flex items-center gap-2">
                           <span>
                             TriggerGas (TG) is the standard unit for calculating
-                            computational and resource costs in the TriggerX
+                            computational and resource costs on the TriggerX
                             platform.
                           </span>
                         </div>
@@ -430,7 +430,7 @@ export function EstimatedFeeModal({
                           <div className="flex items-center gap-2">
                             <span>
                               Required ETH to Stake is based on the total
-                              TriggerGas consumed and TriggerGas's unit price.
+                              TriggerXGas consumed and TriggerXGas Unit Price.
                             </span>
                           </div>
                         </div>

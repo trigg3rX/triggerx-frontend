@@ -7,6 +7,7 @@
   --font-subheading: "SubHeadingFont";
   --font-subtext: "SubText";
   --font-actay: "ActayRegular";
+  --font-spacegrotesk: "SpaceGrotesk";
   --background: #0a0a0a;
   --foreground: #ededed;
 }
@@ -47,6 +48,10 @@ input {
   font-size: small;
 }
 
+h1{
+  font-family: var(--font-spacegrotesk);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -73,6 +78,12 @@ input {
   font-family: "ActayRegular";
   src: url("../public/fonts/Actay-Regular.otf") format("opentype");
 }
+
+@font-face {
+  font-family: "SpaceGrotesk";
+  src: url("../public/fonts/SpaceGrotesk-Regular.ttf") format("truetype");
+}
+
 
 /* 2. Magnetic Corner Effect */
 @keyframes magneticCorner {

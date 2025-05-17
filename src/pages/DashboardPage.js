@@ -953,7 +953,7 @@ function DashboardPage() {
                         <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
                           {jobDetails.length}
                         </p>
-                        <p className="text-[#A2A2A2] xl:text-md text-sm mb-2 font-bold tracking-wider">
+                        <p className="text-[#A2A2A2] xl:text-lg text-sm  font-bold tracking-wider">
                           Total Jobs
                         </p>
                       </div>
@@ -964,7 +964,7 @@ function DashboardPage() {
                               .length
                           }
                         </p>
-                        <p className="text-[#A2A2A2] text-md mb-2 font-bold tracking-wider">
+                        <p className="text-[#A2A2A2] xl:text-lg text-sm font-bold tracking-wider">
                           Active Jobs
                         </p>
                       </div>
