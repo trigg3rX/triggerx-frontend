@@ -840,7 +840,7 @@ const Leaderboard = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedContributors.length > 0
+              {/* {paginatedContributors.length > 0
                 ? paginatedContributors.map((item, index) => (
                   <tr key={index} className={isConnected && item.address === connectedAddress ? "bg-[#271039] border-2 border-[#C07AF6]" : ""}>
                     <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg">
@@ -893,10 +893,35 @@ const Leaderboard = () => {
 
                     </td>
                   </tr>
-                )}
+                )} */}
+
+              <tr>
+                <td colSpan="3" className="text-center text-[#A2A2A2] py-5">
+                  <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mb-4"
+                    >
+                      <rect width="18" height="18" x="3" y="3" rx="2" />
+                      <path d="M3 9h18" />
+                      <path d="M9 21V9" />
+                    </svg>
+                    <p className="text-lg mb-2">     No contributor data available</p>
+                  </div>
+
+                </td>
+              </tr>
             </tbody>
           </table></div>
-        {renderPagination(totalPages)}
+        {/* {renderPagination(totalPages)} */}
       </>
     );
   };
