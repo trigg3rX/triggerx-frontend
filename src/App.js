@@ -85,6 +85,8 @@ const config = getDefaultConfig({
   projectId: "f8a6524307e28135845a9fe5811fcaa2",
   chains: [baseSepolia, optimismSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
+  autoConnect: false, // Disable autoConnect
+
 });
 
 const queryClient = new QueryClient();

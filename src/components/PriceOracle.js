@@ -481,43 +481,40 @@ const PriceOracle = () => {
     <div className=" ">
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
-        <div className=" mb-6">
+        <div className="">
           <h2 className="text-xl text-white mb-4">
             Dynamic Price Oracle Template
           </h2>
           <p className="text-[#A2A2A2] mb-4">
-            Fetches the real-time price of Ethereum in USD and updates it to the
-            contract via automation.
+            Fetches real-time ETH/USD prices and updates the contract automatically.
           </p>
 
           <div className="space-y-2">
             <h3 className="text-white text-lg mb-2">Setup Steps</h3>
             <ul className="list-disc list-inside text-[#A2A2A2] space-y-2 ml-2">
               <li>
-                Deploy - Click the "Deploy" button to deploy the proxy of
-                DynamicPriceOracle on OP Sepolia.
+                Deploy - Deploy the DynamicPriceOracle proxy on OP Sepolia.
               </li>
               <li>
-                Create Job - Click "Create Job" to view the prefilled job data.
+                Create Job - View pre-filled job data.
               </li>
               <li>
-                Adjust Settings - Optionally update the time interval or
-                timeframe as per your needs.
+                Adjust Settings - Update interval if needed.
               </li>
               <li>
-                Confirm - Click "Create Job" to finalize and activate the
-                automation.
+                Confirm - Finalize and activate automation.
+                Always-on price updates, fully automated.
               </li>
             </ul>
           </div>
         </div>
 
         {/* Contract Info Section */}
-        <div className=" rounded-lg mb-6">
-          <h2 className="text-xl text-white mb-3">Contract Information</h2>
+        <div className=" rounded-lg ">
+
           <div className="text-[#A2A2A2] ">
             {isPageLoading ? (
-              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg mt-6">
                 <p className="text-white text-center">Loading contract details...</p>
               </div>
             ) : !isConnected ? (
@@ -533,7 +530,6 @@ const PriceOracle = () => {
               </div>
             ) : !isDeployed ? (
               <>
-                <p className="">Status: Not Deployed</p>
                 <div className="">
                   <div className="flex flex-wrap gap-4">
                     {hasSufficientBalance ? (
@@ -582,7 +578,9 @@ const PriceOracle = () => {
               </>
             ) : (
               <>
-                <div className="bg-white/5 border border-white/10  p-5 rounded-lg ">
+                <h2 className="text-xl text-white my-6">Contract Information</h2>
+
+                <div className="bg-white/5 border border-white/10  p-5 rounded-lg mb-6 ">
                   <p className="text-white py-2">
                     Status :{" "}
                     <span className="text-[#A2A2A2] font-semibold pl-2">

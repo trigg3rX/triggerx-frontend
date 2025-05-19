@@ -474,7 +474,7 @@ const BalanceMaintainerExample = () => {
 
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Template Info Section */}
-        <div className=" mb-6">
+        <div className="">
           <h2 className="text-xl text-white mb-4">BalanceMaintainer Template</h2>
           <p className="text-[#A2A2A2] mb-4">
             This template automatically monitors and refills ETH for selected addresses when their balance drops below a set threshold.
@@ -497,11 +497,10 @@ const BalanceMaintainerExample = () => {
         </div>
 
         {/* Contract Info Section */}
-        <div className=" rounded-lg mb-6">
-          <h2 className="text-xl text-white mb-3">Contract Information</h2>
+        <div className=" rounded-lg">
           <div className="text-[#A2A2A2] ">
             {isPageLoading ? (
-              <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-lg mt-6">
                 <p className="text-white text-center">Loading contract details...</p>
               </div>
             ) : !isConnected ? (
@@ -517,7 +516,6 @@ const BalanceMaintainerExample = () => {
               </div>
             ) : !isDeployed ? (
               <>
-                <p className="">Status: Not Deployed</p>
 
                 <div className="flex flex-wrap gap-4">
                   {hasSufficientBalance ? (
@@ -559,7 +557,10 @@ const BalanceMaintainerExample = () => {
               </>
             ) : (
               <>
+                <h2 className="text-xl text-white my-6">Contract Information</h2>
+
                 <div className="bg-white/5 border border-white/10  p-5 rounded-lg ">
+
                   <p className="text-white py-2">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
                   <p className="text-white py-2">Owner : <span className="text-[#A2A2A2] font-semibold pl-2">{address}</span></p>
                   <p className="text-white py-2">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>

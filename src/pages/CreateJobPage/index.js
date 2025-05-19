@@ -1060,7 +1060,7 @@ function CreateJobPage() {
                           {template.title}
                         </h4>
                         <span
-                          className={`text-xs px-4 py-2 rounded-full bg-[#FBF197] text-[#202020]`}
+                          className={`text-sm px-4 py-2 rounded-full bg-[#FBF197] text-[#202020] traking-wider`}
                         >
                           Use
                         </span>

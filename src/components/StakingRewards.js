@@ -77,6 +77,7 @@ const StakingReward = () => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   const [stakeAmount, setStakeAmount] = useState("");
   const [unstakeAmount, setUnstakeAmount] = useState("");
@@ -86,6 +87,7 @@ const StakingReward = () => {
 
   const [hasNFT, setHasNFT] = useState(false);
 
+  const [hasClaimedToken, setHasClaimedToken] = useState(false);
 
   const [isAbiExpanded, setIsAbiExpanded] = useState(false);
 
@@ -173,10 +175,13 @@ const StakingReward = () => {
             setSigner(signer);
             setChainId(network.chainId);
             setIsInitialized(true);
+            setIsPageLoading(false);
+
 
             // Check for existing contract when provider is initialized
           } else {
             setIsInitialized(true);
+            setIsPageLoading(false);
           }
 
           // Listen for chain changes
@@ -268,6 +273,8 @@ const StakingReward = () => {
 
       // Refresh token balance
       await refetchTokenBalance();
+      setHasClaimedToken(true);
+
       toast.success("Token claimed successfully!");
     } catch (error) {
       console.error("Token claim error:", error);
@@ -285,6 +292,8 @@ const StakingReward = () => {
       setIsClaimingToken(false);
     }
   };
+
+
 
   // Show Modal to mint Token
   const showStakeTokenClaimModal = () => {
@@ -506,7 +515,7 @@ const StakingReward = () => {
     <div className=" ">
       <div className="max-w-[1600px] mx-auto  px-3 sm:px-5 py-6 ">
         {/* Static Content */}
-        <div className=" mb-6">
+        <div className="">
           <h2 className="text-xl text-white mb-4">StakingReward Template</h2>
           <p className="text-[#A2A2A2] mb-4">
             Stake ERC20 tokens and earn rewards based on your participation.
@@ -535,7 +544,7 @@ const StakingReward = () => {
 
         {/* Network Warning */}
         {isConnected && !isOptimismSepoliaNetwork() && (
-          <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
+          <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl mt-6">
             <div className="flex items-center mb-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -564,10 +573,8 @@ const StakingReward = () => {
         {/* Conditional Content - Only show if not connected or on the correct network */}
         {(!isConnected || isOptimismSepoliaNetwork()) && (
           <>
-            <div className="rounded-xl mb-8">
-              <h2 className="text-xl text-white  flex items-center">
-                Staking Reward Information
-              </h2>
+            <div className="rounded-xl ">
+
               <div className="text-[#A2A2A2]">
                 {!isConnected ? (
                   <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
@@ -585,7 +592,7 @@ const StakingReward = () => {
                   <div className="">
                     <div className="flex flex-wrap gap-4">
                       {hasSufficientBalance ? (
-                        !hasSufficientTokenBalance ? (
+                        !hasSufficientTokenBalance && (
                           <button
                             onClick={showStakeTokenClaimModal}
                             className="bg-[#C07AF6] text-white px-8 py-3 py-3 my-5 rounded-full transition-all text-lg flex items-center  hover:bg-[#B15AE6] "
@@ -605,32 +612,26 @@ const StakingReward = () => {
                             </svg>
                             {isClaimingToken ? "Claiming..." : "Claim Token"}
                           </button>
-                        ) : (
-                          <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
-                            <div className="flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 text-[#77E8A3] mr-2"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              <p className="text-[#77E8A3]">
-                                You have enough tokens to experiment with staking.
-                              </p>
-                            </div>
-                          </div>
                         )
                       ) : (
-                        <ClaimEth />
+                        <>
+                          <ClaimEth />
+
+                        </>
                       )}
                     </div>
-
+                    {!hasSufficientBalance && (
+                      <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl ">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#77E8A3] mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <p className="text-[#77E8A3]">
+                            You need to claim ETH before Stake/Unstake Tokens.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     {hasSufficientBalance && !hasSufficientTokenBalance && (
                       <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl">
                         <div className="flex items-center">
@@ -671,411 +672,419 @@ const StakingReward = () => {
                 />
 
                 {stakingContract && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                      <h3 className="text-white text-lg mb-2">
-                        Your Staked Amount
-                      </h3>
-                      <p className="text-[#F8FF7C] text-2xl font-semibold">
-                        {parseFloat(stakedAmount).toFixed(2)} Tokens
-                      </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                      <h3 className="text-white text-lg mb-2">Total Staked</h3>
-                      <p className="text-[#77E8A3] text-2xl font-semibold">
-                        {parseFloat(totalStaked).toFixed(2)} Tokens
-                      </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                      <h3 className="text-white text-lg mb-2">NFT Reward</h3>
-                      <p className="text-2xl font-semibold">
-                        {hasNFT ? (
-                          <span className="text-[#77E8A3]">Received ✓</span>
-                        ) : (
-                          <span className="text-[#A2A2A2]">Not Yet</span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                      <h3 className="text-white text-lg mb-2">
-                        Threshold for NFT Reward
-                      </h3>
-                      <p className="text-[#77E8A3]  text-2xl font-semibold">
-                        {THRESHOLD} STK
-                      </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                      <h3 className="text-white text-lg mb-2">
-                        Next Threshold for Reward Distribution
-                      </h3>
-                      <p className="text-[#77E8A3] text-2xl font-semibold">
-                        {parseFloat(nextThreshold).toFixed(2)} Tokens
-                      </p>
-                    </div>
-                  </div>
-                )}
+                  <>
+                    <h2 className="text-xl text-white  flex items-center my-6">
+                      Staking Reward Information
+                    </h2>
 
-                <div className="bg-white/5 border border-white/10 p-5 rounded-lg my-6">
-                  <h2 className="text-xl text-white mb-6">Stake/Unstake Tokens</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4 bg-gradient-to-br from-black/40 to-white/5 p-5 rounded-xl border border-white/10">
-                      <h3 className="text-lg text-white font-medium">
-                        Stake Tokens
-                      </h3>
-                      <div className="flex items-center gap-4">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            value={stakeAmount}
-                            onChange={(e) => setStakeAmount(e.target.value)}
-                            placeholder="Amount to stake"
-                            className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 w-full pr-24 focus:outline-none focus:ring-2 focus:ring-[#F8FF7C]/30 transition-all"
-                            step="0.1"
-                            min="0"
-                            disabled={
-                              !isInitialized ||
-                              isStaking ||
-                              !hasSufficientTokenBalance
-                            }
-                          />
-                          <button
-                            onClick={() => {
-                              if (tokenBalance) setStakeAmount(tokenBalance);
-                            }}
-                            disabled={!isInitialized || !hasSufficientTokenBalance}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
-                          >
-                            MAX
-                          </button>
-                        </div>
-                        <button
-                          onClick={handleStake}
-                          disabled={
-                            !isInitialized ||
-                            isStaking ||
-                            !stakeAmount ||
-                            !hasSufficientTokenBalance
-                          }
-                          className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
-                            isStaking ||
-                            !stakeAmount ||
-                            !hasSufficientTokenBalance
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
-                            }`}
-                        >
-                          {isApproving
-                            ? "Approving..."
-                            : isStaking
-                              ? "Staking..."
-                              : "Stake"}
-                        </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                        <h3 className="text-white text-lg mb-2">
+                          Your Staked Amount
+                        </h3>
+                        <p className="text-[#F8FF7C] text-2xl font-semibold">
+                          {parseFloat(stakedAmount).toFixed(2)} Tokens
+                        </p>
                       </div>
-                      <p className="text-[#A2A2A2] text-sm">
-                        Available:{" "}
-                        <span className="text-[#F8FF7C]">{tokenBalance} STK</span>
-                      </p>
-                    </div>
-
-                    <div className="space-y-4 bg-gradient-to-br from-black/40 to-white/5 p-5 rounded-xl border border-white/10">
-                      <h3 className="text-lg text-white font-medium">
-                        Unstake Tokens
-                      </h3>
-                      <div className="flex items-center gap-4">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            value={unstakeAmount}
-                            onChange={(e) => setUnstakeAmount(e.target.value)}
-                            placeholder="Amount to unstake"
-                            className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 w-full pr-24 focus:outline-none focus:ring-2 focus:ring-[#F8FF7C]/30 transition-all"
-                            step="0.1"
-                            min="0"
-                            max={stakedAmount}
-                            disabled={
-                              !isInitialized ||
-                              isUnstaking ||
-                              parseFloat(stakedAmount) <= 0
-                            }
-                          />
-                          <button
-                            onClick={() => {
-                              if (parseFloat(stakedAmount) > 0)
-                                setUnstakeAmount(stakedAmount);
-                            }}
-                            disabled={
-                              !isInitialized || parseFloat(stakedAmount) <= 0
-                            }
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
-                          >
-                            MAX
-                          </button>
-                        </div>
-                        <button
-                          onClick={handleUnstake}
-                          disabled={
-                            !isInitialized ||
-                            isUnstaking ||
-                            !unstakeAmount ||
-                            parseFloat(stakedAmount) <= 0 ||
-                            parseFloat(unstakeAmount) > parseFloat(stakedAmount)
-                          }
-                          className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
-                            isUnstaking ||
-                            !unstakeAmount ||
-                            parseFloat(stakedAmount) <= 0 ||
-                            parseFloat(unstakeAmount) > parseFloat(stakedAmount)
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
-                            }`}
-                        >
-                          {isUnstaking ? "Unstaking..." : "Unstake"}
-                        </button>
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                        <h3 className="text-white text-lg mb-2">Total Staked</h3>
+                        <p className="text-[#77E8A3] text-2xl font-semibold">
+                          {parseFloat(totalStaked).toFixed(2)} Tokens
+                        </p>
                       </div>
-                      <p className="text-[#A2A2A2] text-sm">
-                        Staked:{" "}
-                        <span className="text-[#F8FF7C]">{stakedAmount} STK</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Job Configuration Form Layout */}
-                <div className="p-4 rounded-lg mb-10">
-                  <h2 className="text-xl text-white mb-6 flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mr-2 text-[#F8FF7C]"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    Job Configuration
-                  </h2>
-
-                  {isConnected ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {[
-                        {
-                          key: "jobType",
-                          parameter: "Job Type",
-                          value: jobConfig.jobType,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-[#77E8A3]"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                        {
-                          key: "argType",
-                          parameter: "Arg Type",
-                          value: jobConfig.argType,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-[#77E8A3]"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2h-1.528A6 6 0 004 9.528V4z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M8 10a4 4 0 00-3.446 6.032l-1.261 1.26a1 1 0 101.414 1.415l1.261-1.261A4 4 0 108 10zm-2 4a2 2 0 114 0 2 2 0 01-4 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                        {
-                          key: "targetContractAddress",
-                          parameter: "Target Contract Address",
-                          value: jobConfig.targetContractAddress,
-                          isAddress: true,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-[#F8FF7C]"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                        {
-                          key: "targetFunction",
-                          parameter: "Target Function",
-                          value: jobConfig.targetFunction,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-[#F8FF7C]"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                        {
-                          key: "triggerContractAddress",
-                          parameter: "Trigger Contract Address",
-                          value: jobConfig.triggerContractAddress,
-                          isAddress: true,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-purple-400"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                        {
-                          key: "triggerEvent",
-                          parameter: "Trigger Event",
-                          value: jobConfig.triggerEvent,
-                          icon: (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-purple-400"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ),
-                        },
-                      ].map((item) => (
-                        <div
-                          key={item.key}
-                          className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1"
-                        >
-                          <div className="flex items-center mb-3">
-                            {item.icon}
-                            <h3 className="text-white text-lg font-medium ml-2">
-                              {item.parameter}
-                            </h3>
-                          </div>
-
-                          {item.isAddress ? (
-                            <div className="flex flex-col space-y-2">
-                              <div className=" flex items-center justify-between bg-black/30 rounded-lg p-2 border border-white/10 overflow-hidden">
-                                <p className="break-all text-[#A2A2A2] font-mono text-sm overflow-x-auto whitespace-nowrap pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                                  {item.value.substring(0, 10)}...
-                                  {item.value.substring(item.value.length - 4)}
-                                </p>
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(item.value);
-                                    toast.success(
-                                      `${item.parameter} copied to clipboard!`
-                                    );
-                                  }}
-                                  className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-all hover:scale-105"
-                                >
-                                  <Copy className="h-4 w-4 text-gray-400" />
-                                </button>
-                              </div>
-                            </div>
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                        <h3 className="text-white text-lg mb-2">NFT Reward</h3>
+                        <p className="text-2xl font-semibold">
+                          {hasNFT ? (
+                            <span className="text-[#77E8A3]">Received ✓</span>
                           ) : (
-                            <p className="text-[#A2A2A2] text-lg break-all">
-                              {item.value}
-                            </p>
+                            <span className="text-[#A2A2A2]">Not Yet</span>
                           )}
-                        </div>
-                      ))}
-
-                      <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl md:col-span-2">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-blue-400"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                                clipRule="evenodd"
+                        </p>
+                      </div>
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                        <h3 className="text-white text-lg mb-2">
+                          Threshold for NFT Reward
+                        </h3>
+                        <p className="text-[#77E8A3]  text-2xl font-semibold">
+                          {THRESHOLD} STK
+                        </p>
+                      </div>
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
+                        <h3 className="text-white text-lg mb-2">
+                          Next Threshold for Reward Distribution
+                        </h3>
+                        <p className="text-[#77E8A3] text-2xl font-semibold">
+                          {parseFloat(nextThreshold).toFixed(2)} Tokens
+                        </p>
+                      </div>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 p-5 rounded-lg my-6">
+                      <h2 className="text-xl text-white mb-6">Stake/Unstake Tokens</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4 bg-gradient-to-br from-black/40 to-white/5 p-5 rounded-xl border border-white/10">
+                          <h3 className="text-lg text-white font-medium">
+                            Stake Tokens
+                          </h3>
+                          <div className="flex items-center gap-4">
+                            <div className="relative flex-1">
+                              <input
+                                type="number"
+                                value={stakeAmount}
+                                onChange={(e) => setStakeAmount(e.target.value)}
+                                placeholder="Amount to stake"
+                                className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 w-full pr-24 focus:outline-none focus:ring-2 focus:ring-[#F8FF7C]/30 transition-all"
+                                step="0.1"
+                                min="0"
+                                disabled={
+                                  !isInitialized ||
+                                  isStaking ||
+                                  !hasSufficientTokenBalance ||
+                                  !hasSufficientBalance
+                                }
                               />
-                            </svg>
-                            <h3 className="text-white text-lg font-medium ml-2">
-                              Contract ABI
-                            </h3>
+                              <button
+                                onClick={() => {
+                                  if (tokenBalance) setStakeAmount(tokenBalance);
+                                }}
+                                disabled={!isInitialized || !hasSufficientTokenBalance || !hasSufficientBalance}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
+                              >
+                                MAX
+                              </button>
+                            </div>
+                            <button
+                              onClick={handleStake}
+                              disabled={
+                                !isInitialized ||
+                                isStaking ||
+                                !stakeAmount ||
+                                !hasSufficientTokenBalance ||
+                                !hasSufficientBalance
+                              }
+                              className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
+                                isStaking ||
+                                !stakeAmount ||
+                                !hasSufficientTokenBalance ||
+                                !hasSufficientBalance
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+                                }`}
+                            >
+                              {isApproving
+                                ? "Approving..."
+                                : isStaking
+                                  ? "Staking..."
+                                  : "Stake"}
+                            </button>
                           </div>
-                          <button
-                            onClick={toggleAbiExpansion}
-                            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-all hover:scale-105"
-                          >
-                            <span className="text-white text-sm">
-                              {!isAbiExpanded ? "View ABI" : "Hide ABI"}
-                            </span>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className={`h-4 w-4 text-white transition-transform duration-300 ${isAbiExpanded ? "rotate-180" : ""}`}
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        <div className="flex items-center mb-3">
-                          <p className="text-[#A2A2A2]">
-                            The interface for the contract's distributeNFTRewards
-                            function
+                          <p className="text-[#A2A2A2] text-sm">
+                            Available:{" "}
+                            <span className="text-[#F8FF7C]">{tokenBalance} STK</span>
                           </p>
                         </div>
 
-                        {/* {!isAbiExpanded && (
+                        <div className="space-y-4 bg-gradient-to-br from-black/40 to-white/5 p-5 rounded-xl border border-white/10">
+                          <h3 className="text-lg text-white font-medium">
+                            Unstake Tokens
+                          </h3>
+                          <div className="flex items-center gap-4">
+                            <div className="relative flex-1">
+                              <input
+                                type="number"
+                                value={unstakeAmount}
+                                onChange={(e) => setUnstakeAmount(e.target.value)}
+                                placeholder="Amount to unstake"
+                                className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 w-full pr-24 focus:outline-none focus:ring-2 focus:ring-[#F8FF7C]/30 transition-all"
+                                step="0.1"
+                                min="0"
+                                max={stakedAmount}
+                                disabled={
+                                  !isInitialized ||
+                                  !hasSufficientBalance ||
+                                  isUnstaking ||
+                                  parseFloat(stakedAmount) <= 0
+                                }
+                              />
+                              <button
+                                onClick={() => {
+                                  if (parseFloat(stakedAmount) > 0)
+                                    setUnstakeAmount(stakedAmount);
+                                }}
+                                disabled={
+                                  !isInitialized || parseFloat(stakedAmount) <= 0
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
+                              >
+                                MAX
+                              </button>
+                            </div>
+                            <button
+                              onClick={handleUnstake}
+                              disabled={
+                                !isInitialized ||
+                                isUnstaking ||
+                                !hasSufficientBalance ||
+                                !unstakeAmount ||
+                                parseFloat(stakedAmount) <= 0 ||
+                                parseFloat(unstakeAmount) > parseFloat(stakedAmount)
+                              }
+                              className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
+                                isUnstaking ||
+                                !unstakeAmount ||
+                                parseFloat(stakedAmount) <= 0 ||
+                                parseFloat(unstakeAmount) > parseFloat(stakedAmount)
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
+                                }`}
+                            >
+                              {isUnstaking ? "Unstaking..." : "Unstake"}
+                            </button>
+                          </div>
+                          <p className="text-[#A2A2A2] text-sm">
+                            Staked:{" "}
+                            <span className="text-[#F8FF7C]">{stakedAmount} STK</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job Configuration Form Layout */}
+                    <div className="p-4 rounded-lg mb-10">
+                      <h2 className="text-xl text-white mb-6 flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 mr-2 text-[#F8FF7C]"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        Job Configuration
+                      </h2>
+
+                      {isConnected ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {[
+                            {
+                              key: "jobType",
+                              parameter: "Job Type",
+                              value: jobConfig.jobType,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-[#77E8A3]"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                            {
+                              key: "argType",
+                              parameter: "Arg Type",
+                              value: jobConfig.argType,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-[#77E8A3]"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2h-1.528A6 6 0 004 9.528V4z" />
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M8 10a4 4 0 00-3.446 6.032l-1.261 1.26a1 1 0 101.414 1.415l1.261-1.261A4 4 0 108 10zm-2 4a2 2 0 114 0 2 2 0 01-4 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                            {
+                              key: "targetContractAddress",
+                              parameter: "Target Contract Address",
+                              value: jobConfig.targetContractAddress,
+                              isAddress: true,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-[#F8FF7C]"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                            {
+                              key: "targetFunction",
+                              parameter: "Target Function",
+                              value: jobConfig.targetFunction,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-[#F8FF7C]"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                            {
+                              key: "triggerContractAddress",
+                              parameter: "Trigger Contract Address",
+                              value: jobConfig.triggerContractAddress,
+                              isAddress: true,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-purple-400"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                            {
+                              key: "triggerEvent",
+                              parameter: "Trigger Event",
+                              value: jobConfig.triggerEvent,
+                              icon: (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-purple-400"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ),
+                            },
+                          ].map((item) => (
+                            <div
+                              key={item.key}
+                              className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1"
+                            >
+                              <div className="flex items-center mb-3">
+                                {item.icon}
+                                <h3 className="text-white text-lg font-medium ml-2">
+                                  {item.parameter}
+                                </h3>
+                              </div>
+
+                              {item.isAddress ? (
+                                <div className="flex flex-col space-y-2">
+                                  <div className=" flex items-center justify-between bg-black/30 rounded-lg p-2 border border-white/10 overflow-hidden">
+                                    <p className="break-all text-[#A2A2A2] font-mono text-sm overflow-x-auto whitespace-nowrap pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                      {item.value.substring(0, 10)}...
+                                      {item.value.substring(item.value.length - 4)}
+                                    </p>
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(item.value);
+                                        toast.success(
+                                          `${item.parameter} copied to clipboard!`
+                                        );
+                                      }}
+                                      className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-all hover:scale-105"
+                                    >
+                                      <Copy className="h-4 w-4 text-gray-400" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-[#A2A2A2] text-lg break-all">
+                                  {item.value}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+
+                          <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl md:col-span-2">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-blue-400"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                <h3 className="text-white text-lg font-medium ml-2">
+                                  Contract ABI
+                                </h3>
+                              </div>
+                              <button
+                                onClick={toggleAbiExpansion}
+                                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-all hover:scale-105"
+                              >
+                                <span className="text-white text-sm">
+                                  {!isAbiExpanded ? "View ABI" : "Hide ABI"}
+                                </span>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className={`h-4 w-4 text-white transition-transform duration-300 ${isAbiExpanded ? "rotate-180" : ""}`}
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+
+                            <div className="flex items-center mb-3">
+                              <p className="text-[#A2A2A2]">
+                                The interface for the contract's distributeNFTRewards
+                                function
+                              </p>
+                            </div>
+
+                            {/* {!isAbiExpanded && (
                       <div className="flex justify-center">
                         <button
                           onClick={toggleAbiExpansion}
@@ -1086,56 +1095,60 @@ const StakingReward = () => {
                       </div>
                     )} */}
 
-                        {isAbiExpanded && (
-                          <div className="mt-4">
-                            <div className="bg-black/30 border border-white/10 p-4 rounded-lg overflow-x-auto transition-all animate-fadeIn">
-                              <pre className="text-[#A2A2A2] text-sm font-mono">
-                                {JSON.stringify(jobConfig.abi, null, 2)}
-                              </pre>
-                            </div>
-                            <div className="flex justify-end mt-3">
-                              <button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(
-                                    JSON.stringify(jobConfig.abi, null, 2)
-                                  );
-                                  toast.success("ABI copied to clipboard!");
-                                }}
-                                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-all hover:scale-105"
-                              >
-                                <Copy className="h-4 w-4 text-gray-400" />
-                                <span className="text-white text-sm">Copy ABI</span>
-                              </button>
-                            </div>
+                            {isAbiExpanded && (
+                              <div className="mt-4">
+                                <div className="bg-black/30 border border-white/10 p-4 rounded-lg overflow-x-auto transition-all animate-fadeIn">
+                                  <pre className="text-[#A2A2A2] text-sm font-mono">
+                                    {JSON.stringify(jobConfig.abi, null, 2)}
+                                  </pre>
+                                </div>
+                                <div className="flex justify-end mt-3">
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        JSON.stringify(jobConfig.abi, null, 2)
+                                      );
+                                      toast.success("ABI copied to clipboard!");
+                                    }}
+                                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-all hover:scale-105"
+                                  >
+                                    <Copy className="h-4 w-4 text-gray-400" />
+                                    <span className="text-white text-sm">Copy ABI</span>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-10 rounded-xl text-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-12 w-12 mx-auto text-[#A2A2A2] mb-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                            />
+                          </svg>
+                          <p className="text-[#A2A2A2] text-lg">
+                            Please connect your wallet to view job configuration
+                          </p>
+                          <p className="text-white/50 text-sm mt-3">
+                            Job configuration will display the automated process details
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-10 rounded-xl text-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 mx-auto text-[#A2A2A2] mb-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
-                      <p className="text-[#A2A2A2] text-lg">
-                        Please connect your wallet to view job configuration
-                      </p>
-                      <p className="text-white/50 text-sm mt-3">
-                        Job configuration will display the automated process details
-                      </p>
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
+
+
               </>
             )}
           </>
