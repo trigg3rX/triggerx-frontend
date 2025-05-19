@@ -448,7 +448,7 @@ export function EstimatedFeeModal({
                 onClick={handleStake} // Use handleStake
                 disabled={isDisabled}
                 // disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${isDisabled
+                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${isDisabled
                   ? "bg-gray-400 text-gray-700 " // Disabled styles
                   : "bg-white text-black" // Enabled styles
                   }`}
@@ -459,7 +459,7 @@ export function EstimatedFeeModal({
               <button
                 onClick={handleStake} // Use handleStake
                 disabled={!hasEnoughEthToStake || isSubmitting}
-                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
+                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
                   ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                   : "bg-white text-black"
                   }`}
@@ -469,7 +469,7 @@ export function EstimatedFeeModal({
             )}
             <button
               onClick={handleClose} // Use handleClose
-              className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
+              className="flex-1 px-6 py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300"
             >
               Cancel
             </button>

@@ -26,6 +26,9 @@ import timeBasedGif from "../../assets/time-based.gif";
 import conditionBasedGif from "../../assets/condition-based.gif";
 import eventBasedGif from "../../assets/event-based.gif";
 import templates from "../../data/templates.json";
+import eventBasedSvg from "../../assets/event-based.svg"
+import conditionBasedSvg from "../../assets/condition-based.svg"
+import timeBasedSvg from "../../assets/time-based.svg"
 
 import DeleteConfirmationButton from "./components/DeleteConfirmationButton";
 import { WarningOutlined } from "@ant-design/icons";
@@ -107,20 +110,20 @@ const options = [
   {
     value: "1",
     label: "Time-based Trigger",
-    icon: timeBasedIcon,
-    gif: timeBasedGif,
+    icon: timeBasedSvg,
+    selectedIcon: timeBasedGif,
   },
   {
     value: "2",
     label: "Condition-based Trigger",
-    icon: conditionBasedIcon,
-    gif: conditionBasedGif,
+    icon: conditionBasedSvg,
+    selectedIcon: conditionBasedGif,
   },
   {
     value: "3",
     label: "Event-based Trigger",
-    icon: eventBasedIcon,
-    gif: eventBasedGif,
+    icon: eventBasedSvg,
+    selectedIcon: eventBasedGif,
   },
 ];
 
@@ -1147,7 +1150,7 @@ function CreateJobPage() {
                               ></div>
                               {Number(option.value) === jobType ? (
                                 <img
-                                  src={option.gif}
+                                  src={option.selectedIcon}
                                   alt={option.label}
                                   className="w-auto h-8"
                                 />
@@ -1155,7 +1158,7 @@ function CreateJobPage() {
                                 <img
                                   src={option.icon}
                                   alt={option.label}
-                                  className="w-auto h-8"
+                                  className="w-10 h-10"
                                 />
                               )}
                               <span>{option.label}</span>
