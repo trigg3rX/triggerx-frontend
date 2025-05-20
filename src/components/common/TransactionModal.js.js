@@ -85,13 +85,13 @@ const TransactionModal = ({ isOpen, onClose, onConfirm, modalType, modalData }) 
             <div className="mt-8 flex justify-between gap-5">
                 <button
                     onClick={onClose}
-                    className="flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300"
+                    className="flex-1 px-6 py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300"
                 >
                     Cancel
                 </button>
                 <button
                     onClick={onConfirm}
-                    className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black`}
+                    className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 bg-white text-black`}
                 >
                     Confirm
                 </button>
