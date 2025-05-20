@@ -542,11 +542,11 @@ function DashboardPage() {
     if (!balance) return "0";
     const num = parseFloat(balance);
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(4) + "M";
+      return (num / 1000000).toFixed(2) + "M";
     } else if (num >= 1000) {
-      return (num / 1000).toFixed(4) + "K";
+      return (num / 1000).toFixed(2) + "K";
     }
-    return num.toFixed(4);
+    return num.toFixed(2);
   };
 
   // Add pagination helper functions
@@ -891,11 +891,9 @@ function DashboardPage() {
                     <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
                       Total TG Balance
                     </p>
-                    <Tooltip title={`${tgBalance} TG`} placement="top">
-                      <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
-                        {formatBalance(tgBalance)} TG
-                      </p>
-                    </Tooltip>
+                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
+                      {formatBalance(tgBalance)} TG
+                    </p>
                   </div>
                 </div>
               )}
@@ -923,8 +921,9 @@ function DashboardPage() {
                           <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                           <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
                           <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                            Stake ETH
+                            Top Up TG
                           </span>
+
                         </button>
                       </div>
 
@@ -1029,10 +1028,13 @@ function DashboardPage() {
               ref={modelRef}
               className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md"
             >
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                Stake ETH
+              <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                Top Up TG
               </h2>
-              <form onSubmit={handleStake} className="space-y-6">
+              <span className="text-gray-300 text-sm ">Exchange ETH to TG (Flue of your job) to automate jobs on TriggerX.
+                1 ETH = 1000 TG
+              </span>
+              <form onSubmit={handleStake} className="space-y-6 mt-6">
                 <div>
                   {isStaking ? (
                     <div className="flex justify-center p-5">
@@ -1043,6 +1045,7 @@ function DashboardPage() {
                       <label className="block text-gray-300 mb-2">
                         Amount (ETH)
                       </label>
+
                       <input
                         type="number"
                         step="0.01"
@@ -1051,6 +1054,15 @@ function DashboardPage() {
                         className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
                         placeholder="Enter ETH amount"
                       />
+
+                      {stakeAmount && Number(stakeAmount) > 0 && (
+                        <div className="mt-3 p-3 bg-[#242323] rounded-lg flex flex-col">
+                          <span className="text-[#A2A2A2] text-sm"> Estimated TG </span>
+                          <span className="text-white text-xl font-bold mt-1 tracking-wider">
+                            {(Number(stakeAmount) * 1000).toFixed(4)} TG
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1062,10 +1074,9 @@ function DashboardPage() {
                       Number(stakeAmount) >
                       Number(accountBalance?.formatted || 0)
                     }
-                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                    className="relative bg-[#FFFFFF] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
-                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+
                     <span
                       className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
                         !stakeAmount ||
@@ -1080,20 +1091,11 @@ function DashboardPage() {
                         : Number(stakeAmount) >
                           Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
-                          : "Stake"}
+                          : "Top Up Stake"}
                     </span>
                   </button>
 
-                  {/* <button
-                    onClick={() => setStakeModalVisible(false)}
-                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full "
-                  >
-                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base">
-                      Cancel
-                    </span>
-                  </button> */}
+
                 </div>
               </form>
             </div>
