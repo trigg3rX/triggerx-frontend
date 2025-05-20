@@ -483,7 +483,7 @@ const PriceOracle = () => {
         {/* Template Info Section */}
         <div className="">
           <h2 className="text-xl text-white mb-4">
-            Dynamic Price Oracle Template
+            DynamicPriceOracle Template
           </h2>
           <p className="text-[#A2A2A2] mb-4">
             Fetches real-time ETH/USD prices and updates the contract automatically.

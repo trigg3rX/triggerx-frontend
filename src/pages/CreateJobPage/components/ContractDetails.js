@@ -467,7 +467,7 @@ export function ContractDetails({
                 <ChevronDown className="text-white text-xs ml-4" />
               </div>
               {isFunctionOpen && (
-                <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg">
+                <div className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-visible shadow-lg z-50">
                   {functions.map((func, index) => {
                     const signature = `${func.name}(${func.inputs
                       .map((input) => input.type)
