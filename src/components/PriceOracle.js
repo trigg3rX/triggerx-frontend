@@ -653,7 +653,7 @@ const PriceOracle = () => {
                       type: "function",
                     },
                   ]),
-                  timeframe: { days: 0, hours: 0, minutes: 1 },
+                  timeframe: { days: 1, hours: 0, minutes: 0 },
                   timeInterval: { hours: 1, minutes: 0, seconds: 0 },
                   argumentType: "dynamic",
                   ipfsCodeUrl:

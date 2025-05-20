@@ -452,6 +452,8 @@ function CreateJobPage() {
     isModalOpen,
     setIsModalOpen,
     handleSubmit,
+    isJobCreated,
+    handleDashboardClick
   } = useJobCreation();
 
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
@@ -1704,7 +1706,7 @@ function CreateJobPage() {
             setIsModalOpen(false);
             setIsLoading(false);
             setProcessSteps(false);
-            resetProcessSteps(); // Add this line
+            resetProcessSteps();
           }}
           estimatedFee={estimatedFee}
           onStake={() => {
@@ -1717,6 +1719,8 @@ function CreateJobPage() {
           }}
           userBalance={userBalance}
           isSubmitting={isSubmitting}
+          isJobCreated={isJobCreated}
+          handleDashboardClick={handleDashboardClick}
         />
       </div>
     </div>
