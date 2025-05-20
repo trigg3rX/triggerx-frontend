@@ -19,6 +19,8 @@ export function EstimatedFeeModal({
   isSubmitting,
   userBalance,
   onStake,
+  isJobCreated,
+  handleDashboardClick,
 }) {
   const { address } = useAccount();
   const { data: ethBalance } = useBalance({
@@ -50,12 +52,18 @@ export function EstimatedFeeModal({
 
   const resetProcessing = () => {
     setCurrentStep(0);
-    setGameStarted(false); // Reset game state as well
+    setGameStarted(false);
     setCharacter([{ x: 10, y: 10 }]);
     setFood({ x: 15, y: 15 });
     setDirection("RIGHT");
     setGameOver(false);
     setScore(0);
+    setShowRequiredTGTooltip(false);
+    setShowBalanceTooltip(false);
+    setShowStakeTooltip(false);
+    setFoodEatenAnimation(null);
+    setFrameIndex(0);
+    
   };
 
   useEffect(() => {
@@ -236,7 +244,7 @@ export function EstimatedFeeModal({
 
     if (gameOver) {
       ctx.fillStyle = "yellow";
-      ctx.font = "20px Arial";
+      ctx.font = "18px Arial";
       ctx.fillText(
         "Fee-ding frenzy finished!",
         canvas.width / 4 + 30,
@@ -244,7 +252,7 @@ export function EstimatedFeeModal({
       );
       ctx.fillText(
         "Still brewing up your job fees... almost there!🍀⌛",
-        canvas.width / 10 - 30,
+        canvas.width / 10 - 5,
         canvas.height / 3 + 60
       );
       ctx.fillText(
@@ -252,6 +260,13 @@ export function EstimatedFeeModal({
         canvas.width / 3 + 50,
         canvas.height / 2 + 30
       );
+
+    }
+
+    if (gameOver) {
+      ctx.fillStyle = "#82fbd0";
+      ctx.font = "20px Arial";
+
       ctx.fillText(
         "Tap to Restart",
         canvas.width / 3 + 20,
@@ -265,6 +280,7 @@ export function EstimatedFeeModal({
       resetProcessing(); // Reset on modal open
       document.body.style.overflow = "hidden";
     } else {
+      resetProcessing(); // Reset on modal close
       document.body.style.overflow = "unset";
     }
     return () => {
@@ -291,7 +307,6 @@ export function EstimatedFeeModal({
   };
 
   const handleStake = () => {
-    resetProcessing(); // Reset before staking, if needed
     document.body.style.overflow = "unset"; // Enable scroll on stake
     onStake();
   };
@@ -303,7 +318,7 @@ export function EstimatedFeeModal({
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={handleClose} // Use handleClose
+      onRequestClose={handleClose}
       contentLabel="Estimate Fee"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
@@ -311,9 +326,7 @@ export function EstimatedFeeModal({
       {showProcessing && !showFees && (
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-white text-xl text-center">Creating Job</h3>
-
           <div>
-            {/* Show only the current step's text */}
             {currentStep < steps.length && (
               <div
                 key={steps[currentStep].id}
@@ -322,7 +335,6 @@ export function EstimatedFeeModal({
                 <h4 className="text-md">{steps[currentStep].text}</h4>
               </div>
             )}
-            {/* After steps are complete, show last step */}
             {currentStep >= steps.length && (
               <div
                 key={steps[steps.length - 1].id}
@@ -331,7 +343,6 @@ export function EstimatedFeeModal({
                 <h4 className="text-md">{steps[steps.length - 1].text}</h4>
               </div>
             )}
-
             <div className="h-1.5 bg-gray-500 opacity-50 rounded-full mt-2 overflow-hidden">
               <div
                 className="h-full bg-[#F8FF7C] transition-all duration-500"
@@ -342,139 +353,152 @@ export function EstimatedFeeModal({
         </div>
       )}
 
-      {(showProcessing || showFees) && (
+      <div className="w-full bg-black rounded-xl flex flex-col gap-2 shadow-lg border border-gray-600 overflow-hidden">
+
+        <canvas
+          ref={canvasRef}
+          width={gridSize * tileSize}
+          height={gridSize * tileSize}
+          onClick={handleCanvasClick}
+        />
+      </div>
+      <div className="text-white text-center py-2">Score: {score}</div>
+      {!isJobCreated ? (
         <>
-          <div className="w-full bg-black rounded-xl flex flex-col gap-2 shadow-lg border border-gray-600 ">
-            {!(showFees && gameOver) ? (
-              <>
-                <canvas
-                  ref={canvasRef}
-                  width={gridSize * tileSize}
-                  height={gridSize * tileSize}
-                  onClick={handleCanvasClick}
-                />
-              </>
-            ) : (
-              <div className="text-white text-center py-6 px-6">
-                {score > 0 ? "Fees calculated! Your token-grabbing skills have been noted.😉" : "Fees calculated! Your token-grabbing skills have been noted.😉"}
-              </div>
-            )}
-          </div>
-          <div className="text-white text-center py-2">Score: {score}</div>
-        </>
-      )}
 
-      {showFees && (
-        <>
-          <h2 className="text-2xl font-bold my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
-            Estimated Fee
-          </h2>
-          <div className="space-y-4 mb-6">
-            <div className="text-gray-300 flex justify-between">
-              <div className="flex">
-                Required TG
-                <div className="relative top-[4px]">
-                  <FiInfo
-                    className="text-gray-400 hover:text-white cursor-pointer ml-2"
-                    size={15}
-                    onMouseEnter={() => setShowRequiredTGTooltip(true)}
-                    onMouseLeave={() => setShowRequiredTGTooltip(false)}
-                  />
-                  {showRequiredTGTooltip && (
-                    <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
-                      <div className="flex flex-col gap-2 text-sm text-gray-300">
-                        <div className="flex items-center gap-2">
-                          <span>
-                            TriggerGas (TG) is the standard unit for calculating
-                            computational and resource costs on the TriggerX
-                            platform.
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <p>
-                {" "}
-                {estimatedFee && estimatedFee > 0
-                  ? ` ${estimatedFee.toFixed(4)} TG`
-                  : "Something went wrong"}
-              </p>
-            </div>
 
-            <div className="text-gray-300 flex justify-between">
-              <p className="flex">Your TG Balance</p>
-              <Tooltip title={userBalance || "0"} placement="top">
-                <p className="cursor-help">
-                  {userBalance ? Number(userBalance).toFixed(6) : "0.0000"}{" "}
-                </p>
-              </Tooltip>
-            </div>
 
-            {!hasEnoughBalance && (
-              <div className="text-gray-300 flex justify-between">
-                <div className="flex">
-                  {" "}
-                  Required ETH to stake
-                  <div className="relative top-[4px]">
-                    <FiInfo
-                      className="text-gray-400 hover:text-white cursor-pointer ml-2"
-                      size={15}
-                      onMouseEnter={() => setShowStakeTooltip(true)}
-                      onMouseLeave={() => setShowStakeTooltip(false)}
-                    />
-                    {showStakeTooltip && (
-                      <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
-                        <div className="flex flex-col gap-2 text-sm text-gray-300">
-                          <div className="flex items-center gap-2">
-                            <span>
-                              Required ETH to Stake is based on the total
-                              TriggerXGas consumed and TriggerXGas Unit Price.
-                            </span>
+          {showFees && (
+            <>
+              <h2 className="text-2xl font-bold my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
+                Estimated Fee
+              </h2>
+              <div className="space-y-4 mb-6">
+                <div className="text-gray-300 flex justify-between">
+                  <div className="flex">
+                    Required TG
+                    <div className="relative top-[4px]">
+                      <FiInfo
+                        className="text-gray-400 hover:text-white cursor-pointer ml-2"
+                        size={15}
+                        onMouseEnter={() => setShowRequiredTGTooltip(true)}
+                        onMouseLeave={() => setShowRequiredTGTooltip(false)}
+                      />
+                      {showRequiredTGTooltip && (
+                        <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
+                          <div className="flex flex-col gap-2 text-sm text-gray-300">
+                            <div className="flex items-center gap-2">
+                              <span>
+                                TriggerGas (TG) is the standard unit for calculating
+                                computational and resource costs on the TriggerX
+                                platform.
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
+                  <p>
+                    {" "}
+                    {estimatedFee && estimatedFee > 0
+                      ? ` ${estimatedFee.toFixed(4)} TG`
+                      : "Something went wrong"}
+                  </p>
                 </div>
-                <p> {(0.001 * estimatedFee).toFixed(6)} ETH </p>
+
+                <div className="text-gray-300 flex justify-between">
+                  <p className="flex">Your TG Balance</p>
+                  <Tooltip title={userBalance || "0"} placement="top">
+                    <p className="cursor-help">
+                      {userBalance ? Number(userBalance).toFixed(6) : "0.0000"}{" "}
+                    </p>
+                  </Tooltip>
+                </div>
+
+                {!hasEnoughBalance && (
+                  <div className="text-gray-300 flex justify-between">
+                    <div className="flex">
+                      {" "}
+                      Required ETH to stake
+                      <div className="relative top-[4px]">
+                        <FiInfo
+                          className="text-gray-400 hover:text-white cursor-pointer ml-2"
+                          size={15}
+                          onMouseEnter={() => setShowStakeTooltip(true)}
+                          onMouseLeave={() => setShowStakeTooltip(false)}
+                        />
+                        {showStakeTooltip && (
+                          <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
+                            <div className="flex flex-col gap-2 text-sm text-gray-300">
+                              <div className="flex items-center gap-2">
+                                <span>
+                                  Required ETH to Stake is based on the total
+                                  TriggerXGas consumed and TriggerXGas Unit Price.
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <p> {(0.001 * estimatedFee).toFixed(6)} ETH </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="flex gap-4">
-            {hasEnoughBalance ? (
-              <button
-                onClick={handleStake} // Use handleStake
-                disabled={isDisabled}
-                // disabled={!estimatedFee || estimatedFee <= 0} // Disable if fee is invalid
-                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${isDisabled
-                  ? "bg-gray-400 text-gray-700 " // Disabled styles
-                  : "bg-white text-black" // Enabled styles
-                  }`}
-              >
-                {isSubmitting ? "Processing..." : "Next"}
-              </button>
-            ) : (
-              <button
-                onClick={handleStake} // Use handleStake
-                disabled={!hasEnoughEthToStake || isSubmitting}
-                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
-                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                  : "bg-white text-black"
-                  }`}
-              >
-                {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
-              </button>
-            )}
-            <button
-              onClick={handleClose} // Use handleClose
-              className="flex-1 px-6 py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300"
-            >
-              Cancel
-            </button>
-          </div>
+              <div className="flex gap-4">
+                {hasEnoughBalance ? (
+                  <button
+                    onClick={handleStake}
+                    disabled={isDisabled}
+                    className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${isDisabled
+                      ? "bg-gray-400 text-gray-700 "
+                      : "bg-white text-black"
+                      }`}
+                  >
+                    {isSubmitting ? "Processing..." : "Next"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleStake}
+                    disabled={!hasEnoughEthToStake || isSubmitting}
+                    className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
+                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                      : "bg-white text-black"
+                      }`}
+                  >
+                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
+                  </button>
+                )}
+                <button
+                  onClick={handleClose}
+                  className="flex-1 px-6 py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
         </>
+      ) : (
+
+        <div className="flex flex-col items-center gap-4">
+
+          <div className="w-10 h-10 bg-[#A2A2A2] rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-white text-xl text-center">Job Created Successfully!</h3>
+          <p className="text-gray-400 text-center">Your job has been created and is now active.</p>
+          <button
+            onClick={handleDashboardClick}
+            className="mt-4 bg-[#F8FF7C] text-black px-6 py-2 rounded-full hover:bg-[#F8FF7C]/90 transition-colors"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+
       )}
     </Modal>
   );

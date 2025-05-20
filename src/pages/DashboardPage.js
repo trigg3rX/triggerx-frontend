@@ -1036,35 +1036,31 @@ function DashboardPage() {
               </span>
               <form onSubmit={handleStake} className="space-y-6 mt-6">
                 <div>
-                  {isStaking ? (
-                    <div className="flex justify-center p-5">
-                      <img src={loader} alt="" />
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="block text-gray-300 mb-2">
-                        Amount (ETH)
-                      </label>
 
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={stakeAmount}
-                        onChange={(e) => setStakeAmount(e.target.value)}
-                        className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
-                        placeholder="Enter ETH amount"
-                      />
+                  <div>
+                    <label className="block text-gray-300 mb-2">
+                      Amount (ETH)
+                    </label>
 
-                      {stakeAmount && Number(stakeAmount) > 0 && (
-                        <div className="mt-3 p-3 bg-[#242323] rounded-lg flex flex-col">
-                          <span className="text-[#A2A2A2] text-sm"> Estimated TG </span>
-                          <span className="text-white text-xl font-bold mt-1 tracking-wider">
-                            {(Number(stakeAmount) * 1000).toFixed(4)} TG
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={stakeAmount}
+                      onChange={(e) => setStakeAmount(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#141414] border border-[#3C3C3C] rounded-lg focus:outline-none text-white"
+                      placeholder="Enter ETH amount"
+                    />
+
+                    {stakeAmount && Number(stakeAmount) > 0 && (
+                      <div className="mt-3 p-3 bg-[#242323] rounded-lg flex flex-col">
+                        <span className="text-[#A2A2A2] text-sm"> Estimated TG </span>
+                        <span className="text-white text-xl font-bold mt-1 tracking-wider">
+                          {(Number(stakeAmount) * 1000).toFixed(4)} TG
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
                 <div className="flex gap-4 justify-center">
                   <button
@@ -1109,16 +1105,16 @@ function DashboardPage() {
         {deleteConfirmationVisible && (
           <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center p-4 z-50">
             <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+              <h2 className="text-2xl font-actayRegular  mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                 Confirm Delete
               </h2>
               <p className="text-gray-300 mb-6">Are you sure you want to delete this job? This action cannot be undone.</p>
               <div className="flex gap-4 justify-center">
                 <button
                   onClick={() => handleDeleteJob(jobToDelete)}
-                  className="relative bg-[#FF5757] text-white border border-[#FF5757] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                  className="px-0 py-3 bg-[#FF5757] rounded-full font-semibold hover:bg-[#ff4444] transition-all duration-300 w-full"
                 >
-                  <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full text-xs sm:text-base">
+                  <span className="">
                     Delete
                   </span>
                 </button>

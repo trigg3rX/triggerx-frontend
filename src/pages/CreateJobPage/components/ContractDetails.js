@@ -565,7 +565,7 @@ export function ContractDetails({
                 key={index}
                 className="flex flex-col md:flex-row items-start md:items-center gap-6 justify-between mt-6"
               >
-                <label className="block text-xs text-gray-400 text-nowrap">
+                <label className="block text-sm text-gray-400 text-nowrap tracking-wide">
                   {input.name || `Argument ${index + 1}`} ({input.type})
                 </label>
                 <input

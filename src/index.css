@@ -251,3 +251,20 @@ h1{
   border-radius: 4px;
 }
 
+/* Highlight effect for newly created jobs */
+@keyframes highlight-pulse {
+  0% {
+    background-color: rgba(248, 255, 124, 0.1);
+  }
+  50% {
+    background-color: rgba(248, 255, 124, 0.2);
+  }
+  100% {
+    background-color: rgba(248, 255, 124, 0.1);
+  }
+}
+
+.highlight-new-job {
+  animation: highlight-pulse 2s ease-in-out;
+}
+

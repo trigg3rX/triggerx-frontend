@@ -17,6 +17,7 @@ export function useJobCreation() {
   const [estimatedFeeInGwei, setEstimatedFeeInGwei] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isJobCreated, setIsJobCreated] = useState(false);
 
   const [codeUrls, setCodeUrls] = useState([]);
 
@@ -348,14 +349,19 @@ export function useJobCreation() {
       }
 
       console.log("Job created successfully");
-      setIsModalOpen(false);
-      navigate("/dashboard");
+      setIsJobCreated(true);
+      toast.success("Job created successfully!");
     } catch (error) {
       console.error("Error creating job:", error);
       toast.error("Error creating job: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDashboardClick = () => {
+    setIsModalOpen(false);
+    navigate("/dashboard");
   };
 
   const handleStake = async (estimatedFee) => {
@@ -399,5 +405,7 @@ export function useJobCreation() {
     scriptFunction,
     handleScriptFunctionChange,
     userBalance,
+    isJobCreated,
+    handleDashboardClick,
   };
 }
