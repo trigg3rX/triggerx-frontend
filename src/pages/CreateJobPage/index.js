@@ -1119,7 +1119,7 @@ function CreateJobPage() {
                   className="w-full max-w-[1600px]"
                 >
                   {!isConnected ? (
-                    <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8">
+                    <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 z-50">
                       <label className="block text-sm sm:text-base font-medium text-gray-300 mb-6 text-nowrap">
                         Trigger Types
                       </label>
@@ -1527,15 +1527,15 @@ function CreateJobPage() {
                           </div>
 
                           {linkedJobs[jobType]?.length > 0 && (
-                            <div className="space-y-8">
+                            <div className="space-y-8 relative z-40">
                               {linkedJobs[jobType].map((jobId) => {
                                 const jobKey = jobId; // The linked job ID
                                 return (
                                   <div
                                     key={jobId}
-                                    className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-0 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 overflow-hidden"
+                                    className="relative bg-[#141414] backdrop-blur-xl rounded-2xl px-6 pt-12 pb-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8"
                                   >
-                                    <div className="bg-[#303030] border border-white/10 flex justify-center items-center gap-3 mt-0 w-[110%] ml-[-30px]">
+                                    <div className="absolute top-0 left-0 bg-[#303030] border-b border-white/10 flex justify-center items-center gap-3 mt-0 w-[100%] rounded-2xl rounded-br-none rounded-bl-none">
                                       <p className="py-4 text-sm md:text-base">Linked Job {jobId}</p>
                                       <DeleteConfirmationButton
                                         jobType={jobType}
