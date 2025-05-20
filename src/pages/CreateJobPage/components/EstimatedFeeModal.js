@@ -371,7 +371,7 @@ export function EstimatedFeeModal({
           {showFees && (
             <>
               <h2 className="text-2xl font-bold my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
-              Estimated Fee
+                Estimated Fee
               </h2>
               <div className="space-y-4 mb-6">
                 <div className="text-gray-300 flex justify-between">
@@ -482,7 +482,7 @@ export function EstimatedFeeModal({
         </>
       ) : (
 
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 mt-5">
 
           <div className="w-10 h-10 bg-[#A2A2A2] rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
@@ -491,11 +491,18 @@ export function EstimatedFeeModal({
           </div>
           <h3 className="text-white text-xl text-center">Job Created Successfully!</h3>
           <p className="text-gray-400 text-center">Your job has been created and is now active.</p>
-          <button
-            onClick={handleDashboardClick}
+          {/* <button
             className="mt-4 bg-[#F8FF7C] text-black px-6 py-2 rounded-full hover:bg-[#F8FF7C]/90 transition-colors"
           >
-            Go to Dashboard
+      
+          </button> */}
+          <button onClick={handleDashboardClick}
+            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
+            <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+            <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+            <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+              Go to Dashboard
+            </span>
           </button>
         </div>
 

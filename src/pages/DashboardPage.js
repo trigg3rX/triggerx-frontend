@@ -973,7 +973,8 @@ function DashboardPage() {
                       <div className="my-5">
                         <button
                           onClick={() => setStakeModalVisible(true)}
-                          className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
+                          disabled={!connected}
+                          className={`relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full ${!connected ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                           <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
