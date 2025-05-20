@@ -22,6 +22,7 @@ function DashboardPage() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [selectedType, setSelectedType] = useState("all");
   const logoRef = useRef(null);
   const modelRef = useRef(null);
   const [expandedJobs, setExpandedJobs] = useState({});
@@ -46,6 +47,9 @@ function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const api = useApi(); // Add the useApi hook
+
+  // Add state for custom select dropdown
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => ({
@@ -629,6 +633,14 @@ function DashboardPage() {
     );
   };
 
+  // Add this function to filter jobs
+  const getFilteredJobs = () => {
+    if (selectedType === "all") {
+      return jobDetails;
+    }
+    return jobDetails.filter(job => job.type === selectedType);
+  };
+
   return (
     <div>
 
@@ -641,9 +653,54 @@ function DashboardPage() {
             <div className="lg:w-[70%] w-full">
 
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 ">
-                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                  Active Jobs
-                </h2>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                    Active Jobs
+                  </h2>
+                  <div className="flex items-center gap-4">
+                    {/* Custom Select Dropdown */}
+                    <div className="relative">
+                      {/* Visible Select Button */}
+                      <div
+                        className="bg-[#1A1A1A] text-[#A2A2A2] border border-[#2A2A2A] rounded-lg px-4 py-2 focus:outline-none focus:border-[#C07AF6] cursor-pointer hover:border-[#C07AF6] transition-colors duration-200 flex items-center justify-between w-[200px]"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      >
+                        {selectedType === "all" ? "All Types" : selectedType}
+                        {/* Dropdown Arrow Icon */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`ml-2 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+
+                      {/* Dropdown Options List */}
+                      {isDropdownOpen && (
+                        <div className="absolute z-10 mt-1 w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg shadow-lg">
+                          <ul className="py-1">
+                            {['all', 'Time-based', 'Event-based', 'Condition-based'].map((type) => (
+                              <li
+                                key={type}
+                                className={`px-4 py-2 cursor-pointer text-[#A2A2A2] hover:bg-[#2A2A2A] ${selectedType === type ? 'bg-[#2A2A2A] text-white' : ''}`}
+                                onClick={() => {
+                                  setSelectedType(type === 'all' ? 'all' : type);
+                                  setIsDropdownOpen(false);
+                                }}
+                              >
+                                {type === 'all' ? 'All Types' : type}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 <div className="overflow-x-auto">
                   <div className="h-auto">
                     <table className="w-full border-separate border-spacing-y-4">
@@ -666,8 +723,8 @@ function DashboardPage() {
                       <tbody>
                         {loading && connected
                           ? Array.from({ length: 5 }).map((_, idx) => <DashboardSkeleton key={idx} />)
-                          : jobDetails.length > 0
-                            ? getPaginatedData(jobDetails).map((job, index) => (
+                          : getFilteredJobs().length > 0
+                            ? getPaginatedData(getFilteredJobs()).map((job, index) => (
                               <React.Fragment key={job.id}>
                                 <tr className="bg-[#1A1A1A] transition-colors duration-200">
                                   <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
@@ -867,7 +924,7 @@ function DashboardPage() {
                       </tbody>
                     </table>
                   </div>
-                  {jobDetails.length > 0 && renderPagination(getTotalPages(jobDetails))}
+                  {getFilteredJobs().length > 0 && renderPagination(getTotalPages(getFilteredJobs()))}
                 </div>
               </div>
 
@@ -949,6 +1006,7 @@ function DashboardPage() {
                       <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
                       <div className="h-8 bg-gray-700 rounded w-32"></div>
                     </div>
+
                   </div>
                 ) : (
                   <div>
@@ -977,6 +1035,8 @@ function DashboardPage() {
                       </div>
                     </div>
                   </div>
+
+
                 )}
               </div>
             </div>
@@ -1055,7 +1115,7 @@ function DashboardPage() {
                       <div className="mt-3 p-3 bg-[#242323] rounded-lg flex flex-col">
                         <span className="text-[#A2A2A2] text-sm"> Estimated TG </span>
                         <span className="text-white text-xl font-bold mt-1 tracking-wider">
-                          {(Number(stakeAmount) * 1000).toFixed(4)} TG
+                          {(Number(stakeAmount) * 1000).toFixed(2)} TG
                         </span>
                       </div>
                     )}
@@ -1087,7 +1147,7 @@ function DashboardPage() {
                         : Number(stakeAmount) >
                           Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
-                          : "Top Up Stake"}
+                          : "Top Up TG"}
                     </span>
                   </button>
 
@@ -1140,3 +1200,4 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
+

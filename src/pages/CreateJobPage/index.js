@@ -1010,6 +1010,12 @@ function CreateJobPage() {
                   <h2 className="text-base md:text-lg font-semibold">
                     Template
                   </h2>
+                  {/* <button
+
+                    className="bg-white text-[#0F0F0F] px-4 py-2 rounded-full  text-md"
+                  >
+
+                  </button> */}
                   <button
                     onClick={() => {
                       setSelectedJob(null);
@@ -1040,9 +1046,14 @@ function CreateJobPage() {
                         }, 100);
                       }
                     }}
-                    className="bg-white text-[#0F0F0F] px-4 py-2 rounded-full  text-md"
+                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 py-2 rounded-full group transition-transform "
                   >
-                    Create Custom Job
+                    <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                    <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                    <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                      Create Custom Job
+                    </span>
+
                   </button>
                 </div>
                 <div className="space-y-2">
