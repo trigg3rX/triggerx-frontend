@@ -78,36 +78,16 @@ function Header() {
     };
   }, []);
 
-  // Update nav image based on route
-  // useEffect(() => {
-  //   if (location.pathname === "/leaderboard") {
-  //     setNavImage(leaderboardNav); // Use leaderboard image
-  //   } else {
-  //     setNavImage(nav); // Use default image
-  //   }
-  // }, [location.pathname]);
-
-  // Update nav image based on route
-  // useEffect(() => {
-  //   if (location.pathname === "/leaderboard") {
-  //     setNavImage(leaderboardNav); // Use leaderboard image
-  //   } else if (location.pathname === "/devhub") {
-  //     setNavImage(devhubNav); // Use devhub image
-  //   } else {
-  //     setNavImage(nav);
-  //   }
-  // }, [location.pathname]);
 
   return (
     <div className="fixed top-0 left-0 right-0 w-full headerbg bg-[#0a0a0a]">
-      <div className=" xl:w-[90%] md:w-[90%] mx-auto  justify-between my-10 header sm:hidden hidden lg:flex md:hidden items-center ">
+      <div className="md:w-[90%] mx-auto  my-10 header hidden lg:flex items-center justify-between">
         <div className=" ">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="" className="xl:w-full lg:w-[200px]" />
+            <img src={logo} alt="" className="w-[160px] xl:w-[200px] h-auto" />
           </a>
         </div>
         <div className="relative flex flex-col items-center">
-          {/* Background Image */}
           {/* Background Image */}
           <img
             src={navImage}
@@ -129,16 +109,16 @@ function Header() {
               className="absolute bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A] "
               style={highlightStyle}
             />
-            <div className="relative flex gap-3 xl:gap-5  ">
+            <div className="relative flex">
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => {
                   navigate("/devhub");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
+                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                   : "transparent"
-                  }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+                  }  py-3 rounded-xl cursor-pointer`}
               >
                 Dev Hub
               </h4>
@@ -148,22 +128,22 @@ function Header() {
                 onClick={() => {
                   navigate("/");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px] xl:text-base lg:text-[12px]
+                className={`text-center xl:w-[150px] lg:w-[110px] xl:text-base lg:text-[12px]
                   ${isActiveRoute("/")
                     ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                     : "transparent"
-                  } px-7 py-3 rounded-xl cursor-pointer`}
+                  } py-3 rounded-xl cursor-pointer`}
               >
                 Create Job
               </h4>
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/dashboard")
+                className={`text-center xl:w-[150px] lg:w-[110px] xl:text-base lg:text-[12px] ${isActiveRoute("/dashboard")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                   : "transparent"
                   }
-                 px-7 py-3 rounded-xl cursor-pointer`}
+         py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
               </h4>
@@ -172,27 +152,27 @@ function Header() {
                 onClick={() => {
                   navigate("/leaderboard");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[130px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
+                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
                   ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
                   : "transparent"
                   }
                 
-              }  px-7 py-3 rounded-xl cursor-pointer xl:text-base`}
+              }  py-3 rounded-xl cursor-pointer xl:text-base`}
               >
                 Leaderboard
               </h4>
             </div>
           </nav>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-cente gap-2">
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
             showBalance={false}
           />
           {address && data && (
-            <div className="bg-[#f8ff7c] px-4 py-1.5 rounded-full border border-[#f8ff7c]  ">
-              <span className="text-black text-md font-bold h-[24px]">
+            <div className="bg-[#f8ff7c] px-4 py-[5px] rounded-full border border-[#f8ff7c] text-nowrap">
+              <span className="text-black text-sm font-bold h-[24px]">
                 {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
@@ -234,18 +214,18 @@ function Header() {
           <img src={nav} alt="Nav" className="w-64 h-auto z-0" />
         </div>
         {/* Logo */}
-        <div className="flex-shrink-0 relative z-10">
+        <div className="flex-shrink-0 relative z-10 ">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="Logo" width={120} height={120} />
+            <img src={logo} alt="Logo" width={130} height={120} className="w-[140px] md:w-[170px] h-auto" />
           </a>
         </div>
 
         {/* Hamburger Menu and Navigation */}
-        <div className="relative flex items-center gap-5">
+        <div className="relative flex items-center gap-2 md:gap-5">
           {address && data && (
-            <div className="bg-[#1A1A1A] px-3 py-1.5 rounded-full border border-[#2A2A2A]">
-              <span className="text-[#EDEDED] text-sm font-medium">
-                {Number(data.formatted).toFixed(4)} {data.symbol}
+            <div className="bg-[#f8ff7c] px-4 py-[5px] rounded-full border border-[#f8ff7c] text-nowrap">
+              <span className="text-black text-sm font-bold h-[24px]">
+                {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
           )}
