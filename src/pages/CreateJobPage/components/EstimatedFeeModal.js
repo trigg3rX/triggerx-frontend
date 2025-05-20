@@ -63,7 +63,7 @@ export function EstimatedFeeModal({
     setShowStakeTooltip(false);
     setFoodEatenAnimation(null);
     setFrameIndex(0);
-    
+
   };
 
   useEffect(() => {
@@ -371,12 +371,12 @@ export function EstimatedFeeModal({
           {showFees && (
             <>
               <h2 className="text-2xl font-bold my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
-                Estimated Fee
+              Estimated Fee
               </h2>
               <div className="space-y-4 mb-6">
                 <div className="text-gray-300 flex justify-between">
                   <div className="flex">
-                    Required TG
+                    <p>Required TG</p>
                     <div className="relative top-[4px]">
                       <FiInfo
                         className="text-gray-400 hover:text-white cursor-pointer ml-2"
@@ -402,7 +402,7 @@ export function EstimatedFeeModal({
                   <p>
                     {" "}
                     {estimatedFee && estimatedFee > 0
-                      ? ` ${estimatedFee.toFixed(4)} TG`
+                      ? ` ${estimatedFee.toFixed(2)} TG`
                       : "Something went wrong"}
                   </p>
                 </div>
@@ -411,7 +411,7 @@ export function EstimatedFeeModal({
                   <p className="flex">Your TG Balance</p>
                   <Tooltip title={userBalance || "0"} placement="top">
                     <p className="cursor-help">
-                      {userBalance ? Number(userBalance).toFixed(6) : "0.0000"}{" "}
+                      {userBalance ? Number(userBalance).toFixed(2) : "0.0000"}{" "}
                     </p>
                   </Tooltip>
                 </div>
@@ -419,8 +419,8 @@ export function EstimatedFeeModal({
                 {!hasEnoughBalance && (
                   <div className="text-gray-300 flex justify-between">
                     <div className="flex">
-                      {" "}
-                      Required ETH to stake
+
+                      <p>Required ETH to TG</p>
                       <div className="relative top-[4px]">
                         <FiInfo
                           className="text-gray-400 hover:text-white cursor-pointer ml-2"
@@ -442,7 +442,7 @@ export function EstimatedFeeModal({
                         )}
                       </div>
                     </div>
-                    <p> {(0.001 * estimatedFee).toFixed(6)} ETH </p>
+                    <p> {(0.001 * estimatedFee).toFixed(2)} ETH </p>
                   </div>
                 )}
               </div>
@@ -467,7 +467,7 @@ export function EstimatedFeeModal({
                       : "bg-white text-black"
                       }`}
                   >
-                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Stake ETH" : "Insufficient ETH"}
+                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "   Top Up TG" : "Insufficient ETH"}
                   </button>
                 )}
                 <button
