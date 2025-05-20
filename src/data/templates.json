@@ -8,7 +8,7 @@
     },
     {
         "id": "price-oracle",
-        "title": "Dynamic Price Oracle with TriggerX",
+        "title": "DynamicPriceOracle with TriggerX",
         "status": "Ready",
         "hasTemplate": true
       },

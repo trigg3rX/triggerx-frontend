@@ -13,7 +13,7 @@ import { useStakeRegistry } from "./hooks/useStakeRegistry";
 import { useAccount } from "wagmi";
 import { optimismSepolia, baseSepolia } from "wagmi/chains";
 import { toast } from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 // import ProcessModal from "./components/ProcessModel";
 import BalanceMaintainer from "../../components/BalanceMaintainer";
 import PriceOracle from "../../components/PriceOracle";
@@ -216,12 +216,15 @@ function CreateJobPage() {
   const [recurring, setRecurring] = useState(true);
   const baseUrl = "https://app.triggerx.network";
   const [selectedJob, setSelectedJob] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Function to handle job selection
   const handleJobSelect = (template) => {
     setSelectedJob(template);
+    // Update URL with template parameter
+    setSearchParams({ template: template.id });
+    
     if (window.innerWidth < 1024) {
-      // 1024px is the standard lg breakpoint in Tailwind
       setTimeout(() => {
         const templateSection = document.querySelector(".w-full.lg\\:w-3\\/4");
         if (templateSection) {
@@ -230,7 +233,7 @@ function CreateJobPage() {
             block: "start",
           });
         }
-      }, 100); // Small delay to ensure state update has completed
+      }, 100);
     }
   };
 
@@ -961,7 +964,20 @@ function CreateJobPage() {
   const handleJobTypeChange = (e, newJobType) => {
     e.preventDefault();
     setJobType(Number(newJobType));
+    // Clear URL parameters when switching to custom job
+    setSearchParams({});
   };
+
+  // Add this effect after other useEffect hooks
+  useEffect(() => {
+    const templateId = searchParams.get('template');
+    if (templateId) {
+      const template = templates.templates.find(t => t.id === templateId);
+      if (template) {
+        setSelectedJob(template);
+      }
+    }
+  }, [searchParams]);
 
   return (
     <div>
@@ -1020,6 +1036,8 @@ function CreateJobPage() {
                     onClick={() => {
                       setSelectedJob(null);
                       setJobType(null);
+                      // Clear the URL parameters to return to base URL
+                      setSearchParams({});
 
                       // Reset timeframe and interval to initial values
                       setTimeframe({ days: 0, hours: 0, minutes: 0 });
@@ -1046,7 +1064,7 @@ function CreateJobPage() {
                         }, 100);
                       }
                     }}
-                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 py-2 rounded-full group transition-transform "
+                    className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 py-2 rounded-full group transition-transform"
                   >
                     <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
                     <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
