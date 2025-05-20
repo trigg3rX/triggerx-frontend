@@ -1183,7 +1183,10 @@ function CreateJobPage() {
                       {jobType ? (
                         <>
                           <div className="bg-[#141414] backdrop-blur-xl rounded-2xl px-6 py-10 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 relative z-50">
+
+
                             {/* network */}
+
                             <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                               <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap">
                                 Network
@@ -1226,7 +1229,19 @@ function CreateJobPage() {
                                 )}
                               </div>
                             </div>
+                            {/* <div className="relative flex flex-col items-start justify-between gap-6">
+                              <label className="block text-sm sm:text-base font-medium text-gray-300 text-wrap overflow-hidden">
+                                Job Title
+                              </label>
+                              <input
+                                type="text"
+                                id="jobtitle"
 
+                                placeholder="Enter Job Title"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+                                required
+                              />
+                            </div> */}
                             <TimeframeInputs
                               timeframe={timeframe}
                               onTimeframeChange={handleTimeframeChange}
