@@ -229,6 +229,8 @@ function DashboardPage() {
 
       const response = await fetch(`${API_BASE_URL}/api/jobs/user/${userAddress}`);
       const jobsData = await response.json();
+      console.log("Fetched jobs data:", jobsData);
+      console.log("First job data structure:", jobsData[0]); // Add this line to see the structure of a single job
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
@@ -276,6 +278,35 @@ function DashboardPage() {
           type: mapJobType(jobDetail.job_type),
           status: "Active", // Only including jobs where status is false
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
+          // Add all the additional fields
+          taskDefinitionId: jobDetail.task_definition_id,
+          userId: jobDetail.user_id,
+          priority: jobDetail.priority,
+          security: jobDetail.security,
+          linkJobId: jobDetail.link_job_id,
+          chainStatus: jobDetail.chain_status,
+          custom: jobDetail.custom,
+          jobTitle: jobDetail.job_title,
+          timeFrame: jobDetail.time_frame,
+          recurring: jobDetail.recurring,
+          timeInterval: jobDetail.time_interval,
+          triggerChainId: jobDetail.trigger_chain_id,
+          triggerContractAddress: jobDetail.trigger_contract_address,
+          triggerEvent: jobDetail.trigger_event,
+          scriptIPFSUrl: jobDetail.script_ipfs_url,
+          scriptTriggerFunction: jobDetail.script_trigger_function,
+          targetChainId: jobDetail.target_chain_id,
+          targetContractAddress: jobDetail.target_contract_address,
+          targetFunction: jobDetail.target_function,
+          argType: jobDetail.arg_type,
+          arguments: jobDetail.arguments,
+          scriptTargetFunction: jobDetail.script_target_function,
+          abi: jobDetail.abi,
+          jobCostPrediction: jobDetail.job_cost_prediction,
+          createdAt: jobDetail.created_at,
+          lastExecutedAt: jobDetail.last_executed_at,
+          taskIds: jobDetail.task_ids,
+          feeUsed: jobDetail.fee_used
         }));
 
       setJobDetails(tempJobs);
@@ -866,7 +897,7 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><path d="M18 7V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3" /><path d="M14 17a2 2 0 0 0 2-2v-3.5a2 2 0 0 0-2-2.5h-4c-.7 0-1.5.5-1.5 1.5 0 1 .7 1.5 1.5 1.5h.5a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a.5.5 0 0 0-.5.5c0 .5.8 1.5 1.5 1.5h4Z" /><path d="M6 20v-3.5a2 2 0 0 1 2-2.5h2.5c.7 0 1.5.5 1.5 1.5 0 1-.7 1.5-1.5 1.5h-.5a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h-.5a.5.5 0 0 1-.5.5c0 .5.8 1.5 1.5 1.5h4" /><line x1="12" y1="22" x2="12" y2="17" /></svg>
                                               Arg Type
                                             </h4>
-                                            <p className="text-[#A2A2A2]">{job.argType || 'None'}</p>
+                                            <p className="text-[#A2A2A2]">{job.arg_type}</p>
                                           </div>
 
                                           {/* Target Contract Address Card */}
@@ -875,7 +906,7 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="20" height="14" x="2" y="7" rx="2" /><path d="M2 10h20" /><circle cx="12" cy="15" r="2" /></svg>
                                               Target Contract Address
                                             </h4>
-                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.contractAddress || 'Not specified'}</p>
+                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.target_contract_address || 'Not specified'}</p>
                                           </div>
 
                                           {/* Target Function Card */}
@@ -884,7 +915,7 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
                                               Target Function
                                             </h4>
-                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.targetFunction || 'Not specified'}</p>
+                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.target_function || 'Not specified'}</p>
                                           </div>
 
                                           {/* Trigger Contract Address Card */}
@@ -893,7 +924,7 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400"><path d="m18 16-.9-1.8c-.6-.6-1.5-1-2.4-1H9.74c-1 0-1.9.4-2.6 1l-.9 1.8" /><path d="m2.8 20 1.6-3.3C5.3 15.3 6.5 14.5 7.8 14H16.2c1.3 0 2.5.8 3.4 2.2l1.6 3.3" /><path d="M2.08 16c-.3 0-.5.1-.8.3l-.2.3c-.1.2-.2.4-.2.6 0 .5.4 1 .9 1.1.3.1.7 0 1-.2h18c.3.2.7.3 1 .2.5-.1.9-.6.9-1.1 0-.2-.1-.4-.2-.6l-.8-.9-.2-.2c-.3-.2-.5-.3-.8-.3H2.08Z" /><path d="M12.51 6.46 14.15 1h-.83L11.45 6.1Z" /><path d="M18.4 12.1c.8-.8 2-1.2 3.3-1.1 0-.9-.2-1.8-.7-2.6-.7-1.2-1.9-2.1-3.3-2.5h-.2c-1.3-.2-2.6-.1-3.8.3l-.5.2" /><path d="M5.6 12.1c-.8-.8-2-1.2-3.3-1.1 0-.9.2-1.8.7-2.6.7-1.2 1.9-2.1 3.3-2.5h-.2c1.3-.2 2.6-.1 3.8.3l-.5.2" /></svg>
                                               Trigger Contract Address
                                             </h4>
-                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerContractAddress || 'Not specified'}</p>
+                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.trigger_contract_address || 'Not specified'}</p>
                                           </div>
 
                                           {/* Trigger Event Card */}
@@ -902,7 +933,7 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-pink-400"><path d="M15 12a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /><path d="M12.68 10A2 2 0 0 0 11 6.5a2 2 0 0 0-3.43-1.76l-2.3 2.3a2 2 0 0 0-.16 2.6L4.8 14.5a2 2 0 0 0 2 2h.18a2 2 0 0 0 1.52-2.71L9.8 12.6A2 2 0 0 0 12.68 10Z" /></svg>
                                               Trigger Event
                                             </h4>
-                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerEvent || 'Not specified'}</p>
+                                            <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.trigger_event || 'Not specified'}</p>
                                           </div>
 
                                           {/* Timeframe Card */}
@@ -913,7 +944,7 @@ function DashboardPage() {
                                             </h4>
                                             <p className="text-[#A2A2A2]">
                                               {job.timeframe ?
-                                                `${job.timeframe.days || 0}d ${job.timeframe.hours || 0}h ${job.timeframe.minutes || 0}m`
+                                                `${job.time_frame.days || 0}d ${job.time_frame.hours || 0}h ${job.time_frame.minutes || 0}m`
                                                 : 'Not specified'}
                                             </p>
                                           </div>
@@ -926,7 +957,7 @@ function DashboardPage() {
                                             </h4>
                                             <p className="text-[#A2A2A2]">
                                               {job.timeInterval ?
-                                                `${job.timeInterval.hours || 0}h ${job.timeInterval.minutes || 0}m ${job.timeInterval.seconds || 0}s`
+                                                `${job.time_interval.hours || 0}h ${job.time_interval.minutes || 0}m ${job.time_interval.seconds || 0}s`
                                                 : 'Not specified'}
                                             </p>
                                           </div>
@@ -937,16 +968,15 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-400"><circle cx="12" cy="12" r="10" /><path d="M16 8l-8 8" /><path d="M8 8l8 8" /></svg>
                                               TG Used
                                             </h4>
-                                            <p className="text-[#A2A2A2]">{job.tgUsed || '0'} TG</p>
+                                            <p className="text-[#A2A2A2]">{job.fee_used || '0'} TG</p>
                                           </div>
 
                                           {/* Total Executions Card */}
                                           <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
                                             <h4 className="text-white font-bold text-lg mb-2 flex items-center">
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="22 12 16 12" /><polyline points="16 12 19 15" /><polyline points="19 9 16 12" /><path d="M2 19v-3.5a2 2 0 0 1 2-2.5h16.5" /><path d="M22 13.5V10a2 2 0 0 0-2-2h-1.5" /><path d="M2 16v-1.5a2 2 0 0 1 2-2H6" /></svg>
-                                              Total Executions
-                                            </h4>
-                                            <p className="text-[#A2A2A2]">{job.totalExecutions || 0}</p>
+                                              Target Function                                                     </h4>
+                                            <p className="text-[#A2A2A2]">{job.target_function}</p>
                                           </div>
 
                                           {/* Last Execution Card */}
@@ -955,16 +985,15 @@ function DashboardPage() {
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="12" y1="14" x2="12" y2="18" /><path d="M16 14h-4" /></svg>
                                               Last Execution
                                             </h4>
-                                            <p className="text-[#A2A2A2]">{job.lastExecution || 'Never'}</p>
+                                            <p className="text-[#A2A2A2]">{job.last_executed_at || 'Never'}</p>
                                           </div>
 
                                           {/* Next Execution Card */}
                                           <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
                                             <h4 className="text-white font-bold text-lg mb-2 flex items-center">
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><path d="M12 16l4-4-4-4" /><path d="M8 12h4" /></svg>
-                                              Next Execution
-                                            </h4>
-                                            <p className="text-[#A2A2A2]">{job.nextExecution || 'Not scheduled'}</p>
+                                              CreatedAt                                                          </h4>
+                                            <p className="text-[#A2A2A2]">{job.created_at || 'Not Created'}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -1072,7 +1101,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><path d="M18 7V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3" /><path d="M14 17a2 2 0 0 0 2-2v-3.5a2 2 0 0 0-2-2.5h-4c-.7 0-1.5.5-1.5 1.5 0 1 .7 1.5 1.5 1.5h.5a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a.5.5 0 0 0-.5.5c0 .5.8 1.5 1.5 1.5h4Z" /><path d="M6 20v-3.5a2 2 0 0 1 2-2.5h2.5c.7 0 1.5.5 1.5 1.5 0 1-.7 1.5-1.5 1.5h-.5a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h-.5a.5.5 0 0 1-.5.5c0 .5.8 1.5 1.5 1.5h4" /><line x1="12" y1="22" x2="12" y2="17" /></svg>
                                                                 Arg Type
                                                               </h4>
-                                                              <p className="text-[#A2A2A2]">{linkedJob.argType || 'None'}</p>
+                                                              <p className="text-[#A2A2A2]">{linkedJob.ar || 'None'}</p>
                                                             </div>
 
                                                             {/* Target Contract Address Card */}
@@ -1081,7 +1110,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="20" height="14" x="2" y="7" rx="2" /><path d="M2 10h20" /><circle cx="12" cy="15" r="2" /></svg>
                                                                 Target Contract Address
                                                               </h4>
-                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.contractAddress || 'Not specified'}</p>
+                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.target_contract_address || 'Not specified'}</p>
                                                             </div>
 
                                                             {/* Target Function Card */}
@@ -1090,7 +1119,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
                                                                 Target Function
                                                               </h4>
-                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.targetFunction || 'Not specified'}</p>
+                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.target_function || 'Not specified'}</p>
                                                             </div>
 
                                                             {/* Trigger Contract Address Card */}
@@ -1099,7 +1128,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400"><path d="m18 16-.9-1.8c-.6-.6-1.5-1-2.4-1H9.74c-1 0-1.9.4-2.6 1l-.9 1.8" /><path d="m2.8 20 1.6-3.3C5.3 15.3 6.5 14.5 7.8 14H16.2c1.3 0 2.5.8 3.4 2.2l1.6 3.3" /><path d="M2.08 16c-.3 0-.5.1-.8.3l-.2.3c-.1.2-.2.4-.2.6 0 .5.4 1 .9 1.1.3.1.7 0 1-.2h18c.3.2.7.3 1 .2.5-.1.9-.6.9-1.1 0-.2-.1-.4-.2-.6l-.8-.9-.2-.2c-.3-.2-.5-.3-.8-.3H2.08Z" /><path d="M12.51 6.46 14.15 1h-.83L11.45 6.1Z" /><path d="M18.4 12.1c.8-.8 2-1.2 3.3-1.1 0-.9-.2-1.8-.7-2.6-.7-1.2-1.9-2.1-3.3-2.5h-.2c-1.3-.2-2.6-.1-3.8.3l-.5.2" /><path d="M5.6 12.1c-.8-.8-2-1.2-3.3-1.1 0-.9.2-1.8.7-2.6.7-1.2 1.9-2.1 3.3-2.5h-.2c1.3-.2 2.6-.1 3.8.3l-.5.2" /></svg>
                                                                 Trigger Contract Address
                                                               </h4>
-                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.triggerContractAddress || 'Not specified'}</p>
+                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.trigger_contract_address || 'Not specified'}</p>
                                                             </div>
 
                                                             {/* Trigger Event Card */}
@@ -1108,7 +1137,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-pink-400"><path d="M15 12a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /><path d="M12.68 10A2 2 0 0 0 11 6.5a2 2 0 0 0-3.43-1.76l-2.3 2.3a2 2 0 0 0-.16 2.6L4.8 14.5a2 2 0 0 0 2 2h.18a2 2 0 0 0 1.52-2.71L9.8 12.6A2 2 0 0 0 12.68 10Z" /></svg>
                                                                 Trigger Event
                                                               </h4>
-                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.triggerEvent || 'Not specified'}</p>
+                                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{linkedJob.trigger_event || 'Not specified'}</p>
                                                             </div>
 
                                                             {/* Timeframe Card */}
@@ -1119,7 +1148,7 @@ function DashboardPage() {
                                                               </h4>
                                                               <p className="text-[#A2A2A2]">
                                                                 {linkedJob.timeframe ?
-                                                                  `${linkedJob.timeframe.days || 0}d ${linkedJob.timeframe.hours || 0}h ${linkedJob.timeframe.minutes || 0}m`
+                                                                  `${linkedJob.time_frame.days || 0}d ${linkedJob.time_frame.hours || 0}h ${linkedJob.time_frame.minutes || 0}m`
                                                                   : 'Not specified'}
                                                               </p>
                                                             </div>
@@ -1132,7 +1161,7 @@ function DashboardPage() {
                                                               </h4>
                                                               <p className="text-[#A2A2A2]">
                                                                 {linkedJob.timeInterval ?
-                                                                  `${linkedJob.timeInterval.hours || 0}h ${linkedJob.timeInterval.minutes || 0}m ${linkedJob.timeInterval.seconds || 0}s`
+                                                                  `${linkedJob.time_interval.hours || 0}h ${linkedJob.time_interval.minutes || 0}m ${linkedJob.time_interval.seconds || 0}s`
                                                                   : 'Not specified'}
                                                               </p>
                                                             </div>
@@ -1143,16 +1172,16 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-400"><circle cx="12" cy="12" r="10" /><path d="M16 8l-8 8" /><path d="M8 8l8 8" /></svg>
                                                                 TG Used
                                                               </h4>
-                                                              <p className="text-[#A2A2A2]">{linkedJob.tgUsed || '0'} TG</p>
+                                                              <p className="text-[#A2A2A2]">{linkedJob.fee_used || '0'} TG</p>
                                                             </div>
 
                                                             {/* Total Executions Card */}
                                                             <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
                                                               <h4 className="text-white font-bold text-lg mb-2 flex items-center">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="22 12 16 12" /><polyline points="16 12 19 15" /><polyline points="19 9 16 12" /><path d="M2 19v-3.5a2 2 0 0 1 2-2.5h16.5" /><path d="M22 13.5V10a2 2 0 0 0-2-2h-1.5" /><path d="M2 16v-1.5a2 2 0 0 1 2-2H6" /></svg>
-                                                                Total Executions
+                                                                Target Function
                                                               </h4>
-                                                              <p className="text-[#A2A2A2]">{linkedJob.totalExecutions || 0}</p>
+                                                              <p className="text-[#A2A2A2]">{linkedJob.target_function}</p>
                                                             </div>
 
                                                             {/* Last Execution Card */}
@@ -1161,7 +1190,7 @@ function DashboardPage() {
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="12" y1="14" x2="12" y2="18" /><path d="M16 14h-4" /></svg>
                                                                 Last Execution
                                                               </h4>
-                                                              <p className="text-[#A2A2A2]">{linkedJob.lastExecution || 'Never'}</p>
+                                                              <p className="text-[#A2A2A2]">{linkedJob.last_executed_at || 'Never'}</p>
                                                             </div>
 
                                                             {/* Next Execution Card */}
@@ -1309,7 +1338,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><path d="M18 7V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3" /><path d="M14 17a2 2 0 0 0 2-2v-3.5a2 2 0 0 0-2-2.5h-4c-.7 0-1.5.5-1.5 1.5 0 1 .7 1.5 1.5 1.5h.5a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a.5.5 0 0 0-.5.5c0 .5.8 1.5 1.5 1.5h4Z" /><path d="M6 20v-3.5a2 2 0 0 1 2-2.5h2.5c.7 0 1.5.5 1.5 1.5 0 1-.7 1.5-1.5 1.5h-.5a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h-.5a.5.5 0 0 1-.5.5c0 .5.8 1.5 1.5 1.5h4" /><line x1="12" y1="22" x2="12" y2="17" /></svg>
                                                 Arg Type
                                               </h4>
-                                              <p className="text-[#A2A2A2]">{job.argType || 'None'}</p>
+                                              <p className="text-[#A2A2A2]">{job.arg_type || 'None'}</p>
                                             </div>
 
                                             {/* Target Contract Address Card */}
@@ -1318,7 +1347,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="20" height="14" x="2" y="7" rx="2" /><path d="M2 10h20" /><circle cx="12" cy="15" r="2" /></svg>
                                                 Target Contract Address
                                               </h4>
-                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.contractAddress || 'Not specified'}</p>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.target_contract_address || 'Not specified'}</p>
                                             </div>
 
                                             {/* Target Function Card */}
@@ -1327,7 +1356,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
                                                 Target Function
                                               </h4>
-                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.targetFunction || 'Not specified'}</p>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.target_function || 'Not specified'}</p>
                                             </div>
 
                                             {/* Trigger Contract Address Card */}
@@ -1336,7 +1365,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400"><path d="m18 16-.9-1.8c-.6-.6-1.5-1-2.4-1H9.74c-1 0-1.9.4-2.6 1l-.9 1.8" /><path d="m2.8 20 1.6-3.3C5.3 15.3 6.5 14.5 7.8 14H16.2c1.3 0 2.5.8 3.4 2.2l1.6 3.3" /><path d="M2.08 16c-.3 0-.5.1-.8.3l-.2.3c-.1.2-.2.4-.2.6 0 .5.4 1 .9 1.1.3.1.7 0 1-.2h18c.3.2.7.3 1 .2.5-.1.9-.6.9-1.1 0-.2-.1-.4-.2-.6l-.8-.9-.2-.2c-.3-.2-.5-.3-.8-.3H2.08Z" /><path d="M12.51 6.46 14.15 1h-.83L11.45 6.1Z" /><path d="M18.4 12.1c.8-.8 2-1.2 3.3-1.1 0-.9-.2-1.8-.7-2.6-.7-1.2-1.9-2.1-3.3-2.5h-.2c-1.3-.2-2.6-.1-3.8.3l-.5.2" /><path d="M5.6 12.1c-.8-.8-2-1.2-3.3-1.1 0-.9.2-1.8.7-2.6.7-1.2 1.9-2.1 3.3-2.5h-.2c1.3-.2 2.6-.1 3.8.3l-.5.2" /></svg>
                                                 Trigger Contract Address
                                               </h4>
-                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerContractAddress || 'Not specified'}</p>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.trigger_contract_address || 'Not specified'}</p>
                                             </div>
 
                                             {/* Trigger Event Card */}
@@ -1345,7 +1374,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-pink-400"><path d="M15 12a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /><path d="M12.68 10A2 2 0 0 0 11 6.5a2 2 0 0 0-3.43-1.76l-2.3 2.3a2 2 0 0 0-.16 2.6L4.8 14.5a2 2 0 0 0 2 2h.18a2 2 0 0 0 1.52-2.71L9.8 12.6A2 2 0 0 0 12.68 10Z" /></svg>
                                                 Trigger Event
                                               </h4>
-                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerEvent || 'Not specified'}</p>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.trigger_event || 'Not specified'}</p>
                                             </div>
 
                                             {/* Timeframe Card */}
@@ -1355,8 +1384,8 @@ function DashboardPage() {
                                                 Timeframe
                                               </h4>
                                               <p className="text-[#A2A2A2]">
-                                                {job.timeframe ?
-                                                  `${job.timeframe.days || 0}d ${job.timeframe.hours || 0}h ${job.timeframe.minutes || 0}m`
+                                                {job.time_frame ?
+                                                  `${job.time_frame.days || 0}d ${job.time_frame.hours || 0}h ${job.time_frame.minutes || 0}m`
                                                   : 'Not specified'}
                                               </p>
                                             </div>
@@ -1369,7 +1398,7 @@ function DashboardPage() {
                                               </h4>
                                               <p className="text-[#A2A2A2]">
                                                 {job.timeInterval ?
-                                                  `${job.timeInterval.hours || 0}h ${job.timeInterval.minutes || 0}m ${job.timeInterval.seconds || 0}s`
+                                                  `${job.time_interval.hours || 0}h ${job.time_interval.minutes || 0}m ${job.time_interval.seconds || 0}s`
                                                   : 'Not specified'}
                                               </p>
                                             </div>
@@ -1380,16 +1409,16 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-400"><circle cx="12" cy="12" r="10" /><path d="M16 8l-8 8" /><path d="M8 8l8 8" /></svg>
                                                 TG Used
                                               </h4>
-                                              <p className="text-[#A2A2A2]">{job.tgUsed || '0'} TG</p>
+                                              <p className="text-[#A2A2A2]">{job.fee_used || '0'} TG</p>
                                             </div>
 
                                             {/* Total Executions Card */}
                                             <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
                                               <h4 className="text-white font-bold text-lg mb-2 flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="22 12 16 12" /><polyline points="16 12 19 15" /><polyline points="19 9 16 12" /><path d="M2 19v-3.5a2 2 0 0 1 2-2.5h16.5" /><path d="M22 13.5V10a2 2 0 0 0-2-2h-1.5" /><path d="M2 16v-1.5a2 2 0 0 1 2-2H6" /></svg>
-                                                Total Executions
+                                                Target Function
                                               </h4>
-                                              <p className="text-[#A2A2A2]">{job.totalExecutions || 0}</p>
+                                              <p className="text-[#A2A2A2]">{job.target_function}</p>
                                             </div>
 
                                             {/* Last Execution Card */}
@@ -1398,7 +1427,7 @@ function DashboardPage() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="12" y1="14" x2="12" y2="18" /><path d="M16 14h-4" /></svg>
                                                 Last Execution
                                               </h4>
-                                              <p className="text-[#A2A2A2]">{job.lastExecution || 'Never'}</p>
+                                              <p className="text-[#A2A2A2]">{job.last_executed_at || 'Never'}</p>
                                             </div>
 
                                             {/* Next Execution Card */}
