@@ -595,7 +595,7 @@ const StakingReward = () => {
                         !hasSufficientTokenBalance && (
                           <button
                             onClick={showStakeTokenClaimModal}
-                            className="bg-[#C07AF6] text-white px-8 py-3 py-3 my-5 rounded-full transition-all text-lg flex items-center  hover:bg-[#B15AE6] "
+                            className="bg-[#C07AF6] text-white px-8 py-3 my-5 rounded-full transition-all text-lg flex items-center hover:bg-[#B15AE6] hover:shadow-md hover:shadow-[#C07AF6]/20 hover:-translate-y-0.5"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
