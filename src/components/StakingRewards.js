@@ -8,6 +8,7 @@ import TransactionModal from "./Stake-Reward/TransactionModal";
 import StakingRewardsABI from "../artifacts/StakingReword.json";
 import { Copy, Check } from "lucide-react";
 import ClaimEth from "./common/ClaimEth";
+import { useWallet } from "../contexts/WalletContext";
 
 // Contract addresses and Static Data
 const TOKEN_ADDRESS = process.env.REACT_APP_STAKER_TOKEN_ADDRESS;
@@ -34,7 +35,7 @@ const jobConfig = {
 const StakingReward = () => {
   // Wagmi hooks
   const { address, isConnected } = useAccount();
-  const { data: balanceData } = useBalance({
+  const { data: balanceData, refetch: refetchBalance } = useBalance({
     address,
     enabled: !!address,
   });
@@ -44,6 +45,9 @@ const StakingReward = () => {
     watch: true,
     enabled: !!address,
   });
+
+  // Add useWallet hook
+  const { triggerBalanceRefresh } = useWallet();
 
   const [showModal, setShowModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -91,8 +95,25 @@ const StakingReward = () => {
 
   const [isAbiExpanded, setIsAbiExpanded] = useState(false);
 
-  // To update balances of ETH and Staker Token(STK)
+  // Add effect to refetch balances when refreshBalance changes
   useEffect(() => {
+    console.log("Refetching balances...");
+    const refetchBalances = async () => {
+      await Promise.all([
+        refetchBalance(),
+        refetchTokenBalance()
+      ]);
+    };
+    refetchBalances();
+  }, [triggerBalanceRefresh, refetchBalance, refetchTokenBalance]);
+
+  // Update the useEffect for balance updates
+  useEffect(() => {
+    console.log("Balance update effect triggered with:", {
+      balanceData,
+      tokenBalanceData
+    });
+
     if (balanceData && tokenBalanceData) {
       const balance = balanceData.value;
       const tokenBalance = tokenBalanceData.value;
@@ -105,6 +126,13 @@ const StakingReward = () => {
         ethers.formatEther(tokenBalance)
       ).toFixed(2);
 
+      console.log("Calculated balances:", {
+        formattedBalance,
+        formattedTokenBalance,
+        hasSufficientBalance: balance >= requiredBalance,
+        hasSufficientTokenBalance: tokenBalance >= requiredTokenBalance
+      });
+
       setUserBalance(formattedBalance);
       setTokenBalance(formattedTokenBalance);
 
@@ -112,6 +140,16 @@ const StakingReward = () => {
       setHasSufficientTokenBalance(tokenBalance >= requiredTokenBalance);
     }
   }, [balanceData, tokenBalanceData]);
+
+  // Add a new useEffect to monitor state changes
+  useEffect(() => {
+    console.log("State updated:", {
+      hasSufficientBalance,
+      hasSufficientTokenBalance,
+      userBalance,
+      tokenBalance
+    });
+  }, [hasSufficientBalance, hasSufficientTokenBalance, userBalance, tokenBalance]);
 
   // Initialize contracts of Staker Token and Staking Rewards
   useEffect(() => {
@@ -177,7 +215,6 @@ const StakingReward = () => {
             setIsInitialized(true);
             setIsPageLoading(false);
 
-
             // Check for existing contract when provider is initialized
           } else {
             setIsInitialized(true);
@@ -185,17 +222,16 @@ const StakingReward = () => {
           }
 
           // Listen for chain changes
-          window.ethereum.on('chainChanged', async (chainId) => {
+          window.ethereum.on("chainChanged", async (chainId) => {
             try {
               // Convert chainId from hex to decimal
               const newChainId = parseInt(chainId, 16);
               setChainId(newChainId);
 
               // Wait a bit for the network to stabilize
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise((resolve) => setTimeout(resolve, 1000));
 
               // Check for existing contract when chain changes
-
             } catch (error) {
               console.error("Error handling chain change:", error);
             }
@@ -218,7 +254,7 @@ const StakingReward = () => {
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeAllListeners('chainChanged');
+        window.ethereum.removeAllListeners("chainChanged");
       }
     };
   }, [isConnected, address]);
@@ -292,8 +328,6 @@ const StakingReward = () => {
       setIsClaimingToken(false);
     }
   };
-
-
 
   // Show Modal to mint Token
   const showStakeTokenClaimModal = () => {
@@ -559,13 +593,11 @@ const StakingReward = () => {
                 />
               </svg>
               <p className="text-yellow-400">
-                Please switch to Optimism Sepolia network to claim
-                tokens.
+                Please switch to Optimism Sepolia network to claim tokens.
               </p>
             </div>
             <p className="text-[#A2A2A2] text-sm ml-7">
-              Make sure you're connected to the correct network in your
-              wallet.
+              Make sure you're connected to the correct network in your wallet.
             </p>
           </div>
         )}
@@ -574,21 +606,29 @@ const StakingReward = () => {
         {(!isConnected || isOptimismSepoliaNetwork()) && (
           <>
             <div className="rounded-xl ">
-
               <div className="text-[#A2A2A2]">
                 {!isConnected ? (
                   <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
-                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg " className="mb-3" stroke="">
-                      <path d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z" fill="#A2A2A2" />
+                    <svg
+                      width="38"
+                      height="38"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg "
+                      className="mb-3"
+                      stroke=""
+                    >
+                      <path
+                        d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z"
+                        fill="#A2A2A2"
+                      />
                     </svg>
                     <p className="text-lg mb-2">Wallet Not Connected</p>
                     <p className="text-md text-[#666666] mb-4 tracking-wide">
                       Please connect your wallet to interact with the contract
                     </p>
-
                   </div>
                 ) : (
-
                   <div className="">
                     <div className="flex flex-wrap gap-4">
                       {hasSufficientBalance ? (
@@ -616,34 +656,55 @@ const StakingReward = () => {
                       ) : (
                         <>
                           <ClaimEth />
-
                         </>
                       )}
                     </div>
                     {!hasSufficientBalance && (
-
                       <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10  space-y-8 flex items-start justify-start gap-2 text-md tracking-wide">
                         <div className="mb-1">
-                          <svg width="22" height="22" viewBox="0 0 16 16" fill="" xmlns="http://www.w3.org/2000/svg" >
-                            <path d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z" stroke="#A2A2A2" stroke-miterlimit="10" />
-                            <path d="M11.4124 9.78125C10.9021 9.17687 10.5418 8.92281 10.5418 7.25625C10.5418 5.72937 9.73618 5.18656 9.07305 4.92281C9.02733 4.90371 8.98609 4.87528 8.95197 4.83933C8.91786 4.80339 8.89162 4.76072 8.87493 4.71406C8.75899 4.33125 8.43368 4 7.99993 4C7.56618 4 7.24024 4.33125 7.12493 4.71438C7.10836 4.76105 7.0822 4.80374 7.04813 4.8397C7.01406 4.87565 6.97284 4.90407 6.92712 4.92312C6.26337 5.1875 5.45837 5.72938 5.45837 7.25656C5.45837 8.92313 5.09774 9.17719 4.58743 9.78156C4.37587 10.0316 4.56712 10.5003 4.93712 10.5003H11.0624C11.4302 10.5 11.6231 10.0312 11.4124 9.78125ZM6.88243 11C6.86485 10.9999 6.84745 11.0035 6.83136 11.0106C6.81527 11.0177 6.80085 11.0281 6.78906 11.0411C6.77726 11.0542 6.76835 11.0695 6.7629 11.0863C6.75745 11.103 6.75558 11.1206 6.75743 11.1381C6.82774 11.7231 7.34712 12 7.99993 12C8.64587 12 9.16055 11.7141 9.2393 11.14C9.24144 11.1224 9.23979 11.1045 9.23447 11.0875C9.22915 11.0706 9.22028 11.055 9.20845 11.0417C9.19662 11.0285 9.18211 11.0179 9.16588 11.0107C9.14964 11.0035 9.13206 10.9999 9.1143 11H6.88243Z" fill="#A2A2A2" />
+                          <svg
+                            width="22"
+                            height="22"
+                            viewBox="0 0 16 16"
+                            fill=""
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z"
+                              stroke="#A2A2A2"
+                              stroke-miterlimit="10"
+                            />
+                            <path
+                              d="M11.4124 9.78125C10.9021 9.17687 10.5418 8.92281 10.5418 7.25625C10.5418 5.72937 9.73618 5.18656 9.07305 4.92281C9.02733 4.90371 8.98609 4.87528 8.95197 4.83933C8.91786 4.80339 8.89162 4.76072 8.87493 4.71406C8.75899 4.33125 8.43368 4 7.99993 4C7.56618 4 7.24024 4.33125 7.12493 4.71438C7.10836 4.76105 7.0822 4.80374 7.04813 4.8397C7.01406 4.87565 6.97284 4.90407 6.92712 4.92312C6.26337 5.1875 5.45837 5.72938 5.45837 7.25656C5.45837 8.92313 5.09774 9.17719 4.58743 9.78156C4.37587 10.0316 4.56712 10.5003 4.93712 10.5003H11.0624C11.4302 10.5 11.6231 10.0312 11.4124 9.78125ZM6.88243 11C6.86485 10.9999 6.84745 11.0035 6.83136 11.0106C6.81527 11.0177 6.80085 11.0281 6.78906 11.0411C6.77726 11.0542 6.76835 11.0695 6.7629 11.0863C6.75745 11.103 6.75558 11.1206 6.75743 11.1381C6.82774 11.7231 7.34712 12 7.99993 12C8.64587 12 9.16055 11.7141 9.2393 11.14C9.24144 11.1224 9.23979 11.1045 9.23447 11.0875C9.22915 11.0706 9.22028 11.055 9.20845 11.0417C9.19662 11.0285 9.18211 11.0179 9.16588 11.0107C9.14964 11.0035 9.13206 10.9999 9.1143 11H6.88243Z"
+                              fill="#A2A2A2"
+                            />
                           </svg>
                         </div>
                         You need to claim ETH before Stake/Unstake Tokens.
-
                       </span>
                     )}
                     {hasSufficientBalance && !hasSufficientTokenBalance && (
-
                       <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10  space-y-8 flex items-start justify-start gap-2 text-md tracking-wide">
                         <div className="mb-1">
-                          <svg width="22" height="22" viewBox="0 0 16 16" fill="" xmlns="http://www.w3.org/2000/svg" >
-                            <path d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z" stroke="#A2A2A2" stroke-miterlimit="10" />
-                            <path d="M11.4124 9.78125C10.9021 9.17687 10.5418 8.92281 10.5418 7.25625C10.5418 5.72937 9.73618 5.18656 9.07305 4.92281C9.02733 4.90371 8.98609 4.87528 8.95197 4.83933C8.91786 4.80339 8.89162 4.76072 8.87493 4.71406C8.75899 4.33125 8.43368 4 7.99993 4C7.56618 4 7.24024 4.33125 7.12493 4.71438C7.10836 4.76105 7.0822 4.80374 7.04813 4.8397C7.01406 4.87565 6.97284 4.90407 6.92712 4.92312C6.26337 5.1875 5.45837 5.72938 5.45837 7.25656C5.45837 8.92313 5.09774 9.17719 4.58743 9.78156C4.37587 10.0316 4.56712 10.5003 4.93712 10.5003H11.0624C11.4302 10.5 11.6231 10.0312 11.4124 9.78125ZM6.88243 11C6.86485 10.9999 6.84745 11.0035 6.83136 11.0106C6.81527 11.0177 6.80085 11.0281 6.78906 11.0411C6.77726 11.0542 6.76835 11.0695 6.7629 11.0863C6.75745 11.103 6.75558 11.1206 6.75743 11.1381C6.82774 11.7231 7.34712 12 7.99993 12C8.64587 12 9.16055 11.7141 9.2393 11.14C9.24144 11.1224 9.23979 11.1045 9.23447 11.0875C9.22915 11.0706 9.22028 11.055 9.20845 11.0417C9.19662 11.0285 9.18211 11.0179 9.16588 11.0107C9.14964 11.0035 9.13206 10.9999 9.1143 11H6.88243Z" fill="#A2A2A2" />
+                          <svg
+                            width="22"
+                            height="22"
+                            viewBox="0 0 16 16"
+                            fill=""
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z"
+                              stroke="#A2A2A2"
+                              stroke-miterlimit="10"
+                            />
+                            <path
+                              d="M11.4124 9.78125C10.9021 9.17687 10.5418 8.92281 10.5418 7.25625C10.5418 5.72937 9.73618 5.18656 9.07305 4.92281C9.02733 4.90371 8.98609 4.87528 8.95197 4.83933C8.91786 4.80339 8.89162 4.76072 8.87493 4.71406C8.75899 4.33125 8.43368 4 7.99993 4C7.56618 4 7.24024 4.33125 7.12493 4.71438C7.10836 4.76105 7.0822 4.80374 7.04813 4.8397C7.01406 4.87565 6.97284 4.90407 6.92712 4.92312C6.26337 5.1875 5.45837 5.72938 5.45837 7.25656C5.45837 8.92313 5.09774 9.17719 4.58743 9.78156C4.37587 10.0316 4.56712 10.5003 4.93712 10.5003H11.0624C11.4302 10.5 11.6231 10.0312 11.4124 9.78125ZM6.88243 11C6.86485 10.9999 6.84745 11.0035 6.83136 11.0106C6.81527 11.0177 6.80085 11.0281 6.78906 11.0411C6.77726 11.0542 6.76835 11.0695 6.7629 11.0863C6.75745 11.103 6.75558 11.1206 6.75743 11.1381C6.82774 11.7231 7.34712 12 7.99993 12C8.64587 12 9.16055 11.7141 9.2393 11.14C9.24144 11.1224 9.23979 11.1045 9.23447 11.0875C9.22915 11.0706 9.22028 11.055 9.20845 11.0417C9.19662 11.0285 9.18211 11.0179 9.16588 11.0107C9.14964 11.0035 9.13206 10.9999 9.1143 11H6.88243Z"
+                              fill="#A2A2A2"
+                            />
                           </svg>
                         </div>
                         You need to claim tokens before staking them.
-
                       </span>
                     )}
                   </div>
@@ -680,7 +741,9 @@ const StakingReward = () => {
                         </p>
                       </div>
                       <div className="bg-white/5 border border-white/10 p-5 rounded-lg">
-                        <h3 className="text-white text-lg mb-2">Total Staked</h3>
+                        <h3 className="text-white text-lg mb-2">
+                          Total Staked
+                        </h3>
                         <p className="text-[#77E8A3] text-2xl font-semibold">
                           {parseFloat(totalStaked).toFixed(2)} Tokens
                         </p>
@@ -713,7 +776,9 @@ const StakingReward = () => {
                       </div>
                     </div>
                     <div className="bg-white/5 border border-white/10 p-5 rounded-lg my-6">
-                      <h2 className="text-xl text-white mb-6">Stake/Unstake Tokens</h2>
+                      <h2 className="text-xl text-white mb-6">
+                        Stake/Unstake Tokens
+                      </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4 bg-gradient-to-br from-black/40 to-white/5 p-5 rounded-xl border border-white/10">
                           <h3 className="text-lg text-white font-medium">
@@ -738,9 +803,14 @@ const StakingReward = () => {
                               />
                               <button
                                 onClick={() => {
-                                  if (tokenBalance) setStakeAmount(tokenBalance);
+                                  if (tokenBalance)
+                                    setStakeAmount(tokenBalance);
                                 }}
-                                disabled={!isInitialized || !hasSufficientTokenBalance || !hasSufficientBalance}
+                                disabled={
+                                  !isInitialized ||
+                                  !hasSufficientTokenBalance ||
+                                  !hasSufficientBalance
+                                }
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
                               >
                                 MAX
@@ -755,14 +825,15 @@ const StakingReward = () => {
                                 !hasSufficientTokenBalance ||
                                 !hasSufficientBalance
                               }
-                              className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
+                              className={`bg-[#F8FF7C] text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${
+                                !isInitialized ||
                                 isStaking ||
                                 !stakeAmount ||
                                 !hasSufficientTokenBalance ||
                                 !hasSufficientBalance
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
-                                }`}
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+                              }`}
                             >
                               {isApproving
                                 ? "Approving..."
@@ -773,7 +844,9 @@ const StakingReward = () => {
                           </div>
                           <p className="text-[#A2A2A2] text-sm">
                             Available:{" "}
-                            <span className="text-[#F8FF7C]">{tokenBalance} STK</span>
+                            <span className="text-[#F8FF7C]">
+                              {tokenBalance} STK
+                            </span>
                           </p>
                         </div>
 
@@ -786,7 +859,9 @@ const StakingReward = () => {
                               <input
                                 type="number"
                                 value={unstakeAmount}
-                                onChange={(e) => setUnstakeAmount(e.target.value)}
+                                onChange={(e) =>
+                                  setUnstakeAmount(e.target.value)
+                                }
                                 placeholder="Amount to unstake"
                                 className="bg-white/5 border border-white/10 rounded-lg px-4 py-4 w-full pr-24 focus:outline-none focus:ring-2 focus:ring-[#F8FF7C]/30 transition-all"
                                 step="0.1"
@@ -805,7 +880,8 @@ const StakingReward = () => {
                                     setUnstakeAmount(stakedAmount);
                                 }}
                                 disabled={
-                                  !isInitialized || parseFloat(stakedAmount) <= 0
+                                  !isInitialized ||
+                                  parseFloat(stakedAmount) <= 0
                                 }
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-xs text-white px-3 py-1 rounded transition-colors"
                               >
@@ -820,23 +896,28 @@ const StakingReward = () => {
                                 !hasSufficientBalance ||
                                 !unstakeAmount ||
                                 parseFloat(stakedAmount) <= 0 ||
-                                parseFloat(unstakeAmount) > parseFloat(stakedAmount)
+                                parseFloat(unstakeAmount) >
+                                  parseFloat(stakedAmount)
                               }
-                              className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${!isInitialized ||
+                              className={`bg-white text-black px-6 py-4 rounded-lg transition-all whitespace-nowrap ${
+                                !isInitialized ||
                                 isUnstaking ||
                                 !unstakeAmount ||
                                 parseFloat(stakedAmount) <= 0 ||
-                                parseFloat(unstakeAmount) > parseFloat(stakedAmount)
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
-                                }`}
+                                parseFloat(unstakeAmount) >
+                                  parseFloat(stakedAmount)
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "hover:bg-[#E1E1E1] hover:shadow-md hover:shadow-white/20 hover:-translate-y-0.5"
+                              }`}
                             >
                               {isUnstaking ? "Unstaking..." : "Unstake"}
                             </button>
                           </div>
                           <p className="text-[#A2A2A2] text-sm">
                             Staked:{" "}
-                            <span className="text-[#F8FF7C]">{stakedAmount} STK</span>
+                            <span className="text-[#F8FF7C]">
+                              {stakedAmount} STK
+                            </span>
                           </p>
                         </div>
                       </div>
@@ -1006,11 +1087,15 @@ const StakingReward = () => {
                                   <div className=" flex items-center justify-between bg-black/30 rounded-lg p-2 border border-white/10 overflow-hidden">
                                     <p className="break-all text-[#A2A2A2] font-mono text-sm overflow-x-auto whitespace-nowrap pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                                       {item.value.substring(0, 10)}...
-                                      {item.value.substring(item.value.length - 4)}
+                                      {item.value.substring(
+                                        item.value.length - 4
+                                      )}
                                     </p>
                                     <button
                                       onClick={() => {
-                                        navigator.clipboard.writeText(item.value);
+                                        navigator.clipboard.writeText(
+                                          item.value
+                                        );
                                         toast.success(
                                           `${item.parameter} copied to clipboard!`
                                         );
@@ -1072,8 +1157,8 @@ const StakingReward = () => {
 
                             <div className="flex items-center mb-3">
                               <p className="text-[#A2A2A2]">
-                                The interface for the contract's distributeNFTRewards
-                                function
+                                The interface for the contract's
+                                distributeNFTRewards function
                               </p>
                             </div>
 
@@ -1106,7 +1191,9 @@ const StakingReward = () => {
                                     className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-all hover:scale-105"
                                   >
                                     <Copy className="h-4 w-4 text-gray-400" />
-                                    <span className="text-white text-sm">Copy ABI</span>
+                                    <span className="text-white text-sm">
+                                      Copy ABI
+                                    </span>
                                   </button>
                                 </div>
                               </div>
@@ -1133,15 +1220,14 @@ const StakingReward = () => {
                             Please connect your wallet to view job configuration
                           </p>
                           <p className="text-white/50 text-sm mt-3">
-                            Job configuration will display the automated process details
+                            Job configuration will display the automated process
+                            details
                           </p>
                         </div>
                       )}
                     </div>
                   </>
                 )}
-
-
               </>
             )}
           </>
