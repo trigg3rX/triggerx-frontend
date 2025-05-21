@@ -128,7 +128,7 @@ const LeaderboardSkeleton = ({ activeTab }) => {
 
   return (
     <div className="animate-pulse">
-      <div className="h-[650px] overflow-y-auto max-w-[1600px] mx-auto w-full bg-[#141414] px-5 rounded-lg">
+      <div className=" overflow-y-auto max-w-[1600px] mx-auto w-full bg-[#141414] px-5 rounded-lg">
         {activeTab === "keeper" && renderKeeperSkeleton()}
         {activeTab === "developer" && renderDeveloperSkeleton()}
         {activeTab === "contributor" && renderContributorSkeleton()}

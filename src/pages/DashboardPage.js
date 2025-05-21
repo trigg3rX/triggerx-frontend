@@ -78,12 +78,18 @@ function DashboardPage() {
 
   const outsideClick = (e) => {
     // Check if click is outside both the dropdown button and menu
+
+
     const dropdownButton = document.querySelector('.dropdown-button');
     const dropdownMenu = document.querySelector('.dropdown-menu');
 
     if (dropdownButton && !dropdownButton.contains(e.target) &&
       dropdownMenu && !dropdownMenu.contains(e.target)) {
       setIsDropdownOpen(false);
+    }
+    if (modelRef.current && !modelRef.current.contains(e.target)) {
+      setStakeModalVisible(false);
+      setStakeAmount("")
     }
   };
 
