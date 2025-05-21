@@ -276,6 +276,9 @@ export function useJobCreation() {
         await tx.wait();
         console.log("Stake transaction confirmed: ", tx.hash);
         toast.success("ETH staked successfully!");
+
+        // Fetch updated TG balance after staking
+        await fetchTGBalance();
       }
 
       // Continue with job creation
