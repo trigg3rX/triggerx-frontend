@@ -25,6 +25,8 @@ function DashboardPage() {
   const [selectedType, setSelectedType] = useState("all");
   const logoRef = useRef(null);
   const modelRef = useRef(null);
+  const dropdownRef = useRef(null);
+
   const [expandedJobs, setExpandedJobs] = useState({});
   const [expandedJobDetails, setExpandedJobDetails] = useState({});
   const [expandedLinkedJobDetails, setExpandedLinkedJobDetails] = useState({});
@@ -75,11 +77,23 @@ function DashboardPage() {
   };
 
   const outsideClick = (e) => {
-    if (modelRef.current && !modelRef.current.contains(e.target)) {
-      setStakeModalVisible(false);
-      setStakeAmount("");
+    // Check if click is outside both the dropdown button and menu
+    const dropdownButton = document.querySelector('.dropdown-button');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    if (dropdownButton && !dropdownButton.contains(e.target) &&
+      dropdownMenu && !dropdownMenu.contains(e.target)) {
+      setIsDropdownOpen(false);
     }
   };
+
+  useEffect(() => {
+    // Add click event listener to handle outside clicks
+    document.addEventListener('mousedown', outsideClick);
+    return () => {
+      document.removeEventListener('mousedown', outsideClick);
+    };
+  }, []);
 
   const baseUrl = "https://app.triggerx.network";
 
@@ -678,10 +692,10 @@ function DashboardPage() {
                     <div className="relative">
                       {/* Visible Select Button */}
                       <div
-                        className="bg-[#1A1A1A] text-[#A2A2A2] border border-[#2A2A2A] rounded-lg px-4 py-2 focus:outline-none focus:border-[#C07AF6] cursor-pointer hover:border-[#C07AF6] transition-colors duration-200 flex items-center justify-between w-[200px]"
+                        className="dropdown-button bg-[#1A1A1A] text-[#A2A2A2] border border-[#2A2A2A] rounded-lg px-4 py-2 focus:outline-none focus:border-[#C07AF6] cursor-pointer hover:border-[#C07AF6] transition-colors duration-200 flex items-center justify-between w-[200px]"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       >
-                        {selectedType === "all" ? "All Types" : selectedType}
+                        <li className="text-[#A2A2A2] list-none">{selectedType === "all" ? "All Types" : selectedType}</li>
                         {/* Dropdown Arrow Icon */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -697,7 +711,7 @@ function DashboardPage() {
 
                       {/* Dropdown Options List */}
                       {isDropdownOpen && (
-                        <div className="absolute z-10 mt-1 w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg shadow-lg">
+                        <div ref={dropdownRef} className="dropdown-menu absolute z-10 mt-1 w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg shadow-lg">
                           <ul className="py-1">
                             {['all', 'Time-based', 'Event-based', 'Condition-based'].map((type) => (
                               <li
@@ -1179,11 +1193,10 @@ function DashboardPage() {
                                     <p className="text-md text-[#666666] mb-4 tracking-wide">
                                       Please connect your wallet to view your dashboard
                                     </p>
-
                                   </div>
                                 </td>
                               </tr>
-                            ) : (
+                            ) : getFilteredJobs().length === 0 ? (
                               <tr>
                                 <td colSpan="4" className="text-center py-8">
                                   <div className="flex flex-col items-center justify-center h-[200px] text-[#A2A2A2]">
@@ -1203,17 +1216,201 @@ function DashboardPage() {
                                       <path d="M3 9h18" />
                                       <path d="M9 21V9" />
                                     </svg>
-                                    <p className="text-lg mb-2">No active jobs found</p>
+                                    <p className="text-lg mb-2">No {selectedType === 'all' ? '' : selectedType} jobs found</p>
                                     <p className="text-md text-[#666666] mb-4">
-                                      <Link to="/" className="text-[#666666] underline transition-all  underline-offset-4	hover:text-[#F8ff7c]/60 ">
-                                        Create your first job to get started
-                                      </Link>
+                                      {selectedType === 'all' ? (
+                                        <Link to="/" className="text-[#666666] underline transition-all underline-offset-4 hover:text-[#F8ff7c]/60">
+                                          Create your first job to get started
+                                        </Link>
+                                      ) : (
+                                        <span>Try selecting a different job type.</span>
+                                      )}
                                     </p>
                                   </div>
                                 </td>
                               </tr>
-                            )
-                        }
+                            ) : (
+                              getPaginatedData(getFilteredJobs()).map((job, index) => (
+                                <React.Fragment key={job.id}>
+                                  <tr className="bg-[#1A1A1A] transition-colors duration-200">
+                                    <td className="px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-r-0 border-[#2A2A2A] rounded-tl-lg rounded-bl-lg bg-[#1A1A1A]">
+                                      {index + 1}
+                                    </td>
+                                    <td className=" bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A] cursor-pointer" >
+                                      <div className="flex flex-row gap-5 items-cente">
+                                        {job.type}
+
+                                      </div>
+                                    </td>
+                                    <td className="bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] border border-l-0 border-[#2A2A2A] border-r-0">
+                                      <span className="px-5 py-2.5 rounded-full text-sm  border-[#82FBD0] text-[#82FBD0] border bg-[#82FBD01A]/10 md:text-md xs:text-md traking-wider">
+                                        {job.status}
+                                      </span>
+                                    </td>
+                                    <td className="flex justify-between px-5 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] text-center border border-l-0 border-[#2A2A2A] rounded-tr-lg rounded-br-lg bg-[#1A1A1A]">
+                                      <div className="flex flex-row gap-5">
+                                        <Tooltip title="Update" color="#141414">
+                                          <button
+                                            disabled
+                                            className="px-5 py-2.5 bg-[#C07AF6] rounded-full text-sm text-white cursor-not-allowed hover:bg-[#a46be0] transition-colors md:text-md xs:text-md traking-wider"
+                                          >
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M10.1998 3.2793C13.7298 3.2793 16.6298 5.8893 17.1198 9.2793H19.1998L15.6998 13.2793L12.1998 9.2793H14.5198C14.2959 8.30049 13.7469 7.42647 12.9623 6.79988C12.1777 6.1733 11.2039 5.83116 10.1998 5.8293C8.7498 5.8293 7.4698 6.5393 6.6598 7.6093L4.9498 5.6593C5.60453 4.91111 6.41174 4.31164 7.31724 3.90115C8.22275 3.49065 9.2056 3.27862 10.1998 3.2793ZM9.7998 16.7193C6.2798 16.7193 3.3698 14.1093 2.8798 10.7193H0.799805L4.2998 6.7193C5.4698 8.0493 6.6298 9.3893 7.7998 10.7193H5.4798C5.70369 11.6981 6.25273 12.5721 7.03732 13.1987C7.82191 13.8253 8.79572 14.1674 9.7998 14.1693C11.2498 14.1693 12.5298 13.4593 13.3398 12.3893L15.0498 14.3393C14.3959 15.0885 13.5889 15.6887 12.6832 16.0992C11.7775 16.5098 10.7942 16.7213 9.7998 16.7193Z" fill="white" />
+                                            </svg>
+                                          </button>
+                                        </Tooltip>
+                                        <Tooltip title="Delete" color="#141414">
+                                          <button
+                                            onClick={() => showDeleteConfirmation(job.id)}
+                                            className="px-5 py-2.5 bg-[#FF5757] rounded-full text-sm text-white hover:bg-[#ff4444] transition-colors md:text-md xs:text-md traking-wider"
+                                          >
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M8.33317 4.99935H11.6665C11.6665 4.55732 11.4909 4.1334 11.1783 3.82084C10.8658 3.50828 10.4419 3.33268 9.99984 3.33268C9.55781 3.33268 9.13389 3.50828 8.82133 3.82084C8.50877 4.1334 8.33317 4.55732 8.33317 4.99935ZM6.6665 4.99935C6.6665 4.11529 7.01769 3.26745 7.64281 2.64233C8.26794 2.01721 9.11578 1.66602 9.99984 1.66602C10.8839 1.66602 11.7317 2.01721 12.3569 2.64233C12.982 3.26745 13.3332 4.11529 13.3332 4.99935H17.4998C17.7208 4.99935 17.9328 5.08715 18.0891 5.24343C18.2454 5.39971 18.3332 5.61167 18.3332 5.83268C18.3332 6.0537 18.2454 6.26566 18.0891 6.42194C17.9328 6.57822 17.7208 6.66602 17.4998 6.66602H16.7648L16.0265 15.2827C15.9555 16.1147 15.5748 16.8898 14.9597 17.4546C14.3446 18.0194 13.5399 18.3328 12.7048 18.3327H7.29484C6.45976 18.3328 5.65507 18.0194 5.03996 17.4546C4.42486 16.8898 4.04415 16.1147 3.97317 15.2827L3.23484 6.66602H2.49984C2.27882 6.66602 2.06686 6.57822 1.91058 6.42194C1.7543 6.26566 1.6665 6.0537 1.6665 5.83268C1.6665 5.61167 1.7543 5.39971 1.91058 5.24343C2.06686 5.08715 2.27882 4.99935 2.49984 4.99935H6.6665ZM12.4998 9.99935C12.4998 9.77833 12.412 9.56637 12.2558 9.41009C12.0995 9.25381 11.8875 9.16602 11.6665 9.16602C11.4455 9.16602 11.2335 9.25381 11.0772 9.41009C10.921 9.56637 10.8332 9.77833 10.8332 9.99935V13.3327C10.8332 13.5537 10.921 13.7657 11.0772 13.9219C11.2335 14.0782 11.4455 14.166 11.6665 14.166C11.8875 14.166 12.0995 14.0782 12.2558 13.9219C12.412 13.7657 12.4998 13.5537 12.4998 13.3327V9.99935ZM8.33317 9.16602C8.11216 9.16602 7.9002 9.25381 7.74392 9.41009C7.58763 9.56637 7.49984 9.77833 7.49984 9.99935V13.3327C7.49984 13.5537 7.58763 13.7657 7.74392 13.9219C7.9002 14.0782 8.11216 14.166 8.33317 14.166C8.55418 14.166 8.76615 14.0782 8.92243 13.9219C9.07871 13.7657 9.1665 13.5537 9.1665 13.3327V9.99935C9.1665 9.77833 9.07871 9.56637 8.92243 9.41009C8.76615 9.25381 8.55418 9.16602 8.33317 9.16602Z" fill="white" />
+                                            </svg>
+                                          </button>
+                                        </Tooltip>
+                                        <Tooltip title="View Details" color="#141414">
+                                          <button
+                                            onClick={() => toggleJobDetails(job.id)}
+                                            className="px-5 py-2.5 bg-[#2A2A2A] rounded-full text-sm text-white hover:bg-[#3A3A3A] transition-colors md:text-md xs:text-md traking-wider"
+                                          >
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                              <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                          </button>
+                                        </Tooltip>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  {expandedJobDetails[job.id] && (
+                                    <tr>
+                                      <td colSpan="4" className="p-4">
+                                        <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#2A2A2A]">
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {/* Job Type Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" /></svg>
+                                                Job Type
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">  {job.type}</p>
+                                            </div>
+
+                                            {/* Arg Type Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><path d="M18 7V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3" /><path d="M14 17a2 2 0 0 0 2-2v-3.5a2 2 0 0 0-2-2.5h-4c-.7 0-1.5.5-1.5 1.5 0 1 .7 1.5 1.5 1.5h.5a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a.5.5 0 0 0-.5.5c0 .5.8 1.5 1.5 1.5h4Z" /><path d="M6 20v-3.5a2 2 0 0 1 2-2.5h2.5c.7 0 1.5.5 1.5 1.5 0 1-.7 1.5-1.5 1.5h-.5a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h-.5a.5.5 0 0 1-.5.5c0 .5.8 1.5 1.5 1.5h4" /><line x1="12" y1="22" x2="12" y2="17" /></svg>
+                                                Arg Type
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">{job.argType || 'None'}</p>
+                                            </div>
+
+                                            {/* Target Contract Address Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="20" height="14" x="2" y="7" rx="2" /><path d="M2 10h20" /><circle cx="12" cy="15" r="2" /></svg>
+                                                Target Contract Address
+                                              </h4>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.contractAddress || 'Not specified'}</p>
+                                            </div>
+
+                                            {/* Target Function Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                                                Target Function
+                                              </h4>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.targetFunction || 'Not specified'}</p>
+                                            </div>
+
+                                            {/* Trigger Contract Address Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400"><path d="m18 16-.9-1.8c-.6-.6-1.5-1-2.4-1H9.74c-1 0-1.9.4-2.6 1l-.9 1.8" /><path d="m2.8 20 1.6-3.3C5.3 15.3 6.5 14.5 7.8 14H16.2c1.3 0 2.5.8 3.4 2.2l1.6 3.3" /><path d="M2.08 16c-.3 0-.5.1-.8.3l-.2.3c-.1.2-.2.4-.2.6 0 .5.4 1 .9 1.1.3.1.7 0 1-.2h18c.3.2.7.3 1 .2.5-.1.9-.6.9-1.1 0-.2-.1-.4-.2-.6l-.8-.9-.2-.2c-.3-.2-.5-.3-.8-.3H2.08Z" /><path d="M12.51 6.46 14.15 1h-.83L11.45 6.1Z" /><path d="M18.4 12.1c.8-.8 2-1.2 3.3-1.1 0-.9-.2-1.8-.7-2.6-.7-1.2-1.9-2.1-3.3-2.5h-.2c-1.3-.2-2.6-.1-3.8.3l-.5.2" /><path d="M5.6 12.1c-.8-.8-2-1.2-3.3-1.1 0-.9.2-1.8.7-2.6.7-1.2 1.9-2.1 3.3-2.5h-.2c1.3-.2 2.6-.1 3.8.3l-.5.2" /></svg>
+                                                Trigger Contract Address
+                                              </h4>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerContractAddress || 'Not specified'}</p>
+                                            </div>
+
+                                            {/* Trigger Event Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-pink-400"><path d="M15 12a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /><path d="M12.68 10A2 2 0 0 0 11 6.5a2 2 0 0 0-3.43-1.76l-2.3 2.3a2 2 0 0 0-.16 2.6L4.8 14.5a2 2 0 0 0 2 2h.18a2 2 0 0 0 1.52-2.71L9.8 12.6A2 2 0 0 0 12.68 10Z" /></svg>
+                                                Trigger Event
+                                              </h4>
+                                              <p className="text-[#A2A2A2] font-mono text-sm truncate">{job.triggerEvent || 'Not specified'}</p>
+                                            </div>
+
+                                            {/* Timeframe Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-orange-400"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                                Timeframe
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">
+                                                {job.timeframe ?
+                                                  `${job.timeframe.days || 0}d ${job.timeframe.hours || 0}h ${job.timeframe.minutes || 0}m`
+                                                  : 'Not specified'}
+                                              </p>
+                                            </div>
+
+                                            {/* Interval Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-teal-400"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                                Interval
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">
+                                                {job.timeInterval ?
+                                                  `${job.timeInterval.hours || 0}h ${job.timeInterval.minutes || 0}m ${job.timeInterval.seconds || 0}s`
+                                                  : 'Not specified'}
+                                              </p>
+                                            </div>
+
+                                            {/* TG Used Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-400"><circle cx="12" cy="12" r="10" /><path d="M16 8l-8 8" /><path d="M8 8l8 8" /></svg>
+                                                TG Used
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">{job.tgUsed || '0'} TG</p>
+                                            </div>
+
+                                            {/* Total Executions Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400"><polyline points="22 12 16 12" /><polyline points="16 12 19 15" /><polyline points="19 9 16 12" /><path d="M2 19v-3.5a2 2 0 0 1 2-2.5h16.5" /><path d="M22 13.5V10a2 2 0 0 0-2-2h-1.5" /><path d="M2 16v-1.5a2 2 0 0 1 2-2H6" /></svg>
+                                                Total Executions
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">{job.totalExecutions || 0}</p>
+                                            </div>
+
+                                            {/* Last Execution Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-yellow-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="12" y1="14" x2="12" y2="18" /><path d="M16 14h-4" /></svg>
+                                                Last Execution
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">{job.lastExecution || 'Never'}</p>
+                                            </div>
+
+                                            {/* Next Execution Card */}
+                                            <div className="bg-gradient-to-br from-black/40 to-white/5 border border-white/10 p-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-white/5 hover:-translate-y-1 p-4">
+                                              <h4 className="text-white font-bold text-lg mb-2 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-green-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><path d="M12 16l4-4-4-4" /><path d="M8 12h4" /></svg>
+                                                Next Execution
+                                              </h4>
+                                              <p className="text-[#A2A2A2]">{job.nextExecution || 'Not scheduled'}</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              ))
+                            )}
                       </tbody>
                     </table>
                   </div>
