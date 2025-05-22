@@ -19,7 +19,6 @@ import ApiCreation from "./pages/Api/ApiCreation";
 import BalanceMaintainer from "./components/BalanceMaintainer";
 import { WalletProvider } from "./contexts/WalletContext";
 import { ErrorProvider } from "./contexts/ErrorContext";
-import ServerErrorModal from "./components/common/ServerErrorModal";
 
 const myCustomTheme = {
   blurs: {
@@ -100,7 +99,7 @@ const App = () => {
             <ErrorProvider>
               <WalletProvider>
                 <Router>
-                  <ServerErrorModal />
+
                   <Layout>
                     <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
                       <meta
