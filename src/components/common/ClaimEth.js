@@ -115,7 +115,7 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
       isOpen={isOpen}
       onRequestClose={!isLoading ? onClose : undefined}
       contentLabel="Claim ETH"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000] overflow-hidden"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-4 sm:p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-[95%] sm:w-full max-w-md z-[10000] overflow-hidden"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
     >
       {/* Confetti canvas overlay */}
@@ -125,45 +125,44 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
       />
 
       {isSuccess ? (
-        <div className="flex flex-col items-center justify-center text-center h-full py-8 z-20 relative">
-          <div className="text-3xl font-bold mb-6 text-white">Woohoo!</div>
-          <div className="text-xl text-[#F8FF7C] font-bold mb-6">
+        <div className="flex flex-col items-center justify-center text-center h-full py-4 sm:py-8 z-20 relative">
+          <div className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">Woohoo!</div>
+          <div className="text-lg sm:text-xl text-[#F8FF7C] font-bold mb-4 sm:mb-6">
             You claimed successfully!
           </div>
-          <div className="text-lg mb-6">
+          <div className="text-base sm:text-lg mb-4 sm:mb-6">
             <span className="text-green-400 font-bold">{claimAmount} ETH</span>{" "}
             has been added to your wallet
           </div>
           <button
             onClick={() => {
-              // Ensure balance is refreshed before closing modal
               triggerBalanceRefresh();
               onClose();
             }}
-            className="px-8 py-3 rounded-lg bg-white text-black font-semibold transition-all duration-300 hover:bg-gray-100 mt-4"
+            className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 rounded-lg bg-white text-black font-semibold transition-all duration-300 hover:bg-gray-100 mt-4"
           >
             Close
           </button>
         </div>
       ) : (
         <>
-          <h2 className="text-2xl font-bold mb-6 z-20 relative">Claim ETH</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 z-20 relative">Claim ETH</h2>
 
-          <div className="space-y-6 z-20 relative">
-            <div className="bg-[#1E1E1E] p-4 rounded-lg">
-              <div className="mb-4">
-                <span className="text-gray-400">Network</span>
+          <div className="space-y-4 sm:space-y-6 z-20 relative">
+            <div className="bg-[#1E1E1E] p-3 sm:p-4 rounded-lg">
+              <div className="mb-3 sm:mb-4">
+                <span className="text-sm sm:text-base text-gray-400">Network</span>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="text-white font-medium">
+                  <span className="text-white text-sm sm:text-base font-medium">
                     {getNetworkName()}
                   </span>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <span className="text-gray-400">Your Address</span>
+              <div className="mb-3 sm:mb-4">
+                <span className="text-sm sm:text-base text-gray-400">Your Address</span>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="text-white font-medium">
+                  <span className="text-white text-sm sm:text-base font-medium">
                     {truncateAddress(address)}
                   </span>
                   <button
@@ -172,40 +171,40 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
                     title="Copy address"
                   >
                     {copied ? (
-                      <Check className="h-4 w-4 text-green-400" />
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                     )}
                   </button>
                 </div>
               </div>
 
               <div>
-                <span className="text-gray-400">Claim Amount</span>
-                <div className="mt-1 text-[#F8FF7C] font-bold text-xl">
+                <span className="text-sm sm:text-base text-gray-400">Claim Amount</span>
+                <div className="mt-1 text-[#F8FF7C] font-bold text-lg sm:text-xl">
                   {claimAmount} ETH
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-between gap-5">
+          <div className="mt-6 sm:mt-8 flex flex-row sm:flex-row justify-between gap-3 sm:gap-5">
             <button
               onClick={onClose}
               disabled={isLoading}
-              className={`flex-1 px-6 py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`w-full sm:flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={isLoading}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`w-full sm:flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all duration-300 bg-white text-black ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-black"
+                    className="animate-spin -ml-1 mr-2 h-3 w-3 sm:h-4 sm:w-4 text-black"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -300,11 +299,11 @@ const ClaimEth = () => {
     <>
       <button
         onClick={handleClaim}
-        className="bg-[#F8FF7C] text-black px-8 py-3 my-5 rounded-full transition-all text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5"
+        className="bg-[#F8FF7C] text-black px-4 sm:px-8 py-2 sm:py-3 my-3 sm:my-5 rounded-full transition-all text-base sm:text-lg flex items-center hover:bg-[#E1E85A] hover:shadow-md hover:shadow-[#F8FF7C]/20 hover:-translate-y-0.5 w-auto sm:w-auto justify-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 mr-2"
+          className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
