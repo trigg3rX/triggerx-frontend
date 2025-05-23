@@ -275,6 +275,7 @@ function DashboardPage() {
         ) // Only main jobs with status === false
         .map((jobDetail) => ({
           id: jobDetail.job_id,
+          title: jobDetail.job_title,
           type: mapJobType(jobDetail.job_type),
           status: "Active", // Only including jobs where status is false
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
@@ -720,7 +721,7 @@ function DashboardPage() {
             <div className="lg:w-[70%] w-full">
 
               <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8 ">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6 flex-col lg:flex-row gap-3 md:flex-row">
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
                     Active Jobs
                   </h2>
@@ -799,7 +800,7 @@ function DashboardPage() {
                                   </td>
                                   <td className=" bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A] cursor-pointer" >
                                     <div className="flex flex-row gap-5 items-cente">
-                                      {job.type}
+                                      {job.title}
 
                                     </div>
                                   </td>
@@ -1220,17 +1221,17 @@ function DashboardPage() {
                             : !connected ? (
                               <tr>
                                 <td colSpan="4" className="text-center py-8">
-                                <div className="flex flex-col items-center justify-center lg:h-[200px] h-[150px] text-[#A2A2A2]">
-                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg " className="mb-3" stroke="">
-                          <path d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z" fill="#A2A2A2" />
-                        </svg>
-                        <p className="text-sm lg:text-lg md:text-lg  mb-2">Wallet Not Connected</p>
-                        <p className="text-sm lg:text-md md:text-md  text-center text-[#666666] mb-4 tracking-wide">
-                          Please connect your wallet to interact with the contract
+                                  <div className="flex flex-col items-center justify-center lg:h-[200px] h-[150px] text-[#A2A2A2]">
+                                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg " className="mb-3" stroke="">
+                                      <path d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z" fill="#A2A2A2" />
+                                    </svg>
+                                    <p className="text-sm lg:text-lg md:text-lg  mb-2">Wallet Not Connected</p>
+                                    <p className="text-sm lg:text-md md:text-md  text-center text-[#666666] mb-4 tracking-wide">
+                                      Please connect your wallet to interact with the contract
 
-                        </p>
+                                    </p>
 
-                      </div>
+                                  </div>
                                 </td>
                               </tr>
                             ) : getFilteredJobs().length === 0 ? (
@@ -1460,10 +1461,10 @@ function DashboardPage() {
             <div className="space-y-8 h-full lg:w-[25%] w-full">
               {loading && connected ? (
                 <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                  <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                  <div className="h-8 bg-gray-700 rounded  mb-6"></div>
                   <div className="p-6 bg-[#242323] rounded-lg">
-                    <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
-                    <div className="h-8 bg-gray-700 rounded w-32"></div>
+                    <div className="h-4 bg-gray-700 rounded  mb-7"></div>
+                    <div className="h-8 bg-gray-700 rounded "></div>
                   </div>
                 </div>
               ) : (
@@ -1484,10 +1485,10 @@ function DashboardPage() {
               <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
                 {loading && connected ? (
                   <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                    <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                    <div className="h-8 bg-gray-700 rounded  mb-6"></div>
                     <div className="p-6 bg-[#242323] rounded-lg">
-                      <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
-                      <div className="h-8 bg-gray-700 rounded w-32"></div>
+                      <div className="h-4 bg-gray-700 rounded  mb-7"></div>
+                      <div className="h-8 bg-gray-700 rounded "></div>
                     </div>
                   </div>
                 ) : (
@@ -1529,10 +1530,10 @@ function DashboardPage() {
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
                 {loading && connected ? (
                   <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                    <div className="h-8 bg-gray-700 rounded w-48 mb-6"></div>
+                    <div className="h-8 bg-gray-700 rounded  mb-6"></div>
                     <div className="p-6 bg-[#242323] rounded-lg">
-                      <div className="h-4 bg-gray-700 rounded w-40 mb-7"></div>
-                      <div className="h-8 bg-gray-700 rounded w-32"></div>
+                      <div className="h-4 bg-gray-700 rounded  mb-7"></div>
+                      <div className="h-8 bg-gray-700 rounded "></div>
                     </div>
 
                   </div>
@@ -1728,4 +1729,3 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
-
