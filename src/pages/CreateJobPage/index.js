@@ -468,6 +468,7 @@ function CreateJobPage() {
 
       const {
         jobType: incomingJobType,
+        jobTitle: incomingJobTitle,
         contractAddress: incomingContractAddress,
         abi: incomingAbiString,
         timeframe: incomingTimeframe,
@@ -475,6 +476,12 @@ function CreateJobPage() {
         argumentType: incomingArgumentType,
         ipfsCodeUrl: incomingIpfsCodeUrl,
       } = location.state;
+
+      // 0. set job title
+      if (incomingJobTitle !== undefined) {
+        setJobTitle(incomingJobTitle); // Ensure it's a number
+        setSelectedJob(null); // Clear selected job when job type is set
+      }
 
       // 1. Set Job Type
       if (incomingJobType !== undefined) {
@@ -575,6 +582,7 @@ function CreateJobPage() {
   }, [
     location.state,
     setJobType,
+    setJobTitle,
     setTimeframe,
     setTimeframeInSeconds, // Add dependency
     setTimeInterval,
@@ -592,6 +600,7 @@ function CreateJobPage() {
         // Process the state change
         const {
           jobType,
+          jobTitle,
           contractAddress,
           abi,
           timeframe,
@@ -602,6 +611,10 @@ function CreateJobPage() {
 
         if (jobType !== undefined) {
           setJobType(Number(jobType));
+          setSelectedJob(null);
+        }
+        if (jobTitle !== undefined) {
+          setJobTitle(jobTitle);
           setSelectedJob(null);
         }
 
@@ -674,6 +687,7 @@ function CreateJobPage() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [
     setJobType,
+    setJobTitle,
     setTimeframe,
     setTimeframeInSeconds,
     setTimeInterval,
@@ -1725,7 +1739,7 @@ function CreateJobPage() {
                           </div>
                         </>
                       ) : (
-                        <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2 text-md tracking-wide">
+                        <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-5 border border-white/10 hover:border-white/20 transition-all duration-300 space-y-8 flex items-center justify-center gap-2 text-sm lg:text-md  md:text-base tracking-wide">
                           <div className="mb-1">
                             <svg width="22" height="22" viewBox="0 0 16 16" fill="" xmlns="http://www.w3.org/2000/svg" >
                               <path d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z" stroke="#A2A2A2" stroke-miterlimit="10" />

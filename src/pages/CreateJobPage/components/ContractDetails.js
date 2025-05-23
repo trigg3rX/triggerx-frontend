@@ -549,12 +549,12 @@ export function ContractDetails({
 
       {targetFunction && functionInputs.length > 0 && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap mb-6">
+          <div className="flex justify-between  flex-col lg:flex-row md:flex-row">
+            <label className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap mb-3 lg:mb-6">
               Function Arguments
             </label>
             {isDisabled && (
-              <span className="text-sm text-yellow-400 mb-6">
+              <span className="text-sm text-yellow-400 lg:mb-6 m-3">
                 Arguments disabled for dynamic type
               </span>
             )}
