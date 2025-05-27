@@ -492,17 +492,29 @@ function DevhubItem() {
         <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
         <a
           href={postData.githubUrl || "#"}
-          target="_blank" // Use _blank consistently
+          target="_blank"
           rel="noopener noreferrer"
-          className="w-full sm:w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center" // Adjusted centering/width
+          className="w-full sm:w-[130px] relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center"
         >
           <FaGithub className="mr-2 flex-shrink-0" />
           <span className="text-center">Open Github</span>
         </a>
       </div>
 
+      <div className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full sm:w-max flex items-center justify-center">
+        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+        <span className="absolute inset-0 bg-[#F8FF7C] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+        <div className="w-full sm:w-max relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center">
+          <a
+            href={postData.redirect || "#"}
+            rel="noopener noreferrer"
+            className="w-full sm:w-[130px] relative z-10 rounded-full transition-all duration-300 ease-out text-xs sm:text-base flex items-center justify-center bg-[#F8FF7C] text-black"
+          >
+            ⚡ Try Now
+          </a>
+        </div>
+      </div>
       {/* Try Now Button (NO Modal inside) */}
-
     </div>
   );
 
@@ -528,7 +540,7 @@ function DevhubItem() {
       {/* Main Content Area */}
       <div className="bg-[#131313] rounded-3xl border border-gray-700 p-6 w-[90%] mx-auto">
         {/* Top Section */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
           {headerImageUrl ? (
             <div className="w-[95%] mx-auto rounded-3xl overflow-hidden h-max">
               <img
@@ -544,19 +556,11 @@ function DevhubItem() {
           )}
 
           {/* Info Grid */}
-          <div className="flex text-md md:text-sm text-white justify-evenly gap-9 my-5 md:flex-row flex-col text-xs">
-            {/* <h3 className="mb-3 text-start flex items-center">
-              <span className="w-[110px] flex font-bold">Required Time :</span>
-              <span className="text-white ml-3 text-left md:text-sm text-xs">
-                {readTimeDisplay}
-              </span>
-            </h3> */}
-            <h3 className="text-start flex items-center">
-              <span className="w-[110px] flex font-bold">Requires :</span>
-              <span className="text-white ml-3 text-left md:text-sm text-xs">
-                {postData.requires || "N/A"}
-              </span>
-            </h3>
+          <div className="text-[8px] xs:text-xs sm:text-base flex items-center justify-center mt-3">
+            <span className="text-gray-400 mr-2">Requires:</span>
+            <span className="text-white">
+              {postData.requires || "N/A"}
+            </span>
           </div>
 
           {/* Buttons */}
@@ -588,7 +592,7 @@ function DevhubItem() {
               </div>
             </div>
           </div> */}
-          <ActionButtons />
+          {/* <ActionButtons /> */}
         </div>
       </div>
 
@@ -616,7 +620,7 @@ function DevhubItem() {
                     <a
                       href={`#${pair.h2Heading}`}
                       onClick={(e) => {
-                        console.log(pair.h2Heading)
+                        console.log(pair.h2Heading);
                         e.preventDefault();
                         const targetElement = document.getElementById(
                           pair.h2Heading
@@ -630,10 +634,11 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
+                      className={`text-xs hover:underline ${
+                        activeHeading === pair.h2Heading
                           ? "text-green-400 font-bold"
                           : "text-gray-300"
-                        }`}
+                      }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -665,10 +670,11 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
+                    activeHeading === pair.h2Heading
                       ? "text-green-400 font-bold"
                       : "text-gray-300"
-                    }`}
+                  }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>
@@ -691,10 +697,11 @@ function DevhubItem() {
             <div className="z-0 absolute right-0 top-0 w-[140px] lg:w-[160px] h-max">
               <img src={devhub2} alt="sideimg" className="w-full h-auto"></img>
             </div>
-            <p className="relative z-30 max-w-[500px] lg:max-w-[600px] mx-auto text-wrap text-center">View the complete code and our ready-to-use template</p>
+            <p className="relative z-30 max-w-[500px] lg:max-w-[600px] mx-auto text-wrap text-center text-xs sm:text-sm lg:text-base">
+              View the complete code and our ready-to-use template
+            </p>
             <ActionButtons />
           </div>
-
         </article>
       </div>
       <div className="relative bg-[#222222] text-[#000000] my-16 border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-max mx-auto flex items-center justify-center">
