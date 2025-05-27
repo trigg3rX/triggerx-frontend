@@ -540,7 +540,7 @@ const PriceOracle = () => {
                     )}
                   </div>
                   {hasSufficientBalance && (
-                    <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10 space-y-4 sm:space-y-8 flex items-start justify-start gap-2 text-sm sm:text-base tracking-wide ">
+                    <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10 space-y-4 sm:space-y-8 flex items-center justify-start gap-2 text-sm sm:text-base tracking-wide ">
                       <div className="mb-1">
                         <svg width="20" height="20" viewBox="0 0 16 16" fill="" xmlns="http://www.w3.org/2000/svg">
                           <path d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z" stroke="#A2A2A2" stroke-miterlimit="10" />
@@ -551,7 +551,7 @@ const PriceOracle = () => {
                     </span>
                   )}
                   {!hasSufficientBalance && (
-                    <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 sm:space-y-8 flex items-start justify-start gap-2 text-sm sm:text-base lg:text-md tracking-wide ">
+                    <span className="bg-[#141414] backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 sm:space-y-8 flex items-center justify-start gap-2 text-sm sm:text-base lg:text-md tracking-wide ">
                       <div className="mb-1">
                         <svg width="20" height="20" viewBox="0 0 16 16" fill="" xmlns="http://www.w3.org/2000/svg">
                           <path d="M14 8C14 4.6875 11.3125 2 8 2C4.6875 2 2 4.6875 2 8C2 11.3125 4.6875 14 8 14C11.3125 14 14 11.3125 14 8Z" stroke="#A2A2A2" stroke-miterlimit="10" />
@@ -580,6 +580,8 @@ const PriceOracle = () => {
                       {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
                     </span>
                   </p>
+                  <p className="text-white py-2 text-sm sm:text-base">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>
+
                   <p className="text-sm sm:text-base text-white py-2 sm:py-2 break-all">
                     Contract Address :
                     <a
@@ -591,7 +593,8 @@ const PriceOracle = () => {
                       rel="noopener noreferrer"
                       className="text-[#77E8A3] underline pl-2"
                     >
-                      {contractAddress}
+                      {`${contractAddress.slice(0, 12)}...${contractAddress.slice(-6)}`}
+
                     </a>
                   </p>
                 </div>
