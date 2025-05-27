@@ -93,7 +93,13 @@ const Leaderboard = () => {
           apiUrl = `${API_BASE_URL}/api/leaderboard/users`;
         }
 
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: 'omit',
+        });
 
         const data = await response.json();
         console.log("Raw API response:", data);
