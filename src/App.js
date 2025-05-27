@@ -19,6 +19,7 @@ import ApiCreation from "./pages/Api/ApiCreation";
 import BalanceMaintainer from "./components/BalanceMaintainer";
 import { WalletProvider } from "./contexts/WalletContext";
 import { ErrorProvider } from "./contexts/ErrorContext";
+import ServerErrorModal from "./components/common/ServerErrorModal";
 
 const myCustomTheme = {
   blurs: {
@@ -97,6 +98,7 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={myCustomTheme} modalSize="compact">
             <ErrorProvider>
+              <ServerErrorModal />
               <WalletProvider>
                 <Router>
 
