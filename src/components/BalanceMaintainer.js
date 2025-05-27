@@ -555,7 +555,7 @@ const BalanceMaintainerExample = () => {
                   <p className="text-white py-2 text-sm sm:text-base">Status : <span className="text-[#A2A2A2] font-semibold pl-2"> {isInitialized ? 'Deployed Successfully' : 'Deploying...'}</span></p>
                   <p className="text-white py-2 text-sm sm:text-base">Owner : <span className="text-[#A2A2A2] font-semibold pl-2"> <span className="hidden sm:inline break-all">{address}</span>
                     <span className="sm:hidden">{`${address.slice(0, 6)}...${address.slice(-4)}`}</span></span></p>
-                  <p className="text-white py-2 text-sm sm:text-base">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p>
+                  {/* <p className="text-white py-2 text-sm sm:text-base">Balance : <span className="text-[#A2A2A2] font-semibold pl-2">{contractBalance}  ETH</span> </p> */}
                   <p className="text-white py-2 text-sm sm:text-base">
                     Contract Address :{' '}
 
@@ -567,7 +567,8 @@ const BalanceMaintainerExample = () => {
                       rel="noopener noreferrer"
                       className="text-[#77E8A3] underline pl-2 break-all"
                     >
-                      {`${contractAddress.slice(0, 12)}...${contractAddress.slice(-6)}`}
+                      <span className="hidden sm:inline break-all">{contractAddress}</span>
+                      <span className="sm:hidden"> {`${contractAddress.slice(0, 12)}...${contractAddress.slice(-6)}`}</span>
                     </a>
                   </p>
                 </div>
