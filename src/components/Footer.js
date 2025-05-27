@@ -152,7 +152,7 @@ const Footer = () => {
             </div>
             <div className="w-[100%] md:w-auto flex justify-between md:justify-end gap-3 md:gap-5 lg:gap-8 text-[10px] xs:text-[12px] lg:text-[14px] 2xl:text-[15px] text-nowrap tracking-wide">
               <a
-                href="https://triggerx.gitbook.io/triggerx-docs/join-as-keeper"
+                href="https://triggerx.gitbook.io/triggerx-docs/getting-started-as-keepers"
                 className="hover:text-gray-400"
                 target="_blank"
                 rel="noopener noreferrer"
