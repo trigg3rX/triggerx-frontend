@@ -3,7 +3,7 @@
  */
 
 // Setting a timeout to detect unresponsive server
-const TIMEOUT_DURATION = 15000; // 15 seconds
+const TIMEOUT_DURATION = 5000; // 15 seconds
 
 /**
  * Performs a fetch request with timeout handling

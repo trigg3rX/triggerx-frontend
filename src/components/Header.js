@@ -165,18 +165,20 @@ function Header() {
           </nav>
         </div>
         <div className="flex items-cente gap-2">
+
+          <div className="hidden md:block">
+            {address && data && (
+              <div className=" bg-[#f8ff7c] px-3 py-[6px] rounded-full border border-[#f8ff7c] text-nowrap">
+                <span className="text-black text-[15px] font-bold tracking-wider">
+                  {Number(data.formatted).toFixed(2)} {data.symbol}
+                </span>
+              </div>
+            )}</div>
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
             showBalance={false}
           />
-          {address && data && (
-            <div className="bg-[#f8ff7c] px-4 py-[5px] rounded-full border border-[#f8ff7c] text-nowrap">
-              <span className="text-black text-sm font-bold h-[24px]">
-                {Number(data.formatted).toFixed(2)} {data.symbol}
-              </span>
-            </div>
-          )}
 
           {/* <div className="relative">
             <FiInfo
@@ -221,14 +223,14 @@ function Header() {
         </div>
 
         {/* Hamburger Menu and Navigation */}
-        <div className="relative flex items-center gap-2 md:gap-5">
-          {address && data && (
+        <div className="relative flex items-center gap-2 md:gap-5 ">
+          {/* {address && data && (
             <div className="bg-[#f8ff7c] px-4 py-[5px] rounded-full border border-[#f8ff7c] text-nowrap">
               <span className="text-black text-sm font-bold h-[24px]">
                 {Number(data.formatted).toFixed(2)} {data.symbol}
               </span>
             </div>
-          )}
+          )} */}
           <div className="flex-shrink-0 relative z-10">
             <ConnectButton
               chainStatus="none"
@@ -240,7 +242,7 @@ function Header() {
           <div className="lg:hidden">
             <h4
               onClick={() => setMenuOpen(!menuOpen)}
-              className="text-white text-2xl"
+              className="text-white text-2xl cursor-pointer"
             >
               {menuOpen ? "✖" : "☰"}
             </h4>

@@ -275,7 +275,6 @@ function DashboardPage() {
         ) // Only main jobs with status === false
         .map((jobDetail) => ({
           id: jobDetail.job_id,
-          title: jobDetail.job_title,
           type: mapJobType(jobDetail.job_type),
           status: "Active", // Only including jobs where status is false
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
@@ -800,7 +799,7 @@ function DashboardPage() {
                                   </td>
                                   <td className=" bg-[#1A1A1A] px-6 py-5 text-[#A2A2A2] md:text-md lg:text-lg xs:text-[12px] border border-l-0 border-r-0 border-[#2A2A2A] cursor-pointer" >
                                     <div className="flex flex-row gap-5 items-cente">
-                                      {job.title}
+                                      {job.type}
 
                                     </div>
                                   </td>
@@ -1459,114 +1458,90 @@ function DashboardPage() {
             </div>
 
             <div className="space-y-8 h-full lg:w-[25%] w-full">
-              {loading && connected ? (
-                <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                  <div className="h-8 bg-gray-700 rounded  mb-6"></div>
-                  <div className="p-6 bg-[#242323] rounded-lg">
-                    <div className="h-4 bg-gray-700 rounded  mb-7"></div>
-                    <div className="h-8 bg-gray-700 rounded "></div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-                  <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
-                    Your Balance
-                  </h3>
-                  <div className="p-6 bg-[#242323] rounded-lg ">
-                    <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
-                      Total TG Balance
-                    </p>
-                    <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
-                      {formatBalance(tgBalance)} TG
-                    </p>
-                  </div>
-                </div>
-              )}
+
+
               <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
-                {loading && connected ? (
-                  <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                    <div className="h-8 bg-gray-700 rounded  mb-6"></div>
-                    <div className="p-6 bg-[#242323] rounded-lg">
-                      <div className="h-4 bg-gray-700 rounded  mb-7"></div>
-                      <div className="h-8 bg-gray-700 rounded "></div>
+                <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
+                  Your Balance
+                </h3>
+                <div className="p-6 bg-[#242323] rounded-lg ">
+                  <p className="text-[#A2A2A2] xl:text-md text-sm mb-7 font-bold tracking-wider">
+                    Total TG Balance
+                  </p>
+                  <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
+                    {formatBalance(tgBalance)} TG
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
+
+                <div>
+                  <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                    Quick Actions
+                  </h3>
+
+                  <div className="space-y-8  ">
+                    <div className="my-5">
+                      <button
+                        onClick={() => setStakeModalVisible(true)}
+                        disabled={!connected}
+                        className={`relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full ${!connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                        <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                        <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                          Top Up TG
+                        </span>
+
+                      </button>
                     </div>
+
+                    <Link to="/">
+                      <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
+                        <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
+                        <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
+                        <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+                          Create New Job
+                        </span>
+                      </button>
+                    </Link>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className=" xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                      Quick Actions
-                    </h3>
+                </div>
 
-                    <div className="space-y-8  ">
-                      <div className="my-5">
-                        <button
-                          onClick={() => setStakeModalVisible(true)}
-                          disabled={!connected}
-                          className={`relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full ${!connected ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                            Top Up TG
-                          </span>
-
-                        </button>
-                      </div>
-
-                      <Link to="/">
-                        <button className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full">
-                          <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
-                          <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-                          <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
-                            Create New Job
-                          </span>
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 ">
-                {loading && connected ? (
-                  <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 animate-pulse">
-                    <div className="h-8 bg-gray-700 rounded  mb-6"></div>
-                    <div className="p-6 bg-[#242323] rounded-lg">
-                      <div className="h-4 bg-gray-700 rounded  mb-7"></div>
-                      <div className="h-8 bg-gray-700 rounded "></div>
-                    </div>
 
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
-                      Statistics
-                    </h3>
-                    <div className="space-y-4 text-gray-300">
-                      <div className="flex justify-start items-center gap-7">
-                        <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
-                          {jobDetails.length}
-                        </p>
-                        <p className="text-[#A2A2A2] xl:text-lg text-sm  font-bold tracking-wider">
-                          Total Jobs
-                        </p>
-                      </div>
-                      <div className="flex justify-start items-center gap-7">
-                        <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
-                          {
-                            jobDetails.filter((job) => job.status === "Active")
-                              .length
-                          }
-                        </p>
-                        <p className="text-[#A2A2A2] xl:text-lg text-sm  font-bold tracking-wider">
-                          Active Jobs
-                        </p>
-                      </div>
+                <div>
+                  <h3 className="xl:text-2xl text-lg font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
+                    Statistics
+                  </h3>
+                  <div className="space-y-4 text-gray-300">
+                    <div className="flex justify-start items-center gap-7">
+                      <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
+                        {jobDetails.length}
+                      </p>
+                      <p className="text-[#A2A2A2] xl:text-lg text-sm  font-bold tracking-wider">
+                        Total Jobs
+                      </p>
+                    </div>
+                    <div className="flex justify-start items-center gap-7">
+                      <p className="font-semibold text-[#A2A2A2] bg-[#242323] py-3 px-4 rounded-md xl:text-md text-sm ">
+                        {
+                          jobDetails.filter((job) => job.status === "Active")
+                            .length
+                        }
+                      </p>
+                      <p className="text-[#A2A2A2] xl:text-lg text-sm  font-bold tracking-wider">
+                        Active Jobs
+                      </p>
                     </div>
                   </div>
+                </div>
 
 
-                )}
+
               </div>
             </div>
           </div>
