@@ -320,19 +320,19 @@ export function EstimatedFeeModal({
       isOpen={isOpen}
       onRequestClose={handleClose}
       contentLabel="Estimate Fee"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md z-[10000]"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141414] p-4 sm:p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-[95%] sm:w-full max-w-md z-[10000]"
       overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
     >
       {showProcessing && !showFees && (
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-white text-xl text-center">Creating Job</h3>
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+          <h3 className="text-white text-lg sm:text-xl text-center">Creating Job</h3>
+          <div className="w-full sm:w-auto">
             {currentStep < steps.length && (
               <div
                 key={steps[currentStep].id}
                 className="transition-all duration-700 ease-in-out animate-pulse"
               >
-                <h4 className="text-md">{steps[currentStep].text}</h4>
+                <h4 className="text-sm sm:text-md">{steps[currentStep].text}</h4>
               </div>
             )}
             {currentStep >= steps.length && (
@@ -340,7 +340,7 @@ export function EstimatedFeeModal({
                 key={steps[steps.length - 1].id}
                 className="transition-all duration-700 ease-in-out animate-pulse"
               >
-                <h4 className="text-md">{steps[steps.length - 1].text}</h4>
+                <h4 className="text-sm sm:text-md">{steps[steps.length - 1].text}</h4>
               </div>
             )}
             <div className="h-1.5 bg-gray-500 opacity-50 rounded-full mt-2 overflow-hidden">
@@ -354,30 +354,27 @@ export function EstimatedFeeModal({
       )}
 
       <div className="w-full bg-black rounded-xl flex flex-col gap-2 shadow-lg border border-gray-600 overflow-hidden">
-
         <canvas
           ref={canvasRef}
           width={gridSize * tileSize}
           height={gridSize * tileSize}
           onClick={handleCanvasClick}
+          className="w-full h-auto"
         />
       </div>
-      <div className="text-white text-center py-2">Score: {score}</div>
+      <div className="text-white text-center py-2 text-sm sm:text-base">Score: {score}</div>
       {!isJobCreated ? (
         <>
-
-
-
           {showFees && (
             <>
-              <h2 className="text-2xl font-bold my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
+              <h2 className="text-xl sm:text-2xl font-bold my-4 sm:my-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white text-center">
                 Estimated Fee
               </h2>
-              <div className="space-y-4 mb-6">
-                <div className="text-gray-300 flex justify-between">
-                  <div className="flex">
-                    <p>Required TG</p>
-                    <div className="relative top-[4px]">
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                <div className="text-gray-300 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <div className="flex items-center">
+                    <p className="text-sm sm:text-base">Required TG</p>
+                    <div className="relative">
                       <FiInfo
                         className="text-gray-400 hover:text-white cursor-pointer ml-2"
                         size={15}
@@ -399,7 +396,7 @@ export function EstimatedFeeModal({
                       )}
                     </div>
                   </div>
-                  <p>
+                  <p className="text-sm sm:text-base">
                     {" "}
                     {estimatedFee && estimatedFee > 0
                       ? ` ${estimatedFee.toFixed(2)} TG`
@@ -407,21 +404,20 @@ export function EstimatedFeeModal({
                   </p>
                 </div>
 
-                <div className="text-gray-300 flex justify-between">
-                  <p className="flex">Your TG Balance</p>
+                <div className="text-gray-300 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <p className="text-sm sm:text-base">Your TG Balance</p>
                   <Tooltip title={userBalance || "0"} placement="top">
-                    <p className="cursor-help">
+                    <p className="cursor-help text-sm sm:text-base">
                       {userBalance ? Number(userBalance).toFixed(2) : "0.0000"}{" "}
                     </p>
                   </Tooltip>
                 </div>
 
                 {!hasEnoughBalance && (
-                  <div className="text-gray-300 flex justify-between">
-                    <div className="flex">
-
-                      <p>Required ETH to TG</p>
-                      <div className="relative top-[4px]">
+                  <div className="text-gray-300 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <div className="flex items-center">
+                      <p className="text-sm sm:text-base">Required ETH to TG</p>
+                      <div className="relative">
                         <FiInfo
                           className="text-gray-400 hover:text-white cursor-pointer ml-2"
                           size={15}
@@ -442,16 +438,16 @@ export function EstimatedFeeModal({
                         )}
                       </div>
                     </div>
-                    <p> {(0.001 * estimatedFee).toFixed(2)} ETH </p>
+                    <p className="text-sm sm:text-base"> {(0.001 * estimatedFee).toFixed(2)} ETH </p>
                   </div>
                 )}
               </div>
-              <div className="flex gap-4">
+              <div className="flex flex-row sm:flex-row gap-3 sm:gap-4">
                 {hasEnoughBalance ? (
                   <button
                     onClick={handleStake}
                     disabled={isDisabled}
-                    className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${isDisabled
+                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${isDisabled
                       ? "bg-gray-400 text-gray-700 "
                       : "bg-white text-black"
                       }`}
@@ -462,17 +458,17 @@ export function EstimatedFeeModal({
                   <button
                     onClick={handleStake}
                     disabled={!hasEnoughEthToStake || isSubmitting}
-                    className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${!hasEnoughEthToStake || isSubmitting
+                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${!hasEnoughEthToStake || isSubmitting
                       ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                       : "bg-white text-black"
                       }`}
                   >
-                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "   Top Up TG" : "Insufficient ETH"}
+                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Top Up TG" : "Insufficient ETH"}
                   </button>
                 )}
                 <button
                   onClick={handleClose}
-                  className="flex-1 px-6 py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
@@ -481,31 +477,23 @@ export function EstimatedFeeModal({
           )}
         </>
       ) : (
-
-        <div className="flex flex-col items-center gap-4 mt-5">
-
-          <div className="w-10 h-10 bg-[#A2A2A2] rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 mt-4 sm:mt-5">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#A2A2A2] rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 className="text-white text-xl text-center">Job Created Successfully!</h3>
-          <p className="text-gray-400 text-center">Your job has been created and is now active.</p>
-          {/* <button
-            className="mt-4 bg-[#F8FF7C] text-black px-6 py-2 rounded-full hover:bg-[#F8FF7C]/90 transition-colors"
-          >
-      
-          </button> */}
+          <h3 className="text-white text-lg sm:text-xl text-center">Job Created Successfully!</h3>
+          <p className="text-gray-400 text-center text-sm sm:text-base">Your job has been created and is now active.</p>
           <button onClick={handleDashboardClick}
-            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform ">
+            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 sm:px-6 py-2 sm:py-3 rounded-full group transition-transform w-full sm:w-auto">
             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
             <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
-            <span className="font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs lg:text-sm xl:text-base">
+            <span className="font-actayRegular relative z-10 px-0 py-2 sm:py-3 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-sm">
               Go to Dashboard
             </span>
           </button>
         </div>
-
       )}
     </Modal>
   );
