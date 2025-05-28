@@ -825,7 +825,7 @@ function DashboardPage() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {getPaginatedData(getFilteredJobs()).map((job, index) => (
-                        <div key={job.id} className={`bg-[#1A1A1A] rounded-xl p-6 border ${expandedJobs[job.id] ? 'bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'} transition-all duration-300`}>
+                        <div key={job.id} className={`bg-[#1A1A1A] rounded-xl p-6 border ${expandedJobs[job.id] ? 'bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'} transition-all duration-300 relative ${expandedJobDetails[job.id] ? 'h-auto' : 'h-[230px]'}`}>
 
                           <div>
                             <div className="flex justify-between items-start mb-4">
@@ -856,7 +856,7 @@ function DashboardPage() {
                                 )}
                               </div>
                             </div>
-                            <div className="min-h-[120px] relative">
+                            <div className={`${expandedJobDetails[job.id] ? 'h-auto' : ''}`}>
                               <div className="flex items-center justify-between gap-2">
                                 <span className="text-sm text-white">Job Status :</span>
                                 <span className=" text-[#A2A2A2] text-sm  ">
@@ -877,8 +877,6 @@ function DashboardPage() {
                               </div>
 
                               {expandedJobDetails[job.id] && (
-
-
                                 <div className="mt-4 space-y-2 text-[#A2A2A2] text-sm">
                                   <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Avg Type :</span><span className="text-[#A2A2A2] text-sm">{job.arg_type || 'None'}</span></div>
                                   <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Interval :</span><span className="text-[#A2A2A2] text-sm"> {job.timeInterval ?
@@ -890,7 +888,6 @@ function DashboardPage() {
                                   <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Target Function :</span><span className="text-[#A2A2A2] text-sm"> {job.target_function || 'Not specified'}</span></div>
                                   <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Trigger Event :</span><span className="text-[#A2A2A2] text-sm"> {job.trigger_event || 'Not specified'}</span></div>
                                   <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {job.last_executed_at || 'Never'}</span></div>
-
                                 </div>
                               )}
                             </div>
