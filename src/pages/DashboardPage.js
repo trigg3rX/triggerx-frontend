@@ -73,9 +73,16 @@ function DashboardPage() {
       if (!prev[jobId]) {
         setTimeout(() => {
           if (linkedJobsRef.current) {
-            linkedJobsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const headerOffset = 200;
+            const elementPosition = linkedJobsRef.current.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
           }
-        }, 100);
+        }, 500);
       }
 
       return newState;
