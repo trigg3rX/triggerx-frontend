@@ -267,16 +267,13 @@ function DashboardPage() {
 
       const response = await fetch(`${API_BASE_URL}/api/jobs/user/${userAddress}`);
       const jobsData = await response.json();
-      console.log("Fetched jobs data:", jobsData);
-      console.log("First job data structure:", jobsData[0]); // Add this line to see the structure of a single job
+      console.log("Raw jobs data from API:", jobsData); // Add detailed logging
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
       if (!response.ok) {
         throw new Error("Failed to fetch job details from the database");
       }
-
-      console.log("Fetched jobs data:", jobsData);
 
       // First, create a lookup for quick access by job_id
       const jobMap = {};
@@ -313,6 +310,7 @@ function DashboardPage() {
         ) // Only main jobs with status === false
         .map((jobDetail) => ({
           id: jobDetail.job_id,
+          title: jobDetail.job_title, // Make sure we're using job_title
           type: mapJobType(jobDetail.job_type),
           status: "Active", // Only including jobs where status is false
           linkedJobs: linkedJobsMap[jobDetail.job_id] || [],
@@ -347,6 +345,7 @@ function DashboardPage() {
           feeUsed: jobDetail.fee_used
         }));
 
+      console.log("Processed jobs data:", tempJobs); // Add logging for processed data
       setJobDetails(tempJobs);
       if (tempJobs.length === 0 && connected && !loading) {
         toast("No jobs found. Create a new job to get started!", {
@@ -829,7 +828,7 @@ function DashboardPage() {
 
                           <div>
                             <div className={`flex justify-between items-center mb-4 p-3  ${expandedJobs[job.id] ? 'border-b border-white ' : 'border-[#2A2A2A] border-b hover:border-[#3A3A3A]'}`} >
-                              <h3 className="text-[#FBF197] font-bold text-lg ">{job.type}</h3>
+                              <h3 className="text-[#FBF197] font-bold text-lg ">{job.title}</h3>
                               <div>
                                 {job.linkedJobs && job.linkedJobs.length > 0 && (
                                   <Tooltip title="Linked Job" color="#141414">

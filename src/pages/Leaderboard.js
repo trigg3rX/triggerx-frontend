@@ -93,13 +93,7 @@ const Leaderboard = () => {
           apiUrl = `${API_BASE_URL}/api/leaderboard/users`;
         }
 
-        const response = await fetch(apiUrl, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          credentials: 'omit',
-        });
+        const response = await fetch(apiUrl);
 
         const data = await response.json();
         console.log("Raw API response:", data);
@@ -108,12 +102,12 @@ const Leaderboard = () => {
         if (activeTab === "keeper") {
           const transformedKeeperData = Array.isArray(data)
             ? data.map((keeper) => ({
-                operator: keeper.keeper_name,
-                address: keeper.keeper_address,
-                performed: keeper.tasks_executed,
-                attested: keeper.tasks_executed, // If you don't have a separate attested field
-                points: keeper.keeper_points,
-              }))
+              operator: keeper.keeper_name,
+              address: keeper.keeper_address,
+              performed: keeper.tasks_executed,
+              attested: keeper.tasks_executed, // If you don't have a separate attested field
+              points: keeper.keeper_points,
+            }))
             : [];
 
           // Sort the keepers by points in descending order
@@ -138,11 +132,11 @@ const Leaderboard = () => {
         } else if (activeTab === "developer") {
           const transformedUserData = Array.isArray(data)
             ? data.map((user) => ({
-                address: user.user_address,
-                totalJobs: user.total_jobs,
-                tasksExecuted: user.tasks_completed, // If you don't have a separate attested field
-                points: user.user_points,
-              }))
+              address: user.user_address,
+              totalJobs: user.total_jobs,
+              tasksExecuted: user.tasks_completed, // If you don't have a separate attested field
+              points: user.user_points,
+            }))
             : [];
 
           // Sort developers by points in descending order
@@ -536,11 +530,10 @@ const Leaderboard = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                currentPage === page
+              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
                   ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
                   : "border-[#EDEDED] text-white hover:bg-white hover:border-white hover:text-black"
-              } transition`}
+                } transition`}
             >
               {page}
             </button>
@@ -699,8 +692,8 @@ const Leaderboard = () => {
             <div
               className={
                 filteredKeepers.length > 0 ||
-                filteredDevelopers.length > 0 ||
-                filteredContributors.length > 0
+                  filteredDevelopers.length > 0 ||
+                  filteredContributors.length > 0
                   ? " "
                   : "h-auto"
               }

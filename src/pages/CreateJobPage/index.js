@@ -848,7 +848,6 @@ function CreateJobPage() {
             allJobsDetails.push({
               jobType: jobType,
               job_title: jobTitle,
-
               user_address: address,
               stake_amount: 0,
               token_amount: 0,
