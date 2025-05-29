@@ -20,6 +20,7 @@ import BalanceMaintainer from "./components/BalanceMaintainer";
 import { WalletProvider } from "./contexts/WalletContext";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import ServerErrorModal from "./components/common/ServerErrorModal";
+import ScrollToTop from "./components/ScrollToTop";
 
 const myCustomTheme = {
   blurs: {
@@ -101,7 +102,7 @@ const App = () => {
               <ServerErrorModal />
               <WalletProvider>
                 <Router>
-
+                  <ScrollToTop />
                   <Layout>
                     <Helmet defaultTitle="TriggerX" titleTemplate="%s | TriggerX">
                       <meta
