@@ -752,8 +752,8 @@ function DashboardPage() {
       <div className="fixed  pointer-events-none" />
 
       <div className=" mx-auto px-6 py-8 lg:my-30 md:my-30 my-20 sm:my-20 ">
-        <div className="flex max-w-[1600px] mx-auto justify-evenly gap-5 lg:flex-row flex-col ">
-          <div className="lg:w-[70%] w-full">
+        <div className="flex max-w-[1600px] mx-auto justify-evenly gap-10 lg:flex-row flex-col ">
+          <div className="lg:w-[75%] w-full">
             <div className="bg-[#141414] backdrop-blur-xl rounded-2xl p-8">
               <div className="flex justify-between items-center mb-6 flex-col lg:flex-row gap-3 md:flex-row">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-white">
@@ -825,17 +825,17 @@ function DashboardPage() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {getPaginatedData(getFilteredJobs()).map((job, index) => (
-                        <div key={job.id} className={`bg-[#1A1A1A] rounded-xl p-6 border ${expandedJobs[job.id] ? 'bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'} transition-all duration-300 relative ${expandedJobDetails[job.id] ? 'h-auto' : 'h-[230px]'}`}>
+                        <div key={job.id} className={`bg-[#1A1A1A] rounded-xl  border ${expandedJobs[job.id] ? 'bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'} transition-all duration-300 relative ${expandedJobDetails[job.id] ? 'h-auto' : 'h-[265px]'}`}>
 
                           <div>
-                            <div className="flex justify-between items-start mb-4">
-                              <h3 className="text-white font-semibold text-lg ">{job.type}</h3>
+                            <div className={`flex justify-between items-center mb-4 p-3  ${expandedJobs[job.id] ? 'border-b border-white ' : 'border-[#2A2A2A] border-b hover:border-[#3A3A3A]'}`} >
+                              <h3 className="text-[#FBF197] font-bold text-lg ">{job.type}</h3>
                               <div>
                                 {job.linkedJobs && job.linkedJobs.length > 0 && (
                                   <Tooltip title="Linked Job" color="#141414">
                                     <button
                                       onClick={() => toggleJobExpand(job.id)}
-                                      className="p-2 rounded-full text-white hover:bg-[#3A3A3A] transition-colors bg-[#2a2a2a]"
+                                      className="p-2 rounded-full text-white hover:bg-[#3A3A3A] transition-colors bg-[#2a2a2a] border-[#FFFFFF] border"
                                     >
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -856,19 +856,19 @@ function DashboardPage() {
                                 )}
                               </div>
                             </div>
-                            <div className={`${expandedJobDetails[job.id] ? 'h-auto' : ''}`}>
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-sm text-white">Job Status :</span>
+                            <div className={` space-y-2  px-3 `}>
+                              <div className="flex items-center justify-between gap-2 py-1.5">
+                                <span className="text-sm text-white font-bold">Job Status :</span>
                                 <span className=" text-[#A2A2A2] text-sm  ">
                                   {job.type}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between gap-2 py-2">
-                                <span className="text-sm text-white">TG Used :</span>
+                              <div className="flex items-center justify-between gap-2 py-1.5">
+                                <span className="text-sm text-white font-bold">TG Used :</span>
                                 <span className="text-[#A2A2A2] text-sm">{job.fee_used || '0'}</span>
                               </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-sm text-white">Timeframe :</span>
+                              <div className="flex items-center justify-between gap-2 py-1.5">
+                                <span className="text-sm text-white font-bold">Timeframe :</span>
                                 <span className="text-[#A2A2A2] text-sm">
                                   {job.timeframe ?
                                     `${job.time_frame.days || 0}d ${job.time_frame.hours || 0}h ${job.time_frame.minutes || 0}m`
@@ -877,21 +877,21 @@ function DashboardPage() {
                               </div>
 
                               {expandedJobDetails[job.id] && (
-                                <div className="mt-4 space-y-2 text-[#A2A2A2] text-sm">
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Avg Type :</span><span className="text-[#A2A2A2] text-sm">{job.arg_type || 'None'}</span></div>
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Interval :</span><span className="text-[#A2A2A2] text-sm"> {job.timeInterval ?
+                                <div className=" space-y-2 text-[#A2A2A2] text-sm">
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Avg Type :</span><span className="text-[#A2A2A2] text-sm">{job.arg_type || 'None'}</span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Interval :</span><span className="text-[#A2A2A2] text-sm"> {job.timeInterval ?
                                     `${job.time_interval.hours || 0}h ${job.time_interval.minutes || 0}m ${job.time_interval.seconds || 0}s`
                                     : 'Not specified'}</span></div>
 
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white"> Trigger Contract :</span><span className="text-[#A2A2A2] text-sm"> {job.trigger_contract_address || 'Not specified'} </span></div>
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Target Contract :</span><span className="text-[#A2A2A2] text-sm"> {job.target_contract_address || 'Not specified'} </span></div>
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Target Function :</span><span className="text-[#A2A2A2] text-sm"> {job.target_function || 'Not specified'}</span></div>
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Trigger Event :</span><span className="text-[#A2A2A2] text-sm"> {job.trigger_event || 'Not specified'}</span></div>
-                                  <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {job.last_executed_at || 'Never'}</span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white"> Trigger Contract :</span><span className="text-[#A2A2A2] text-sm"> {job.trigger_contract_address || 'Not specified'} </span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Target Contract :</span><span className="text-[#A2A2A2] text-sm"> {job.target_contract_address || 'Not specified'} </span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Target Function :</span><span className="text-[#A2A2A2] text-sm"> {job.target_function || 'Not specified'}</span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">  Trigger Event :</span><span className="text-[#A2A2A2] text-sm"> {job.trigger_event || 'Not specified'}</span></div>
+                                  <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">  Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {job.last_executed_at || 'Never'}</span></div>
                                 </div>
                               )}
                             </div>
-                            <div className="flex gap-2 mt-4">
+                            <div className={`flex justify-end gap-2 mt-4  p-3  ${expandedJobs[job.id] ? 'border-t border-white ' : 'border-[#2A2A2A] border-t hover:border-[#3A3A3A]'}`}>
                               <Tooltip title="Update" color="#141414">
                                 <button
                                   disabled
@@ -936,31 +936,33 @@ function DashboardPage() {
                     {/* Linked Jobs Section */}
                     {getPaginatedData(getFilteredJobs()).map((job) => (
                       job.linkedJobs && job.linkedJobs.length > 0 && expandedJobs[job.id] && (
-                        <div key={`linked-${job.id}`} className="rounded-lg px-2 sm:px-4 py-4 sm:py-6">
+                        <div key={`linked-${job.id}`} className={`rounded-lg   `}>
                           <h4
                             ref={linkedJobsRef}
-                            className="text-white font-bold mb-4 text-lg sm:text-xl"
+                            className="text-white font-bold my-7 text-lg sm:text-xl"
                           >
                             Linked Jobs
                           </h4>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                             {job.linkedJobs.map((linkedJob) => (
-                              <div key={linkedJob.job_id} className="bg-[#242323] rounded-xl p-4 sm:p-6 border border-[#2A2A2A] hover:border-[#3A3A3A] transition-all duration-300">
-                                <div className="flex flex-row justify-between items-start  gap-3 sm:gap-4 ">
-                                  <div className="flex-1 ">
-                                    <h3 className="text-white font-semibold text-base sm:text-lg mb-4">{mapJobType(linkedJob.job_type)}</h3>
-                                    <div className="">
-                                      <div className="flex items-center justify-between gap-2">
+                              <div key={linkedJob.job_id} className={`bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] hover:border-[#3A3A3A] transition-all duration-300 ${expandedLinkedJobDetails[linkedJob.job_id] ? 'h-auto' : 'h-[280px]'}`}>
+                                <div className="flex flex-row justify-between items-start gap-3 sm:gap-4">
+                                  <div className="flex-1">
+                                    <div className="border-[#2A2A2A] border-b p-3 mb-4">
+                                      <h3 className="text-[#FBF197] font-bold text-lg">{mapJobType(linkedJob.job_type)}</h3>
+                                    </div>
+                                    <div className="space-y-2 p-3">
+                                      <div className="flex items-center justify-between gap-2 py-1">
                                         <span className="text-sm text-white">Job Status :</span>
                                         <span className=" text-[#A2A2A2] rounded-full text-xs sm:text-sm  whitespace-nowrap">
                                           {linkedJob.type || 'Not specified'}
                                         </span>
                                       </div>
-                                      <div className="flex items-center justify-between gap-2 py-2">
+                                      <div className="flex items-center justify-between gap-2 py-2 py-1">
                                         <span className="text-sm text-white">TG Used :</span>
                                         <span className="text-[#A2A2A2] text-sm">{linkedJob.fee_used || '0'}</span>
                                       </div>
-                                      <div className="flex items-center justify-between gap-2">
+                                      <div className="flex items-center justify-between gap-2 py-1">
                                         <span className="text-sm text-white">Timeframe :</span>
                                         <span className="text-[#A2A2A2] text-sm">
                                           {linkedJob.timeframe ?
@@ -969,22 +971,22 @@ function DashboardPage() {
                                         </span>
                                       </div>
                                       {expandedLinkedJobDetails[linkedJob.job_id] && (
-                                        <div className="mt-4 space-y-2 text-[#A2A2A2] text-sm">
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Avg Type :</span><span className="text-[#A2A2A2] text-sm">{linkedJob.arg_type || 'None'}</span></div>
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Interval :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.timeInterval ?
+                                        <div className=" space-y-2 text-[#A2A2A2] text-sm">
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Avg Type :</span><span className="text-[#A2A2A2] text-sm">{linkedJob.arg_type || 'None'}</span></div>
+                                          <div className="flex items-center justify-between gap-2  py-1"><span className="text-sm text-white">Interval :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.timeInterval ?
                                             `${linkedJob.time_interval.hours || 0}h ${linkedJob.time_interval.minutes || 0}m ${linkedJob.time_interval.seconds || 0}s`
                                             : 'Not specified'}</span></div>
 
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white"> Trigger Contract :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.trigger_contract_address || 'Not specified'} </span></div>
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Target Contract :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.target_contract_address || 'Not specified'} </span></div>
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">Target Function :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.target_function || 'Not specified'}</span></div>
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Trigger Event :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.trigger_event || 'Not specified'}</span></div>
-                                          <div className="flex items-center justify-between gap-2"><span className="text-sm text-white">  Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.last_executed_at || 'Never'}</span></div>
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white"> Trigger Contract :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.trigger_contract_address || 'Not specified'} </span></div>
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Target Contract :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.target_contract_address || 'Not specified'} </span></div>
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Target Function :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.target_function || 'Not specified'}</span></div>
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">  Trigger Event :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.trigger_event || 'Not specified'}</span></div>
+                                          <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">  Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.last_executed_at || 'Never'}</span></div>
 
                                         </div>
                                       )}
                                     </div>
-                                    <div className="flex gap-2 flex-wrap mt-4">
+                                    <div className={`flex justify-end gap-2 mt-4  p-3  border-[#2A2A2A] border-t hover:border-[#3A3A3A]`}>
                                       <Tooltip title="Update" color="#141414">
                                         <button
                                           disabled
@@ -1081,7 +1083,7 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="space-y-8 h-full lg:w-[25%] w-full">
+          <div className="space-y-8 h-full lg:w-[23%] w-full">
             <div className="bg-[#1C1C1C] backdrop-blur-xl rounded-2xl p-8 ">
               <h3 className="xl:text-2xl text-lg font-bold mb-6  text-white">
                 Your Balance
