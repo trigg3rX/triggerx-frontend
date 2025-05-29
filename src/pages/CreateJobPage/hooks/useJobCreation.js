@@ -281,68 +281,13 @@ export function useJobCreation() {
         await fetchTGBalance();
       }
 
-      // Continue with job creation
-      // let nextJobId;
-      // try {
-      //   const latestIdResponse = await fetch(
-      //     "${API_BASE_URL}/api/jobs/latest-id",
-      //     {
-      //       method: "GET",
-      //       mode: "cors",
-      //       headers: {
-      //         Accept: "application/json",
-      //         Origin: "https://triggerx.network",
-      //       },
-      //     }
-      //   );
-
-      //   if (!latestIdResponse.ok) {
-      //     throw new Error("Failed to fetch latest job ID");
-      //   }
-
-      //   const latestIdData = await latestIdResponse.json();
-      //   nextJobId = latestIdData.latest_job_id + 1;
-      //   console.log("Next job ID:", nextJobId);
-      // } catch (error) {
-      //   console.error("Error fetching latest job ID:", error);
-      //   nextJobId = 1;
-      // }
-
-      // const chainIdHex = await window.ethereum.request({
-      //   method: "eth_chainId",
-      // });
-      // const chainIdDecimal = parseInt(chainIdHex, 16).toString();
-
-      // const jobData = {
-      //   job_id: nextJobId,
-      //   jobType: jobType,
-      //   user_address: signer.address,
-      //   chain_id: chainIdDecimal,
-      //   time_frame: timeframeInSeconds,
-      //   time_interval: intervalInSeconds,
-      //   contract_address: contractAddress,
-      //   target_function: targetFunction,
-      //   arg_type: argType,
-      //   arguments: argsArray,
-      //   status: true,
-      //   job_cost_prediction: parseInt(gasUnits),
-      //   script_function: scriptFunction,
-      //   script_ipfs_url: codeUrls[jobType],
-      //   stake_amount: Number(estimatedFeeInGwei.toString()),
-      //   user_balance: 0.0,
-      //   required_tg: estimatedFee,
-      // };
-
+     
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
       const response = await fetch(`${API_BASE_URL}/api/jobs`, {
         method: "POST",
         mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Origin: "https://triggerx.network",
-        },
+
         body: JSON.stringify(updatedJobDetails),
       });
 
