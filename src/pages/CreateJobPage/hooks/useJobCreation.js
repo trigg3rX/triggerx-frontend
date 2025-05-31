@@ -51,33 +51,9 @@ export function useJobCreation() {
   ) => {
     console.log("argType", argType);
     try {
-      // const provider = new ethers.BrowserProvider(window.ethereum);
-      // const contract = new ethers.Contract(contractAddress, contractABI, provider);
-      // const functionFragment = contract.interface.getFunction(targetFunction);
-
-      // const params = functionFragment.inputs.map((input, index) => {
-      //   if (index < argsArray.length) {
-      //     return argsArray[index];
-      //   }
-      // });
-
-      // const gasEstimate = await contract[functionFragment.name].estimateGas(...params);
-      // const gasEstimateStr = gasEstimate.toString();
-      // setGasUnits(gasEstimateStr);
-      // console.log('Gas estimate:', gasEstimateStr);
-
-      // const feeData = await provider.getFeeData();
-      // const gasPrice = feeData.gasPrice;
-      // console.log('Gas price:', gasPrice.toString());
-
-      // const feeInWei = gasEstimate * gasPrice;
-      // const feeInEth = ethers.formatEther(feeInWei);
-      // console.log('Fee for one execution:', feeInEth, 'ETH');
+  
 
       const executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
-
-      // const overallFee = Number(feeInEth) * executionCount;
-      // console.log('Overall fee:', overallFee.toFixed(18), 'ETH');
 
       let totalFeeTG = 0;
       // user TG balance
@@ -93,10 +69,7 @@ export function useJobCreation() {
               )}`,
               {
                 method: "GET",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
+                
               }
             );
             console.log("response", response);
