@@ -48,7 +48,7 @@ input {
   font-size: small;
 }
 
-h1{
+h1 {
   font-family: var(--font-spacegrotesk);
 }
 
@@ -83,7 +83,6 @@ h1{
   font-family: "SpaceGrotesk";
   src: url("../public/fonts/SpaceGrotesk-Regular.ttf") format("truetype");
 }
-
 
 /* 2. Magnetic Corner Effect */
 @keyframes magneticCorner {
@@ -236,7 +235,6 @@ h1{
   }
 }
 
-
 *::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -268,3 +266,19 @@ h1{
   animation: highlight-pulse 2s ease-in-out;
 }
 
+@media screen and (max-width: 620px) {
+  [data-rk] .iekbcc0 {
+    font-size: 12px !important;
+  }
+
+  [data-rk] .ju367v2g {
+    height: 30px !important;
+  }
+
+  [data-rk] .ju367v7t {
+    padding-right: 10px !important;
+  }
+  [data-rk] .ju367v78 {
+    padding-left: 10px !important;
+  }
+}
