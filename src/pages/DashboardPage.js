@@ -141,47 +141,10 @@ function DashboardPage() {
     };
   }, []);
 
-  const baseUrl = "https://app.triggerx.network";
-
-  useEffect(() => {
-    // Update meta tags when activeTab changes
-    document.title = "TriggerX | Dashboard";
-    document
-      .querySelector('meta[name="description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
-
-    // Update Open Graph meta tags
-    document
-      .querySelector('meta[property="og:title"]')
-      .setAttribute("content", "TriggerX | Dashboard");
-    document
-      .querySelector('meta[property="og:description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
-    document
-      .querySelector('meta[property="og:image"]')
-      .setAttribute("content", `${baseUrl}/images/dashboard-og.png`);
-    document
-      .querySelector('meta[property="og:url"]')
-      .setAttribute("content", `${baseUrl}/leaderboard`);
-
-    // Update Twitter Card meta tags
-    document
-      .querySelector('meta[name="twitter:title"]')
-      .setAttribute("content", "TriggerX | Dashboard");
-    document
-      .querySelector('meta[name="twitter:description"]')
-      .setAttribute("content", "Automate Tasks Effortlessly");
-    document
-      .querySelector('meta[name="twitter:image"]')
-      .setAttribute("content", `${baseUrl}/images/dashboard-og.png`);
-  }, [baseUrl]);
-
   useEffect(() => {
     const initializeProvider = async () => {
-      // console.log("Initializing provider...");
       if (typeof window.ethereum !== "undefined") {
-        // Check if we're already connected before creating provider
-        // This avoids triggering connection prompts
+    
         if (address) {
           const ethProvider = new ethers.BrowserProvider(window.ethereum);
           setProvider(ethProvider);
@@ -206,7 +169,7 @@ function DashboardPage() {
         window.ethereum.removeListener("chainChanged", initializeProvider);
       }
     };
-  }, [address]); // Add address as dependency
+  }, [address]);
 
   useEffect(() => {
     // Only fetch job details if provider exists and user is connected (address exists)
@@ -215,23 +178,6 @@ function DashboardPage() {
     }
   }, [provider, address]);
 
-  useEffect(() => {
-    const logo = logoRef.current;
-    if (logo) {
-      logo.style.transform = "rotateY(0deg)";
-      logo.style.transition = "transform 1s ease-in-out";
-
-      const rotateLogo = () => {
-        logo.style.transform = "rotateY(360deg)";
-        setTimeout(() => {
-          logo.style.transform = "rotateY(0deg)";
-        }, 1000);
-      };
-
-      const interval = setInterval(rotateLogo, 5000);
-      return () => clearInterval(interval);
-    }
-  }, []);
 
   useEffect(() => {
     fetchTGBalance();
@@ -282,7 +228,6 @@ function DashboardPage() {
       jobsData.forEach((job) => {
         jobMap[job.job_data.job_id] = job;
       });
-      console.log("Job Map:", jobMap); // Debug log
 
       // Build the linkedJobsMap
       const linkedJobsMap = {};
@@ -562,14 +507,12 @@ function DashboardPage() {
         selectedJob.apiEndpoint
       );
 
-      // console.log("Job updated successfully:", result);
       toast.success("Job updated successfully");
 
       // Refresh job details after update
       await fetchJobDetails();
       handleCloseModal();
     } catch (error) {
-      // console.error("Error updating job:", error);
       toast.error("Error updating job");
     }
   };
@@ -615,10 +558,8 @@ function DashboardPage() {
       );
 
       const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      // console.log("Raw TG Balance:", tgBalance.toString());
       setTgBalance(ethers.formatEther(tgBalance));
     } catch (error) {
-      // console.error("Error fetching TG balance:", error);
     }
   };
 
@@ -644,11 +585,8 @@ function DashboardPage() {
         ["function stake(uint256 amount) external payable returns (uint256)"],
         signer
       );
-      // console.log("Stake contract:", stakingContract);
 
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
-      // console.log("Stake Amount in Wei:", stakeAmountInWei.toString());
-
       if (stakeAmountInWei === 0n) {
         // ✅ Correct way to check if BigInt is zero
         throw new Error("Stake amount must be greater than zero.");
