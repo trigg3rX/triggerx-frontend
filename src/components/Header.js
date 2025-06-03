@@ -78,13 +78,12 @@ function Header() {
     };
   }, []);
 
-
   return (
     <div className="fixed top-0 left-0 right-0 w-full headerbg bg-[#0a0a0a]">
-      <div className="md:w-[90%] mx-auto  my-10 header hidden lg:flex items-center justify-between">
+      <div className="w-[90%] h-[100px] mx-auto header hidden lg:flex items-center justify-between">
         <div className=" ">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="" className="w-[160px] xl:w-[200px] h-auto" />
+            <img src={logo} alt="" className="w-[170px] h-auto" />
           </a>
         </div>
         <div className="relative flex flex-col items-center">
@@ -92,9 +91,9 @@ function Header() {
           <img
             src={navImage}
             alt="Background Design"
-            className="absolute z-0 h-auto lg:max-w-min  lg:w-[500px] md:[200px] "
+            className="absolute z-0 h-auto w-[500px]"
             style={{
-              top: isScrolled ? -300 : -50,
+              top: isScrolled ? -300 : -38,
               transition: "top 0.7s ease",
             }}
           />
@@ -115,10 +114,11 @@ function Header() {
                 onClick={() => {
                   navigate("/devhub");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${isActiveRoute("/devhub")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }  py-3 rounded-xl cursor-pointer`}
+                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/devhub")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }  py-3 rounded-xl cursor-pointer`}
               >
                 Dev Hub
               </h4>
@@ -129,9 +129,10 @@ function Header() {
                   navigate("/");
                 }}
                 className={`text-center xl:w-[150px] lg:w-[110px] xl:text-base lg:text-[12px]
-                  ${isActiveRoute("/")
-                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                    : "transparent"
+                  ${
+                    isActiveRoute("/")
+                      ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                      : "transparent"
                   } py-3 rounded-xl cursor-pointer`}
               >
                 Create Job
@@ -139,11 +140,11 @@ function Header() {
               <h4
                 onMouseEnter={handleMouseEnter}
                 onClick={() => navigate("/dashboard")}
-                className={`text-center xl:w-[150px] lg:w-[110px] xl:text-base lg:text-[12px] ${isActiveRoute("/dashboard")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }
-         py-3 rounded-xl cursor-pointer`}
+                className={`text-center xl:w-[150px] lg:w-[110px] xl:text-base lg:text-[12px] ${
+                  isActiveRoute("/dashboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                } py-3 rounded-xl cursor-pointer`}
               >
                 Dashboard
               </h4>
@@ -152,10 +153,11 @@ function Header() {
                 onClick={() => {
                   navigate("/leaderboard");
                 }}
-                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${isActiveRoute("/leaderboard")
-                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
-                  : "transparent"
-                  }
+                className={`text-center xl:w-[150px] lg:w-[110px]  lg:text-[12px] xl:text-base ${
+                  isActiveRoute("/leaderboard")
+                    ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] rounded-xl border border-[#4B4A4A]"
+                    : "transparent"
+                }
                 
               }  py-3 rounded-xl cursor-pointer xl:text-base`}
               >
@@ -165,7 +167,6 @@ function Header() {
           </nav>
         </div>
         <div className="flex items-cente gap-2">
-
           <div className="hidden md:block">
             {address && data && (
               <div className=" bg-[#f8ff7c] px-3 py-[6px] rounded-full border border-[#f8ff7c] text-nowrap">
@@ -173,52 +174,31 @@ function Header() {
                   {Number(data.formatted).toFixed(2)} {data.symbol}
                 </span>
               </div>
-            )}</div>
+            )}
+          </div>
           <ConnectButton
             chainStatus="icon"
             accountStatus="address"
             showBalance={false}
           />
-
-          {/* <div className="relative">
-            <FiInfo
-              className="text-gray-400 hover:text-white cursor-pointer ml-2"
-              size={20}
-              onMouseEnter={() => setShowInfoTooltip(true)}
-              onMouseLeave={() => setShowInfoTooltip(false)}
-            />
-            {showInfoTooltip && (
-              <div className="absolute right-0 mt-2 p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[280px]">
-                <div className="flex flex-col gap-2 text-sm text-gray-300">
-                  <div className="flex items-center gap-2">
-                    <span>• View only permissions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>• Smart contract audit</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>• Trusted by 418k traders</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div> */}
         </div>
       </div>
-      <div className="w-[90%] mx-auto flex justify-between items-center my-10 header sm:flex  lg:hidden md:flex">
+      <div className="w-[90%] h-[100px] mx-auto flex lg:hidden justify-between items-center header">
         <div
-          className="absolute  left-1/2 transform -translate-x-1/2 -translate-y-10 z-0"
-          style={{
-            top: isScrolled ? -100 : 15,
-            transition: "top 0.7s ease",
-          }}
+          className="absolute left-[calc(50%-90px)] sm:left-[calc(50%-120px)] -top-3 sm:-top-7"
         >
-          <img src={nav} alt="Nav" className="w-64 h-auto z-0" />
+          <img src={nav} alt="Nav" className="w-[180px] sm:w-[240px] h-auto z-0" />
         </div>
         {/* Logo */}
         <div className="flex-shrink-0 relative z-10 ">
           <a href="https://www.triggerx.network/" target="blank">
-            <img src={logo} alt="Logo" width={130} height={120} className="w-[140px] md:w-[170px] h-auto" />
+            <img
+              src={logo}
+              alt="Logo"
+              width={130}
+              height={120}
+              className="w-[100px] md:w-[130px] h-auto"
+            />
           </a>
         </div>
 
@@ -242,7 +222,7 @@ function Header() {
           <div className="lg:hidden">
             <h4
               onClick={() => setMenuOpen(!menuOpen)}
-              className="text-white text-2xl cursor-pointer"
+              className="text-white text-xlsm:text-2xl cursor-pointer"
             >
               {menuOpen ? "✖" : "☰"}
             </h4>
@@ -254,12 +234,12 @@ function Header() {
                       navigate("/devhub");
                       setMenuOpen(false);
                     }}
-                    className={`w-full 
-                         
-                        ${isActiveRoute("https://www.triggerx.network/")
-                        ? "text-white"
-                        : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={`w-full     
+                        ${
+                          isActiveRoute("https://www.triggerx.network/")
+                            ? "text-white"
+                            : "text-gray-400"
+                        }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dev Hub
                   </h4>
@@ -269,8 +249,9 @@ function Header() {
                       navigate("/");
                       setMenuOpen(false);
                     }}
-                    className={`w-full ${isActiveRoute("/") ? "text-white" : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={`w-full ${
+                      isActiveRoute("/") ? "text-white" : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Create Job
                   </h4>
@@ -279,10 +260,11 @@ function Header() {
                       navigate("/dashboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${isActiveRoute("/dashboard")
-                      ? "text-white"
-                      : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={` w-full  ${
+                      isActiveRoute("/dashboard")
+                        ? "text-white"
+                        : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Dashboard
                   </h4>
@@ -291,10 +273,11 @@ function Header() {
                       navigate("/leaderboard");
                       setMenuOpen(false);
                     }}
-                    className={` w-full  ${isActiveRoute("/leaderboard")
-                      ? "text-white"
-                      : "text-gray-400"
-                      }  px-7 py-3 rounded-xl cursor-pointer`}
+                    className={` w-full  ${
+                      isActiveRoute("/leaderboard")
+                        ? "text-white"
+                        : "text-gray-400"
+                    }  px-7 py-3 rounded-xl cursor-pointer`}
                   >
                     Leaderboard
                   </h4>
