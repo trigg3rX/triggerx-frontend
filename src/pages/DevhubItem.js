@@ -410,7 +410,7 @@ function DevhubItem() {
       setError(null);
       try {
         const data = await getBlog(slug);
-        console.log("data", data);
+        // console.log("data", data);
 
         if (data) {
           setPostData(data); // Store fetched data in state
@@ -558,9 +558,7 @@ function DevhubItem() {
           {/* Info Grid */}
           <div className="text-[8px] xs:text-xs sm:text-base flex items-center justify-center mt-3">
             <span className="text-gray-400 mr-2">Requires:</span>
-            <span className="text-white">
-              {postData.requires || "N/A"}
-            </span>
+            <span className="text-white">{postData.requires || "N/A"}</span>
           </div>
         </div>
       </div>
@@ -589,7 +587,7 @@ function DevhubItem() {
                     <a
                       href={`#${pair.h2Heading}`}
                       onClick={(e) => {
-                        console.log(pair.h2Heading);
+                        // console.log(pair.h2Heading);
                         e.preventDefault();
                         const targetElement = document.getElementById(
                           pair.h2Heading
@@ -603,10 +601,11 @@ function DevhubItem() {
                           window.scrollTo({ top: y, behavior: "smooth" });
                         }
                       }}
-                      className={`text-xs hover:underline ${activeHeading === pair.h2Heading
+                      className={`text-xs hover:underline ${
+                        activeHeading === pair.h2Heading
                           ? "text-green-400 font-bold"
                           : "text-gray-300"
-                        }`}
+                      }`}
                     >
                       [ {index + 1} ] {pair.displayHeading}
                     </a>
@@ -638,10 +637,11 @@ function DevhubItem() {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }
                   }}
-                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${activeHeading === pair.h2Heading
+                  className={`text-xs lg:text-sm 2xl:text-base hover:underline ${
+                    activeHeading === pair.h2Heading
                       ? "text-green-400 font-bold"
                       : "text-gray-300"
-                    }`}
+                  }`}
                 >
                   [ {index + 1} ] {pair.displayHeading}
                 </a>

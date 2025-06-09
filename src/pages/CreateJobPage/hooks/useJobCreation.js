@@ -36,11 +36,11 @@ export function useJobCreation() {
         return { ...prev, [jobType]: urls };
       });
 
-      console.log(
-        `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"
-        } changed to:`,
-        url
-      );
+      // console.log(
+      //   `Code URL for ${jobType} ${jobId !== null ? "linked job " + jobId : "main job"
+      //   } changed to:`,
+      //   url
+      // );
     }
   };
 
@@ -49,18 +49,16 @@ export function useJobCreation() {
     intervalInSeconds,
     codeUrls
   ) => {
-    console.log("argType", argType);
+    // console.log("argType", argType);
     try {
-  
-
       const executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
 
       let totalFeeTG = 0;
       // user TG balance
       if (argType === 1) {
-        console.log("argType", argType);
+        // console.log("argType", argType);
         if (codeUrls) {
-          console.log("codeUrls", codeUrls);
+          // console.log("codeUrls", codeUrls);
           try {
             const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
             const response = await fetch(
@@ -69,17 +67,16 @@ export function useJobCreation() {
               )}`,
               {
                 method: "GET",
-                
               }
             );
-            console.log("response", response);
+            // console.log("response", response);
 
             if (!response.ok) {
               throw new Error("Failed to get fees");
             }
 
             const data = await response.json(); // Parse the response body
-            console.log("Response data:", data); // Log the response data
+            // console.log("Response data:", data); // Log the response data
 
             // Check if the response contains an error
             if (data.error) {
@@ -91,14 +88,14 @@ export function useJobCreation() {
             // Calculate stake amount in ETH and convert to Gwei
             const stakeAmountEth = totalFeeTG * 0.001;
 
-            console.log("Total TG fee required:", totalFeeTG.toFixed(18), "TG");
+            // console.log("Total TG fee required:", totalFeeTG.toFixed(18), "TG");
 
             const stakeAmountGwei = ethers.parseUnits(
               (stakeAmountEth * 1e9).toFixed(0),
               "gwei"
             );
             const estimatedFeeInGwei = stakeAmountGwei;
-            console.log("Stake amount in Gwei:", estimatedFeeInGwei);
+            // console.log("Stake amount in Gwei:", estimatedFeeInGwei);
 
             setEstimatedFeeInGwei(estimatedFeeInGwei);
           } catch (error) {
@@ -127,7 +124,6 @@ export function useJobCreation() {
     if (typeof window.ethereum == "undefined") return;
 
     if (!stakeRegistryAddress || !ethers.isAddress(stakeRegistryAddress)) {
-      console.log("Stake Registry Address not ready for TG balance fetch.");
       return;
     }
 
@@ -158,7 +154,7 @@ export function useJobCreation() {
 
         const [_, tgBalance] =
           await stakeRegistryContract.getStake(userAddress);
-        console.log("Raw TG Balance:", tgBalance.toString());
+        // console.log("Raw TG Balance:", tgBalance.toString());
         setUserBalance(ethers.formatEther(tgBalance));
       }
     } catch (error) {
@@ -172,9 +168,6 @@ export function useJobCreation() {
 
   useEffect(() => {
     if (stakeRegistryAddress && ethers.isAddress(stakeRegistryAddress)) {
-      console.log(
-        "Stake Registry Address is available, attempting to fetch TG balance."
-      );
       fetchTGBalance();
     }
     const handleAccountsChanged = (accounts) => {
@@ -183,7 +176,6 @@ export function useJobCreation() {
         stakeRegistryAddress &&
         ethers.isAddress(stakeRegistryAddress)
       ) {
-        console.log("Accounts changed, attempting to refetch TG balance.");
         fetchTGBalance();
       } else if (accounts.length === 0) {
         // Handle user disconnecting
@@ -228,7 +220,7 @@ export function useJobCreation() {
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      console.log("updated", updatedJobDetails);
+      // console.log("updated", updatedJobDetails);
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
@@ -239,7 +231,7 @@ export function useJobCreation() {
           signer
         );
 
-        console.log("Staking ETH amount:", requiredEth);
+        // console.log("Staking ETH amount:", requiredEth);
 
         const tx = await contract.stake(
           ethers.parseEther(requiredEth.toString()),
@@ -247,14 +239,13 @@ export function useJobCreation() {
         );
 
         await tx.wait();
-        console.log("Stake transaction confirmed: ", tx.hash);
+        // console.log("Stake transaction confirmed: ", tx.hash);
         toast.success("ETH staked successfully!");
 
         // Fetch updated TG balance after staking
         await fetchTGBalance();
       }
 
-     
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
       const response = await fetch(`${API_BASE_URL}/api/jobs`, {
@@ -269,7 +260,6 @@ export function useJobCreation() {
         throw new Error(errorText || "Failed to create job");
       }
 
-      console.log("Job created successfully");
       setIsJobCreated(true);
       toast.success("Job created successfully!");
     } catch (error) {
@@ -295,13 +285,13 @@ export function useJobCreation() {
     if (event && event.target) {
       const func = event.target.value;
       setScriptFunction(func);
-      console.log("Script function changed to:", func);
+      // console.log("Script function changed to:", func);
     }
   };
 
   const handleJobTypeChange = (value) => {
     const numericType = parseInt(value);
-    console.log("Setting job type:", numericType);
+    // console.log("Setting job type:", numericType);
     setJobType(numericType);
   };
 
@@ -315,7 +305,7 @@ export function useJobCreation() {
     isModalOpen,
     argType,
     setIsModalOpen: (value) => {
-      console.log("Setting modal open:", value);
+      // console.log("Setting modal open:", value);
       setIsModalOpen(value);
     },
     setArgType,

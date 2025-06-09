@@ -76,7 +76,6 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
       setIsSuccess(true);
       playModalConfetti();
       setTimeout(() => {
-        console.log("Triggering balance refresh after successful claim");
         triggerBalanceRefresh();
       }, 1000);
     } catch (err) {
@@ -86,7 +85,7 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
   };
 
   useEffect(() => {
-    console.log("..........", isSuccess);
+    // console.log("..........", isSuccess);
   }, [isSuccess]);
 
   // Function to truncate address
@@ -126,7 +125,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
 
       {isSuccess ? (
         <div className="flex flex-col items-center justify-center text-center h-full py-4 sm:py-8 z-20 relative">
-          <div className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">Woohoo!</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">
+            Woohoo!
+          </div>
           <div className="text-lg sm:text-xl text-[#F8FF7C] font-bold mb-4 sm:mb-6">
             You claimed successfully!
           </div>
@@ -146,12 +147,16 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
         </div>
       ) : (
         <>
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 z-20 relative">Claim ETH</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 z-20 relative">
+            Claim ETH
+          </h2>
 
           <div className="space-y-4 sm:space-y-6 z-20 relative">
             <div className="bg-[#1E1E1E] p-3 sm:p-4 rounded-lg">
               <div className="mb-3 sm:mb-4">
-                <span className="text-sm sm:text-base text-gray-400">Network</span>
+                <span className="text-sm sm:text-base text-gray-400">
+                  Network
+                </span>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-white text-sm sm:text-base font-medium">
                     {getNetworkName()}
@@ -160,7 +165,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
               </div>
 
               <div className="mb-3 sm:mb-4">
-                <span className="text-sm sm:text-base text-gray-400">Your Address</span>
+                <span className="text-sm sm:text-base text-gray-400">
+                  Your Address
+                </span>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-white text-sm sm:text-base font-medium">
                     {truncateAddress(address)}
@@ -180,7 +187,9 @@ const ClaimModal = ({ isOpen, onClose, onConfirm, address, claimAmount }) => {
               </div>
 
               <div className="mt-1 flex items-center gap-2">
-              <span className="text-sm sm:text-base text-gray-400">Claim Amount</span>
+                <span className="text-sm sm:text-base text-gray-400">
+                  Claim Amount
+                </span>
                 <span className="mt-1 text-[#F8FF7C] font-bold text-sm sm:text-base">
                   {claimAmount} ETH
                 </span>
@@ -279,7 +288,7 @@ const ClaimEth = () => {
       }
 
       const data = await response.json();
-      console.log("Claim successful:", data);
+      // console.log("Claim successful:", data);
       return true;
     } catch (error) {
       console.error("Claim error:", error);

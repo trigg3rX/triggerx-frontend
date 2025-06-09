@@ -53,7 +53,7 @@ export function useContractInteraction(jobType) {
           constant: func.constant || false,
         }));
 
-      console.log("Extracted functions:", functions);
+      // console.log("Extracted functions:", functions);
       return functions;
     } catch (error) {
       console.error("Error processing ABI:", error);
@@ -91,7 +91,7 @@ export function useContractInteraction(jobType) {
           anonymous: event.anonymous || false,
         }));
 
-      console.log("Extracted events:", events);
+      // console.log("Extracted events:", events);
       return events;
     } catch (error) {
       console.error("Error processing events from ABI:", error);
@@ -101,7 +101,7 @@ export function useContractInteraction(jobType) {
 
   const handleContractAddressChange = async (e) => {
     const address = e.target.value;
-    console.log("Contract address changed to:", address);
+    // console.log("Contract address changed to:", address);
     setContractAddress(address);
     setContractABI(""); // Clear previous ABI
     setFunctions([]); // Clear previous functions
@@ -116,25 +116,33 @@ export function useContractInteraction(jobType) {
       try {
         const response = await axios.get(url);
         const data = response.data;
-        if (data.status === "1" && data.result && typeof data.result === 'string' && data.result.startsWith('[')) {
+        if (
+          data.status === "1" &&
+          data.result &&
+          typeof data.result === "string" &&
+          data.result.startsWith("[")
+        ) {
           const writableFunctions = extractFunctions(data.result).filter(
             (func) =>
               func.stateMutability === "nonpayable" ||
               func.stateMutability === "payable"
           );
-          console.log("Setting writable functions:", writableFunctions);
+          // console.log("Setting writable functions:", writableFunctions);
           setFunctions(writableFunctions);
 
           // Extract and set events
           const contractEvents = extractEvents(data.result);
-          console.log("Setting contract events:", contractEvents);
+          // console.log("Setting contract events:", contractEvents);
           setEvents(contractEvents);
 
           setContractABI(data.result);
           setShowManualABIInput(false); // Hide manual input on success
         } else {
           // Handle failure: show manual input
-          console.warn("Failed to fetch ABI automatically. Showing manual input.", data.message);
+          console.warn(
+            "Failed to fetch ABI automatically. Showing manual input.",
+            data.message
+          );
           setShowManualABIInput(true);
           setContractABI("");
           setFunctions([]);
@@ -153,7 +161,6 @@ export function useContractInteraction(jobType) {
         setTargetEvent("");
       }
     } else {
-      console.log("Invalid address, clearing ABI and showing manual input option.");
       setContractABI("");
       setFunctions([]);
       setEvents([]);
@@ -166,7 +173,7 @@ export function useContractInteraction(jobType) {
 
   const handleFunctionChange = (e) => {
     const selectedValue = e.target.value;
-    console.log("Function selection changed to:", selectedValue);
+    // console.log("Function selection changed to:", selectedValue);
     setTargetFunction(selectedValue);
 
     const func = functions.find(
@@ -193,7 +200,7 @@ export function useContractInteraction(jobType) {
   // New handler for event selection
   const handleEventChange = (e) => {
     const selectedValue = e.target.value;
-    console.log("Event selection changed to:", selectedValue);
+    // console.log("Event selection changed to:", selectedValue);
     setTargetEvent(selectedValue);
 
     const event = events.find(
@@ -212,7 +219,7 @@ export function useContractInteraction(jobType) {
 
   const handleArgumentTypeChange = (e) => {
     const newType = e.target.value;
-    console.log("Argument type changed to:", newType);
+    // console.log("Argument type changed to:", newType);
     setArgumentType(newType);
 
     // Clear inputs when switching to dynamic
@@ -236,7 +243,6 @@ export function useContractInteraction(jobType) {
       });
       setArgumentsInBytes(bytesArray);
     } else {
-      console.log("Not all inputs filled, clearing bytes array");
       setArgumentsInBytes([]);
     }
   };
@@ -292,7 +298,7 @@ export function useContractInteraction(jobType) {
         return "0x";
       }
     });
-    console.log("Setting arguments in bytes:", bytesArray);
+    // console.log("Setting arguments in bytes:", bytesArray);
     setArgumentsInBytes(bytesArray);
   }, [functionInputs]);
 

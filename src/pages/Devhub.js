@@ -22,35 +22,48 @@ function Devhub() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const baseUrl = 'https://app.triggerx.network';
-
+  const baseUrl = "https://app.triggerx.network";
 
   useEffect(() => {
     // Update meta tags when activeTab changes
-    document.title = 'TriggerX | Devhub';
-    document.querySelector('meta[name="description"]').setAttribute('content', 'Automate Tasks Effortlessly');
+    document.title = "TriggerX | Devhub";
+    document
+      .querySelector('meta[name="description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
 
     // Update Open Graph meta tags
-    document.querySelector('meta[property="og:title"]').setAttribute('content', 'TriggerX | Devhub');
-    document.querySelector('meta[property="og:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[property="og:image"]').setAttribute('content', `${baseUrl}/images/devhub-og.png`);
-    document.querySelector('meta[property="og:url"]').setAttribute('content', `${baseUrl}/devhub`);
+    document
+      .querySelector('meta[property="og:title"]')
+      .setAttribute("content", "TriggerX | Devhub");
+    document
+      .querySelector('meta[property="og:description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
+    document
+      .querySelector('meta[property="og:image"]')
+      .setAttribute("content", `${baseUrl}/images/devhub-og.png`);
+    document
+      .querySelector('meta[property="og:url"]')
+      .setAttribute("content", `${baseUrl}/devhub`);
 
     // Update Twitter Card meta tags
-    document.querySelector('meta[name="twitter:title"]').setAttribute('content', 'TriggerX | Devhub');
-    document.querySelector('meta[name="twitter:description"]').setAttribute('content', 'Automate Tasks Effortlessly');
-    document.querySelector('meta[name="twitter:image"]').setAttribute('content', `${baseUrl}/images/devhub-og.png`);
+    document
+      .querySelector('meta[name="twitter:title"]')
+      .setAttribute("content", "TriggerX | Devhub");
+    document
+      .querySelector('meta[name="twitter:description"]')
+      .setAttribute("content", "Automate Tasks Effortlessly");
+    document
+      .querySelector('meta[name="twitter:image"]')
+      .setAttribute("content", `${baseUrl}/images/devhub-og.png`);
   }, [baseUrl]);
-
 
   useEffect(() => {
     async function fetchPosts() {
       setIsLoading(true);
       setError(null);
       try {
-        console.log("Fetching posts from Sanity...");
         const fetchedPosts = await sanityClient.fetch(query);
-        console.log("Sanity fetch successful:", fetchedPosts);
+        // console.log("Sanity fetch successful:", fetchedPosts);
 
         if (!Array.isArray(fetchedPosts)) {
           console.warn(
@@ -66,7 +79,6 @@ function Devhub() {
         setError(err);
       } finally {
         setIsLoading(false);
-        console.log("Finished fetching attempt.");
       }
     }
 
@@ -84,7 +96,10 @@ function Devhub() {
         <div className="max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 mb-40">
             {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="rounded-2xl overflow-hidden shadow-sm bg-[#0F0F0F] p-3 border border-[#5F5F5F] flex flex-col justify-between">
+              <div
+                key={item}
+                className="rounded-2xl overflow-hidden shadow-sm bg-[#0F0F0F] p-3 border border-[#5F5F5F] flex flex-col justify-between"
+              >
                 <div className="w-full h-[200px] rounded-lg bg-[#222222] animate-pulse"></div>
                 <div className="flex flex-col ml-3">
                   <div className="h-6 w-3/4 bg-[#222222] rounded mt-4 sm:mt-8 animate-pulse"></div>
@@ -100,7 +115,6 @@ function Devhub() {
 
   if (isLoading) {
     return <DevhubSkeleton />;
-
   }
 
   // Use the error state to display an error message
@@ -139,7 +153,10 @@ function Devhub() {
           </span>
         </h4>
 
-        <button onClick={() => navigate('/api')} className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform">
+        <button
+          onClick={() => navigate("/api")}
+          className="relative bg-[#222222] text-black border border-black px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform"
+        >
           <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
           <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
           <span className="font-actayRegular relative z-10 bottom-[1px] px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-md sm:text-base">

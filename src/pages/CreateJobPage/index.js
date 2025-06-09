@@ -458,7 +458,7 @@ function CreateJobPage() {
 
   useEffect(() => {
     if (location.state) {
-      console.log("Received state from previous page:", location.state);
+      // console.log("Received state from previous page:", location.state);
 
       const {
         jobType: incomingJobType,
@@ -640,11 +640,11 @@ function CreateJobPage() {
           }
           const defaultArgumentType = "static";
 
-          console.log(
-            "Default Target Function (popstate):",
-            defaultTargetFunctionSignature
-          ); // Debug log
-          console.log("Default Argument Type (popstate):", defaultArgumentType); // Debug log
+          // console.log(
+          //   "Default Target Function (popstate):",
+          //   defaultTargetFunctionSignature
+          // ); // Debug log
+          // console.log("Default Argument Type (popstate):", defaultArgumentType); // Debug log
 
           let argType = "static"; // Default to static arguments
           let finalIpfsUrl = "";
@@ -870,7 +870,7 @@ function CreateJobPage() {
         }
       }
       setIsLoading(true);
-      console.log("Job Details", allJobsDetails);
+      // console.log("Job Details", allJobsDetails);
       setJobDetails(allJobsDetails);
 
       const codeUrls = allJobsDetails.map((job) => job.script_ipfs_url);
@@ -1458,70 +1458,72 @@ function CreateJobPage() {
                                       </div>
                                     )}
 
-                                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                                      <label
-                                        htmlFor="targetEvent"
-                                        className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
-                                      >
-                                        Target event
-                                      </label>
-
-                                      <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
-                                        <li
-                                          className="break-all list-none w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between text-sm xs:text-sm sm:text-base"
-                                          onClick={() =>
-                                            setIsEventOpen(!isEventOpen)
-                                          }
-                                        >
-                                          {eventContractInteraction.targetEvent ||
-                                            "Select an event"}
-                                          <ChevronDown className="text-white text-xs" />
-                                        </li>
-                                        {isEventOpen && (
-                                          <div
-                                            ref={eventdropdownRef}
-                                            className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg"
+                                    {eventContractInteraction.contractABI && (
+                                      <>
+                                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                          <label
+                                            htmlFor="targetEvent"
+                                            className="block text-sm sm:text-base font-medium text-gray-300 text-nowrap"
                                           >
-                                            {eventContractInteraction.events.map(
-                                              (func, index) => {
-                                                const signature = `${func.name
-                                                  }(${func.inputs
-                                                    .map((input) => input.type)
-                                                    .join(",")})`;
-                                                return (
-                                                  <li
-                                                    key={index}
-                                                    className="list-none break-all py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg text-sm xs:text-sm sm:text-base"
-                                                    onClick={() => {
-                                                      eventContractInteraction.handleEventChange(
-                                                        {
-                                                          target: {
-                                                            value: signature,
-                                                          },
-                                                        }
-                                                      );
-                                                      setIsEventOpen(false);
-                                                    }}
-                                                  >
-                                                    {signature}
-                                                  </li>
-                                                );
+                                            Target event
+                                          </label>
+
+                                          <div className="relative w-full md:w-[70%] xl:w-[80%] z-50">
+                                            <li
+                                              className="break-all list-none w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between text-sm xs:text-sm sm:text-base"
+                                              onClick={() =>
+                                                setIsEventOpen(!isEventOpen)
                                               }
+                                            >
+                                              {eventContractInteraction.targetEvent ||
+                                                "Select an event"}
+                                              <ChevronDown className="text-white text-xs" />
+                                            </li>
+                                            {isEventOpen && (
+                                              <div
+                                                ref={eventdropdownRef}
+                                                className="absolute top-14 w-full bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-lg"
+                                              >
+                                                {eventContractInteraction.events.map(
+                                                  (func, index) => {
+                                                    const signature = `${func.name
+                                                      }(${func.inputs
+                                                        .map((input) => input.type)
+                                                        .join(",")})`;
+                                                    return (
+                                                      <li
+                                                        key={index}
+                                                        className="list-none break-all py-3 px-4 hover:bg-[#333] cursor-pointer rounded-lg text-sm xs:text-sm sm:text-base"
+                                                        onClick={() => {
+                                                          eventContractInteraction.handleEventChange(
+                                                            {
+                                                              target: {
+                                                                value: signature,
+                                                              },
+                                                            }
+                                                          );
+                                                          setIsEventOpen(false);
+                                                        }}
+                                                      >
+                                                        {signature}
+                                                      </li>
+                                                    );
+                                                  }
+                                                )}
+                                              </div>
                                             )}
                                           </div>
-                                        )}
-                                      </div>
-                                    </div>
+                                        </div>
 
-                                    {eventContractInteraction.events.length ===
-                                      0 &&
-                                      eventContractInteraction.contractAddress && (
-                                        <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs sm:text-sm text-yellow-400">
-                                          No writable events found. Make sure
-                                          the contract is verified on Blockscout
-                                          / Etherscan.
-                                        </h4>
-                                      )}
+                                        {eventContractInteraction.events.length === 0 && (
+                                          <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs sm:text-sm text-yellow-400">
+                                            No writable events found. Make sure
+                                            the contract is verified on Blockscout
+                                            / Etherscan.
+                                          </h4>
+                                        )}
+                                      </>
+                                    )}
                                   </>
                                 )}
                               </>
@@ -1834,7 +1836,6 @@ function CreateJobPage() {
           showFees={isModalOpen}
           steps={processSteps}
           onClose={() => {
-            console.log("Closing fee modal");
             setIsModalOpen(false);
             setIsLoading(false);
             setProcessSteps(false);
@@ -1842,11 +1843,11 @@ function CreateJobPage() {
           }}
           estimatedFee={estimatedFee}
           onStake={() => {
-            console.log("Initiating stake with params:", {
-              stakeRegistryImplAddress,
-              hasABI: !!stakeRegistryABI,
-              jobDetails,
-            });
+            // console.log("Initiating stake with params:", {
+            //   stakeRegistryImplAddress,
+            //   hasABI: !!stakeRegistryABI,
+            //   jobDetails,
+            // });
             handleSubmit(stakeRegistryAddress, stakeRegistryABI, jobDetails);
           }}
           userBalance={userBalance}

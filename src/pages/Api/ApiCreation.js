@@ -1,4 +1,3 @@
-import { Divide } from "lucide-react";
 import React, { useState } from "react";
 import { FiCopy, FiCheck, FiKey } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
@@ -7,7 +6,6 @@ import { useAccount } from "wagmi";
 const ApiCreation = () => {
   const [activeTab, setActiveTab] = useState("apikey");
   const [expandedSection, setExpandedSection] = useState("createautomationjob");
-  const [selectedApi, setSelectedApi] = useState(null);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
   const { isConnected, address } = useAccount(); // Add address from useAccount
   const [activeLanguage, setActiveLanguage] = useState("cURL");
@@ -50,7 +48,7 @@ const ApiCreation = () => {
       }
 
       const data = await response.json();
-      console.log("API Response:", data);
+      // console.log("API Response:", data);
 
       const newApiKey = {
         key: data.key || data.apiKey || "",
@@ -98,19 +96,23 @@ const ApiCreation = () => {
             <div className="border border-[#C07AF6] bg-[#371B58] w-10 h-10 flex items-center justify-center rounded-lg text-lg font-semibold">
               4
             </div>
-            <span className="md:text-base w-full sm:text-md text-sm">Monitor your usage and rate limits</span>
+            <span className="md:text-base w-full sm:text-md text-sm">
+              Monitor your usage and rate limits
+            </span>
           </li>
         </ol>
       </div>
       <div className=" bg-[#313131] p-5 rounded-bl-md rounded-br-md">
-        <h3 className="text-lg font-semibold mb-2 md:text-base sm:text-md text-sm">Need Help?</h3>
+        <h3 className="lg:text-lg font-semibold mb-2 md:text-base sm:text-md text-sm">
+          Need Help?
+        </h3>
         <p className="md:text-base sm:text-md text-sm">
           If you have any questions or need assistance, please don't hesitate to
           contact our support team at{" "}
           <a className="underline">hello@triggerx.network</a>
         </p>
       </div>
-    </div >
+    </div>
   );
 
   const copyToClipboard = (text) => {
@@ -127,19 +129,21 @@ const ApiCreation = () => {
 
       <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex flex-row justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
-          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "documetation"
-            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-            : "bg-transparent"
-            }`}
+          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
+            activeTab === "documetation"
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+              : "bg-transparent"
+          }`}
           onClick={() => setActiveTab("documetation")}
         >
           Documentation
         </button>
         <button
-          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "apikey"
-            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-            : "bg-transparent"
-            }`}
+          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
+            activeTab === "apikey"
+              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+              : "bg-transparent"
+          }`}
           onClick={() => setActiveTab("apikey")}
         >
           API key Generator
@@ -155,22 +159,31 @@ const ApiCreation = () => {
                   key={index}
                   className="bg-[#181818] md:p-8  p-6 sm:p-6 rounded-lg mb-4 flex-1 h-[350px] flex-col border border-[#4B4A4A] flex justify-between items-center"
                 >
-
                   <h2 className="text-xl sm:text-2xl font-bold text-[#FBF197] text-center">
                     Generate API Key
                   </h2>
                   {!isConnected ? (
-
                     <div className="flex flex-col items-center justify-center lg:h-[350px] h-[150px] text-[#A2A2A2]">
-                      <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg " className="mb-3" stroke="">
-                        <path d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z" fill="#A2A2A2" />
+                      <svg
+                        width="38"
+                        height="38"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg "
+                        className="mb-3"
+                        stroke=""
+                      >
+                        <path
+                          d="M12 17C12.2833 17 12.521 16.904 12.713 16.712C12.905 16.52 13.0007 16.2827 13 16C12.9993 15.7173 12.9033 15.48 12.712 15.288C12.5207 15.096 12.2833 15 12 15C11.7167 15 11.4793 15.096 11.288 15.288C11.0967 15.48 11.0007 15.7173 11 16C10.9993 16.2827 11.0953 16.5203 11.288 16.713C11.4807 16.9057 11.718 17.0013 12 17ZM12 13C12.2833 13 12.521 12.904 12.713 12.712C12.905 12.52 13.0007 12.2827 13 12V8C13 7.71667 12.904 7.47933 12.712 7.288C12.52 7.09667 12.2827 7.00067 12 7C11.7173 6.99933 11.48 7.09533 11.288 7.288C11.096 7.48067 11 7.718 11 8V12C11 12.2833 11.096 12.521 11.288 12.713C11.48 12.905 11.7173 13.0007 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z"
+                          fill="#A2A2A2"
+                        />
                       </svg>
-                      <p className="text-sm lg:text-lg md:text-lg  mb-2">Wallet Not Connected</p>
+                      <p className="text-sm lg:text-lg md:text-lg  mb-2">
+                        Wallet Not Connected
+                      </p>
                       <p className="text-sm lg:text-md md:text-md  text-center text-[#666666] mb-4 tracking-wide">
                         Please connect your wallet to interact with the contract
-
                       </p>
-
                     </div>
                   ) : (
                     <>
@@ -207,23 +220,31 @@ const ApiCreation = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6">
                           <div>
-                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">Created</p>
-                            <p className="text-white md:text-base sm:text-md text-sm">{apiKey.created}</p>
+                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">
+                              Created
+                            </p>
+                            <p className="text-white md:text-base sm:text-md text-sm">
+                              {apiKey.created}
+                            </p>
                           </div>
                           <div>
-                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">Rate Limit</p>
-                            <p className="text-white md:text-base sm:text-md text-sm">{apiKey.rateLimit}</p>
+                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">
+                              Rate Limit
+                            </p>
+                            <p className="text-white md:text-base sm:text-md text-sm">
+                              {apiKey.rateLimit}
+                            </p>
                           </div>
                           <div>
-                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">Status</p>
+                            <p className="text-gray-400 mb-2 md:text-base sm:text-md text-sm">
+                              Status
+                            </p>
                             <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full md:text-base sm:text-md text-sm">
                               {apiKey.status}
                             </span>
                           </div>
                         </div>
                       </div>
-
-
                     </>
                   )}
                 </div>
@@ -250,10 +271,7 @@ const ApiCreation = () => {
                   </div>
                 </div>
                 {/* Get Calculated CPI Value */}
-                <div
-                  className="max-h-[500px] overflow-y-auto space-y-4 px-4"
-
-                >
+                <div className="max-h-[500px] overflow-y-auto space-y-4 px-4">
                   <div className=" flex-1 space-y-4  rounded-xl">
                     {activeTab === "documetation" && (
                       <div className="sm:px-0">
@@ -287,11 +305,12 @@ const ApiCreation = () => {
                               ].map((api) => (
                                 <button
                                   key={api.name}
-                                  className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${expandedSection ===
+                                  className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${
+                                    expandedSection ===
                                     api.name.toLowerCase().replace(/\s+/g, "")
-                                    ? "bg-[#242424] "
-                                    : "hover:bg-[#242424]"
-                                    }`}
+                                      ? "bg-[#242424] "
+                                      : "hover:bg-[#242424]"
+                                  }`}
                                   onClick={() =>
                                     setExpandedSection(
                                       api.name.toLowerCase().replace(/\s+/g, "")
@@ -300,18 +319,21 @@ const ApiCreation = () => {
                                 >
                                   <div className="flex items-center justify-start gap-2 lg:gap-5">
                                     <span
-                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${api.method === "GET"
-                                        ? "bg-blue-500"
-                                        : api.method === "POST"
-                                          ? "bg-green-500"
-                                          : api.method === "PUT"
-                                            ? "bg-yellow-500"
-                                            : "bg-red-500"
-                                        }`}
+                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${
+                                        api.method === "GET"
+                                          ? "bg-blue-500"
+                                          : api.method === "POST"
+                                            ? "bg-green-500"
+                                            : api.method === "PUT"
+                                              ? "bg-yellow-500"
+                                              : "bg-red-500"
+                                      }`}
                                     >
                                       {api.method}
                                     </span>
-                                    <span className="text-xs lg:text-sm">{api.name}</span>
+                                    <span className="text-xs lg:text-sm">
+                                      {api.name}
+                                    </span>
                                   </div>
                                 </button>
                               ))}
@@ -321,7 +343,6 @@ const ApiCreation = () => {
                           {/* Column 2: API Details */}
                           {/* {create job api} */}
                           <div className="w-full lg:w-[70%] space-y-4">
-
                             {expandedSection === "createautomationjob" && (
                               <div className="space-y-6 ">
                                 <div className="">
@@ -329,7 +350,12 @@ const ApiCreation = () => {
                                     Create Automation Job
                                   </h3>
                                   <p className=" text-gray-400 md:text-md text-sm">
-                                    Creates a new blockchain automation job with specified parameters. Define trigger conditions, target actions, security levels, and scheduling options. Supports both one-time and recurring executions with customizable time intervals.
+                                    Creates a new blockchain automation job with
+                                    specified parameters. Define trigger
+                                    conditions, target actions, security levels,
+                                    and scheduling options. Supports both
+                                    one-time and recurring executions with
+                                    customizable time intervals.
                                   </p>
                                 </div>
 
@@ -374,7 +400,7 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
-                                        <tr >
+                                        <tr>
                                           <td className="py-2 text-gray-400">
                                             Content-Type
                                           </td>
@@ -390,10 +416,9 @@ const ApiCreation = () => {
                                   </div>
                                 </div>
 
-
                                 {/* Query Parameters */}
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b ">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -407,7 +432,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -422,7 +448,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -452,15 +479,25 @@ const ApiCreation = () => {
                                     <div className="flex items-center gap-2">
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsStatusOpen(!isStatusOpen)}
+                                          onClick={() =>
+                                            setIsStatusOpen(!isStatusOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeStatus}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isStatusOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isStatusOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
-                                            {["200", "400", "401", "404", "500"].map((status) => (
+                                            {[
+                                              "200",
+                                              "400",
+                                              "401",
+                                              "404",
+                                              "500",
+                                            ].map((status) => (
                                               <div
                                                 key={status}
                                                 className="py-3 px-4 hover:bg-[#333] cursor-pointer flex items-center gap-5 text-xs xs:text-sm sm:text-base rounded-lg"
@@ -638,15 +675,21 @@ const ApiCreation = () => {
                                     </div>
 
                                     {/* Language Tabs */}
-                                    <div className="flex border-b border-[#333333] overflow-o
-                                    auto">
+                                    <div
+                                      className="flex border-b border-[#333333] overflow-o
+                                    auto"
+                                    >
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                                          onClick={() =>
+                                            setIsLanguageOpen(!isLanguageOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base bg-[#1a1a1a] text-white py-2 px-4 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeLanguage}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isLanguageOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isLanguageOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
@@ -669,10 +712,7 @@ const ApiCreation = () => {
 
                                     <div className="p-4 bg-[#242424] overflow-auto">
                                       {activeLanguage === "cURL" && (
-                                        <pre
-                                          className="text-sm  whitespace-pre-wrap"
-                                         
-                                        >
+                                        <pre className="text-sm  whitespace-pre-wrap">
                                           <div className="text-sm">
                                             {"{"}
                                             <div className="ml-4">
@@ -682,7 +722,8 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "Test"
-                                              </span>,<br />
+                                              </span>
+                                              ,<br />
                                               <span className="text-[#FF616D]">
                                                 "user_address"
                                               </span>
@@ -882,10 +923,11 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                            }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -1030,7 +1072,11 @@ const ApiCreation = () => {
                                     Retrive Job Data
                                   </h3>
                                   <p className="text-gray-400 md:text-md text-sm">
-                                    Fetches detailed information about a specific automation job using its unique ID. Returns comprehensive data including job status, configuration, execution history, and associated parameters.
+                                    Fetches detailed information about a
+                                    specific automation job using its unique ID.
+                                    Returns comprehensive data including job
+                                    status, configuration, execution history,
+                                    and associated parameters.
                                   </p>
                                 </div>
 
@@ -1094,7 +1140,7 @@ const ApiCreation = () => {
 
                                 {/* Query Parameters */}
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md mb-4  border-[#4B4A4A] border-b ">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -1108,7 +1154,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -1123,7 +1170,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -1153,15 +1201,25 @@ const ApiCreation = () => {
                                     <div className="flex items-center gap-2">
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsStatusOpen(!isStatusOpen)}
+                                          onClick={() =>
+                                            setIsStatusOpen(!isStatusOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeStatus}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isStatusOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isStatusOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
-                                            {["200", "400", "401", "404", "500"].map((status) => (
+                                            {[
+                                              "200",
+                                              "400",
+                                              "401",
+                                              "404",
+                                              "500",
+                                            ].map((status) => (
                                               <div
                                                 key={status}
                                                 className="py-3 px-4 hover:bg-[#333] cursor-pointer flex items-center gap-5 text-xs xs:text-sm sm:text-base rounded-lg"
@@ -1381,15 +1439,21 @@ const ApiCreation = () => {
                                     </div>
 
                                     {/* Language Tabs */}
-                                    <div className="flex border-b border-[#333333] overflow-o
-                                    auto">
+                                    <div
+                                      className="flex border-b border-[#333333] overflow-o
+                                    auto"
+                                    >
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                                          onClick={() =>
+                                            setIsLanguageOpen(!isLanguageOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base bg-[#1a1a1a] text-white py-2 px-4 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeLanguage}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isLanguageOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isLanguageOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
@@ -1412,10 +1476,7 @@ const ApiCreation = () => {
 
                                     <div className="p-4 bg-[#242424] overflow-auto">
                                       {activeLanguage === "cURL" && (
-                                        <pre
-                                          className="text-sm  whitespace-pre-wrap"
-                                          
-                                        >
+                                        <pre className="text-sm  whitespace-pre-wrap">
                                           <div className="text-sm">
                                             {"{"}
                                             <div className="ml-4">
@@ -1483,10 +1544,11 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                            }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -1611,7 +1673,6 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "11155420"
-
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
@@ -1620,7 +1681,6 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "0x8668BBdF66af1dE89EcddaB9F31Bf1E59FA8109d"
-
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
@@ -1629,8 +1689,6 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "maintainBalances"
-
-
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
@@ -1639,8 +1697,6 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "0"
-
-
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
@@ -1649,8 +1705,6 @@ const ApiCreation = () => {
                                               :{" "}
                                               <span className="text-[#C3E88D]">
                                                 "2025-06-03T08:08:39.126Z"
-
-
                                               </span>
                                               ,<br />
                                             </div>
@@ -1736,7 +1790,10 @@ const ApiCreation = () => {
                                     Job Last Executed Time API
                                   </h3>
                                   <p className=" text-gray-400 md:text-md text-sm">
-                                    Updates the last execution timestamp for a specific automation job. This is used to track when the job was last run and manage scheduling for recurring tasks.
+                                    Updates the last execution timestamp for a
+                                    specific automation job. This is used to
+                                    track when the job was last run and manage
+                                    scheduling for recurring tasks.
                                   </p>
                                 </div>
 
@@ -1782,7 +1839,7 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
-                                        <tr >
+                                        <tr>
                                           <td className="py-2 text-gray-400">
                                             Content-Type
                                           </td>
@@ -1799,60 +1856,8 @@ const ApiCreation = () => {
                                 </div>
 
                                 {/* Query Parameters */}
-                                {/* <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
-                                    Query Parameters
-                                  </h4>
-                                  <div className=" rounded-lg space-y-6">
-                                    <div className=" border-[#4B4A4A] border-b pb-4 my-4">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-[#FF616D]">
-                                          job_id
-                                        </span>
-                                        <span className="text-[#C3E88D]">
-                                          string
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key
-                                        header
-                                      </p>
-                                    </div>
-
-                                    <div className=" border-[#4B4A4A] border-b pb-4 my-4">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#FF616D]">
-                                          recurring
-                                        </span>
-                                        <span className="text-[#C3E88D]">
-                                          boolean
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-400 text-sm">
-                                        Enable returning partial results for
-                                        large queries
-                                      </p>
-                                    </div>
-
-                                    <div className=" border-[#4B4A4A] border-b pb-4 my-4">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#FF616D]">
-                                          time_frame
-                                        </span>
-                                        <span className="text-[#C3E88D]">
-                                          string
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to
-                                        return (e.g., "job_id,status,priority")
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div> */}
-                                {/* Query Parameters */}
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md  border-[#4B4A4A] border-b  mb-4 ">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -1866,7 +1871,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -1881,7 +1887,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -1917,15 +1924,21 @@ const ApiCreation = () => {
                                     </div>
 
                                     {/* Language Tabs */}
-                                    <div className="flex border-b border-[#333333] overflow-o
-                                    auto">
+                                    <div
+                                      className="flex border-b border-[#333333] overflow-o
+                                    auto"
+                                    >
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                                          onClick={() =>
+                                            setIsLanguageOpen(!isLanguageOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base bg-[#1a1a1a] text-white py-2 px-4 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeLanguage}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isLanguageOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isLanguageOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
@@ -1948,10 +1961,7 @@ const ApiCreation = () => {
 
                                     <div className="p-4 bg-[#242424] overflow-auto">
                                       {activeLanguage === "cURL" && (
-                                        <pre
-                                          className="text-sm whitespace-pre-wrap"
-                                         
-                                        >
+                                        <pre className="text-sm whitespace-pre-wrap">
                                           <div>curl --request PUT \ </div>
                                           <div>
                                             {" "}
@@ -2027,10 +2037,11 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                            }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2185,7 +2196,7 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
-                                        <tr >
+                                        <tr>
                                           <td className="py-2 text-gray-400 pl-4">
                                             Content-Type
                                           </td>
@@ -2201,31 +2212,8 @@ const ApiCreation = () => {
                                   </div>
                                 </div>
 
-                                {/* Query Parameters */}
-                                {/* <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
-                                    Query Parameters
-                                  </h4>
-                                  <div className=" rounded-lg space-y-6">
-                                    <div className=" border-[#4B4A4A] border-b pb-4 my-4">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-[#FF616D]">
-                                          user_address
-                                        </span>
-                                        <span className="text-[#C3E88D]">
-                                          string
-                                        </span>
-                                      </div>
-                                      <p className="text-gray-400 text-sm">
-                                        Ethereum wallet address of the user
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div> */}
-
-                                {/* Query Parameters */}
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md   border-[#4B4A4A] border-b pb-4 mb-4 ">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -2239,7 +2227,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -2254,7 +2243,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -2284,15 +2274,25 @@ const ApiCreation = () => {
                                     <div className="flex items-center gap-2">
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsStatusOpen(!isStatusOpen)}
+                                          onClick={() =>
+                                            setIsStatusOpen(!isStatusOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeStatus}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isStatusOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isStatusOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
-                                            {["200", "400", "401", "404", "500"].map((status) => (
+                                            {[
+                                              "200",
+                                              "400",
+                                              "401",
+                                              "404",
+                                              "500",
+                                            ].map((status) => (
                                               <div
                                                 key={status}
                                                 className="py-3 px-4 hover:bg-[#333] cursor-pointer flex items-center gap-5 text-xs xs:text-sm sm:text-base rounded-lg"
@@ -2468,15 +2468,21 @@ const ApiCreation = () => {
                                     </div>
 
                                     {/* Language Tabs */}
-                                    <div className="flex border-b border-[#333333] overflow-o
-                                    auto">
+                                    <div
+                                      className="flex border-b border-[#333333] overflow-o
+                                    auto"
+                                    >
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                                          onClick={() =>
+                                            setIsLanguageOpen(!isLanguageOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base bg-[#1a1a1a] text-white py-2 px-4 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeLanguage}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isLanguageOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isLanguageOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
@@ -2571,10 +2577,11 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                            }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2796,7 +2803,7 @@ const ApiCreation = () => {
                                             required
                                           </td>
                                         </tr>
-                                        <tr >
+                                        <tr>
                                           <td className="py-2 text-gray-400 ">
                                             Content-Type
                                           </td>
@@ -2813,7 +2820,7 @@ const ApiCreation = () => {
                                 </div>
                                 {/* Query Parameters */}
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md   border-[#4B4A4A] border-b mb-4 ">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -2827,7 +2834,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -2842,7 +2850,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -2898,8 +2907,7 @@ const ApiCreation = () => {
                                             </span>
                                             :{" "}
                                             <span className="text-[#C3E88D]">
-                                              "The ID of the job to delete
-                                              "
+                                              "The ID of the job to delete "
                                             </span>
                                           </div>
                                           {"}"}
@@ -2931,10 +2939,11 @@ const ApiCreation = () => {
                                         onClick={() =>
                                           setActiveStatus(status.code)
                                         }
-                                        className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                          ? "bg-[#242424] text-white"
-                                          : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                        className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                          activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                        }`}
                                       >
                                         <span
                                           className={`w-2 h-2 rounded-full ${status.color}`}
@@ -3103,7 +3112,7 @@ const ApiCreation = () => {
                                 </div>
 
                                 <div>
-                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4 mb-4 ">
+                                  <h4 className="text-md mb-2  border-[#4B4A4A] border-b pb-4">
                                     Query Parameters
                                   </h4>
                                   <div className=" rounded-lg space-y-6">
@@ -3117,7 +3126,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Alternative to using the X-Api-Key header for authentication
+                                        Alternative to using the X-Api-Key
+                                        header for authentication
                                       </p>
                                     </div>
                                   </div>
@@ -3132,7 +3142,8 @@ const ApiCreation = () => {
                                         </span>
                                       </div>
                                       <p className="text-gray-400 text-sm">
-                                        Comma-separated list of column names to return specific fields
+                                        Comma-separated list of column names to
+                                        return specific fields
                                       </p>
                                     </div>
                                   </div>
@@ -3162,15 +3173,25 @@ const ApiCreation = () => {
                                     <div className="flex items-center gap-2">
                                       <div className="relative">
                                         <div
-                                          onClick={() => setIsStatusOpen(!isStatusOpen)}
+                                          onClick={() =>
+                                            setIsStatusOpen(!isStatusOpen)
+                                          }
                                           className="text-xs xs:text-sm sm:text-base w-full bg-[#1a1a1a] text-white py-3 px-4 rounded-lg border border-white/10 flex items-center gap-5 cursor-pointer"
                                         >
                                           {activeStatus}
-                                          <IoIosArrowDown className={`ml-auto transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
+                                          <IoIosArrowDown
+                                            className={`ml-auto transition-transform ${isStatusOpen ? "rotate-180" : ""}`}
+                                          />
                                         </div>
                                         {isStatusOpen && (
                                           <div className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-10">
-                                            {["200", "400", "401", "404", "500"].map((status) => (
+                                            {[
+                                              "200",
+                                              "400",
+                                              "401",
+                                              "404",
+                                              "500",
+                                            ].map((status) => (
                                               <div
                                                 key={status}
                                                 className="py-3 px-4 hover:bg-[#333] cursor-pointer flex items-center gap-5 text-xs xs:text-sm sm:text-base rounded-lg"
@@ -3246,7 +3267,6 @@ const ApiCreation = () => {
                                               ""
                                             </p>
                                           </div>
-
                                         </>
                                       )}
                                       {activeStatus === "400" && (
@@ -3367,8 +3387,7 @@ const ApiCreation = () => {
                                             </span>
                                             :{" "}
                                             <span className="text-[#C3E88D]">
-                                              "The ID of the user to retrieve
-                                              "
+                                              "The ID of the user to retrieve "
                                             </span>
                                           </div>
                                           {"}"}
@@ -3398,10 +3417,11 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                            }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                                            activeStatus === status.code
+                                              ? "bg-[#242424] text-white"
+                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -3448,13 +3468,9 @@ const ApiCreation = () => {
                                               <span className="text-[#C3E88D]">
                                                 1000000000000000000
                                               </span>
-
-
-
                                             </div>
                                             {"}"}
                                           </div>
-
                                         </pre>
                                       )}
                                       {activeStatus === "400" && (

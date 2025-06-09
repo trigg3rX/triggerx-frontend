@@ -162,9 +162,9 @@ export function useStakeRegistry() {
       if (abiString) {
         try {
           setStakeRegistryABI(JSON.parse(abiString));
-          console.log(
-            `Stake Registry: ABI successfully parsed and set from ${abiSource}.`
-          );
+          // console.log(
+          //   `Stake Registry: ABI successfully parsed and set from ${abiSource}.`
+          // );
         } catch (parseError) {
           console.error(
             `Stake Registry: Error parsing ABI JSON from ${abiSource}:`,

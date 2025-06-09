@@ -17,7 +17,6 @@ function Header() {
 
   useEffect(() => {
     if (address) {
-      console.log("Header: Balance refresh triggered");
       refetch();
     }
   }, [address, refreshBalance, refetch]);
@@ -184,10 +183,12 @@ function Header() {
         </div>
       </div>
       <div className="w-[90%] h-[100px] mx-auto flex lg:hidden justify-between items-center header">
-        <div
-          className="absolute left-[calc(50%-90px)] sm:left-[calc(50%-120px)] -top-3 sm:-top-7"
-        >
-          <img src={nav} alt="Nav" className="w-[180px] sm:w-[240px] h-auto z-0" />
+        <div className="absolute left-[calc(50%-90px)] sm:left-[calc(50%-120px)] -top-3 sm:-top-7">
+          <img
+            src={nav}
+            alt="Nav"
+            className="w-[180px] sm:w-[240px] h-auto z-0"
+          />
         </div>
         {/* Logo */}
         <div className="flex-shrink-0 relative z-10 ">

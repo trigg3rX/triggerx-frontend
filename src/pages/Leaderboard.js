@@ -60,9 +60,9 @@ const Leaderboard = () => {
         hasDataInCurrentTab = highlightedContributor !== null;
       }
 
-      console.log(`Connected Address: ${connectedAddress}`);
-      console.log(`Active Tab: ${activeTab}`);
-      console.log(`Has Data In Current Tab: ${hasDataInCurrentTab}`);
+      // console.log(`Connected Address: ${connectedAddress}`);
+      // console.log(`Active Tab: ${activeTab}`);
+      // console.log(`Has Data In Current Tab: ${hasDataInCurrentTab}`);
 
       setHasConnectedUserData(hasDataInCurrentTab);
     } else {
@@ -96,33 +96,33 @@ const Leaderboard = () => {
         const response = await fetch(apiUrl);
 
         const data = await response.json();
-        console.log("Raw API response:", data);
+        // console.log("Raw API response:", data);
 
         // Transform the data to match the table structure
         if (activeTab === "keeper") {
           const transformedKeeperData = Array.isArray(data)
             ? data.map((keeper) => ({
-              operator: keeper.keeper_name,
-              address: keeper.keeper_address,
-              performed: keeper.no_executed_tasks,
-              attested: keeper.no_attested_tasks, // If you don't have a separate attested field
-              points: keeper.keeper_points,
-            }))
+                operator: keeper.keeper_name,
+                address: keeper.keeper_address,
+                performed: keeper.no_executed_tasks,
+                attested: keeper.no_attested_tasks, // If you don't have a separate attested field
+                points: keeper.keeper_points,
+              }))
             : [];
 
           // Sort the keepers by points in descending order
           transformedKeeperData.sort((a, b) => b.points - a.points);
 
-          console.log("Transformed Keeper Data:", transformedKeeperData);
+          // console.log("Transformed Keeper Data:", transformedKeeperData);
 
           if (isConnected && connectedAddress) {
-            console.log("Looking for address:", connectedAddress);
+            // console.log("Looking for address:", connectedAddress);
             const userKeeper = transformedKeeperData.find(
               (k) =>
                 k.address &&
                 k.address.toLowerCase() === connectedAddress.toLowerCase()
             );
-            console.log("User's keeper data:", userKeeper || "Not found");
+            // console.log("User's keeper data:", userKeeper || "Not found");
           }
 
           setLeaderboardData((prev) => ({
@@ -132,11 +132,11 @@ const Leaderboard = () => {
         } else if (activeTab === "developer") {
           const transformedUserData = Array.isArray(data)
             ? data.map((user) => ({
-              address: user.user_address,
-              totalJobs: user.total_jobs,
-              tasksExecuted: user.total_tasks,
-              points: user.user_points,
-            }))
+                address: user.user_address,
+                totalJobs: user.total_jobs,
+                tasksExecuted: user.total_tasks,
+                points: user.user_points,
+              }))
             : [];
 
           // Sort developers by points in descending order
@@ -419,10 +419,11 @@ const Leaderboard = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
-                ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
-                : "border-[#EDEDED] text-white hover:bg-white hover:border-white hover:text-black"
-                } transition`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
+                currentPage === page
+                  ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
+                  : "border-[#EDEDED] text-white hover:bg-white hover:border-white hover:text-black"
+              } transition`}
             >
               {page}
             </button>
@@ -581,8 +582,8 @@ const Leaderboard = () => {
             <div
               className={
                 filteredKeepers.length > 0 ||
-                  filteredDevelopers.length > 0 ||
-                  filteredContributors.length > 0
+                filteredDevelopers.length > 0 ||
+                filteredContributors.length > 0
                   ? " "
                   : "h-auto"
               }

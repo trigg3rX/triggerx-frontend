@@ -71,7 +71,7 @@ export function ContractDetails({
   };
 
   function extractFunctions(abi) {
-    console.log("Extracting functions from ABI:", abi);
+    // console.log("Extracting functions from ABI:", abi);
     try {
       let abiArray;
       if (typeof abi === "string") {
@@ -103,10 +103,10 @@ export function ContractDetails({
           constant: func.constant || false,
         }));
 
-      console.log("Extracted functions:", functions);
+      // console.log("Extracted functions:", functions);
       return functions;
     } catch (error) {
-      console.error("Error processing ABI:", error);
+      // console.error("Error processing ABI:", error);
       return [];
     }
   }
@@ -117,11 +117,15 @@ export function ContractDetails({
     const address = e.target.value;
     validateAddress(address);
 
-    console.log("Contract address changed to:", address);
+    // console.log("Contract address changed to:", address);
     setContractAddress(address);
+    // Clear target function and manual ABI when contract address changes
+    setTargetFunction("");
+    setManualABI("");
+    setShowManualABIInput(false);
 
     const processSuccessfulAbi = (abiResult, source) => {
-      console.log(`ABI fetched successfully from ${source}`);
+      // console.log(`ABI fetched successfully from ${source}`);
       try {
         // Ensure the result is actually a parsable ABI
         JSON.parse(abiResult); // This will throw if abiResult is not valid JSON
@@ -130,7 +134,7 @@ export function ContractDetails({
             func.stateMutability === "nonpayable" ||
             func.stateMutability === "payable"
         );
-        console.log("Setting writable functions:", writableFunctions);
+        // console.log("Setting writable functions:", writableFunctions);
         setFunctions(writableFunctions);
         setContractABI(abiResult);
         setShowManualABIInput(false);
@@ -160,7 +164,7 @@ export function ContractDetails({
     };
 
     const resetAndShowManualInput = (reason) => {
-      console.log(reason);
+      // console.log(reason);
       setShowManualABIInput(true);
       setContractABI("");
       setFunctions([]);
@@ -172,7 +176,6 @@ export function ContractDetails({
       // 1. Try Blockscout
       const blockscoutUrl = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${address}`;
       try {
-        console.log("Attempting to fetch ABI from Blockscout...");
         const response = await axios.get(blockscoutUrl);
         const data = response.data;
         if (
@@ -210,17 +213,14 @@ export function ContractDetails({
         } else {
           const etherscanUrl = `https://api-sepolia-optimism.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY}`;
           try {
-            console.log(
-              "Attempting to fetch ABI from Etherscan (Optimism Sepolia)..."
-            );
             const response = await axios.get(etherscanUrl);
             const data = response.data;
 
             // Log the raw Etherscan response for detailed debugging
-            console.log(
-              "Raw Etherscan API response data:",
-              JSON.stringify(data, null, 2)
-            );
+            // console.log(
+            //   "Raw Etherscan API response data:",
+            //   JSON.stringify(data, null, 2)
+            // );
 
             if (
               data.status === "1" &&
@@ -248,7 +248,7 @@ export function ContractDetails({
               handleAbiFetchFailure(
                 "Etherscan (Optimism Sepolia)",
                 failureReason +
-                "(Check API key validity, contract verification on Etherscan, and network settings)."
+                  "(Check API key validity, contract verification on Etherscan, and network settings)."
               );
             }
           } catch (error) {
@@ -269,7 +269,6 @@ export function ContractDetails({
       }
     } else {
       // Address is invalid
-      console.log("Invalid address, clearing ABI and functions.");
       setContractABI("");
       setFunctions([]);
       setShowManualABIInput(false);
@@ -286,7 +285,7 @@ export function ContractDetails({
           func.stateMutability === "nonpayable" ||
           func.stateMutability === "payable"
       );
-      console.log("Setting writable functions:", writableFunctions);
+      // console.log("Setting writable functions:", writableFunctions);
       setFunctions(writableFunctions);
       setContractABI(abi);
 
@@ -302,7 +301,7 @@ export function ContractDetails({
 
   const handleFunctionChange = (e) => {
     const selectedValue = e.target.value;
-    console.log("Function selection changed to:", selectedValue);
+    // console.log("Function selection changed to:", selectedValue);
     setTargetFunction(selectedValue);
   };
 
@@ -313,7 +312,7 @@ export function ContractDetails({
 
   const handleArgumentTypeChange = (e) => {
     const newType = e.target.value;
-    console.log("Argument type changed to:", newType);
+    // console.log("Argument type changed to:", newType);
     setArgumentType(newType);
   };
 
@@ -368,8 +367,9 @@ export function ContractDetails({
             value={contractAddress}
             onChange={handleContractAddressChange}
             placeholder="Your Contract address"
-            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${addressError ? "border-red-500" : "border-white/10"
-              }`}
+            className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+              addressError ? "border-red-500" : "border-white/10"
+            }`}
           />
           {addressError && (
             <p className="text-red-500 text-xs mt-1 ml-1">{addressError}</p>
@@ -441,7 +441,7 @@ export function ContractDetails({
         </div>
       )}
 
-      {(contractAddress || manualABI) && !addressError && (
+      {contractAddress && contractABI && !addressError && (
         <>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <label
@@ -505,8 +505,9 @@ export function ContractDetails({
                   className="relative w-full md:w-[70%] xl:w-[80%] z-30"
                 >
                   <li
-                    className={`list-none text-sm xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${!hasArguments ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                    className={`list-none text-sm xs:text-sm sm:text-base w-full bg-[#141414] text-white py-3 px-4 rounded-lg cursor-pointer border border-white/10 flex items-center justify-between ${
+                      !hasArguments ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     onClick={() =>
                       hasArguments && setIsArgumentTypeOpen(!isArgumentTypeOpen)
                     }
@@ -569,10 +570,11 @@ export function ContractDetails({
                   type="text"
                   value={argsArray[index] || ""}
                   onChange={(e) => handleInputChange(index, e.target.value)}
-                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${isDisabled
-                    ? "opacity-50 cursor-not-allowed bg-gray-800"
-                    : ""
-                    }`}
+                  className={`text-xs xs:text-sm sm:text-base w-full md:w-[60%] xl:w-[70%] bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                    isDisabled
+                      ? "opacity-50 cursor-not-allowed bg-gray-800"
+                      : ""
+                  }`}
                   placeholder={`Enter ${input.type}`}
                   disabled={isDisabled}
                   readOnly={isDisabled}
@@ -597,8 +599,9 @@ export function ContractDetails({
               value={ipfsCodeUrl}
               required
               onChange={(e) => handleCodeUrlChange(e)}
-              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${ipfsCodeUrlError ? "border-red-500" : "border-white/10"
-                }`}
+              className={`text-xs xs:text-sm sm:text-base w-full bg-white/5 border rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                ipfsCodeUrlError ? "border-red-500" : "border-white/10"
+              }`}
               placeholder="Enter IPFS URL or CID (e.g., ipfs://... or https://ipfs.io/ipfs/...)"
             />
             {ipfsCodeUrlError && (

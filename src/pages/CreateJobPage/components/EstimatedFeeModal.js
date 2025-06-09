@@ -63,7 +63,6 @@ export function EstimatedFeeModal({
     setShowStakeTooltip(false);
     setFoodEatenAnimation(null);
     setFrameIndex(0);
-
   };
 
   useEffect(() => {
@@ -260,7 +259,6 @@ export function EstimatedFeeModal({
         canvas.width / 3 + 50,
         canvas.height / 2 + 30
       );
-
     }
 
     if (gameOver) {
@@ -273,7 +271,19 @@ export function EstimatedFeeModal({
         canvas.height / 2 + 60
       );
     }
-  }, [character, food, isOpen, gameOver, gameStarted, score, frameIndex, characterFrames, ethImage, direction, foodEatenAnimation]);
+  }, [
+    character,
+    food,
+    isOpen,
+    gameOver,
+    gameStarted,
+    score,
+    frameIndex,
+    characterFrames,
+    ethImage,
+    direction,
+    foodEatenAnimation,
+  ]);
 
   useEffect(() => {
     if (isOpen) {
@@ -325,14 +335,18 @@ export function EstimatedFeeModal({
     >
       {showProcessing && !showFees && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
-          <h3 className="text-white text-lg sm:text-xl text-center">Creating Job</h3>
+          <h3 className="text-white text-lg sm:text-xl text-center">
+            Creating Job
+          </h3>
           <div className="w-full sm:w-auto">
             {currentStep < steps.length && (
               <div
                 key={steps[currentStep].id}
                 className="transition-all duration-700 ease-in-out animate-pulse"
               >
-                <h4 className="text-sm sm:text-md">{steps[currentStep].text}</h4>
+                <h4 className="text-sm sm:text-md">
+                  {steps[currentStep].text}
+                </h4>
               </div>
             )}
             {currentStep >= steps.length && (
@@ -340,7 +354,9 @@ export function EstimatedFeeModal({
                 key={steps[steps.length - 1].id}
                 className="transition-all duration-700 ease-in-out animate-pulse"
               >
-                <h4 className="text-sm sm:text-md">{steps[steps.length - 1].text}</h4>
+                <h4 className="text-sm sm:text-md">
+                  {steps[steps.length - 1].text}
+                </h4>
               </div>
             )}
             <div className="h-1.5 bg-gray-500 opacity-50 rounded-full mt-2 overflow-hidden">
@@ -362,7 +378,9 @@ export function EstimatedFeeModal({
           className="w-full h-auto"
         />
       </div>
-      <div className="text-white text-center py-2 text-sm sm:text-base">Score: {score}</div>
+      <div className="text-white text-center py-2 text-sm sm:text-base">
+        Score: {score}
+      </div>
       {!isJobCreated ? (
         <>
           {showFees && (
@@ -382,16 +400,16 @@ export function EstimatedFeeModal({
                         onMouseLeave={() => setShowRequiredTGTooltip(false)}
                       />
                       {showRequiredTGTooltip && (
-                        <div className="absolute left-1/2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0 top-7 sm:top-auto sm:mt-2 mt-2 p-2 sm:p-3 md:p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[320px]">
+                        <div className="absolute left-1/2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0 top-15 sm:top-auto sm:mt-2 mt-2 p-2 sm:p-3 md:p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[320px]">
                           {/* Arrow */}
                           <div className="hidden sm:block absolute -right-2 top-3 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-[#181818]"></div>
-                          <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-[#181818]"></div>
+                          {/* <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-[#181818]"></div> */}
                           <div className="flex flex-col gap-1 sm:gap-2 text-[11px] xs:text-xs sm:text-sm text-gray-300">
                             <div className="flex items-center gap-1 sm:gap-2">
                               <span>
-                                TriggerGas (TG) is the standard unit for calculating
-                                computational and resource costs on the TriggerX
-                                platform.
+                                TriggerGas (TG) is the standard unit for
+                                calculating computational and resource costs on
+                                the TriggerX platform.
                               </span>
                             </div>
                           </div>
@@ -411,7 +429,9 @@ export function EstimatedFeeModal({
                   <p className="text-sm sm:text-base">Your TG Balance</p>
                   <Tooltip title={userBalance || "0"} placement="top">
                     <p className="cursor-help text-sm sm:text-base">
-                      {userBalance ? Number(userBalance).toFixed(2) : "0.0000"}{" "}
+                      {userBalance
+                        ? Number(userBalance).toFixed(2)
+                        : "0.0000"}{" "}
                     </p>
                   </Tooltip>
                 </div>
@@ -428,15 +448,16 @@ export function EstimatedFeeModal({
                           onMouseLeave={() => setShowStakeTooltip(false)}
                         />
                         {showStakeTooltip && (
-                          <div className="absolute left-1/2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0 top-7 sm:top-auto sm:mt-2 mt-2 p-2 sm:p-3 md:p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[320px]">
+                          <div className="absolute left-1/2 -translate-x-1/2 sm:right-0 sm:left-auto sm:translate-x-0 top-15 sm:top-auto sm:mt-2 mt-2 p-2 sm:p-3 md:p-4 bg-[#181818] rounded-xl border border-[#4B4A4A] shadow-lg z-50 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[320px]">
                             {/* Arrow */}
                             <div className="hidden sm:block absolute -right-2 top-3 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-[#181818]"></div>
-                            <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-[#181818]"></div>
+                            {/* <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-[#181818]"></div> */}
                             <div className="flex flex-col gap-1 sm:gap-2 text-[11px] xs:text-xs sm:text-sm text-gray-300">
                               <div className="flex items-center gap-1 sm:gap-2">
                                 <span>
                                   Required ETH to Stake is based on the total
-                                  TriggerXGas consumed and TriggerXGas Unit Price.
+                                  TriggerXGas consumed and TriggerXGas Unit
+                                  Price.
                                 </span>
                               </div>
                             </div>
@@ -444,7 +465,10 @@ export function EstimatedFeeModal({
                         )}
                       </div>
                     </div>
-                    <p className="text-sm sm:text-base"> {(0.001 * estimatedFee).toFixed(2)} ETH </p>
+                    <p className="text-sm sm:text-base">
+                      {" "}
+                      {(0.001 * estimatedFee).toFixed(2)} ETH{" "}
+                    </p>
                   </div>
                 )}
               </div>
@@ -453,10 +477,11 @@ export function EstimatedFeeModal({
                   <button
                     onClick={handleStake}
                     disabled={isDisabled}
-                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${isDisabled
-                      ? "bg-gray-400 text-gray-700 "
-                      : "bg-white text-black"
-                      }`}
+                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${
+                      isDisabled
+                        ? "bg-gray-400 text-gray-700 "
+                        : "bg-white text-black"
+                    }`}
                   >
                     {isSubmitting ? "Processing..." : "Next"}
                   </button>
@@ -464,12 +489,17 @@ export function EstimatedFeeModal({
                   <button
                     onClick={handleStake}
                     disabled={!hasEnoughEthToStake || isSubmitting}
-                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${!hasEnoughEthToStake || isSubmitting
-                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                      : "bg-white text-black"
-                      }`}
+                    className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 text-sm sm:text-base ${
+                      !hasEnoughEthToStake || isSubmitting
+                        ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                        : "bg-white text-black"
+                    }`}
                   >
-                    {isSubmitting ? "Staking..." : hasEnoughEthToStake ? "Top Up TG" : "Insufficient ETH"}
+                    {isSubmitting
+                      ? "Staking..."
+                      : hasEnoughEthToStake
+                        ? "Top Up TG"
+                        : "Insufficient ETH"}
                   </button>
                 )}
                 <button
@@ -485,14 +515,30 @@ export function EstimatedFeeModal({
       ) : (
         <div className="flex flex-col items-center gap-3 sm:gap-4 mt-4 sm:mt-5">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#A2A2A2] rounded-full flex items-center justify-center">
-            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            <svg
+              className="w-6 h-6 sm:w-8 sm:h-8 text-white"
+              fill="none"
+              stroke="white"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          <h3 className="text-white text-lg sm:text-xl text-center">Job Created Successfully!</h3>
-          <p className="text-gray-400 text-center text-sm sm:text-base">Your job has been created and is now active.</p>
-          <button onClick={handleDashboardClick}
-            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 sm:px-6 py-2 sm:py-3 rounded-full group transition-transform w-full sm:w-auto">
+          <h3 className="text-white text-lg sm:text-xl text-center">
+            Job Created Successfully!
+          </h3>
+          <p className="text-gray-400 text-center text-sm sm:text-base">
+            Your job has been created and is now active.
+          </p>
+          <button
+            onClick={handleDashboardClick}
+            className="relative bg-[#222222] text-[#000000] border border-[#222222] px-4 sm:px-6 py-2 sm:py-3 rounded-full group transition-transform w-full sm:w-auto"
+          >
             <span className="absolute inset-0 bg-[#222222] border border-[#FFFFFF80]/50 rounded-full scale-100 translate-y-0 transition-all duration-300 ease-out group-hover:translate-y-2"></span>
             <span className="absolute inset-0 bg-[#FFFFFF] rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
             <span className="font-actayRegular relative z-10 px-0 py-2 sm:py-3 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-sm">
