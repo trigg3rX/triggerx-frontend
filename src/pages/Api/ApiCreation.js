@@ -1800,7 +1800,7 @@ const ApiCreation = () => {
                                 <div>
                                   <div className="flex items-center gap-2 bg-[#242424] rounded-md overflow-auto">
                                     <code className="flex-1 p-3 rounded-lg text-sm">
-                                      <span className="px-3 py-2 bg--500 text-xs rounded-full mr-3">
+                                      <span className="px-3 py-2 bg-yellow-500 text-xs rounded-full mr-3">
                                         PUT
                                       </span>
                                       https://data.triggerx.network/api/jobs/
@@ -2920,7 +2920,7 @@ const ApiCreation = () => {
                                 {/* Response Section */}
                                 <div className="mt-4 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
                                   <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
-                                    <h3 className="text-xl font-bold">
+                                    <h3 className="text-xl font-bold p-4">
                                       Response
                                     </h3>
                                   </div>
