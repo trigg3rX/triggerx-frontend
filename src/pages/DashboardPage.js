@@ -10,6 +10,7 @@ import useApi from "../hooks/useApi";
 import timeBasedSvg from "../assets/time-based.svg";
 import eventBasedSvg from "../assets/event-based.svg";
 import conditionBasedSvg from "../assets/condition-based.svg";
+import { useJobCreation } from "../pages/CreateJobPage/hooks/useJobCreation";
 
 // --- Add Constants for Time Calculations ---
 const SECONDS_PER_MINUTE = 60;
@@ -60,6 +61,8 @@ function DashboardPage() {
   // Add state for custom select dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const linkedJobsRef = useRef(null); // Single ref for the linked jobs section
+
+  const { userBalance } = useJobCreation();
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => {
@@ -183,9 +186,6 @@ function DashboardPage() {
     }
   }, [provider, address]);
 
-  useEffect(() => {
-    fetchTGBalance();
-  });
 
   const getJobCreatorContract = async () => {
     if (!provider) {
@@ -221,7 +221,7 @@ function DashboardPage() {
         `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       const jobsData = await response.json();
-      // console.log("Raw jobs data from API:", jobsData); // Debug log
+      console.log("Raw jobs data from API:", jobsData); // Debug log
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
@@ -551,34 +551,6 @@ function DashboardPage() {
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
 
-  const fetchTGBalance = async () => {
-    if (!provider || !isWalletInstalled) {
-      return;
-    }
-
-    try {
-      // const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-
-      const stakeRegistryContract = new ethers.Contract(
-        stakeRegistryAddress,
-        ["function getStake(address) view returns (uint256, uint256)"], // Assuming getStake returns (TG balance, other value)
-        provider
-      );
-
-      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      setTgBalance(ethers.formatEther(tgBalance));
-    } catch (error) {}
-  };
-
-  useEffect(() => {
-    if (connected && provider) {
-      fetchJobDetails();
-      fetchTGBalance();
-    }
-  }, [connected, provider]);
-
   const handleStake = async (e) => {
     e.preventDefault();
     try {
@@ -608,7 +580,6 @@ function DashboardPage() {
       await tx.wait();
 
       toast.success("Staking successful!");
-      fetchTGBalance();
       setStakeModalVisible(false);
       setStakeAmount("");
     } catch (error) {
@@ -727,11 +698,10 @@ function DashboardPage() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                currentPage === page
-                  ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
-                  : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
-              } transition`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
+                ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
+                : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
+                } transition`}
             >
               {page}
             </button>
@@ -779,6 +749,11 @@ function DashboardPage() {
     return jobDetails.filter(
       (job) => mapJobType(job.taskDefinitionId) === selectedType
     );
+  };
+
+  const handleClose = () => {
+    setStakeModalVisible(false);
+    setStakeAmount("");
   };
 
   return (
@@ -1124,7 +1099,6 @@ function DashboardPage() {
                                             Job Type :
                                           </span>
                                           <div className="flex items-center gap-2">
-                                           
                                             <span className="text-[#A2A2A2] text-sm">
                                               {mapJobType(
                                                 linkedJob.taskDefinitionId
@@ -1161,70 +1135,70 @@ function DashboardPage() {
                                         {expandedLinkedJobDetails[
                                           linkedJob.job_id
                                         ] && (
-                                          <div className=" space-y-2 text-[#A2A2A2] text-sm">
-                                            <div className="flex items-center justify-between gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Avg Type :
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {linkedJob.argType}
-                                              </span>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Interval :
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {" "}
-                                                {linkedJob.timeInterval}
-                                              </span>
-                                            </div>
+                                            <div className=" space-y-2 text-[#A2A2A2] text-sm">
+                                              <div className="flex items-center justify-between gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Avg Type :
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {linkedJob.argType}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-center justify-between gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Interval :
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {" "}
+                                                  {linkedJob.timeInterval}
+                                                </span>
+                                              </div>
 
-                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Target Contract :
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {" "}
-                                                {sliceAddress(
-                                                  linkedJob.targetContractAddress
-                                                )}{" "}
-                                              </span>
+                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Target Contract :
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {" "}
+                                                  {sliceAddress(
+                                                    linkedJob.targetContractAddress
+                                                  )}{" "}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Created At:
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {" "}
+                                                  {formatDate(
+                                                    linkedJob.createdAt
+                                                  )}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Target Function :
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {" "}
+                                                  {truncateText(
+                                                    linkedJob.targetFunction
+                                                  )}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                                <span className="text-sm text-white">
+                                                  Target ChainId :
+                                                </span>
+                                                <span className="text-[#A2A2A2] text-sm">
+                                                  {" "}
+                                                  {linkedJob.targetChainId}
+                                                </span>
+                                              </div>
+                                              {/* <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.lastExecutedAt}</span></div> */}
                                             </div>
-                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Created At:
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {" "}
-                                                {formatDate(
-                                                  linkedJob.createdAt
-                                                )}
-                                              </span>
-                                            </div>
-                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Target Function :
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {" "}
-                                                {truncateText(
-                                                  linkedJob.targetFunction
-                                                )}
-                                              </span>
-                                            </div>
-                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                              <span className="text-sm text-white">
-                                                Target ChainId :
-                                              </span>
-                                              <span className="text-[#A2A2A2] text-sm">
-                                                {" "}
-                                                {linkedJob.targetChainId}
-                                              </span>
-                                            </div>
-                                            {/* <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.lastExecutedAt}</span></div> */}
-                                          </div>
-                                        )}
+                                          )}
                                       </div>
                                       <div
                                         className={`flex justify-end gap-2 mt-4  p-3  border-[#2A2A2A] border-t hover:border-[#3A3A3A]`}
@@ -1392,7 +1366,7 @@ function DashboardPage() {
                   Total TG Balance
                 </p>
                 <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
-                  {formatBalance(tgBalance)} TG
+                  {formatBalance(userBalance)} TG
                 </p>
               </div>
             </div>
@@ -1549,27 +1523,32 @@ function DashboardPage() {
                       isStaking ||
                       !stakeAmount ||
                       Number(stakeAmount) >
-                        Number(accountBalance?.formatted || 0)
+                      Number(accountBalance?.formatted || 0)
                     }
                     className="relative bg-[#FFFFFF] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span
-                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
-                        isStaking ||
+                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
                         !stakeAmount ||
                         Number(stakeAmount) >
-                          Number(accountBalance?.formatted || 0)
-                          ? "opacity-50"
-                          : ""
-                      }`}
+                        Number(accountBalance?.formatted || 0)
+                        ? "opacity-50"
+                        : ""
+                        }`}
                     >
                       {isStaking
                         ? "Staking..."
                         : Number(stakeAmount) >
-                            Number(accountBalance?.formatted || 0)
+                          Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Top Up TG"}
                     </span>
+                  </button>
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
+                  >
+                    Cancel
                   </button>
                 </div>
               </form>
