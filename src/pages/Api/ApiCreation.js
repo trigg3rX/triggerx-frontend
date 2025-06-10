@@ -129,21 +129,19 @@ const ApiCreation = () => {
 
       <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex flex-row justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
-          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-            activeTab === "documetation"
-              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-              : "bg-transparent"
-          }`}
+          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "documetation"
+            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+            : "bg-transparent"
+            }`}
           onClick={() => setActiveTab("documetation")}
         >
           Documentation
         </button>
         <button
-          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${
-            activeTab === "apikey"
-              ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
-              : "bg-transparent"
-          }`}
+          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "apikey"
+            ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
+            : "bg-transparent"
+            }`}
           onClick={() => setActiveTab("apikey")}
         >
           API key Generator
@@ -305,12 +303,11 @@ const ApiCreation = () => {
                               ].map((api) => (
                                 <button
                                   key={api.name}
-                                  className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${
-                                    expandedSection ===
+                                  className={`w-full text-left p-2 lg:p-3 rounded-lg transition-colors ${expandedSection ===
                                     api.name.toLowerCase().replace(/\s+/g, "")
-                                      ? "bg-[#242424] "
-                                      : "hover:bg-[#242424]"
-                                  }`}
+                                    ? "bg-[#242424] "
+                                    : "hover:bg-[#242424]"
+                                    }`}
                                   onClick={() =>
                                     setExpandedSection(
                                       api.name.toLowerCase().replace(/\s+/g, "")
@@ -319,15 +316,14 @@ const ApiCreation = () => {
                                 >
                                   <div className="flex items-center justify-start gap-2 lg:gap-5">
                                     <span
-                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${
-                                        api.method === "GET"
-                                          ? "bg-blue-500"
-                                          : api.method === "POST"
-                                            ? "bg-green-500"
-                                            : api.method === "PUT"
-                                              ? "bg-yellow-500"
-                                              : "bg-red-500"
-                                      }`}
+                                      className={`px-2 py-1 rounded-full text-[10px] lg:text-xs text-center min-w-[50px] lg:min-w-[60px] ${api.method === "GET"
+                                        ? "bg-blue-500"
+                                        : api.method === "POST"
+                                          ? "bg-green-500"
+                                          : api.method === "PUT"
+                                            ? "bg-yellow-500"
+                                            : "bg-red-500"
+                                        }`}
                                     >
                                       {api.method}
                                     </span>
@@ -923,11 +919,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -1544,11 +1539,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2037,11 +2031,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2577,11 +2570,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
@@ -2919,8 +2911,8 @@ const ApiCreation = () => {
 
                                 {/* Response Section */}
                                 <div className="mt-4 bg-[#1A1A1A] rounded-lg border border-[#333333] overflow-hidden">
-                                  <div className="flex items-center gap-2 justify-between my-5  border-[#4B4A4A] border-b pb-4 mb-4">
-                                    <h3 className="text-xl font-bold p-4">
+                                  <div className="flex items-center gap-2 justify-between  p-4  border-[#4B4A4A] border-b  mb-4">
+                                    <h3 className="text-xl font-bold ">
                                       Response
                                     </h3>
                                   </div>
@@ -2939,11 +2931,10 @@ const ApiCreation = () => {
                                         onClick={() =>
                                           setActiveStatus(status.code)
                                         }
-                                        className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                          activeStatus === status.code
-                                            ? "bg-[#242424] text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                        }`}
+                                        className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                          ? "bg-[#242424] text-white"
+                                          : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                          }`}
                                       >
                                         <span
                                           className={`w-2 h-2 rounded-full ${status.color}`}
@@ -3417,11 +3408,10 @@ const ApiCreation = () => {
                                           onClick={() =>
                                             setActiveStatus(status.code)
                                           }
-                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
-                                            activeStatus === status.code
-                                              ? "bg-[#242424] text-white"
-                                              : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
-                                          }`}
+                                          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeStatus === status.code
+                                            ? "bg-[#242424] text-white"
+                                            : "text-gray-400 hover:text-white hover:bg-[#242424]/50"
+                                            }`}
                                         >
                                           <span
                                             className={`w-2 h-2 rounded-full ${status.color}`}
