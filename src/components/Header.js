@@ -183,7 +183,7 @@ function Header() {
         </div>
       </div>
       <div className="w-[90%] h-[100px] mx-auto flex lg:hidden justify-between items-center header">
-        <div className="absolute left-[calc(50%-90px)] sm:left-[calc(50%-120px)] -top-3 sm:-top-7">
+        <div className="absolute left-[calc(50%-80px)] sm:left-[calc(50%-120px)] -top-3 sm:-top-7">
           <img
             src={nav}
             alt="Nav"
@@ -212,13 +212,6 @@ function Header() {
               </span>
             </div>
           )} */}
-          <div className="flex-shrink-0 relative z-10">
-            <ConnectButton
-              chainStatus="none"
-              accountStatus="address"
-              showBalance={false}
-            />
-          </div>
           {/* Hamburger Menu for Mobile */}
           <div className="lg:hidden">
             <h4
@@ -228,8 +221,8 @@ function Header() {
               {menuOpen ? "✖" : "☰"}
             </h4>
             {menuOpen && (
-              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10 min-w-[200px]">
-                <div className="flex flex-col gap-4 text-white ">
+              <div className="absolute top-full right-0 mt-3 bg-[#181818] p-4 rounded-md shadow-lg z-10 min-w-[250px] sm:min-w-[300px]">
+                <div className="flex flex-col gap-4 text-white text-xs sm:text-base">
                   <h4
                     onClick={() => {
                       navigate("/devhub");
@@ -244,7 +237,6 @@ function Header() {
                   >
                     Dev Hub
                   </h4>
-
                   <h4
                     onClick={() => {
                       navigate("/");
@@ -282,6 +274,13 @@ function Header() {
                   >
                     Leaderboard
                   </h4>
+                  <div className="w-full px-7 mb-3">
+                  <ConnectButton
+                    chainStatus="none"
+                    accountStatus="address"
+                    showBalance={false}
+                  />
+                  </div>
                 </div>
               </div>
             )}

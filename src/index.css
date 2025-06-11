@@ -11,9 +11,8 @@
   --background: #0a0a0a;
   --foreground: #ededed;
 }
-.font{
- font-family: var(--font-actay);
-
+.font {
+  font-family: var(--font-actay);
 }
 
 body {
@@ -276,13 +275,21 @@ h1 {
   }
 
   [data-rk] .ju367v2g {
-    height: 30px !important;
+    height: 35px !important;
+  }
+
+  [data-rk] .ju367v7q {
+    padding-right: 15px !important;
+  }
+
+  [data-rk] .ju367v75 {
+    padding-left: 15px !important;
   }
 
   [data-rk] .ju367v7t {
-    padding-right: 10px !important;
+    padding-right: 20px !important;
   }
   [data-rk] .ju367v78 {
-    padding-left: 10px !important;
+    padding-left: 20px !important;
   }
 }
