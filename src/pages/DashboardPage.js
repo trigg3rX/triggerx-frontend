@@ -10,7 +10,6 @@ import useApi from "../hooks/useApi";
 import timeBasedSvg from "../assets/time-based.svg";
 import eventBasedSvg from "../assets/event-based.svg";
 import conditionBasedSvg from "../assets/condition-based.svg";
-import { useJobCreation } from "../pages/CreateJobPage/hooks/useJobCreation";
 
 // --- Add Constants for Time Calculations ---
 const SECONDS_PER_MINUTE = 60;
@@ -61,8 +60,6 @@ function DashboardPage() {
   // Add state for custom select dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const linkedJobsRef = useRef(null); // Single ref for the linked jobs section
-
-  const { userBalance } = useJobCreation();
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => {
@@ -186,6 +183,9 @@ function DashboardPage() {
     }
   }, [provider, address]);
 
+  useEffect(() => {
+    fetchTGBalance();
+  });
 
   const getJobCreatorContract = async () => {
     if (!provider) {
@@ -221,7 +221,7 @@ function DashboardPage() {
         `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       const jobsData = await response.json();
-      console.log("Raw jobs data from API:", jobsData); // Debug log
+      // console.log("Raw jobs data from API:", jobsData); // Debug log
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
@@ -551,15 +551,91 @@ function DashboardPage() {
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
 
-  const handleStake = async (e) => {
-    e.preventDefault();
+  const BASE_SEPOLIA_CHAIN_ID = 84532n;
+  const BASE_SEPOLIA_TG_REGISTRY = process.env.REACT_APP_TRIGGER_GAS_REGISTRY_ADDRESS;
+
+  const fetchTGBalance = async () => {
+    if (!provider || !isWalletInstalled) {
+      return;
+    }
+
     try {
-      setIsStaking(true);
-      if (!isWalletInstalled) {
-        throw new Error("Web3 wallet is not installed.");
+      const network = await provider.getNetwork();
+      const chainId = network.chainId;
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      // Handle Base Sepolia
+      if (chainId === BASE_SEPOLIA_CHAIN_ID) {
+        const baseContract = new ethers.Contract(
+          BASE_SEPOLIA_TG_REGISTRY,
+          ["function getBalance(address) view returns (uint256, uint256)"],
+          provider
+        );
+        const [_, baseTgBalance] = await baseContract.getBalance(userAddress);
+        setTgBalance(ethers.formatEther(baseTgBalance));
+        return;
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      // Original Optimism Sepolia logic remains unchanged
+      if (chainId !== 11155420n) {
+        setTgBalance("0");
+        return;
+      }
+
+      const stakeRegistryContract = new ethers.Contract(
+        stakeRegistryAddress,
+        ["function getStake(address) view returns (uint256, uint256)"],
+        provider
+      );
+
+      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
+      setTgBalance(ethers.formatEther(tgBalance));
+    } catch (error) {
+      console.error("Error fetching TG balance:", error);
+      setTgBalance("0");
+    }
+  };
+
+  const handleStake = async (e) => {
+    e.preventDefault();
+    if (!provider || !isWalletInstalled) {
+      return;
+    }
+
+    try {
+      const network = await provider.getNetwork();
+      const chainId = network.chainId;
+      setIsStaking(true);
+
+      // Handle Base Sepolia
+      if (chainId === BASE_SEPOLIA_CHAIN_ID) {
+        const signer = await provider.getSigner();
+        const baseContract = new ethers.Contract(
+          BASE_SEPOLIA_TG_REGISTRY,
+          ["function purchaseTG(uint256) payable"],
+          signer
+        );
+        const ethAmount = ethers.parseEther(stakeAmount);
+        const tx = await baseContract.purchaseTG(ethAmount, {
+          value: ethAmount
+        });
+        await tx.wait();
+        toast.success("Successfully purchased TG tokens on Base Sepolia!");
+
+        fetchTGBalance();
+        setStakeModalVisible(false);
+        setStakeAmount("");
+
+        return;
+      }
+
+      // Original Optimism Sepolia logic remains unchanged
+      if (chainId !== 11155420n) {
+        toast.error("Please connect to Optimism Sepolia or Base Sepolia network");
+        return;
+      }
+
       const signer = await provider.getSigner();
       const stakingContract = new ethers.Contract(
         stakeRegistryAddress,
@@ -569,7 +645,6 @@ function DashboardPage() {
 
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
       if (stakeAmountInWei === 0n) {
-        // ✅ Correct way to check if BigInt is zero
         throw new Error("Stake amount must be greater than zero.");
       }
 
@@ -577,16 +652,15 @@ function DashboardPage() {
         ethers.parseEther(stakeAmount.toString()),
         { value: ethers.parseEther(stakeAmount.toString()) }
       );
-      await tx.wait();
 
+      await tx.wait();
       toast.success("Staking successful!");
+      fetchTGBalance();
       setStakeModalVisible(false);
       setStakeAmount("");
     } catch (error) {
-      // console.error("Error staking:", error);
-      toast.error("Staking failed ");
-      setStakeModalVisible(false);
-      setStakeAmount("");
+      console.error("Error staking:", error);
+      toast.error(error.message || "Error staking");
     } finally {
       setIsStaking(false);
     }
@@ -749,11 +823,6 @@ function DashboardPage() {
     return jobDetails.filter(
       (job) => mapJobType(job.taskDefinitionId) === selectedType
     );
-  };
-
-  const handleClose = () => {
-    setStakeModalVisible(false);
-    setStakeAmount("");
   };
 
   return (
@@ -1099,6 +1168,7 @@ function DashboardPage() {
                                             Job Type :
                                           </span>
                                           <div className="flex items-center gap-2">
+
                                             <span className="text-[#A2A2A2] text-sm">
                                               {mapJobType(
                                                 linkedJob.taskDefinitionId
@@ -1366,7 +1436,7 @@ function DashboardPage() {
                   Total TG Balance
                 </p>
                 <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
-                  {formatBalance(userBalance)} TG
+                  {formatBalance(tgBalance)} TG
                 </p>
               </div>
             </div>
@@ -1543,12 +1613,6 @@ function DashboardPage() {
                           ? "Insufficient ETH"
                           : "Top Up TG"}
                     </span>
-                  </button>
-                  <button
-                    onClick={handleClose}
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
-                  >
-                    Cancel
                   </button>
                 </div>
               </form>
