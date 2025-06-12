@@ -409,6 +409,35 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!window.ethereum) {
+        toast.error("Please install MetaMask to use this application!");
+        setConnected(false);
+        return;
+      }
+
+      try {
+        // Use wagmi's useAccount hook instead of directly calling ethereum
+        // This will respect the autoConnect setting from App.js
+        setConnected(!!address);
+
+        // Only show toast if we have ethereum but no address (wallet exists but not connected)
+        if (!address && window.ethereum) {
+          toast.dismiss();
+          toast("Connect your wallet to view your dashboard", {
+            icon: "ℹ️",
+          });
+        }
+      } catch (error) {
+        toast.error("Failed to check wallet connection!");
+        setConnected(false);
+      }
+    };
+
+    checkConnection();
+  }, [address]); // Add address to dependencies
+
   const handleUpdateJob = (id) => {
     setJobs(
       jobs.map((job) =>
@@ -600,6 +629,14 @@ function DashboardPage() {
       setIsStaking(false);
     }
   };
+
+  useEffect(() => {
+    // Check if MetaMask or any web3 wallet is installed
+    if (typeof window.ethereum === "undefined") {
+      setIsWalletInstalled(false);
+      setShowModal(true);
+    }
+  }, []);
 
   const formatBalance = (balance) => {
     if (!balance) return "0";
@@ -1535,7 +1572,7 @@ function DashboardPage() {
                       }`}
                     >
                       {isStaking
-                        ? "Topping Up...?"
+                        ? "Topping Up..."
                         : Number(stakeAmount) >
                             Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
