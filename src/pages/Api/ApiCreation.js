@@ -129,7 +129,7 @@ const ApiCreation = () => {
 
       <div className="max-w-[1600px] w-[95%] sm:w-[85%] mx-auto flex flex-row justify-between items-center my-8 sm:my-12 bg-[#181818F0] p-2 rounded-lg">
         <button
-          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "documetation"
+          className={` text-xs w-full text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 hover:"bg-gradient-to-r from-[#D9D9D924] to-[#14131324] hover:border hover:border-[#4B4A4A] rounded-lg ${activeTab === "documetation"
             ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
             : "bg-transparent"
             }`}
@@ -138,7 +138,7 @@ const ApiCreation = () => {
           Documentation
         </button>
         <button
-          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 rounded-lg ${activeTab === "apikey"
+          className={`w-full text-xs text-[#FFFFFF] font-bold md:text-lg xs:text-sm p-4 hover:"bg-gradient-to-r from-[#D9D9D924] to-[#14131324] hover:border hover:border-[#4B4A4A]  rounded-lg ${activeTab === "apikey"
             ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]"
             : "bg-transparent"
             }`}

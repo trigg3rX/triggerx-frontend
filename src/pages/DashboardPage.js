@@ -8,6 +8,7 @@ import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import useApi from "../hooks/useApi";
 import timeBasedSvg from "../assets/time-based.svg";
+import { useJobCreation } from "../pages/CreateJobPage/hooks/useJobCreation";
 import eventBasedSvg from "../assets/event-based.svg";
 import conditionBasedSvg from "../assets/condition-based.svg";
 
@@ -32,7 +33,6 @@ function DashboardPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
   const [selectedType, setSelectedType] = useState("all");
-  const logoRef = useRef(null);
   const modelRef = useRef(null);
   const dropdownRef = useRef(null);
   const [expandedJobs, setExpandedJobs] = useState({});
@@ -60,6 +60,8 @@ function DashboardPage() {
   // Add state for custom select dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const linkedJobsRef = useRef(null); // Single ref for the linked jobs section
+
+  const { userBalance, setUserBalance } = useJobCreation();
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => {
@@ -193,7 +195,12 @@ function DashboardPage() {
     }
     const signer = await provider.getSigner();
     const jobCreatorContractAddress =
-      "0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d";
+      process.env.REACT_APP_JOB_CREATOR_CONTRACT_ADDRESS;
+    if (!jobCreatorContractAddress) {
+      throw new Error(
+        "Job Creator Contract Address not configured in environment variables"
+      );
+    }
     const jobCreatorABI = [
       // Contract ABI...
     ];
@@ -470,10 +477,10 @@ function DashboardPage() {
     setDeleteConfirmationVisible(true);
   };
 
-  const handleOpenModal = (job) => {
-    setSelectedJob(job);
-    setIsModalVisible(true);
-  };
+  // const handleOpenModal = (job) => {
+  //   setSelectedJob(job);
+  //   setIsModalVisible(true);
+  // };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
@@ -527,32 +534,29 @@ function DashboardPage() {
     }
   };
 
-  const handleChangeJobField = (field, value) => {
-    setSelectedJob({ ...selectedJob, [field]: value });
-  };
+  // const handleChangeJobField = (field, value) => {
+  //   setSelectedJob({ ...selectedJob, [field]: value });
+  // };
 
-  const handleChangeTimeframe = (subfield, value) => {
-    setSelectedJob({
-      ...selectedJob,
-      timeframe: { ...selectedJob.timeframe, [subfield]: parseInt(value) || 0 },
-    });
-  };
+  // const handleChangeTimeframe = (subfield, value) => {
+  //   setSelectedJob({
+  //     ...selectedJob,
+  //     timeframe: { ...selectedJob.timeframe, [subfield]: parseInt(value) || 0 },
+  //   });
+  // };
 
-  const handleChangeTimeInterval = (subfield, value) => {
-    setSelectedJob({
-      ...selectedJob,
-      timeInterval: {
-        ...selectedJob.timeInterval,
-        [subfield]: parseInt(value) || 0,
-      },
-    });
-  };
+  // const handleChangeTimeInterval = (subfield, value) => {
+  //   setSelectedJob({
+  //     ...selectedJob,
+  //     timeInterval: {
+  //       ...selectedJob.timeInterval,
+  //       [subfield]: parseInt(value) || 0,
+  //     },
+  //   });
+  // };
 
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
-
-  const BASE_SEPOLIA_CHAIN_ID = 84532n;
-  const BASE_SEPOLIA_TG_REGISTRY = process.env.REACT_APP_TRIGGER_GAS_REGISTRY_ADDRESS;
 
   const fetchTGBalance = async () => {
     if (!provider || !isWalletInstalled) {
@@ -560,40 +564,22 @@ function DashboardPage() {
     }
 
     try {
-      const network = await provider.getNetwork();
-      const chainId = network.chainId;
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      // Handle Base Sepolia
-      if (chainId === BASE_SEPOLIA_CHAIN_ID) {
-        const baseContract = new ethers.Contract(
-          BASE_SEPOLIA_TG_REGISTRY,
-          ["function getBalance(address) view returns (uint256, uint256)"],
-          provider
-        );
-        const [_, baseTgBalance] = await baseContract.getBalance(userAddress);
-        setTgBalance(ethers.formatEther(baseTgBalance));
-        return;
-      }
-
-      // Original Optimism Sepolia logic remains unchanged
-      if (chainId !== 11155420n) {
-        setTgBalance("0");
-        return;
-      }
-
       const stakeRegistryContract = new ethers.Contract(
         stakeRegistryAddress,
-        ["function getStake(address) view returns (uint256, uint256)"],
+        ["function getBalance(address) view returns (uint256, uint256)"],
         provider
       );
 
-      const [_, tgBalance] = await stakeRegistryContract.getStake(userAddress);
-      setTgBalance(ethers.formatEther(tgBalance));
+      const [_, userBalance] =
+        await stakeRegistryContract.getBalance(userAddress);
+      setUserBalance(ethers.formatEther(userBalance));
+      setIsModalVisible(false)
     } catch (error) {
       console.error("Error fetching TG balance:", error);
-      setTgBalance("0");
+      setUserBalance("0");
     }
   };
 
@@ -608,38 +594,12 @@ function DashboardPage() {
       const chainId = network.chainId;
       setIsStaking(true);
 
-      // Handle Base Sepolia
-      if (chainId === BASE_SEPOLIA_CHAIN_ID) {
-        const signer = await provider.getSigner();
-        const baseContract = new ethers.Contract(
-          BASE_SEPOLIA_TG_REGISTRY,
-          ["function purchaseTG(uint256) payable"],
-          signer
-        );
-        const ethAmount = ethers.parseEther(stakeAmount);
-        const tx = await baseContract.purchaseTG(ethAmount, {
-          value: ethAmount
-        });
-        await tx.wait();
-        toast.success("Successfully purchased TG tokens on Base Sepolia!");
-
-        fetchTGBalance();
-        setStakeModalVisible(false);
-        setStakeAmount("");
-
-        return;
-      }
-
-      // Original Optimism Sepolia logic remains unchanged
-      if (chainId !== 11155420n) {
-        toast.error("Please connect to Optimism Sepolia or Base Sepolia network");
-        return;
-      }
-
       const signer = await provider.getSigner();
       const stakingContract = new ethers.Contract(
         stakeRegistryAddress,
-        ["function stake(uint256 amount) external payable returns (uint256)"],
+        [
+          "function purchaseTG(uint256 amount) external payable returns (uint256)",
+        ],
         signer
       );
 
@@ -648,7 +608,7 @@ function DashboardPage() {
         throw new Error("Stake amount must be greater than zero.");
       }
 
-      const tx = await stakingContract.stake(
+      const tx = await stakingContract.purchaseTG(
         ethers.parseEther(stakeAmount.toString()),
         { value: ethers.parseEther(stakeAmount.toString()) }
       );
@@ -773,8 +733,8 @@ function DashboardPage() {
               key={page}
               onClick={() => setCurrentPage(page)}
               className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
-                ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
-                : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
+                  ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
+                  : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
                 } transition`}
             >
               {page}
@@ -1168,7 +1128,6 @@ function DashboardPage() {
                                             Job Type :
                                           </span>
                                           <div className="flex items-center gap-2">
-
                                             <span className="text-[#A2A2A2] text-sm">
                                               {mapJobType(
                                                 linkedJob.taskDefinitionId
@@ -1436,7 +1395,7 @@ function DashboardPage() {
                   Total TG Balance
                 </p>
                 <p className="xl:text-4xl text-2xl font-extrabold text-[#D9D9D9] truncate">
-                  {formatBalance(tgBalance)} TG
+                  {formatBalance(userBalance)} TG
                 </p>
               </div>
             </div>
@@ -1599,11 +1558,11 @@ function DashboardPage() {
                   >
                     <span
                       className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
-                        !stakeAmount ||
-                        Number(stakeAmount) >
-                        Number(accountBalance?.formatted || 0)
-                        ? "opacity-50"
-                        : ""
+                          !stakeAmount ||
+                          Number(stakeAmount) >
+                          Number(accountBalance?.formatted || 0)
+                          ? "opacity-50"
+                          : ""
                         }`}
                     >
                       {isStaking

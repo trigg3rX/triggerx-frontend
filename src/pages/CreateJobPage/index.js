@@ -441,7 +441,6 @@ function CreateJobPage() {
     setJobType,
     estimateFee,
     estimatedFee,
-    // setEstimatedFee,
     isSubmitting,
     isLoading: jobCreationIsLoading,
     setIsLoading: setJobCreationIsLoading,
