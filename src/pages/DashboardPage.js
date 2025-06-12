@@ -593,7 +593,6 @@ function DashboardPage() {
       const network = await provider.getNetwork();
       const chainId = network.chainId;
       setIsStaking(true);
-
       const signer = await provider.getSigner();
       const stakingContract = new ethers.Contract(
         stakeRegistryAddress,
@@ -613,9 +612,14 @@ function DashboardPage() {
         { value: ethers.parseEther(stakeAmount.toString()) }
       );
 
+      // Wait for transaction confirmation
       await tx.wait();
+
+      // Update TG balance and wait for it to complete
+      await fetchTGBalance();
+
+      // Only close modal and show success after both transaction and balance update are complete
       toast.success("Staking successful!");
-      fetchTGBalance();
       setStakeModalVisible(false);
       setStakeAmount("");
     } catch (error) {
@@ -733,8 +737,8 @@ function DashboardPage() {
               key={page}
               onClick={() => setCurrentPage(page)}
               className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
-                  ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
-                  : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
+                ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
+                : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
                 } transition`}
             >
               {page}
@@ -1558,11 +1562,11 @@ function DashboardPage() {
                   >
                     <span
                       className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
-                          !stakeAmount ||
-                          Number(stakeAmount) >
-                          Number(accountBalance?.formatted || 0)
-                          ? "opacity-50"
-                          : ""
+                        !stakeAmount ||
+                        Number(stakeAmount) >
+                        Number(accountBalance?.formatted || 0)
+                        ? "opacity-50"
+                        : ""
                         }`}
                     >
                       {isStaking
