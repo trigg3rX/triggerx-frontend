@@ -3,7 +3,6 @@ import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import { Link } from "react-router-dom";
 import { useStakeRegistry } from "./CreateJobPage/hooks/useStakeRegistry";
-import WalletModal from "../components/WalletModal";
 import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import useApi from "../hooks/useApi";
@@ -1548,10 +1547,7 @@ function DashboardPage() {
           </div>
         )}
 
-        {!isWalletInstalled && showModal && (
-          <WalletModal onClose={() => setShowModal(false)} />
-        )}
-
+       
         {deleteConfirmationVisible && (
           <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center p-4 z-50">
             <div className="bg-[#141414] p-8 rounded-2xl border border-white/10 backdrop-blur-xl w-full max-w-md">
