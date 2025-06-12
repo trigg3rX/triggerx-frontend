@@ -322,6 +322,7 @@ export function useJobCreation() {
     scriptFunction,
     handleScriptFunctionChange,
     userBalance,
+    setUserBalance,
     isJobCreated,
     handleDashboardClick,
   };

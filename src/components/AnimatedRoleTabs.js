@@ -118,12 +118,12 @@ function AnimatedRoleTabs({ activeTab, setActiveTab }) {
         <button
           key={tabInfo.id}
           ref={el => tabRefs.current[idx] = el}
-          className={`w-[33%] text-[#FFFFFF] text-[10px] xs:text-xs md:text-lg lg:text-xl p-2 xs:p-3 sm:p-4 rounded-lg relative z-[1] ${activeTab === tabInfo.id
+          className={`w-[33%] text-[#FFFFFF] text-[10px] xs:text-xs md:text-lg lg:text-xl p-2 xs:p-3 hover:bg-gradient-to-r from-[#D9D9D924] to-[#14131324] hover:border hover:border-[#4B4A4A] sm:p-4 rounded-lg relative z-[1] ${activeTab === tabInfo.id
             ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-[#4B4A4A]" // Active button style
             : "bg-transparent" // Inactive button style (allows highlight to show through on hover)
             }`}
           onClick={() => setActiveTab(tabInfo.id)}
-          onMouseEnter={handleMouseEnter}
+        // onMouseEnter={handleMouseEnter}
         >
           <h2>{tabInfo.label}</h2>
         </button>

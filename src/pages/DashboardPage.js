@@ -8,9 +8,9 @@ import { Tooltip } from "antd";
 import { useBalance, useAccount } from "wagmi";
 import useApi from "../hooks/useApi";
 import timeBasedSvg from "../assets/time-based.svg";
+import { useJobCreation } from "../pages/CreateJobPage/hooks/useJobCreation";
 import eventBasedSvg from "../assets/event-based.svg";
 import conditionBasedSvg from "../assets/condition-based.svg";
-import { useJobCreation } from "../pages/CreateJobPage/hooks/useJobCreation";
 
 // --- Add Constants for Time Calculations ---
 const SECONDS_PER_MINUTE = 60;
@@ -33,7 +33,6 @@ function DashboardPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [connected, setConnected] = useState(false);
   const [selectedType, setSelectedType] = useState("all");
-  const logoRef = useRef(null);
   const modelRef = useRef(null);
   const dropdownRef = useRef(null);
   const [expandedJobs, setExpandedJobs] = useState({});
@@ -62,7 +61,7 @@ function DashboardPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const linkedJobsRef = useRef(null); // Single ref for the linked jobs section
 
-  const { userBalance } = useJobCreation();
+  const { userBalance, setUserBalance } = useJobCreation();
 
   const toggleJobExpand = (jobId) => {
     setExpandedJobs((prev) => {
@@ -186,6 +185,9 @@ function DashboardPage() {
     }
   }, [provider, address]);
 
+  useEffect(() => {
+    fetchTGBalance();
+  });
 
   const getJobCreatorContract = async () => {
     if (!provider) {
@@ -193,7 +195,12 @@ function DashboardPage() {
     }
     const signer = await provider.getSigner();
     const jobCreatorContractAddress =
-      "0x98a170b9b24aD4f42B6B3630A54517fd7Ff3Ac6d";
+      process.env.REACT_APP_JOB_CREATOR_CONTRACT_ADDRESS;
+    if (!jobCreatorContractAddress) {
+      throw new Error(
+        "Job Creator Contract Address not configured in environment variables"
+      );
+    }
     const jobCreatorABI = [
       // Contract ABI...
     ];
@@ -221,7 +228,7 @@ function DashboardPage() {
         `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       const jobsData = await response.json();
-      console.log("Raw jobs data from API:", jobsData); // Debug log
+      // console.log("Raw jobs data from API:", jobsData); // Debug log
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
@@ -402,34 +409,6 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (!window.ethereum) {
-        toast.error("Please install MetaMask to use this application!");
-        setConnected(false);
-        return;
-      }
-
-      try {
-        // Use wagmi's useAccount hook instead of directly calling ethereum
-        // This will respect the autoConnect setting from App.js
-        setConnected(!!address);
-
-        // Only show toast if we have ethereum but no address (wallet exists but not connected)
-        if (!address && window.ethereum) {
-          toast.dismiss();
-          toast("Connect your wallet to view your dashboard", {
-            icon: "ℹ️",
-          });
-        }
-      } catch (error) {
-        toast.error("Failed to check wallet connection!");
-        setConnected(false);
-      }
-    };
-
-    checkConnection();
-  }, [address]); // Add address to dependencies
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -470,10 +449,10 @@ function DashboardPage() {
     setDeleteConfirmationVisible(true);
   };
 
-  const handleOpenModal = (job) => {
-    setSelectedJob(job);
-    setIsModalVisible(true);
-  };
+  // const handleOpenModal = (job) => {
+  //   setSelectedJob(job);
+  //   setIsModalVisible(true);
+  // };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
@@ -527,78 +506,102 @@ function DashboardPage() {
     }
   };
 
-  const handleChangeJobField = (field, value) => {
-    setSelectedJob({ ...selectedJob, [field]: value });
-  };
+  // const handleChangeJobField = (field, value) => {
+  //   setSelectedJob({ ...selectedJob, [field]: value });
+  // };
 
-  const handleChangeTimeframe = (subfield, value) => {
-    setSelectedJob({
-      ...selectedJob,
-      timeframe: { ...selectedJob.timeframe, [subfield]: parseInt(value) || 0 },
-    });
-  };
+  // const handleChangeTimeframe = (subfield, value) => {
+  //   setSelectedJob({
+  //     ...selectedJob,
+  //     timeframe: { ...selectedJob.timeframe, [subfield]: parseInt(value) || 0 },
+  //   });
+  // };
 
-  const handleChangeTimeInterval = (subfield, value) => {
-    setSelectedJob({
-      ...selectedJob,
-      timeInterval: {
-        ...selectedJob.timeInterval,
-        [subfield]: parseInt(value) || 0,
-      },
-    });
-  };
+  // const handleChangeTimeInterval = (subfield, value) => {
+  //   setSelectedJob({
+  //     ...selectedJob,
+  //     timeInterval: {
+  //       ...selectedJob.timeInterval,
+  //       [subfield]: parseInt(value) || 0,
+  //     },
+  //   });
+  // };
 
   const { stakeRegistryAddress, stakeRegistryImplAddress, stakeRegistryABI } =
     useStakeRegistry();
 
+  const fetchTGBalance = async () => {
+    if (!provider || !isWalletInstalled) {
+      return;
+    }
+
+    try {
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      const stakeRegistryContract = new ethers.Contract(
+        stakeRegistryAddress,
+        ["function getBalance(address) view returns (uint256, uint256)"],
+        provider
+      );
+
+      const [_, userBalance] =
+        await stakeRegistryContract.getBalance(userAddress);
+      setUserBalance(ethers.formatEther(userBalance));
+      setIsModalVisible(false)
+    } catch (error) {
+      console.error("Error fetching TG balance:", error);
+      setUserBalance("0");
+    }
+  };
+
   const handleStake = async (e) => {
     e.preventDefault();
-    try {
-      setIsStaking(true);
-      if (!isWalletInstalled) {
-        throw new Error("Web3 wallet is not installed.");
-      }
+    if (!provider || !isWalletInstalled) {
+      return;
+    }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+    try {
+      const network = await provider.getNetwork();
+      const chainId = network.chainId;
+      setIsStaking(true);
       const signer = await provider.getSigner();
       const stakingContract = new ethers.Contract(
         stakeRegistryAddress,
-        ["function stake(uint256 amount) external payable returns (uint256)"],
+        [
+          "function purchaseTG(uint256 amount) external payable returns (uint256)",
+        ],
         signer
       );
 
       const stakeAmountInWei = ethers.parseEther(stakeAmount.toString());
       if (stakeAmountInWei === 0n) {
-        // ✅ Correct way to check if BigInt is zero
         throw new Error("Stake amount must be greater than zero.");
       }
 
-      const tx = await stakingContract.stake(
+      const tx = await stakingContract.purchaseTG(
         ethers.parseEther(stakeAmount.toString()),
         { value: ethers.parseEther(stakeAmount.toString()) }
       );
+
+      // Wait for transaction confirmation
       await tx.wait();
 
+      // Update TG balance and wait for it to complete
+      await fetchTGBalance();
+
+      // Only close modal and show success after both transaction and balance update are complete
       toast.success("Staking successful!");
       setStakeModalVisible(false);
       setStakeAmount("");
     } catch (error) {
-      // console.error("Error staking:", error);
-      toast.error("Staking failed ");
-      setStakeModalVisible(false);
-      setStakeAmount("");
+      console.error("Error staking:", error);
+      toast.error(error.message || "Error staking");
     } finally {
       setIsStaking(false);
     }
   };
 
-  useEffect(() => {
-    // Check if MetaMask or any web3 wallet is installed
-    if (typeof window.ethereum === "undefined") {
-      setIsWalletInstalled(false);
-      setShowModal(true);
-    }
-  }, []);
 
   const formatBalance = (balance) => {
     if (!balance) return "0";
@@ -749,11 +752,6 @@ function DashboardPage() {
     return jobDetails.filter(
       (job) => mapJobType(job.taskDefinitionId) === selectedType
     );
-  };
-
-  const handleClose = () => {
-    setStakeModalVisible(false);
-    setStakeAmount("");
   };
 
   return (
@@ -1537,18 +1535,12 @@ function DashboardPage() {
                         }`}
                     >
                       {isStaking
-                        ? "Staking..."
+                        ? "Getting TG...?"
                         : Number(stakeAmount) >
                           Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Top Up TG"}
                     </span>
-                  </button>
-                  <button
-                    onClick={handleClose}
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 rounded-full font-semibold hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
-                  >
-                    Cancel
                   </button>
                 </div>
               </form>

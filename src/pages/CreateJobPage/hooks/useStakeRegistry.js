@@ -5,6 +5,8 @@ import { ethers } from "ethers";
 const ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY =
   process.env.REACT_APP_ETHERSCAN_OPTIMISM_SEPOLIA_API_KEY;
 
+const TRIGGER_GAS_REGISTRY_ADDRESS = process.env.REACT_APP_TRIGGER_GAS_REGISTRY_ADDRESS
+
 export function useStakeRegistry() {
   const [stakeRegistryAddress, setStakeRegistryAddress] = useState("");
   const [stakeRegistryImplAddress, setStakeRegistryImplAddress] = useState("");
@@ -13,6 +15,9 @@ export function useStakeRegistry() {
   useEffect(() => {
     const fetchStakeRegistryABI = async () => {
       let currentImplAddress = stakeRegistryImplAddress;
+
+      // Set the stake registry address directly for Optimism Sepolia
+      setStakeRegistryAddress(TRIGGER_GAS_REGISTRY_ADDRESS);
 
       if (!currentImplAddress) {
         const url =
@@ -24,43 +29,41 @@ export function useStakeRegistry() {
           }
           const data = await response.json();
 
-          if (data && data.triggerXStakeRegistry) {
-            const proxyAddress = data.triggerXStakeRegistry.proxy;
+          if (data && data.TriggerXStakeRegistry) {
             const implAddress = data.triggerXStakeRegistry.implementation;
-            // console.log("Setting proxy address:", proxyAddress);
-            // console.log("Setting implementation address:", implAddress);
-            setStakeRegistryAddress(proxyAddress);
+            console.log("Setting implementation address from GitHub:", implAddress);
             setStakeRegistryImplAddress(implAddress);
             currentImplAddress = implAddress;
           } else {
-            throw new Error("Stake registry data not found in GitHub response");
+            console.warn("Stake registry implementation data not found in GitHub response, proceeding with ABI fetch if address is valid.");
           }
         } catch (error) {
-          // Catches network errors or errors thrown above
-          console.error(
-            "Error fetching initial stake registry addresses from GitHub:",
+          console.warn(
+            "Error fetching initial stake registry implementation address from GitHub, attempting ABI fetch with hardcoded address if valid:",
             error.message
           );
-          setStakeRegistryABI(null);
-          return;
+          // Do not set ABI to null here, let the later ABI fetch logic handle it.
         }
       }
 
-      // 2. If we have an implementation address, fetch its ABI
+      // 2. If we have an implementation address (either fetched or from previous state), fetch its ABI
+      // If implementation address is still not set, try to use the proxy address as implementation to fetch ABI if it's a valid address
+      if (!currentImplAddress) {
+        currentImplAddress = TRIGGER_GAS_REGISTRY_ADDRESS; // Use the hardcoded address for ABI fetch if no implementation address was found from GitHub
+      }
+
       if (!currentImplAddress || !ethers.isAddress(currentImplAddress)) {
-        if (stakeRegistryImplAddress) {
-          console.warn(
-            "Stake Registry: Implementation address is set but invalid, cannot fetch ABI.",
-            currentImplAddress
-          );
-        }
+        console.error(
+          "Stake Registry: No valid implementation or contract address to fetch ABI for.",
+          currentImplAddress
+        );
         setStakeRegistryABI(null);
         return;
       }
 
-      // console.log(
-      //   `Stake Registry: Attempting to fetch ABI for implementation address: ${currentImplAddress}`
-      // );
+      console.log(
+        `Stake Registry: Attempting to fetch ABI for address: ${currentImplAddress} (might be proxy or implementation)`
+      );
       let abiString = null;
       let abiSource = "";
 
@@ -191,3 +194,4 @@ export function useStakeRegistry() {
     stakeRegistryABI,
   };
 }
+
