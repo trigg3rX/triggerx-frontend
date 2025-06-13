@@ -146,14 +146,14 @@ export function useJobCreation() {
 
         const stakeRegistryContract = new ethers.Contract(
           stakeRegistryAddress,
-          ["function getStake(address) view returns (uint256, uint256)"],
+          ["function getBalance(address) view returns (uint256, uint256)"],
           provider
         );
 
         // console.log("stakeRegistryContract", stakeRegistryContract);
 
         const [_, tgBalance] =
-          await stakeRegistryContract.getStake(userAddress);
+          await stakeRegistryContract.getBalance(userAddress);
         // console.log("Raw TG Balance:", tgBalance.toString());
         setUserBalance(ethers.formatEther(tgBalance));
       }
@@ -220,20 +220,21 @@ export function useJobCreation() {
         ...job,
         job_cost_prediction: estimatedFee,
       }));
-      // console.log("updated", updatedJobDetails);
 
       // Check if user needs to stake
       if (userBalance < estimatedFee) {
         const requiredEth = (0.001 * estimatedFee).toFixed(18);
         const contract = new ethers.Contract(
           stakeRegistryAddress,
-          stakeRegistryABI,
+          [
+            "function purchaseTG(uint256 amount) external payable returns (uint256)",
+          ],
           signer
         );
 
         // console.log("Staking ETH amount:", requiredEth);
 
-        const tx = await contract.stake(
+        const tx = await contract.purchaseTG(
           ethers.parseEther(requiredEth.toString()),
           { value: ethers.parseEther(requiredEth.toString()) }
         );
