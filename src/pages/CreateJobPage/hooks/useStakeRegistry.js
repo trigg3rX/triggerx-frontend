@@ -31,7 +31,7 @@ export function useStakeRegistry() {
 
           if (data && data.TriggerXStakeRegistry) {
             const implAddress = data.triggerXStakeRegistry.implementation;
-            console.log("Setting implementation address from GitHub:", implAddress);
+            // console.log("Setting implementation address from GitHub:", implAddress);
             setStakeRegistryImplAddress(implAddress);
             currentImplAddress = implAddress;
           } else {
@@ -61,18 +61,13 @@ export function useStakeRegistry() {
         return;
       }
 
-      console.log(
-        `Stake Registry: Attempting to fetch ABI for address: ${currentImplAddress} (might be proxy or implementation)`
-      );
       let abiString = null;
       let abiSource = "";
 
       // 2a. Try Blockscout using fetch
       const blockscoutUrl = `https://optimism-sepolia.blockscout.com/api?module=contract&action=getabi&address=${currentImplAddress}`;
       try {
-        // console.log(
-        //   "Stake Registry: Attempting to fetch ABI from Blockscout (using fetch)..."
-        // );
+       
         const response = await fetch(blockscoutUrl);
 
         if (!response.ok) {
@@ -91,9 +86,7 @@ export function useStakeRegistry() {
         ) {
           abiString = data.result;
           abiSource = "Blockscout";
-          // console.log(
-          //   "Stake Registry: ABI fetched successfully from Blockscout."
-          // );
+         
         } else {
           // Log API-level failure from Blockscout
           console.warn(

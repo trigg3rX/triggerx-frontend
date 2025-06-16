@@ -409,6 +409,34 @@ function DashboardPage() {
     };
   }, [provider]); // Add provider to dependency array
 
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!window.ethereum) {
+        toast.error("Please install MetaMask to use this application!");
+        setConnected(false);
+        return;
+      }
+
+      try {
+        // Use wagmi's useAccount hook instead of directly calling ethereum
+        // This will respect the autoConnect setting from App.js
+        setConnected(!!address);
+
+        // Only show toast if we have ethereum but no address (wallet exists but not connected)
+        if (!address && window.ethereum) {
+          toast.dismiss();
+          toast("Connect your wallet to view your dashboard", {
+            icon: "ℹ️",
+          });
+        }
+      } catch (error) {
+        toast.error("Failed to check wallet connection!");
+        setConnected(false);
+      }
+    };
+
+    checkConnection();
+  }, [address]); // Add address to dependencies
 
   const handleUpdateJob = (id) => {
     setJobs(
@@ -548,7 +576,7 @@ function DashboardPage() {
       const [_, userBalance] =
         await stakeRegistryContract.getBalance(userAddress);
       setUserBalance(ethers.formatEther(userBalance));
-      setIsModalVisible(false)
+      setIsModalVisible(false);
     } catch (error) {
       console.error("Error fetching TG balance:", error);
       setUserBalance("0");
@@ -602,6 +630,13 @@ function DashboardPage() {
     }
   };
 
+  useEffect(() => {
+    // Check if MetaMask or any web3 wallet is installed
+    if (typeof window.ethereum === "undefined") {
+      setIsWalletInstalled(false);
+      setShowModal(true);
+    }
+  }, []);
 
   const formatBalance = (balance) => {
     if (!balance) return "0";
@@ -701,10 +736,11 @@ function DashboardPage() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${currentPage === page
-                ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
-                : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
-                } transition`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
+                currentPage === page
+                  ? "border-[#C07AF6] text-white bg-[#271039] font-bold"
+                  : "border-[#EDEDED] text-white bg-transparent hover:bg-white hover:border-white hover:text-black"
+              } transition`}
             >
               {page}
             </button>
@@ -1133,70 +1169,70 @@ function DashboardPage() {
                                         {expandedLinkedJobDetails[
                                           linkedJob.job_id
                                         ] && (
-                                            <div className=" space-y-2 text-[#A2A2A2] text-sm">
-                                              <div className="flex items-center justify-between gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Avg Type :
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {linkedJob.argType}
-                                                </span>
-                                              </div>
-                                              <div className="flex items-center justify-between gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Interval :
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {" "}
-                                                  {linkedJob.timeInterval}
-                                                </span>
-                                              </div>
-
-                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Target Contract :
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {" "}
-                                                  {sliceAddress(
-                                                    linkedJob.targetContractAddress
-                                                  )}{" "}
-                                                </span>
-                                              </div>
-                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Created At:
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {" "}
-                                                  {formatDate(
-                                                    linkedJob.createdAt
-                                                  )}
-                                                </span>
-                                              </div>
-                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Target Function :
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {" "}
-                                                  {truncateText(
-                                                    linkedJob.targetFunction
-                                                  )}
-                                                </span>
-                                              </div>
-                                              <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
-                                                <span className="text-sm text-white">
-                                                  Target ChainId :
-                                                </span>
-                                                <span className="text-[#A2A2A2] text-sm">
-                                                  {" "}
-                                                  {linkedJob.targetChainId}
-                                                </span>
-                                              </div>
-                                              {/* <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.lastExecutedAt}</span></div> */}
+                                          <div className=" space-y-2 text-[#A2A2A2] text-sm">
+                                            <div className="flex items-center justify-between gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Avg Type :
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {linkedJob.argType}
+                                              </span>
                                             </div>
-                                          )}
+                                            <div className="flex items-center justify-between gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Interval :
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {" "}
+                                                {linkedJob.timeInterval}
+                                              </span>
+                                            </div>
+
+                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Target Contract :
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {" "}
+                                                {sliceAddress(
+                                                  linkedJob.targetContractAddress
+                                                )}{" "}
+                                              </span>
+                                            </div>
+                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Created At:
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {" "}
+                                                {formatDate(
+                                                  linkedJob.createdAt
+                                                )}
+                                              </span>
+                                            </div>
+                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Target Function :
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {" "}
+                                                {truncateText(
+                                                  linkedJob.targetFunction
+                                                )}
+                                              </span>
+                                            </div>
+                                            <div className="flex items-start justify-between flex-col md:flex-row md:items-center gap-2 py-1">
+                                              <span className="text-sm text-white">
+                                                Target ChainId :
+                                              </span>
+                                              <span className="text-[#A2A2A2] text-sm">
+                                                {" "}
+                                                {linkedJob.targetChainId}
+                                              </span>
+                                            </div>
+                                            {/* <div className="flex items-center justify-between gap-2 py-1"><span className="text-sm text-white">Last Execution :</span><span className="text-[#A2A2A2] text-sm"> {linkedJob.lastExecutedAt}</span></div> */}
+                                          </div>
+                                        )}
                                       </div>
                                       <div
                                         className={`flex justify-end gap-2 mt-4  p-3  border-[#2A2A2A] border-t hover:border-[#3A3A3A]`}
@@ -1521,23 +1557,24 @@ function DashboardPage() {
                       isStaking ||
                       !stakeAmount ||
                       Number(stakeAmount) >
-                      Number(accountBalance?.formatted || 0)
+                        Number(accountBalance?.formatted || 0)
                     }
                     className="relative bg-[#FFFFFF] text-[#000000] border border-[#222222] px-6 py-2 sm:px-8 sm:py-3 rounded-full group transition-transform w-full"
                   >
                     <span
-                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${isStaking ||
+                      className={`font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base ${
+                        isStaking ||
                         !stakeAmount ||
                         Number(stakeAmount) >
-                        Number(accountBalance?.formatted || 0)
-                        ? "opacity-50"
-                        : ""
-                        }`}
+                          Number(accountBalance?.formatted || 0)
+                          ? "opacity-50"
+                          : ""
+                      }`}
                     >
                       {isStaking
-                        ? "Getting TG...?"
+                        ? "Topping Up..."
                         : Number(stakeAmount) >
-                          Number(accountBalance?.formatted || 0)
+                            Number(accountBalance?.formatted || 0)
                           ? "Insufficient ETH"
                           : "Top Up TG"}
                     </span>
