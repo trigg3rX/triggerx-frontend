@@ -58,8 +58,8 @@
 }
 
 \"user_address\": \"0x6D9f7A4E3B2C1a8F5e0D6B9c4A3E8d2F1B5c7D9E\",
-\"stake_amount\": 101,
-\"token_amount\": 111,
+\"ether_balance\": 101,
+\"token_balance\": 111,
 \"task_definition_id\": 1,
 \"priority\": 1,
 \"security\": 1,
@@ -103,7 +103,7 @@ script_trigger_function
 : "action"
 security
 : 1
-stake_amount
+ether_balance
 : 0
 target_chain_id
 : "11155420"
@@ -117,7 +117,7 @@ time_frame
 : 86400
 time_interval
 : 60
-token_amount
+token_balance
 : 0
 trigger_chain_id
 : "11155420"

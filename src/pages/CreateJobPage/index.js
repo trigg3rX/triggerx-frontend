@@ -800,7 +800,7 @@ function CreateJobPage() {
               : 4;
       };
 
-      const getArgType = (argumentType) => (argumentType === "static" ? 0 : 1);
+      const getArgType = (argumentType) => (argumentType === "static" ? 1 : 2);
 
       // Add main job details if available
       if (mainJobDetails) {
@@ -813,8 +813,8 @@ function CreateJobPage() {
           jobType: jobType,
           job_title: jobTitle,
           user_address: address,
-          stake_amount: 0,
-          token_amount: 0,
+          ether_balance: 0,
+          token_balance: 0,
           task_definition_id: taskdefinitionid,
           priority: 1,
           security: 1,
@@ -823,7 +823,7 @@ function CreateJobPage() {
           recurring: recurring,
           trigger_chain_id: triggerChainId.toString(),
           trigger_contract_address:
-            eventContractInteraction.contractAddress || "NULL",
+            eventContractInteraction.contractAddress || "0x0000000000000000000000000000000000000000",
           trigger_event: "NULL",
           script_ipfs_url: mainJobDetails.ipfsCodeUrl || "",
           script_target_function: "trigger",
@@ -835,6 +835,7 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           abi: mainJobDetails.contractABI,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         };
 
         if (Number(jobType) === 2) {
@@ -869,8 +870,8 @@ function CreateJobPage() {
               jobType: jobType,
               job_title: jobTitle,
               user_address: address,
-              stake_amount: 0,
-              token_amount: 0,
+              ether_balance: 0,
+              token_balance: 0,
               task_definition_id: taskdefinitionid,
               priority: 1,
               security: 1,
@@ -879,7 +880,7 @@ function CreateJobPage() {
               recurring: recurring,
               trigger_chain_id: triggerChainId.toString(),
               trigger_contract_address:
-                eventContractInteraction.contractAddress || "NULL",
+                eventContractInteraction.contractAddress || "0x0000000000000000000000000000000000000000",
               trigger_event: "NULL",
               script_ipfs_url: linkedJobDetails.ipfsCodeUrl || "",
               script_target_function: "trigger",
@@ -891,6 +892,7 @@ function CreateJobPage() {
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
               abi: linkedJobDetails.contractABI,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,  
             };
             if (Number(jobType) === 2) {
               linkedJobData.source_type = linkedJobDetails.sourceType;

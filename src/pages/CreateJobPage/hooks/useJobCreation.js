@@ -228,7 +228,7 @@ export function useJobCreation() {
       }));
 
       // Check if user needs to stake
-      if (userBalance < estimatedFee) {
+      if (userBalance <= estimatedFee) {
         const requiredEth = (0.001 * estimatedFee).toFixed(18);
         const contract = new ethers.Contract(
           stakeRegistryAddress,
@@ -247,10 +247,11 @@ export function useJobCreation() {
 
         await tx.wait();
         // console.log("Stake transaction confirmed: ", tx.hash);
-        toast.success("ETH staked successfully!");
+        toast.success("TG Top Up Successfully!");
 
         // Fetch updated TG balance after staking
         await fetchTGBalance();
+        return 
       }
 
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;

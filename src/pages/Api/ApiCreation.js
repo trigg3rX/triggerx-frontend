@@ -729,7 +729,7 @@ const ApiCreation = () => {
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
-                                                "stake_amount"
+                                                "ether_balance"
                                               </span>
                                               :{" "}
                                               <span className="text-[#C3E88D]">
@@ -737,7 +737,7 @@ const ApiCreation = () => {
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
-                                                "token_amount"
+                                                "token_balance"
                                               </span>
                                               :{" "}
                                               <span className="text-[#C3E88D]">
@@ -1686,7 +1686,7 @@ const ApiCreation = () => {
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
-                                                "token_amount"
+                                                "token_balance"
                                               </span>
                                               :{" "}
                                               <span className="text-[#C3E88D]">

@@ -228,7 +228,9 @@ function DashboardPage() {
         `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       const jobsData = await response.json();
-      // console.log("Raw jobs data from API:", jobsData); // Debug log
+      console.log("Raw jobs data from API:", jobsData.jobs); // Debug log
+
+
 
       // If the server is down, the useApi hook will have triggered the modal
       // and returned an object with success: false
@@ -238,13 +240,13 @@ function DashboardPage() {
 
       // First, create a lookup for quick access by job_id
       const jobMap = {};
-      jobsData.forEach((job) => {
+      jobsData.jobs.forEach((job) => {
         jobMap[job.job_data.job_id] = job;
       });
 
       // Build the linkedJobsMap
       const linkedJobsMap = {};
-      jobsData.forEach((job) => {
+      jobsData.jobs.forEach((job) => {
         // Only process main jobs (chain_status === 0)
         if (job.job_data.chain_status === 0) {
           let mainJobId = job.job_data.job_id;
@@ -310,12 +312,13 @@ function DashboardPage() {
       // console.log("Linked Jobs Map:", linkedJobsMap); // Debug log
 
       // Now create your tempJobs array by filtering main jobs and adding their linked jobs
-      const tempJobs = jobsData
+      
+      const tempJobs = jobsData.jobs
         .filter(
           (jobDetail) => jobDetail.job_data.chain_status === 0 // Temporarily remove status check
         ) // Only main jobs (temporarily)
         .map((jobDetail) => {
-          // console.log("Processing job detail:", jobDetail); // Debug log
+          console.log("Processing job detail:", jobDetail); // Debug log
           // Get the type-specific data based on job type
           const typeSpecificData =
             jobDetail.time_job_data ||
@@ -346,11 +349,11 @@ function DashboardPage() {
             createdAt: jobDetail.job_data.created_at,
             lastExecutedAt: jobDetail.job_data.last_executed_at,
           };
-          // console.log("Processed job object:", job); // Debug log
+          console.log("Processed job object:", job); // Debug log
           return job;
         });
 
-      // console.log("Final tempJobs array:", tempJobs); // Debug log
+      console.log("Final tempJobs array:", tempJobs); // Debug log
       setJobDetails(tempJobs);
       if (tempJobs.length === 0 && connected && !loading) {
         toast("No jobs found. Create a new job to get started!", {
