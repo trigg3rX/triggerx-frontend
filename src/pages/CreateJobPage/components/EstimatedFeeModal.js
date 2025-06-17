@@ -496,7 +496,7 @@ export function EstimatedFeeModal({
                     }`}
                   >
                     {isSubmitting
-                      ? "Topping Up..."
+                    ? "Topping Up..."
                       : hasEnoughEthToStake
                         ? "Top Up TG"
                         : "Insufficient ETH"}
