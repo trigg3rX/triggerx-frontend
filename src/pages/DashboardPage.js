@@ -228,7 +228,7 @@ function DashboardPage() {
         `${API_BASE_URL}/api/jobs/user/${userAddress}`
       );
       const jobsData = await response.json();
-      console.log("Raw jobs data from API:", jobsData.jobs); // Debug log
+      // console.log("Raw jobs data from API:", jobsData.jobs); // Debug log
 
 
 
@@ -318,7 +318,7 @@ function DashboardPage() {
           (jobDetail) => jobDetail.job_data.chain_status === 0 // Temporarily remove status check
         ) // Only main jobs (temporarily)
         .map((jobDetail) => {
-          console.log("Processing job detail:", jobDetail); // Debug log
+          // console.log("Processing job detail:", jobDetail); // Debug log
           // Get the type-specific data based on job type
           const typeSpecificData =
             jobDetail.time_job_data ||
@@ -349,11 +349,11 @@ function DashboardPage() {
             createdAt: jobDetail.job_data.created_at,
             lastExecutedAt: jobDetail.job_data.last_executed_at,
           };
-          console.log("Processed job object:", job); // Debug log
+          // console.log("Processed job object:", job); // Debug log
           return job;
         });
 
-      console.log("Final tempJobs array:", tempJobs); // Debug log
+      // console.log("Final tempJobs array:", tempJobs); // Debug log
       setJobDetails(tempJobs);
       if (tempJobs.length === 0 && connected && !loading) {
         toast("No jobs found. Create a new job to get started!", {

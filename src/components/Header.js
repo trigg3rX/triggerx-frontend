@@ -170,7 +170,7 @@ function Header() {
             {address && data && (
               <div className=" bg-[#f8ff7c] px-3 py-[6px] rounded-full border border-[#f8ff7c] text-nowrap">
                 <span className="text-black text-[15px] font-bold tracking-wider">
-                  {Number(data.formatted).toFixed(2)} {data.symbol}
+                  {Number(data.formatted).toFixed(4)} {data.symbol}
                 </span>
               </div>
             )}

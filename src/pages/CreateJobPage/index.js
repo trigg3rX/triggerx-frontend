@@ -913,7 +913,7 @@ function CreateJobPage() {
         }
       }
       setIsLoading(true);
-      console.log("Job Details", allJobsDetails);
+      // console.log("Job Details", allJobsDetails);
       setJobDetails(allJobsDetails);
 
       const codeUrls = allJobsDetails.map((job) => job.script_ipfs_url);

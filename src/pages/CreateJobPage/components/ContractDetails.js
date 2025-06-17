@@ -446,7 +446,7 @@ export function ContractDetails({
   const functionInputs = selectedFunction?.inputs || [];
 
   const handleSourceTypeChange = (e) => {
-    console.log("Source type changed to:", e.target.value);
+    // console.log("Source type changed to:", e.target.value);
     setSourceType(e.target.value);
   };
 

@@ -57,7 +57,7 @@ export function useJobCreation() {
       } else {
         executionCount = recurring ? 10 : 1;
       }
-      console.log("Execution count:", executionCount);
+      // console.log("Execution count:", executionCount);
       let totalFeeTG = 0;
 
       // user TG balance

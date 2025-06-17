@@ -467,7 +467,7 @@ export function EstimatedFeeModal({
                     </div>
                     <p className="text-sm sm:text-base">
                       {" "}
-                      {(0.001 * estimatedFee).toFixed(2)} ETH{" "}
+                      {(0.001 * estimatedFee).toFixed(4)} ETH{" "}
                     </p>
                   </div>
                 )}
