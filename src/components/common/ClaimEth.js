@@ -272,9 +272,9 @@ const ClaimEth = () => {
         `${process.env.REACT_APP_API_BASE_URL}/api/claim-fund`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
           body: JSON.stringify({
             wallet_address: address,
             network: networkName,
