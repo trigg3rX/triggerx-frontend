@@ -9,7 +9,6 @@ export function useJobCreation() {
   const navigate = useNavigate();
   const [jobType, setJobType] = useState();
   const [estimatedFee, setEstimatedFee] = useState(0);
-  const [gasUnits, setGasUnits] = useState(0);
   const [argType, setArgType] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scriptFunction, setScriptFunction] = useState("");
@@ -47,13 +46,20 @@ export function useJobCreation() {
   const estimateFee = async (
     timeframeInSeconds,
     intervalInSeconds,
-    codeUrls
+    codeUrls,
+    recurring
   ) => {
     // console.log("argType", argType);
     try {
-      const executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
-
+      let executionCount;
+      if (jobType === 1) {
+        executionCount = Math.ceil(timeframeInSeconds / intervalInSeconds);
+      } else {
+        executionCount = recurring ? 10 : 1;
+      }
+      console.log("Execution count:", executionCount);
       let totalFeeTG = 0;
+
       // user TG balance
       if (argType === 1) {
         // console.log("argType", argType);

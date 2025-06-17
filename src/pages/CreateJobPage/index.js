@@ -330,22 +330,28 @@ function CreateJobPage() {
       if (existingJobs.length < 3) {
         const newJobId = existingJobs.length + 1;
 
-        setContractDetails((prevDetails) => ({
-          ...prevDetails,
-          [jobType]: {
-            ...prevDetails[jobType], // Keep existing jobs
-            [newJobId]: {
-              // New linked job
-              contractAddress: "",
-              contractABI: "",
-              functions: [],
-              targetFunction: "",
-              argumentType: "static",
-              argsArray: [],
-              ipfsCodeUrl: "",
+        setContractDetails((prevDetails) => {
+          const newDetails = {
+            ...prevDetails,
+            [jobType]: {
+              ...prevDetails[jobType],
+              [newJobId]: {
+                contractAddress: "",
+                contractABI: "",
+                functions: [],
+                targetFunction: "",
+                argumentType: "static",
+                argsArray: [],
+                ipfsCodeUrl: "",
+                sourceType: "",
+                conditionType: "",
+                upperLimit: "",
+                lowerLimit: "",
+              },
             },
-          },
-        }));
+          };
+          return newDetails;
+        });
 
         return {
           ...prevJobs,
@@ -717,6 +723,11 @@ function CreateJobPage() {
               argumentType: "static",
               argsArray: [],
               ipfsCodeUrl: "",
+              sourceType: "",
+              sourceUrl: "",
+              conditionType: "",
+              upperLimit: "",
+              lowerLimit: "",
             },
           },
         };
@@ -753,9 +764,9 @@ function CreateJobPage() {
           timeInterval.minutes === 0 &&
           timeInterval.seconds === 0) ||
         timeInterval.hours * 3600 +
-        timeInterval.minutes * 60 +
-        timeInterval.seconds <
-        30
+          timeInterval.minutes * 60 +
+          timeInterval.seconds <
+          30
       ) {
         setErrorInterval(
           "Please set a valid time interval of at least 30 seconds before submitting."
@@ -798,7 +809,7 @@ function CreateJobPage() {
         );
         const argType = getArgType(mainJobDetails.argumentType);
 
-        allJobsDetails.push({
+        const jobData = {
           jobType: jobType,
           job_title: jobTitle,
           user_address: address,
@@ -824,7 +835,23 @@ function CreateJobPage() {
           script_trigger_function: "action",
           hasABI: !!mainJobDetails.contractABI,
           abi: mainJobDetails.contractABI,
-        });
+        };
+
+        if (Number(jobType) === 2) {
+          jobData.source_type = mainJobDetails.sourceType;
+          jobData.source_url = mainJobDetails.sourceUrl;
+          jobData.condition_type = mainJobDetails.conditionType;
+          jobData.upper_limit =
+            mainJobDetails.conditionType === "In Range" ||
+            mainJobDetails.upperLimit
+              ? parseFloat(mainJobDetails.upperLimit)
+              : 0;
+          jobData.lower_limit =
+            mainJobDetails.conditionType === "In Range"
+              ? parseFloat(mainJobDetails.lowerLimit)
+              : 0;
+        }
+        allJobsDetails.push(jobData);
       }
 
       // Collect details for linked jobs
@@ -838,7 +865,7 @@ function CreateJobPage() {
             );
             const argType = getArgType(linkedJobDetails.argumentType);
 
-            allJobsDetails.push({
+            const linkedJobData = {
               jobType: jobType,
               job_title: jobTitle,
               user_address: address,
@@ -864,12 +891,27 @@ function CreateJobPage() {
               script_trigger_function: "action",
               hasABI: !!linkedJobDetails.contractABI,
               abi: linkedJobDetails.contractABI,
-            });
+            };
+            if (Number(jobType) === 2) {
+              linkedJobData.source_type = linkedJobDetails.sourceType;
+              linkedJobData.source_url = linkedJobDetails.sourceUrl;
+              linkedJobData.condition_type = linkedJobDetails.conditionType;
+              linkedJobData.upper_limit =
+                linkedJobDetails.conditionType === "In Range" ||
+                linkedJobDetails.upperLimit
+                  ? parseFloat(linkedJobDetails.upperLimit)
+                  : 0;
+              linkedJobData.lower_limit =
+                linkedJobDetails.conditionType === "In Range"
+                  ? parseFloat(linkedJobDetails.lowerLimit)
+                  : 0;
+            }
+            allJobsDetails.push(linkedJobData);
           }
         }
       }
       setIsLoading(true);
-      // console.log("Job Details", allJobsDetails);
+      console.log("Job Details", allJobsDetails);
       setJobDetails(allJobsDetails);
 
       const codeUrls = allJobsDetails.map((job) => job.script_ipfs_url);
@@ -931,7 +973,8 @@ function CreateJobPage() {
           intervalInSeconds,
           codeUrls,
           processSteps,
-          setProcessSteps
+          setProcessSteps,
+          recurring
         );
 
         // Ensure UI updates and animation completes
@@ -1099,16 +1142,18 @@ function CreateJobPage() {
                 <div className="space-y-2">
                   {templates.templates.map((template) => (
                     <div
-                      className={`lg:p-6 md:p-6 p-4 rounded-lg transition-all duration-300 cursor-pointer ${selectedJob?.id === template.id
-                        ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
-                        : "bg-[#202020] border border-white/10 hover:bg-white/10 hover:border-white/20"
-                        }`}
+                      className={`lg:p-6 md:p-6 p-4 rounded-lg transition-all duration-300 cursor-pointer ${
+                        selectedJob?.id === template.id
+                          ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border-2 border-white shadow-lg "
+                          : "bg-[#202020] border border-white/10 hover:bg-white/10 hover:border-white/20"
+                      }`}
                       onClick={() => handleJobSelect(template)}
                     >
                       <div className="flex justify-between items-center gap-3">
                         <h4
-                          className={`break-all	 text-xs md:text-base font-medium lg:w-[70%] ${selectedJob?.id === template.id ? "text-white" : ""
-                            }`}
+                          className={`break-all	 text-xs md:text-base font-medium lg:w-[70%] ${
+                            selectedJob?.id === template.id ? "text-white" : ""
+                          }`}
                         >
                           {template.title}
                         </h4>
@@ -1225,16 +1270,18 @@ function CreateJobPage() {
                                   handleJobTypeChange(e, option.value);
                                 }
                               }}
-                              className={`${Number(option.value) === jobType
-                                ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
-                                : "bg-white/5 border border-white/10 "
-                                } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs sm:text-sm`}
+                              className={`${
+                                Number(option.value) === jobType
+                                  ? "bg-gradient-to-r from-[#D9D9D924] to-[#14131324] border border-white"
+                                  : "bg-white/5 border border-white/10 "
+                              } text-nowrap relative flex flex-wrap flex-col items-center justify-center w-full md:w-[33%] gap-2 px-4 pb-4 pt-8 rounded-lg transition-all duration-300 text-xs sm:text-sm`}
                             >
                               <div
-                                className={`${Number(option.value) === jobType
-                                  ? "bg-white border border-white/10"
-                                  : ""
-                                  } absolute top-2 left-2 rounded-full w-3 h-3 border`}
+                                className={`${
+                                  Number(option.value) === jobType
+                                    ? "bg-white border border-white/10"
+                                    : ""
+                                } absolute top-2 left-2 rounded-full w-3 h-3 border`}
                               ></div>
                               {Number(option.value) === jobType ? (
                                 <img
@@ -1485,10 +1532,13 @@ function CreateJobPage() {
                                               >
                                                 {eventContractInteraction.events.map(
                                                   (func, index) => {
-                                                    const signature = `${func.name
-                                                      }(${func.inputs
-                                                        .map((input) => input.type)
-                                                        .join(",")})`;
+                                                    const signature = `${
+                                                      func.name
+                                                    }(${func.inputs
+                                                      .map(
+                                                        (input) => input.type
+                                                      )
+                                                      .join(",")})`;
                                                     return (
                                                       <li
                                                         key={index}
@@ -1497,7 +1547,8 @@ function CreateJobPage() {
                                                           eventContractInteraction.handleEventChange(
                                                             {
                                                               target: {
-                                                                value: signature,
+                                                                value:
+                                                                  signature,
                                                               },
                                                             }
                                                           );
@@ -1514,11 +1565,12 @@ function CreateJobPage() {
                                           </div>
                                         </div>
 
-                                        {eventContractInteraction.events.length === 0 && (
+                                        {eventContractInteraction.events
+                                          .length === 0 && (
                                           <h4 className="w-full md:w-[67%] xl:w-[78%] ml-auto text-xs sm:text-sm text-yellow-400">
                                             No writable events found. Make sure
-                                            the contract is verified on Blockscout
-                                            / Etherscan.
+                                            the contract is verified on
+                                            Blockscout / Etherscan.
                                           </h4>
                                         )}
                                       </>
@@ -1538,6 +1590,67 @@ function CreateJobPage() {
                                   jobType,
                                   "main",
                                   "contractAddress",
+                                  value
+                                )
+                              }
+                              sourceType={
+                                contractDetails[jobType]?.["main"]
+                                  ?.sourceType || ""
+                              }
+                              setSourceType={(value) =>
+                                handleContractDetailChange(
+                                  jobType,
+                                  "main",
+                                  "sourceType",
+                                  value
+                                )
+                              }
+                              sourceUrl={
+                                contractDetails[jobType]?.["main"]?.sourceUrl ||
+                                ""
+                              }
+                              setSourceUrl={(value) =>
+                                handleContractDetailChange(
+                                  jobType,
+                                  "main",
+                                  "sourceUrl",
+                                  value
+                                )
+                              }
+                              jobKey="main"
+                              conditionType={
+                                contractDetails[jobType]?.["main"]
+                                  ?.conditionType || ""
+                              }
+                              setConditionType={(value) =>
+                                handleContractDetailChange(
+                                  jobType,
+                                  "main",
+                                  "conditionType",
+                                  value
+                                )
+                              }
+                              upperLimit={
+                                contractDetails[jobType]?.["main"]
+                                  ?.upperLimit || ""
+                              }
+                              setUpperLimit={(value) =>
+                                handleContractDetailChange(
+                                  jobType,
+                                  "main",
+                                  "upperLimit",
+                                  value
+                                )
+                              }
+                              lowerLimit={
+                                contractDetails[jobType]?.["main"]
+                                  ?.lowerLimit || ""
+                              }
+                              setLowerLimit={(value) =>
+                                handleContractDetailChange(
+                                  jobType,
+                                  "main",
+                                  "lowerLimit",
                                   value
                                 )
                               }
@@ -1613,6 +1726,7 @@ function CreateJobPage() {
                                   value
                                 )
                               }
+                              jobType={jobType}
                             />
                           </div>
 
@@ -1662,6 +1776,67 @@ function CreateJobPage() {
                                           jobType,
                                           jobKey,
                                           "contractAddress",
+                                          value
+                                        )
+                                      }
+                                      sourceType={
+                                        contractDetails[jobType]?.[jobKey]
+                                          ?.sourceType || ""
+                                      }
+                                      setSourceType={(value) =>
+                                        handleContractDetailChange(
+                                          jobType,
+                                          jobKey,
+                                          "sourceType",
+                                          value
+                                        )
+                                      }
+                                      sourceUrl={
+                                        contractDetails[jobType]?.[jobKey]
+                                          ?.sourceUrl || ""
+                                      }
+                                      setSourceUrl={(value) =>
+                                        handleContractDetailChange(
+                                          jobType,
+                                          jobKey,
+                                          "sourceUrl",
+                                          value
+                                        )
+                                      }
+                                      jobKey={jobKey}
+                                      conditionType={
+                                        contractDetails[jobType]?.[jobKey]
+                                          ?.conditionType || ""
+                                      }
+                                      setConditionType={(value) =>
+                                        handleContractDetailChange(
+                                          jobType,
+                                          jobKey,
+                                          "conditionType",
+                                          value
+                                        )
+                                      }
+                                      upperLimit={
+                                        contractDetails[jobType]?.[jobKey]
+                                          ?.upperLimit || ""
+                                      }
+                                      setUpperLimit={(value) =>
+                                        handleContractDetailChange(
+                                          jobType,
+                                          jobKey,
+                                          "upperLimit",
+                                          value
+                                        )
+                                      }
+                                      lowerLimit={
+                                        contractDetails[jobType]?.[jobKey]
+                                          ?.lowerLimit || ""
+                                      }
+                                      setLowerLimit={(value) =>
+                                        handleContractDetailChange(
+                                          jobType,
+                                          jobKey,
+                                          "lowerLimit",
                                           value
                                         )
                                       }
@@ -1737,6 +1912,7 @@ function CreateJobPage() {
                                           value
                                         )
                                       }
+                                      jobType={jobType}
                                     />
                                   </div>
                                 );
@@ -1786,10 +1962,11 @@ function CreateJobPage() {
                                 <span className="absolute inset-0 bg-white rounded-full scale-100 translate-y-0 group-hover:translate-y-0"></span>
 
                                 <span
-                                  className={`${isLoading
-                                    ? "cursor-not-allowed opacity-50 "
-                                    : ""
-                                    } bottom-[2px] font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
+                                  className={`${
+                                    isLoading
+                                      ? "cursor-not-allowed opacity-50 "
+                                      : ""
+                                  } bottom-[2px] font-actayRegular relative z-10 px-0 py-3 sm:px-3 md:px-6 lg:px-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out text-xs sm:text-base`}
                                 >
                                   Link Job
                                 </span>
