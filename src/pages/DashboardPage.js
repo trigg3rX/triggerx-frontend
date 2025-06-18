@@ -286,7 +286,7 @@ function DashboardPage() {
               triggerChainId: typeSpecificData.trigger_chain_id,
               triggerContractAddress: typeSpecificData.trigger_contract_address,
               triggerEvent: typeSpecificData.trigger_event,
-              scriptIPFSUrl: typeSpecificData.script_ipfs_url,
+              scriptIPFSUrl: typeSpecificData.dynamic_arguments_script_url,
               scriptTriggerFunction: typeSpecificData.script_trigger_function,
               targetChainId: typeSpecificData.target_chain_id,
               targetContractAddress: typeSpecificData.target_contract_address,

@@ -810,32 +810,36 @@ function CreateJobPage() {
         const argType = getArgType(mainJobDetails.argumentType);
 
         const jobData = {
-          jobType: jobType,
-          job_title: jobTitle,
           user_address: address,
           ether_balance: 0,
           token_balance: 0,
+          job_title: jobTitle,
           task_definition_id: taskdefinitionid,
-          priority: 1,
-          security: 1,
           time_frame: timeframeInSeconds,
-          time_interval: intervalInSeconds,
           recurring: recurring,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+
+          time_interval: intervalInSeconds,
+
           trigger_chain_id: triggerChainId.toString(),
           trigger_contract_address:
-            eventContractInteraction.contractAddress || "0x0000000000000000000000000000000000000000",
+            eventContractInteraction.contractAddress ||
+            "0x0000000000000000000000000000000000000000",
           trigger_event: "NULL",
-          script_ipfs_url: mainJobDetails.ipfsCodeUrl || "",
-          script_target_function: "trigger",
+
           target_chain_id: triggerChainId.toString(),
           target_contract_address: mainJobDetails.contractAddress,
           target_function: mainJobDetails.targetFunction?.split("(")[0],
+          abi: mainJobDetails.contractABI,
           arg_type: argType,
           arguments: mainJobDetails.argsArray,
-          script_trigger_function: "action",
-          hasABI: !!mainJobDetails.contractABI,
-          abi: mainJobDetails.contractABI,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dynamic_arguments_script_url: mainJobDetails.ipfsCodeUrl || "",
+          // jobType: jobType,
+          // priority: 1,
+          // security: 1,
+          // script_target_function: "trigger",
+          // script_trigger_function: "action",
+          // hasABI: !!mainJobDetails.contractABI,
         };
 
         if (Number(jobType) === 2) {
@@ -867,32 +871,36 @@ function CreateJobPage() {
             const argType = getArgType(linkedJobDetails.argumentType);
 
             const linkedJobData = {
-              jobType: jobType,
-              job_title: jobTitle,
               user_address: address,
               ether_balance: 0,
               token_balance: 0,
+              job_title: jobTitle,
               task_definition_id: taskdefinitionid,
-              priority: 1,
-              security: 1,
               time_frame: timeframeInSeconds,
-              time_interval: intervalInSeconds,
               recurring: recurring,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+
+              time_interval: intervalInSeconds,
+
               trigger_chain_id: triggerChainId.toString(),
               trigger_contract_address:
-                eventContractInteraction.contractAddress || "0x0000000000000000000000000000000000000000",
+              eventContractInteraction.contractAddress ||
+              "0x0000000000000000000000000000000000000000",
               trigger_event: "NULL",
-              script_ipfs_url: linkedJobDetails.ipfsCodeUrl || "",
-              script_target_function: "trigger",
+
               target_chain_id: triggerChainId.toString(),
               target_contract_address: linkedJobDetails.contractAddress,
               target_function: linkedJobDetails.targetFunction,
+              abi: linkedJobDetails.contractABI,
               arg_type: argType,
               arguments: linkedJobDetails.argsArray,
-              script_trigger_function: "action",
-              hasABI: !!linkedJobDetails.contractABI,
-              abi: linkedJobDetails.contractABI,
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,  
+              dynamic_arguments_script_url: linkedJobDetails.ipfsCodeUrl || "",
+              // script_target_function: "trigger",
+              // script_trigger_function: "action",
+              // hasABI: !!linkedJobDetails.contractABI,
+              // jobType: jobType,
+              // priority: 1,
+              // security: 1,
             };
             if (Number(jobType) === 2) {
               linkedJobData.source_type = linkedJobDetails.sourceType;
@@ -913,10 +921,12 @@ function CreateJobPage() {
         }
       }
       setIsLoading(true);
-      // console.log("Job Details", allJobsDetails);
+      console.log("Job Details", allJobsDetails);
       setJobDetails(allJobsDetails);
 
-      const codeUrls = allJobsDetails.map((job) => job.script_ipfs_url);
+      const codeUrls = allJobsDetails.map(
+        (job) => job.dynamic_arguments_script_url
+      );
 
       try {
         resetProcessSteps();

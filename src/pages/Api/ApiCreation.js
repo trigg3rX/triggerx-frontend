@@ -817,7 +817,7 @@ const ApiCreation = () => {
                                               </span>
                                               ,<br />
                                               <span className="text-[#FF616D]">
-                                                "script_ipfs_url"
+                                                "dynamic_arguments_script_url"
                                               </span>
                                               :{" "}
                                               <span className="text-[#C3E88D]">
