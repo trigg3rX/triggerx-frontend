@@ -226,9 +226,10 @@ export function useJobCreation() {
         ...job,
         job_cost_prediction: estimatedFee,
       }));
+      // console.log("updated", updatedJobDetails);
 
       // Check if user needs to stake
-      if (userBalance <= estimatedFee) {
+      if (userBalance < estimatedFee) {
         const requiredEth = (0.001 * estimatedFee).toFixed(18);
         const contract = new ethers.Contract(
           stakeRegistryAddress,
@@ -251,7 +252,7 @@ export function useJobCreation() {
 
         // Fetch updated TG balance after staking
         await fetchTGBalance();
-        return 
+        return
       }
 
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -267,7 +268,7 @@ export function useJobCreation() {
         const errorText = await response.text();
         throw new Error(errorText || "Failed to create job");
       }
-
+      
       setIsJobCreated(true);
       toast.success("Job created successfully!");
     } catch (error) {
